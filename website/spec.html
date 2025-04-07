@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+table.bordered {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.bordered th, table.bordered td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+table.bordered th {
+    background-color: #f2f2f2;
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+    <a href="#" class="w3-bar-item w3-button w3-theme-l1">CSE 125 Group 5: [GAME NAME HERE]</a>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Menu</b></h4>
+  <a class="w3-bar-item w3-button w3-hover-black" href="index.html">Home</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="#">Project Spec</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="#">Weekly Reports</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="#">Final Report</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="#">Gallery</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="#">Links</a>
+</nav>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+<div class="w3-main" style="margin-left:250px">
+
+  <div class="w3-row w3-padding-64">
+    <div class="w3-container">
+      <h1 class="w3-text-teal">Project Specification</h1>
+      <p><b>What kind of game are you planning to build?</b></p>
+        <p>Our game will be a variant of Capture the Flag, played on a map of islands. The map will have 4 predefined starting islands on the cardinal edges for the 4 players, and a “flag” object at the center (equidistant from the players). There will be powerups, weapons, and other interesting objects that generate on the islands, providing unique gameplay mechanics. Water will serve as a secondary “biome” that players can enter, but will move more slowly in (specifics pending).</p>
+        <p></p>
+        <p><b>What are the goals of the game, how do players win, how do they lose?</b></p>
+        <p>Each game will last 10 minutes/however much demo time is allotted. The goal of each round is to be holding the flag when the clock runs out. To incentivize players to take the flag rather than simply wait out the clock, holding the flag will confer time-based advantages; i.e the longer a player holds the flag, the more boosts to their weapons they will receive. We will make sure that the “flag boost” is substantial enough to incentivize going for the flag instead of waiting until the last second. Players will have melee and ranged weapons to attack other players or knock them off islands (Islands will be floating. Players will have a set amount of health, and will die if their health reaches zero.  If a player holding the flag dies, the flag will be released at the death spot.</p>
+        <p></p>
+        <p><b>What are the interesting or unique aspects to your game?</b></p>
+        <p>There will be several mechanics of interest in this game:</p>
+        <ul>
+        <li>Each round, the player holding the flag at the end of the round wins the round. This means that the game is alive until the very end, and allows strategic gameplay.</li>
+        <li>It will be a low-gravity environment, allowing for fluid movement and high jumps.</li>
+        <li>The core “theme” dynamic will be a shift in lunar phases. The phase will advance toward the full moon during the round, resulting in more light and a rise in water level. Islands will get smaller and movement will become more challenging as rounds advance.</li>
+        <li>Start should be a new moon, end should be a full moon</li></ul>
+        <p></p>
+        <p><b>What are the list of features of your game? Prioritize them into at least three categories: "Must Have", "Would Be Really Nice", and "Cool But Only If Ahead Of Schedule".</b></p>
+        <p>Must have:<br>Basic level generation, passable meshes, textures and shaders, countdown clock, player movement/jump logic, flag-holding benefits</p>
+        <p>Would be really nice:<br>Powerup system, lunar phase system, particle effects, high-quality meshes, textures, and shaders, water as a secondary biome</p>
+        <p>Cool but only if ahead of schedule:<br>Procedural level gen for replayability, 2v2 team mode, island theming w/ unique environments, attack/defense mechanism for weapons</p>
+        <p></p>
+        <p><h3>Group Management</h3></p>
+        <p><b>What are the major roles in your group's management?</b></p>
+        <p>In terms of work, our group will have different teams responsible for different parts of the development. For now, we have teams for graphics/animation and systems/networks. We can create more specific teams for specific aspects of the project as needed such as physics, gameplay, controls, camera, etc. Each member can be part of multiple teams.</p>
+        <p></p>
+        <p><b>How will decisions be made? By leader, consensus?</b></p>
+        <p>Decisions will be made via a discussed consensus. Ideally, before agreeing on a major decision, instead of holding an immediate vote, everybody should be convinced as to the merit of a particular decision and find the decision acceptable. Any doubts should be brought up as soon as possible. In the event of a hard deadlock after ample discussion, we will randomly select a person to make a decision, so as not to cause delays in the development of the game. </p>
+        <p></p>
+        <p><b>How will you communicate and collaborate online?</b></p>
+        <p>Online collaboration will be done primarily via our own Discord server. Information related to the game will also be recorded on the game website and/or in documents on our Google Drive. Code comments and reviews on GitHub pull requests may also be used as an auxiliary method. We also plan on using a github project board to organize and keep track milestones, tasks & their priorities as well as status (completed, in progress, not started), deadlines, and assign tasks to group members.</p>
+        <p></p>
+        <p><b>How will you know when you're off schedule, and how will you deal with schedule slips?</b></p>
+        <p>We will know we are off schedule if our weekly report either does not meet the weekly schedule that we have set up on github projects, or does not fulfill the specific goals that we set for ourselves at the weekly meetings (and are recorded on github projects).</p>
+        <p>If this happens, we will first try to understand the reasons we have failed to keep up with the schedule. Based on our discussion, we may decide to assign more people to help work on the task we are falling behind on, redistribute some tasks if we find some took less/more time than anticipated, and if necessary cut features. We will make sure to update our milestones and schedule accordingly.</p>
+        <p></p>
+        <p><b>Who will produce the weekly group status reports?</b></p>
+        <p>Each sub-team, i.e. the systems/networks team and the graphics/animation/design team will compile a separate progress report. We will alternate between the members of the group to create a single document each week, combining the two reports and adding notes that apply to the entire group (mostly based on updates from the team meetings we had in the past week). </p>
+        <p>In addition, anybody who makes miscellaneous contributions will drop their progress in a designated section on our progress document.</p>
+        <p></p>
+        <p><b>When will you have your weekly group meetings (separate from the meeting with instructors)?</b></p>
+        <p>Possible times: Thursday Night, Friday Midday (12-4), Saturday Midday (12-4), Sunday Morning (10-12), Monday Evening (7pm after)</p>
+        <p>The list of times given are not times where everybody has to meet, but rather a set of times where we know that people are free, and can work together. Thus, these times act like open office/work hours for the game, to create as many opportunities for collaboration as possible. </p>
+        <p>Our designated all-team check in will take place on Mondays 9PM.</p>
+        <p></p>
+        <p><h3>Project Development</h3></p>
+        <p><b>What are the development roles and who will handle them?</b></p>
+        <table class="bordered">
+        <tbody>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>Graphics</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Networking</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Game Logic + Physics</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Art</p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>Sumukh</p>
+        <p>Jose</p>
+        <p>Elena</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Almog</p>
+        <p>Steven</p>
+        <p>Jungwoo</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Almog</p>
+        <p>Sumukh</p>
+        <p>Jose</p>
+        <p>Steven</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Grace</p>
+        <p>(everyone else, if needed)</p></td></tr></tbody></table>
+        <p><b>What tools will you use?</b></p>
+        <p>We will use C++ with OpenGL for graphics. While this is fairly standard, we believe it is sufficient for our needs.</p>
+        <p><b>How will you do testing?</b></p>
+        <ul>
+        <li>Unit Tests</li>
+        <li>Scenario Tests</li>
+        <li>User Tests</li>
+        <li>Game Playthroughs</li>
+        <li>Unity Mockup Comparisons</li></ul>
+        <p><b>How will you do documentation (both internal group documentation as well as external player documentation)?</b></p>
+        <p>Internal Documentation:</p>
+        <ul>
+        <li>Shared Google Drive folder to manage documents for each role</li>
+        <li>Miro for diagramming game logic</li>
+        <li>README.txt</li>
+        <li>history.txt</li>
+        <li>ChangeLog</li>
+        <li>Documentation in code (e.g. file headers, function headers, etc.)</li></ul>
+        <p>External Documentation:</p>
+        <ul>
+        <li>Simple tutorial for the players</li></ul>
+        <ul>
+        <li>Written instructions/rules</li>
+        <li>Recorded video tutorials</li></ul>
+        <ul>
+        <li>Website to post progress & updates to the game (this site)</li></ul>
+        <p><h3>Project Schedule</h3></p>
+        <p><b>Low Level Milestones</b></p>
+        <table class="bordered">
+        <tbody>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>Week</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Art/Sound</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Graphics</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Networking</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Game Engine/Physics</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Game Logic</p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>2</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Collect or design general multi-use models for the game</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Port over existing 169 code.<br>Write basic diffuse/specular/emission shader and shadows.</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Set up a basic TCP echo client/server</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Decide on whether to use a library or build from scratch</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Determine game logic flow from project specification</p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>3</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Concept art for player and entities used in the game</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Asset importing, complete shadows if not complete in week 2</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Define packet protocol structure for client/server communication</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Coordinates, positioning, movement, gravity, collision (bounding boxes), velocity</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Specify the required API methods that must be accessible through the game engine for implementing the game logic</p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>4</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Design assets from concept art</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Integrate with network client</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Integrate with graphics client</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Object Management API, Event API</p></td>
+        <td colspan="1" rowspan="1">
+        <p></p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>5</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Finalize art assets, visualize in the graphics client</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Animation + Particle system, shaders (i.e. water)</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Optimize protocol</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Map generation, player controls, NPC AI (?)</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Use Game Engine API to blueprint the gameplay,<br>Write procedural gen code if we’re doing it procedural</p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>6</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Define sound effects required for the game</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Animation + Particle system, continue shaders</p></td>
+        <td colspan="1" rowspan="1">
+        <p></p></td>
+        <td colspan="1" rowspan="1">
+        <p>Spatial audio for sound effects</p></td>
+        <td colspan="1" rowspan="1">
+        <p></p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>7</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Explore publicly available options online</p></td>
+        <td colspan="1" rowspan="1">
+        <p>UI, complex animations</p></td>
+        <td colspan="1" rowspan="1">
+        <p></p></td>
+        <td colspan="1" rowspan="1">
+        <p>Basic audio processing API from existing assets</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Incorporate sound effects</p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>8</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Finalize audio assets</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Polish Graphics</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Debugging</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Debugging</p></td>
+        <td colspan="1" rowspan="1">
+        <p></p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>9</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Beta Testing</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Beta Testing</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Beta Testing</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Beta Testing</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Beta Testing</p></td></tr>
+        <tr>
+        <td colspan="1" rowspan="1">
+        <p>10</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Demo Final Product</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Demo Final Product</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Demo Final Product</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Demo Final Product</p></td>
+        <td colspan="1" rowspan="1">
+        <p>Demo Final Product</p></td></tr></tbody></table>
+        <p><b>High Level Milestones</b></p>
+        <ul>
+        <li>Render a 3D object w/shader and shadows [2]</li>
+        <li>Echo Server [2]</li>
+        <li>Add player input to client [3]</li>
+        <li>Integrate client and server [4]</li>
+        <li>Multiple clients on server [5]</li>
+        <li>Process physics on server for player movement [5]</li>
+        <li>Create meshes and textures for environment & player [5]</li>
+        <li>Collision detection w/environment [6]</li>
+        <li>Water implementation & shader [6]</li>
+        <li>Health and Damage mechanics [6]</li>
+        <li>Game Clock [6]</li>
+        <li>Collectible powerups [7]</li>
+        <li>Collectible Flag & ability to win the game [7]</li>
+        <li>Flag Boosts (time-based) [7]</li>
+        <li>UI on client [7]</li>
+        <li>More advanced types of weapons and movement are implemented [8]</li>
+        <li>The moon phase shift mechanic is implemented [8]</li></ul>
+
+    </div>
+  </div>
+
+
+  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+
+  <footer id="myFooter">
+    <div class="w3-container w3-theme-l2 w3-padding-32">
+      <h4>CSE 125 Spring 2025, Group 5</h4>
+    </div>
+
+    <div class="w3-container w3-theme-l1">
+      <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+    </div>
+  </footer>
+
+<!-- END MAIN -->
+</div>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+    overlayBg.style.display = "none";
+  } else {
+    mySidebar.style.display = 'block';
+    overlayBg.style.display = "block";
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+  mySidebar.style.display = "none";
+  overlayBg.style.display = "none";
+}
+</script>
+
+</body>
+</html>
