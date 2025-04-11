@@ -1,4 +1,0 @@
-C:/Users/jrarreguin/Desktop/CSE125/group5/test-test-client/out/build/x64-Debug/CMakeFiles/menv.dir
-C:/Users/jrarreguin/Desktop/CSE125/group5/test-test-client/out/build/x64-Debug/CMakeFiles/CopyShaders.dir
-C:/Users/jrarreguin/Desktop/CSE125/group5/test-test-client/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-C:/Users/jrarreguin/Desktop/CSE125/group5/test-test-client/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
