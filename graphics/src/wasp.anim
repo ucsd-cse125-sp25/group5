@@ -1,0 +1,441 @@
+animation {
+  range 0.000000 4.000000
+  numchannels 72
+  channel 0 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 1 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.950000 smooth smooth
+    }
+  }
+  channel 2 {
+    extrapolate cycle_offset cycle_offset
+    keys 2 {
+      0.000000 0.450000 smooth smooth
+      2.000000 -0.450000 smooth smooth
+    }
+  }
+  channel 3 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 4 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 5 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 6 {
+    extrapolate cycle cycle
+    keys 5 {
+      -0.166667 -0.052360 flat flat
+      0.333333 0.052360 flat flat
+      0.833333 -0.052360 flat flat
+      1.333333 0.052360 flat flat
+      1.833333 -0.052360 flat flat
+    }
+  }
+  channel 7 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 8 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 9 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 10 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 11 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 12 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 13 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 14{
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 15 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 16 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 17 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 18 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 19 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 20 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 21 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 22 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 23 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 24 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 25 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 26 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 27 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 28 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 29 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 30 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 31 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 32 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 33 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 34 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 35 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 36 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 37 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 38 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 39 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 40 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 41 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 42 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 43 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 44 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 45 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 46 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 47 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 48 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 49 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 50 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 51 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 52 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 53 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 54 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 55 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 56 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 57 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 58 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 59 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 60 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 61 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 62 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 63 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 64 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 65 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 66 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 67 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 68 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 69 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 70 {
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+  channel 71{
+    extrapolate constant constant
+    keys 1 {
+      0.000000 0.000000 smooth smooth
+    }
+  }
+}

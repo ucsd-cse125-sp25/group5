@@ -1,0 +1,30 @@
+25/01/28 3pm
+ImGui is the graphics thing. Now I am trying to trickle a skeleton pointer down all of the joints but it's not really working. Joint can't recognize skeleton at all.
+
+
+
+25/01/28 3am
+I can't seem to save a list (vector) of Joint* to then traverse to do computation.
+I have tried making it static just above the skeleton.h
+I have tried making it a variable in both skeleton and in skin
+I have tried making it static just outside of skin.h as well. Whenever it returns from Load it resets the vector to length 0.
+
+
+Skeleton and Skin both live just above Window.h and seem to be doing fine.
+I also tried putting the jointList outside of that and I don't think it worked either.
+
+I have added doSkel and doSkin so the methods doSkeleton and doSkin being called triggers actually doing all of the things with the files since you don't want to make a skeleton without a .skel file and vice versa.
+
+
+.skel only makes just skeleton
+.skin makes skin in binding pose
+
+both makes the joined thing and is what i currently can't compute thanks to not having any accessible joints.
+
+currently Joints get added to any list via being added to it in the Joints constructor since that will have the right order of joints.
+
+my shit just keeps resetting to length zero and i've gone in circles for like an hour probably trying to figure out how to make my list of joints accessible to Skin.
+
+maybe it'll dawn on my in my sleep, but if not at least I have this.
+
+
