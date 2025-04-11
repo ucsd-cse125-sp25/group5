@@ -1,0 +1,7 @@
+# ninja log v6
+11	69	7661116707333726	CMakeFiles/client_app.dir/stdafx.cpp.obj	eed7803dc54953ca
+9	260	7661116707312763	CMakeFiles/client_app.dir/NetworkServices.cpp.obj	794a2da5efe27411
+3	263	7661116707262744	CMakeFiles/client_app.dir/main.cpp.obj	1f778cc32d6a5bd0
+8	265	7661116707302766	CMakeFiles/client_app.dir/ClientNetwork.cpp.obj	b9c5c94afcc0ce2
+6	268	7661116707283391	CMakeFiles/client_app.dir/ClientGame.cpp.obj	f7df2e60205c48e7
+268	605	7661116709850890	client_app.exe	e25f11a875e2010a

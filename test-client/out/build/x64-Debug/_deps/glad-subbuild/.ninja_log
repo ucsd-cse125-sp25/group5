@@ -1,0 +1,21 @@
+# ninja log v6
+3	39	7661059139425352	glad-populate-prefix/src/glad-populate-stamp/glad-populate-mkdir	7be81ccef8d11bf3
+3	39	7661059139425352	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-mkdir	7be81ccef8d11bf3
+40	1945	7661059158487701	glad-populate-prefix/src/glad-populate-stamp/glad-populate-download	f4fca1ff98d7597
+40	1945	7661059158487701	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-download	f4fca1ff98d7597
+1945	2026	7661059158527703	glad-populate-prefix/src/glad-populate-stamp/glad-populate-update	8e94cbd51b54e351
+1945	2026	7661059158527703	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-update	8e94cbd51b54e351
+2027	2058	7661059159611384	glad-populate-prefix/src/glad-populate-stamp/glad-populate-patch	fa7938af9051ce68
+2027	2058	7661059159611384	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-patch	fa7938af9051ce68
+2058	2089	7661059159919913	glad-populate-prefix/src/glad-populate-stamp/glad-populate-configure	12cd418cf525a1b2
+2058	2089	7661059159919913	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-configure	12cd418cf525a1b2
+2089	2122	7661059160258934	glad-populate-prefix/src/glad-populate-stamp/glad-populate-build	4197bb4e2e494cc8
+2089	2122	7661059160258934	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-build	4197bb4e2e494cc8
+2122	2157	7661059160602140	glad-populate-prefix/src/glad-populate-stamp/glad-populate-install	4e9024349e95a206
+2122	2157	7661059160602140	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-install	4e9024349e95a206
+2157	2188	7661059160920131	glad-populate-prefix/src/glad-populate-stamp/glad-populate-test	e3c490f6e36616cb
+2157	2188	7661059160920131	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-test	e3c490f6e36616cb
+2188	2232	7661059161357238	CMakeFiles/glad-populate-complete	f92b8d418b85fe90
+2188	2232	7661059161357238	glad-populate-prefix/src/glad-populate-stamp/glad-populate-done	f92b8d418b85fe90
+2188	2232	7661059161357238	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/CMakeFiles/glad-populate-complete	f92b8d418b85fe90
+2188	2232	7661059161357238	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glad-subbuild/glad-populate-prefix/src/glad-populate-stamp/glad-populate-done	f92b8d418b85fe90

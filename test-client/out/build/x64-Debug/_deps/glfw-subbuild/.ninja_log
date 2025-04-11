@@ -1,0 +1,21 @@
+# ninja log v6
+3	39	7661059072594897	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-mkdir	deace7b510deb16b
+3	39	7661059072594897	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-mkdir	deace7b510deb16b
+39	3287	7661059105091598	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-download	7245f8ab8f7a64aa
+39	3287	7661059105091598	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-download	7245f8ab8f7a64aa
+3288	5581	7661059105131508	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-update	36bd64f48d327d06
+3288	5581	7661059105131508	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-update	36bd64f48d327d06
+5581	5612	7661059128332935	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-patch	f12612dfdc4b37ef
+5581	5612	7661059128332935	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-patch	f12612dfdc4b37ef
+5612	5646	7661059128678745	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-configure	e1cbbeb55f9d4272
+5612	5646	7661059128678745	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-configure	e1cbbeb55f9d4272
+5647	5677	7661059128985726	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-build	7245cee8d73cbf6f
+5647	5677	7661059128985726	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-build	7245cee8d73cbf6f
+5677	5710	7661059129312929	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-install	79afc6ad547bb680
+5677	5710	7661059129312929	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-install	79afc6ad547bb680
+5710	5740	7661059129618124	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-test	bd35cfbcffd76300
+5710	5740	7661059129618124	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-test	bd35cfbcffd76300
+5740	5783	7661059130046878	CMakeFiles/glfw-populate-complete	e7962feaa9f39220
+5740	5783	7661059130046878	glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-done	e7962feaa9f39220
+5740	5783	7661059130046878	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/CMakeFiles/glfw-populate-complete	e7962feaa9f39220
+5740	5783	7661059130046878	C:/Users/s3shi/Desktop/group5/test-client/out/build/x64-Debug/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-done	e7962feaa9f39220
