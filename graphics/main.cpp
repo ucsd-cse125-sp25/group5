@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Hello World" << std::endl;
 
     obj = new Object();
-    obj->create("../../assets/plant.obj");
+    obj->create("../../assets/test.obj");
 
     static Skeleton* skel;
     static Skin* skin;

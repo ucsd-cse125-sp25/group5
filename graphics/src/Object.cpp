@@ -82,7 +82,7 @@ void Object::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     glBindVertexArray(VAO);
 
     // draw the points using triangles, indexed with the EBO
-    glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
     // Unbind the VAO and shader program
     glBindVertexArray(0);
