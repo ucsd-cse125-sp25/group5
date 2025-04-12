@@ -21,6 +21,8 @@ void Camera::Update() {
 
     // Compute final view-projection matrix
     ViewProjectMtx = project * view;
+    ViewMtx = view;
+    ProjMtx = project;
 }
 void Camera::Reset() {
     FOV = 45.0f;
