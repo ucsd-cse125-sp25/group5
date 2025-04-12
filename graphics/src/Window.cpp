@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <Object.h>
 
 // Window Properties
 int Window::width;
@@ -25,6 +26,8 @@ int MouseX, MouseY;
 
 // The shader program id
 GLuint Window::shaderProgram;
+
+extern Object* obj;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
@@ -167,8 +170,8 @@ void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, cha
 	skel->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-
 	
+    obj->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
     // Gets events, including input such as keyboard and mouse or window resizing.
     // if (!io->WantCaptureMouse) {

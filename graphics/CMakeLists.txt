@@ -11,13 +11,14 @@ file(GLOB SOURCES
     src/*.cpp
 )
 
+add_subdirectory(lib/assimp)
 
 # Require GL
 find_package(OpenGL REQUIRED)
 
 # Add include directories
 include_directories(
-    include
+    include "lib/assimp/include"
 )
 
 # Add library directories
@@ -25,11 +26,15 @@ link_directories(
     lib
 )
 
+
+ 
+
 # Add executable
-add_executable(${PROJECT_NAME} ${SOURCES}  "include/imgui.h" "include/imgui_impl_opengl3.h" "include/imconfig.h" "include/imgui_impl_opengl3_loader.h" "include/imgui_impl_win32.h" "include/imgui_impl_glfw.h" "src/imgui_impl_glfw.cpp" "src/Keyframe.cpp" "include/Keyframe.h" "include/Channel.h" "include/Animation.h" "src/Animation.cpp" "src/Channel.cpp" "src/Player.cpp" "include/Player.h")
+add_executable(${PROJECT_NAME} ${SOURCES}  "include/imgui.h" "include/imgui_impl_opengl3.h" "include/imconfig.h" "include/imgui_impl_opengl3_loader.h" "include/imgui_impl_win32.h" "include/imgui_impl_glfw.h" "src/imgui_impl_glfw.cpp" "src/Keyframe.cpp" "include/Keyframe.h" "include/Channel.h" "include/Animation.h" "src/Animation.cpp" "src/Channel.cpp" "src/Player.cpp" "include/Player.h" "src/Object.cpp" "include/Object.h")
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} glew32s.lib glfw3)
+target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} glew32s.lib glfw3 assimp)
+
 
 # Move assets to .exe
 add_custom_target(CopyShaders ALL
@@ -38,3 +43,4 @@ add_custom_target(CopyShaders ALL
 	"${CMAKE_BINARY_DIR}/shaders"
 )
 add_dependencies(menv CopyShaders)
+
