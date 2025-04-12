@@ -105,7 +105,6 @@ ClientNetwork::~ClientNetwork(void)
 
 int ClientNetwork::receivePackets(char * recvbuf) 
 {
-    //returns the number of bytes received
     iResult = NetworkServices::receiveMessage(ConnectSocket, recvbuf, MAX_PACKET_SIZE);
 
     if ( iResult == 0 )

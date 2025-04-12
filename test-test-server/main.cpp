@@ -20,7 +20,7 @@ int main()
 	// create thread with arbitrary argument for the run function
     _beginthread( serverLoop, 0, (void*)12);
     while (true) {
-
+        
     }
 }
 

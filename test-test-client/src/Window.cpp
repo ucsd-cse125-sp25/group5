@@ -19,6 +19,8 @@ bool A_Down, D_Down;
 // The shader program id
 GLuint Window::shaderProgram;
 
+ClientGame* Window::client;
+
 // Constructors and desctructors
 bool Window::initializeProgram() {
     // Create a shader program with a vertex shader and a fragment shader.
@@ -29,6 +31,8 @@ bool Window::initializeProgram() {
         std::cerr << "Failed to initialize shader program" << std::endl;
         return false;
     }
+
+    
 
     return true;
 }
@@ -50,7 +54,7 @@ void Window::cleanUp() {
 }
 
 // for the Window
-GLFWwindow* Window::createWindow(int width, int height) {
+GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     // Initialize GLFW.
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -90,6 +94,7 @@ GLFWwindow* Window::createWindow(int width, int height) {
 
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
+    Window::client = _client;
 
     return window;
 }
@@ -109,6 +114,9 @@ void Window::idleCallback() {
     Cam->Update();
 
     cube->update();
+
+    //do game stuff
+    client->update(LeftDown);
 }
 
 void Window::displayCallback(GLFWwindow* window) {

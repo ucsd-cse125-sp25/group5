@@ -71,6 +71,14 @@ void ServerGame::receiveFromClients()
 
                     break;
 
+                case 2:
+
+                    printf("server received defend event from client\n");
+
+                    sendActionPackets();
+
+                    break;
+
                 default:
 
                     printf("error in packet types\n");
