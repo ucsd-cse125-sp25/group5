@@ -14,7 +14,7 @@ public:
 
 	void receiveFromClients();
 
-	void sendActionPackets();
+	void sendActionPackets(int packet_type);
 
 private:
 

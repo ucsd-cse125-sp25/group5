@@ -59,7 +59,7 @@ void ServerGame::receiveFromClients()
 
                     printf("server received init packet from client\n");
 
-                    sendActionPackets();
+                    sendActionPackets(ACTION_EVENT);
 
                     break;
 
@@ -67,7 +67,7 @@ void ServerGame::receiveFromClients()
 
                     printf("server received action event packet from client\n");
 
-                    sendActionPackets();
+                    sendActionPackets(ACTION_EVENT);
 
                     break;
 
@@ -75,7 +75,7 @@ void ServerGame::receiveFromClients()
 
                     printf("server received defend event from client\n");
 
-                    sendActionPackets();
+                    sendActionPackets(2);
 
                     break;
 
@@ -90,14 +90,14 @@ void ServerGame::receiveFromClients()
 }
 
 
-void ServerGame::sendActionPackets()
+void ServerGame::sendActionPackets(int packet_type)
 {
     // send action packet
     const unsigned int packet_size = sizeof(Packet);
     char packet_data[packet_size];
 
     Packet packet;
-    packet.packet_type = ACTION_EVENT;
+    packet.packet_type = packet_type;
 
     packet.serialize(packet_data);
 

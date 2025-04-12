@@ -9,3 +9,6 @@
 332	522	7661918637285715	server_app.exe	ae8924452b776438
 4	341	7661950491945866	CMakeFiles/server_app.dir/ServerGame.cpp.obj	2b64ff5a52de1a85
 342	553	7661950495272467	server_app.exe	ae8924452b776438
+3	605	7662007511879114	CMakeFiles/server_app.dir/main.cpp.obj	8414ea01343e22d8
+6	608	7662007512029164	CMakeFiles/server_app.dir/ServerGame.cpp.obj	2b64ff5a52de1a85
+608	848	7662007517966866	server_app.exe	ae8924452b776438

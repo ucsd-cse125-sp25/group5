@@ -117,6 +117,11 @@ void Window::idleCallback() {
 
     //do game stuff
     client->update(LeftDown);
+
+    //oooh we're getting an update from the game state
+    if (client->GameState == 2) {
+        cube->moveY(0.001f);
+    }
 }
 
 void Window::displayCallback(GLFWwindow* window) {

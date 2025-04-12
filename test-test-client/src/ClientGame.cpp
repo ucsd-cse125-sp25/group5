@@ -17,6 +17,8 @@ ClientGame::ClientGame(void)
     packet.serialize(packet_data);
 
     NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
+
+    GameState = 0;
 }
 
 
@@ -31,7 +33,7 @@ void ClientGame::sendActionPackets(int packet_type)
     char packet_data[packet_size];
 
     Packet packet;
-    packet.packet_type = ACTION_EVENT;
+    packet.packet_type = packet_type;
 
     packet.serialize(packet_data);
 
@@ -60,9 +62,15 @@ void ClientGame::update(bool leftDown)
 
                 printf("client received action event packet from server\n");
 
-                //sendActionPackets(ACTION_EVENT);
+                GameState = 1;
 
                 break;
+
+            case 2:
+
+                printf("client received 2 event packet from server\n");
+
+                GameState = 2;
 
             default:
 
@@ -72,8 +80,11 @@ void ClientGame::update(bool leftDown)
             }
         }
     }
-    //if the left button is down, then send a packet
+
     if (leftDown) {
-        sendActionPackets(ACTION_EVENT);
+        sendActionPackets(2);
     }   
+    else {
+        sendActionPackets(1);
+    }
 }
