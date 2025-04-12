@@ -13,10 +13,12 @@ void Object::create(char* filename) {
         std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
         return;
     }
-
+    std::cout << "Number of Meshes: " << scene->mNumMeshes << std::endl;
     int count = 0;
     for (int i = 0; i < scene->mNumMeshes; i++) {
+
         for (int j = 0; j < scene->mMeshes[i]->mNumFaces; j++) {
+
             indices.push_back(scene->mMeshes[i]->mFaces[j].mIndices[0] + count);
             indices.push_back(scene->mMeshes[i]->mFaces[j].mIndices[1] + count);
             indices.push_back(scene->mMeshes[i]->mFaces[j].mIndices[2] + count);
@@ -28,18 +30,17 @@ void Object::create(char* filename) {
             glm::vec3 normal(scene->mMeshes[i]->mNormals[j].x, scene->mMeshes[i]->mNormals[j].y, scene->mMeshes[i]->mNormals[j].z);
             normals.push_back(normal);
         }
-
+        //std::cout << "Number of faces for mesh: " << i << " " << scene->mMeshes[i]->mNumFaces << std::endl;
+        //std::cout << "Number of vertices for mesh: " << i << " " << scene->mMeshes[i]->mNumVertices << std::endl;
+        //std::cout << "Number of normals for mesh: " << i <<  " " << normals.size() << std::endl;
         count += scene->mMeshes[i]->mNumVertices;
     }
-
-    std::cout << scene->mMeshes[0]->mNumVertices << std::endl;
     //for (int i = 0; i < scene->mNumMeshes; i++) {
     //    std::cout << "printing all faces in mesh " << i << std::endl;
     //    for (int j = 0; j < scene->mMeshes[i]->mNumFaces; j++) {
     //        std::cout << scene->mMeshes[i]->mFaces[j].mIndices[0] << " " << scene->mMeshes[i]->mFaces[j].mIndices[1] << " " << scene->mMeshes[i]->mFaces[j].mIndices[2] << std::endl;
     //    } 
     //}
-
 
      // Generate a vertex array (VAO) and two vertex buffer objects (VBO).
     glGenVertexArrays(1, &VAO);
@@ -69,6 +70,7 @@ void Object::create(char* filename) {
     // Unbind the VBOs.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+  
 }
 void Object::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     glUseProgram(shader);
