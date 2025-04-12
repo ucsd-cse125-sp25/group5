@@ -25,4 +25,6 @@ public:
     void update();
 
     void spin(float deg);
+    void moveX(float delta);
+    void moveY(float delta);
 };

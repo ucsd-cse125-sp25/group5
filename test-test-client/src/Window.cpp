@@ -14,6 +14,7 @@ Camera* Cam;
 // Interaction Variables
 bool LeftDown, RightDown;
 int MouseX, MouseY;
+bool A_Down, D_Down;
 
 // The shader program id
 GLuint Window::shaderProgram;
@@ -85,6 +86,7 @@ GLFWwindow* Window::createWindow(int width, int height) {
     // initialize the interaction variables
     LeftDown = RightDown = false;
     MouseX = MouseY = 0;
+    A_Down = D_Down = false;
 
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
@@ -146,6 +148,21 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 resetCamera();
                 break;
 
+            case GLFW_KEY_D:
+                cube->moveX(1.0f);
+                break;
+
+            case GLFW_KEY_A:
+                cube->moveX(-1.0f);
+                    
+            case GLFW_KEY_S:
+                cube->moveY(-1.0f);
+                break;
+
+            case GLFW_KEY_W:
+                cube->moveY(1.0f);
+                break;
+           
             default:
                 break;
         }
