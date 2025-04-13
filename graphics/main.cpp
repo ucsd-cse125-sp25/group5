@@ -59,9 +59,6 @@ void print_versions() {
 int main(int argc, char* argv[]) {
     std::cout << "Hello World" << std::endl;
 
-    obj = new Object();
-    obj->create("../../assets/test.obj");
-
     static Skeleton* skel;
     static Skin* skin;
     static Animation* animation;
@@ -113,10 +110,17 @@ int main(int argc, char* argv[]) {
         if (!Window::initializeObjects(argv[1], argv[2], argv[3], skel, skin, player)) exit(EXIT_FAILURE);
     }
 	else {
-		if (!Window::initializeObjects("../../include/wasp.skel", "../../include/wasp.skin", 
-            "../../include/wasp_walk/wasp/wasp_dance.anim", skel, skin, player)) exit(EXIT_FAILURE);
+        std::string skelstr = PROJECT_SOURCE_DIR + std::string("/include/wasp.skel");
+        std::string skinstr = PROJECT_SOURCE_DIR + std::string("/include/wasp.skin");
+        std::string animstr = PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp_dance.anim");
+		if (!Window::initializeObjects((char*)skelstr.c_str(), (char*)skinstr.c_str(),
+            (char*)animstr.c_str(), skel, skin, player)) exit(EXIT_FAILURE);
 		//if (!Window::initializeObjects("../../../include/wasp.skin", skel, skin)) exit(EXIT_FAILURE);
     }
+
+    obj = new Object();
+    std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
+    obj->create((char*)importstr.c_str(), glm::mat4(1));
 
     char** JN;
     int listsize=0;

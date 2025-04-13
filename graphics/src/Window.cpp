@@ -32,7 +32,7 @@ extern Object* obj;
 // Constructors and desctructors
 bool Window::initializeProgram() {
     // Create a shader program with a vertex shader and a fragment shader.
-    shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
+    shaderProgram = LoadShaders("shaders/texShader.vert", "shaders/texShader.frag");
 
     // Check the shader program.
     if (!shaderProgram) {
