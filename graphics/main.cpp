@@ -10,9 +10,13 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+
+#define STB_IMAGE_IMPLEMENTATION // <-- ONLY DO THIS ONCE
 #include <Object.h>
+#include <Scene.h>
 
 Object* obj;
+Scene* scene;
 
 void error_callback(int error, const char* description) {
     // Print error.
@@ -59,9 +63,6 @@ void print_versions() {
 int main(int argc, char* argv[]) {
     std::cout << "Hello World" << std::endl;
 
-    obj = new Object();
-    obj->create("../../assets/test.obj");
-
     static Skeleton* skel;
     static Skin* skin;
     static Animation* animation;
@@ -71,11 +72,11 @@ int main(int argc, char* argv[]) {
     static Player* player = new Player(skel, animation, std::chrono::steady_clock::now());
     std::vector<char *> Jointnameslist{};
 
-    // Create the GLFW window.
+    //// Create the GLFW window.
     GLFWwindow* window = Window::createWindow(1200, 900);
     if (!window) exit(EXIT_FAILURE);
 
-    // Our state
+    //// Our state
     bool show_demo_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -117,6 +118,13 @@ int main(int argc, char* argv[]) {
             "../../include/wasp_walk/wasp/wasp_dance.anim", skel, skin, player)) exit(EXIT_FAILURE);
 		//if (!Window::initializeObjects("../../../include/wasp.skin", skel, skin)) exit(EXIT_FAILURE);
     }
+    obj = new Object();
+    obj->create("../../../assets/test.obj");
+
+    scene = new Scene();
+    scene->createGame();
+
+
 
     char** JN;
     int listsize=0;
