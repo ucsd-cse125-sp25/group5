@@ -91,5 +91,5 @@ void Object::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     glUseProgram(0);
 }
 void Object::update(glm::mat4 new_model) {
-    model = new_model;
+    model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 }

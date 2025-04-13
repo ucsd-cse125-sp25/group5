@@ -1,8 +1,8 @@
 #include <Scene.h>
 
 void Scene::createGame() {
-	this->loadObjects();
-
+	//loadObjects();
+	std::cout << "Creating the skybox" << std::endl;
 	skybox = new Skybox();
 	skybox->initSkybox();
 }
@@ -15,7 +15,7 @@ void Scene::update() {
 
 }
 
-void Scene::draw() {
+void Scene::draw(Camera* cam) {
 	//Draw skybox last
-
+	skybox->draw(cam);
 }

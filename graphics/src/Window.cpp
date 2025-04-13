@@ -7,6 +7,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <Object.h>
+#include <Scene.h>
 
 // Window Properties
 int Window::width;
@@ -28,6 +29,7 @@ int MouseX, MouseY;
 GLuint Window::shaderProgram;
 
 extern Object* obj;
+extern Scene* scene;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
@@ -164,15 +166,16 @@ void Window::idleCallback(Skeleton* skel, Skin* skin, Player * player) {
 
 void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, char* Namelist[], int listsize, ImGuiIO* io) {
     // Clear the color and depth buffers.
+    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	skel->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//skel->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	
-    obj->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
+    obj->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+    scene->draw(Cam);
     // Gets events, including input such as keyboard and mouse or window resizing.
     // if (!io->WantCaptureMouse) {
       //   glfwPollEvents();
