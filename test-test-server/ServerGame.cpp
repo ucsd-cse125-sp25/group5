@@ -10,6 +10,7 @@ ServerGame::ServerGame(void)
 
     // set up the server network to listen 
     network = new ServerNetwork(); 
+    glm::vec3(1, 1, 1);
 }
 
 ServerGame::~ServerGame(void)
