@@ -24,8 +24,8 @@ ServerGame::ServerGame(void)
 	GameState = GameStatePacket();
 	PlayerIntent = PlayerIntentPacket();
 
-	GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
-	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
+	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
+	GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
     
 	currentTime = std::chrono::high_resolution_clock::now();
 	lastPacketSentTime = std::chrono::high_resolution_clock::now();
@@ -47,13 +47,13 @@ void ServerGame::update()
 
    receiveFromClients();
 
-   currentTime = std::chrono::high_resolution_clock::now();
+   //currentTime = std::chrono::high_resolution_clock::now();
 
-   if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.33f) // some fixed constant
-   {
-       lastPacketSentTime = currentTime;
-       sendActionPackets();
-   }
+   //if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.33f) // some fixed constant
+   //{
+   //    lastPacketSentTime = currentTime;
+   //    sendActionPackets();
+   //}
 }
 
 void ServerGame::receiveFromClients()
@@ -82,40 +82,41 @@ void ServerGame::receiveFromClients()
 
             PlayerIntent.deserialize(&(network_data[i]));
 
-			printf("server received player intent packet from client with the following data:\n");
+			/*printf("server received player intent packet from client with the following data:\n");
             printf("moveLeftIntent: %s\n", PlayerIntent.moveLeftIntent ? "true" : "false");
             printf("moveRightIntent: %s\n", PlayerIntent.moveRightIntent ? "true" : "false");
             printf("moveUpIntent: %s\n", PlayerIntent.moveUpIntent ? "true" : "false");
-            printf("moveDownIntent: %s\n", PlayerIntent.moveDownIntent ? "true" : "false");
+            printf("moveDownIntent: %s\n", PlayerIntent.moveDownIntent ? "true" : "false");*/
 
             i += sizeof(PlayerIntentPacket);
 
 
             //print before
-			printf("cubeModel before: \n");
+			//printf("cubeModel before: \n");
 			//printf("x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
 
             //process
             if (PlayerIntent.moveLeftIntent)
             {
-				GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f)));
-                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
+				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f)));
+                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
             }
             if (PlayerIntent.moveRightIntent) {
-                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
-				GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
+                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
+				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
             }
             if (PlayerIntent.moveUpIntent) {
-                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
-				GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
+                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
+				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
 
             }
             if (PlayerIntent.moveDownIntent) {
-                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
-				GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
+                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
+				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
             }
+            sendActionPackets();
 			//print after
-			printf("cubeModel after: \n");
+			//printf("cubeModel after: \n");
 			//printf("x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
 
             /*switch (packet.packet_type) {
@@ -164,8 +165,15 @@ void ServerGame::sendActionPackets()
     //GameStatePacket packet;
     //packet.cubeModel = GameState.cubeModel;
     
-    //printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
-
+    printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
+    printf("cube model is: ");
+    for (int j = 0; j < 4; j++) {
+        for (int k = 0; k < 4; k++) {
+            //printf("%f ", GameState.getModelMatrix()[i][j]);
+            printf("%f ", GameState.cubeModel[k][j]);
+        }
+        printf("\n");
+    }
     GameState.serialize(packet_data);
 
     network->sendToAll(packet_data, packet_size);

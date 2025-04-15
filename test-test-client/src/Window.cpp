@@ -118,7 +118,8 @@ void Window::idleCallback() {
     Cam->Update();
 
     //cube->update();
-	cube->setModel(client->GameState.getModelMatrix());
+	//cube->setModel(client->GameState.getModelMatrix());
+    cube->setModel(client->GameState.cubeModel);
 
     //do game stuff
     client->update(PlayerIntent);

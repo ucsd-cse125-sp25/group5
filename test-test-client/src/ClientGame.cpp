@@ -15,8 +15,8 @@ ClientGame::ClientGame(void)
 
     network = new ClientNetwork();
 
-    // send init packet
-    const unsigned int packet_size = sizeof(Packet);
+    // don't send init packet
+    /*const unsigned int packet_size = sizeof(Packet);
     char packet_data[packet_size];
 
     Packet packet;
@@ -24,11 +24,13 @@ ClientGame::ClientGame(void)
 
     packet.serialize(packet_data);
 
-    NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
+    NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);*/
 
 	//initialize game state
 	GameState = GameStatePacket();
-	GameState.setModelMatrix(glm::mat4(1.0f));
+	//GameState.setModelMatrix(glm::mat4(1.0f));
+	GameState.cubeModel = glm::mat4(1.0f);
+
 
 	//PlayerIntent = PlayerIntentPacket();
     currentTime = std::chrono::high_resolution_clock::now();
@@ -58,16 +60,19 @@ void ClientGame::sendActionPackets(PlayerIntentPacket intent)
 //receive packets
 void ClientGame::update(PlayerIntentPacket intent)
 {
+	GameStatePacket packet = GameStatePacket();
     int data_length = network->receivePackets(network_data);
 	//printf("data length: %d\n", data_length);
     if (data_length <= 0 ) 
     {
-//sendActionPackets(intent);
+        //sendActionPackets(intent);
     }
     else {
         int i = 0;
         while (i < (unsigned int)data_length)
         {
+
+            packet.deserialize(&(network_data[i]));
 			i += sizeof(GameStatePacket); // read the packet type first
             /*packet.deserialize(&(network_data[i]));
             i += sizeof(Packet);
@@ -96,18 +101,17 @@ void ClientGame::update(PlayerIntentPacket intent)
 
 
             }*/
-			GameState.deserialize(&(network_data[i]));
 
 			printf("client received game state packet from server with the following mat4:");
             for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 4; k++) {
-					//printf("%f ", GameState.cubeModel[j][k]);
+					//printf("%f ", GameState.getModelMatrix()[i][j]);
+					printf("%f ", packet.cubeModel[k][j]);
                 }
             }
+			//packet.cubeModel = glm::mat4(1.0f);
+			memcpy(&GameState, &packet, sizeof(GameStatePacket));
             printf("\n");
-
-
-            
         }
     }
        

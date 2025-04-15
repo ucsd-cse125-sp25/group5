@@ -1,6 +1,5 @@
 #pragma once
 #include <string.h>
-#include <glm/gtc/type_ptr.hpp>
 
 
 #define MAX_PACKET_SIZE 1000000
@@ -43,30 +42,13 @@ struct PlayerIntentPacket {
 };
 
 struct GameStatePacket {
-    float cubeModel[16];  // flat float array
+    glm::mat4 cubeModel;
 
-    void serialize(char* data) const {
-        memcpy(data, cubeModel, sizeof(cubeModel));
+    void serialize(char* data) {
+        memcpy(data, this, sizeof(GameStatePacket));
     }
 
-    void deserialize(const char* data) {
-        memcpy(cubeModel, data, sizeof(cubeModel));
-    }
-
-    glm::mat4 getModelMatrix() const {
-        glm::mat4 mat;
-        memcpy(glm::value_ptr(mat), cubeModel, sizeof(cubeModel));
-        return mat;
-    }
-
-    void setModelMatrix(const glm::mat4& mat) {
-        memcpy(cubeModel, glm::value_ptr(mat), sizeof(cubeModel));
-    }
-
-    void print() const {
-        for (int i = 0; i < 16; ++i) {
-            printf("%f ", cubeModel[i]);
-        }
-        printf("\n");
+    void deserialize(char* data) {
+        memcpy(this, data, sizeof(GameStatePacket));
     }
 };
