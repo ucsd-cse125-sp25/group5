@@ -118,7 +118,7 @@ void ClientGame::update(PlayerIntentPacket intent)
 
 	//throttle the packets
 	currentTime = std::chrono::high_resolution_clock::now();
-	if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.16f) {
+	if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.016f) {
 		lastPacketSentTime = currentTime;
 		sendActionPackets(intent);
 	}
