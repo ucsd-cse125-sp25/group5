@@ -157,40 +157,40 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
     // Check for a key press.
     //if (action == GLFW_PRESS) {
-        switch (key) {
-            case GLFW_KEY_ESCAPE:
-                // Close the window. This causes the program to also terminate.
-                glfwSetWindowShouldClose(window, GL_TRUE);
-                break;
+    //    switch (key) {
+    //        case GLFW_KEY_ESCAPE:
+    //            // Close the window. This causes the program to also terminate.
+    //            glfwSetWindowShouldClose(window, GL_TRUE);
+    //            break;
 
-            case GLFW_KEY_R:
-                resetCamera();
-                break;
+    //        case GLFW_KEY_R:
+    //            resetCamera();
+    //            break;
 
-            case GLFW_KEY_D:
-				D_Down = (action == GLFW_PRESS);
-                break;
+    //        case GLFW_KEY_D:
+				//D_Down = (action == GLFW_PRESS);
+    //            break;
 
-            case GLFW_KEY_A:
-				A_Down = (action == GLFW_PRESS);
-                break;
-                    
-            case GLFW_KEY_S:
-				S_Down = (action == GLFW_PRESS);
-                break;
+    //        case GLFW_KEY_A:
+				//A_Down = (action == GLFW_PRESS);
+    //            break;
+    //                
+    //        case GLFW_KEY_S:
+				//S_Down = (action == GLFW_PRESS);
+    //            break;
 
-            case GLFW_KEY_W:
-				W_Down = (action == GLFW_PRESS);
-                break;
-           
-            default:
-                break;
-        }
+    //        case GLFW_KEY_W:
+				//W_Down = (action == GLFW_PRESS);
+    //            break;
+    //       
+    //        default:
+    //            break;
+    //    }
 
-		PlayerIntent.moveLeftIntent = A_Down;
-		PlayerIntent.moveRightIntent = D_Down;
-		PlayerIntent.moveUpIntent = W_Down;
-		PlayerIntent.moveDownIntent = S_Down;
+		PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+		PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+		PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+		PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
    // }
 }
 
