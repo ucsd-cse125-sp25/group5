@@ -14,12 +14,13 @@ Camera* Cam;
 // Interaction Variables
 bool LeftDown, RightDown;
 int MouseX, MouseY;
-bool A_Down, D_Down;
+bool A_Down, D_Down, W_Down, S_Down;
 
 // The shader program id
 GLuint Window::shaderProgram;
 
 ClientGame* Window::client;
+PlayerIntentPacket Window::PlayerIntent;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
@@ -40,7 +41,10 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects() {
     // Create a cube
     cube = new Cube();
-    // cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
+
+    // Update the line causing the error to reference the specific object of the class  
+    PlayerIntent = PlayerIntentPacket();
+    //cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
 
     return true;
 }
@@ -90,7 +94,7 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     // initialize the interaction variables
     LeftDown = RightDown = false;
     MouseX = MouseY = 0;
-    A_Down = D_Down = false;
+    A_Down = D_Down = W_Down = S_Down = false;
 
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
@@ -113,15 +117,16 @@ void Window::idleCallback() {
     // Perform any updates as necessary.
     Cam->Update();
 
-    cube->update();
+    //cube->update();
+	cube->setModel(client->GameState.getModelMatrix());
 
     //do game stuff
-    client->update(LeftDown);
+    client->update(PlayerIntent);
 
     //oooh we're getting an update from the game state
-    if (client->GameState == 2) {
-        cube->moveY(0.001f);
-    }
+    /*if (client->GameState == 2) {
+        
+    }*/
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -150,7 +155,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
      */
 
     // Check for a key press.
-    if (action == GLFW_PRESS) {
+    //if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
                 // Close the window. This causes the program to also terminate.
@@ -162,24 +167,30 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 break;
 
             case GLFW_KEY_D:
-                cube->moveX(1.0f);
+				D_Down = (action == GLFW_PRESS);
                 break;
 
             case GLFW_KEY_A:
-                cube->moveX(-1.0f);
+				A_Down = (action == GLFW_PRESS);
+                break;
                     
             case GLFW_KEY_S:
-                cube->moveY(-1.0f);
+				S_Down = (action == GLFW_PRESS);
                 break;
 
             case GLFW_KEY_W:
-                cube->moveY(1.0f);
+				W_Down = (action == GLFW_PRESS);
                 break;
            
             default:
                 break;
         }
-    }
+
+		PlayerIntent.moveLeftIntent = A_Down;
+		PlayerIntent.moveRightIntent = D_Down;
+		PlayerIntent.moveUpIntent = W_Down;
+		PlayerIntent.moveDownIntent = S_Down;
+   // }
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {

@@ -1,29 +1,21 @@
-#pragma once
-#include "ServerNetwork.h"
-#include "NetworkData.h"
+#pragma once  
+#include "ServerNetwork.h"  
+#include "NetworkData.h"  
 
-class ServerGame
-{
+class ServerGame  
+{  
+public:  
+   ServerGame(void);  
+   ~ServerGame(void);  
 
-public:
+   void update();  
+   void receiveFromClients();  
+   void sendActionPackets(); // Ensure this declaration matches the definition in ServerGame.cpp  
 
-    ServerGame(void);
-    ~ServerGame(void);
-
-    void update();
-
-	void receiveFromClients();
-
-	void sendActionPackets(int packet_type);
-
-private:
-
-   // IDs for the clients connecting for table in ServerNetwork 
-    static unsigned int client_id;
-
-   // The ServerNetwork object 
-    ServerNetwork* network;
-
-	// data buffer
-   char network_data[MAX_PACKET_SIZE];
+private:  
+   static unsigned int client_id;  
+   ServerNetwork* network;  
+   char network_data[MAX_PACKET_SIZE];  
+   PlayerIntentPacket PlayerIntent;  
+   GameStatePacket GameState;  
 };

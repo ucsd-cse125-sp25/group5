@@ -12,12 +12,13 @@ public:
 
 	ClientNetwork* network;
 
-	void sendActionPackets(int packet_type);
+	void sendActionPackets(PlayerIntentPacket intent);
 
     char network_data[MAX_PACKET_SIZE];
 
-    void update(bool leftDown);
+    void update(PlayerIntentPacket intent);
 
-	int GameState;
+	//int GameState;
+	GameStatePacket GameState;
 };
 

@@ -39,7 +39,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/juim/Desktop/group5/test-test-server/out/build/x64-Debug"
+			"value" : "c:/Users/s3shi/Desktop/group5/test-test-server/out/build/x64-Debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -123,10 +123,10 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "No help, variable specified on the command line."
+					"value" : "CXX compiler"
 				}
 			],
-			"type" : "FILEPATH",
+			"type" : "STRING",
 			"value" : "C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.43.34808/bin/Hostx64/x64/cl.exe"
 		},
 		{
@@ -367,7 +367,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/juim/Desktop/group5/test-test-server/out/build/x64-Debug/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/s3shi/Desktop/group5/test-test-server/out/build/x64-Debug/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -427,7 +427,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/juim/Desktop/group5/test-test-server"
+			"value" : "C:/Users/s3shi/Desktop/group5/test-test-server"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -439,7 +439,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Users/juim/Desktop/group5/test-test-server/out/install/x64-Debug"
+			"value" : "C:/Users/s3shi/Desktop/group5/test-test-server/out/install/x64-Debug"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -975,7 +975,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/juim/Desktop/group5/test-test-server/out/build/x64-Debug"
+			"value" : "C:/Users/s3shi/Desktop/group5/test-test-server/out/build/x64-Debug"
 		},
 		{
 			"name" : "MoonlightServer_IS_TOP_LEVEL",
@@ -999,7 +999,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/juim/Desktop/group5/test-test-server"
+			"value" : "C:/Users/s3shi/Desktop/group5/test-test-server"
 		}
 	],
 	"kind" : "cache",
