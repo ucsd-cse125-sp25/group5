@@ -153,7 +153,7 @@ void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
 void Cube::update() {
     // Spin the cube
-    spin(0.05f);
+    //spin(0.05f);
 }
 
 void Cube::spin(float deg) {
@@ -167,4 +167,12 @@ void Cube::moveX(float delta) {
 
 void Cube::moveY(float delta) {
     model = glm::translate(model, glm::vec3(0.0f, delta, 0.0f));
+}
+
+void Cube::moveZ(float delta) {
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, delta));
+}
+
+void Cube::translate(float x, float y, float z) {
+    model = glm::translate(glm::mat4(glm::mat3(model)), glm::vec3(x, y, z));
 }

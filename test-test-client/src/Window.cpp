@@ -114,14 +114,9 @@ void Window::idleCallback() {
     Cam->Update();
 
     cube->update();
-
-    //do game stuff
-    client->update(LeftDown);
-
-    //oooh we're getting an update from the game state
-    if (client->GameState == 2) {
-        cube->moveY(0.001f);
-    }
+     
+    client->update();
+    cube->translate(client->nX, client->nY, client->nZ);
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -161,21 +156,26 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 resetCamera();
                 break;
 
-            case GLFW_KEY_D:
-                cube->moveX(1.0f);
+            case GLFW_KEY_W:
+                //cube->moveZ(-1.0f);
+                client->sendActionPackets(2);
+                break;
+
+            case GLFW_KEY_S:
+                //cube->moveZ(1.0f);
+                client->sendActionPackets(3);
                 break;
 
             case GLFW_KEY_A:
-                cube->moveX(-1.0f);
-                    
-            case GLFW_KEY_S:
-                cube->moveY(-1.0f);
+                //cube->moveX(-1.0f);
+                client->sendActionPackets(4);
                 break;
 
-            case GLFW_KEY_W:
-                cube->moveY(1.0f);
+            case GLFW_KEY_D:
+                //cube->moveX(1.0f);
+                client->sendActionPackets(5);
                 break;
-           
+
             default:
                 break;
         }

@@ -17,8 +17,6 @@ ClientGame::ClientGame(void)
     packet.serialize(packet_data);
 
     NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
-
-    GameState = 0;
 }
 
 
@@ -40,7 +38,7 @@ void ClientGame::sendActionPackets(int packet_type)
     NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
 }
 
-void ClientGame::update(bool leftDown)
+void ClientGame::update()
 {
     Packet packet;
     int data_length = network->receivePackets(network_data);
@@ -53,6 +51,22 @@ void ClientGame::update(bool leftDown)
         int i = 0;
         while (i < (unsigned int)data_length)
         {
+            UINT8 type = network_data[i];
+            printf("type=%d\n", type);
+
+            if (type == POSITION) {
+                printf("client received POSITION packet from server\n");
+
+                PositionPacket packet;
+                packet.deserialize(&(network_data[i]));
+                printf("x=%f,y=%f,z=%f\n", packet.x, packet.y, packet.z);
+                this->nX = packet.x;
+                this->nY = packet.y;
+                this->nZ = packet.z;
+                i += sizeof(PositionPacket);
+                continue;
+            }
+
             packet.deserialize(&(network_data[i]));
             i += sizeof(Packet);
 
@@ -62,7 +76,7 @@ void ClientGame::update(bool leftDown)
 
                 printf("client received action event packet from server\n");
 
-                GameState = 1;
+                //GameState = 1;
 
                 break;
 
@@ -70,7 +84,7 @@ void ClientGame::update(bool leftDown)
 
                 printf("client received 2 event packet from server\n");
 
-                GameState = 2;
+                //GameState = 2;
 
             default:
 
@@ -79,12 +93,5 @@ void ClientGame::update(bool leftDown)
                 break;
             }
         }
-    }
-
-    if (leftDown) {
-        sendActionPackets(2);
-    }   
-    else {
-        sendActionPackets(1);
     }
 }

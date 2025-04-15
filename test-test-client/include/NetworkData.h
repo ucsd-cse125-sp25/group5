@@ -9,12 +9,19 @@ enum PacketTypes {
 
     ACTION_EVENT = 1,
 
+    FORWARD = 2,
+    BACKWARD = 3,
+    LEFT = 4,
+    RIGHT = 5,
+
+    POSITION = 6
+
+
 };
 
 struct Packet {
 
-    unsigned int packet_type;
-    char buf[128];
+    UINT8 packet_type;
 
     void serialize(char * data) {
         memcpy(data, this, sizeof(Packet));
@@ -22,5 +29,20 @@ struct Packet {
 
     void deserialize(char * data) {
         memcpy(this, data, sizeof(Packet));
+    }
+};
+
+struct PositionPacket: Packet {
+
+    float x;
+    float y;
+    float z;
+
+    void serialize(char* data) {
+        memcpy(data, this, sizeof(PositionPacket));
+    }
+
+    void deserialize(char* data) {
+        memcpy(this, data, sizeof(PositionPacket));
     }
 };

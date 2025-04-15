@@ -27,4 +27,6 @@ public:
     void spin(float deg);
     void moveX(float delta);
     void moveY(float delta);
+    void moveZ(float delta);
+    void translate(float x, float y, float z);
 };

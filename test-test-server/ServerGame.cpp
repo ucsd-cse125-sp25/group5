@@ -2,6 +2,9 @@
 #include "ServerGame.h"
 
 unsigned int ServerGame::client_id; 
+float posX{};
+float posY{};
+float posZ{};
 
 ServerGame::ServerGame(void)
 {
@@ -9,8 +12,7 @@ ServerGame::ServerGame(void)
     client_id = 0;
 
     // set up the server network to listen 
-    network = new ServerNetwork(); 
-    glm::vec3(1, 1, 1);
+    network = new ServerNetwork();
 }
 
 ServerGame::~ServerGame(void)
@@ -49,6 +51,8 @@ void ServerGame::receiveFromClients()
         }
 
         int i = 0;
+        bool move = false;
+
         while (i < (unsigned int)data_length) 
         {
             packet.deserialize(&(network_data[i]));
@@ -72,20 +76,48 @@ void ServerGame::receiveFromClients()
 
                     break;
 
-                case 2:
-
-                    printf("server received defend event from client\n");
-
-                    sendActionPackets(2);
-
+                case FORWARD:
+                    printf("server received FORWARD packet from client\n");
+                    posZ -= 1.0f;
+                    move = true;
                     break;
-
+                case BACKWARD:
+                    printf("server received BACKWARD packet from client\n");
+                    posZ += 1.0f;
+                    move = true;
+                    break;
+                case LEFT:
+                    printf("server received LEFT packet from client\n");
+                    posX -= 1.0f;
+                    move = true;
+                    break;
+                case RIGHT:
+                    printf("server received RIGHT packet from client\n");
+                    posX += 1.0f;
+                    move = true;
+                    break;
                 default:
 
                     printf("error in packet types\n");
 
                     break;
             }
+
+            if (move) {
+                PositionPacket packet;
+                packet.packet_type = POSITION;
+                packet.x = posX;
+                packet.y = posY;
+                packet.z = posZ;
+
+                printf("x=%f,y=%f,z=%f\n", packet.x, packet.y, packet.z);
+
+                const unsigned int packet_size = sizeof(PositionPacket);
+                char packet_data[packet_size];
+                packet.serialize(packet_data);
+                network->sendToAll(packet_data, packet_size);
+            }
+            
         }
     }
 }
