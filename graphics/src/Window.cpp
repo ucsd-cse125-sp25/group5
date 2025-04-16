@@ -8,6 +8,8 @@
 #include "imgui_impl_opengl3.h"
 #include <Object.h>
 #include <Scene.h>
+#include <UIManager.h>
+#include "Global.h"
 
 // Window Properties
 int Window::width;
@@ -30,6 +32,11 @@ GLuint Window::shaderProgram;
 
 extern Object* obj;
 extern Scene* scene;
+extern UIManager* uimanager;
+
+//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
+PlayerStats dummy; //IN GLOBAL.h
+//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
@@ -42,11 +49,14 @@ bool Window::initializeProgram() {
         return false;
     }
 
+    dummy.ID = 0;
+    dummy.maxHP = 250;
+    dummy.currHP = dummy.maxHP;
+
     return true;
 }
 
 bool Window::initializeObjects(char* fileOne, char* fileTwo, Skeleton * skel, Skin * skin) {
-
 
     skin->doSkinning();
     skel->doSkel();
@@ -161,6 +171,8 @@ void Window::idleCallback(Skeleton* skel, Skin* skin, Player * player) {
 	skin->update();
 
     player->update();
+
+    uimanager->update(dummy);
 	
 }
 
@@ -176,6 +188,9 @@ void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, cha
 
     obj->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
     scene->draw(Cam);
+
+    //RENDER 2D
+    uimanager->draw();
     // Gets events, including input such as keyboard and mouse or window resizing.
     // if (!io->WantCaptureMouse) {
       //   glfwPollEvents();
@@ -264,6 +279,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
      */
 
     // Check for a key press.
+    int BURST = 10;
+
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -274,10 +291,34 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_R:
                 resetCamera();
                 break;
+            case GLFW_KEY_I:
+                std::cout << "Taking 10 damage!" << std::endl;
+                if (dummy.currHP - BURST < 0) {
+                    std::cout << "Already dead!" << std::endl;
+                }
+                else {
+                    dummy.currHP -= 10;
+                }
+                break;
+            case GLFW_KEY_O:
+                std::cout << "Healing 10 damage!" << std::endl;
+                if (dummy.currHP + BURST > dummy.maxHP) {
+                    std::cout << "Already at MAX HP" << std::endl;
+                }
+                else {
+                    dummy.currHP += 10;
+                }
+                break;
+            case GLFW_KEY_P:
+                std::cout << "Death!" << std::endl;
+                dummy.currHP = 0;
+                break;
 
             default:
                 break;
         }
+
+        std::cout << "Current HP is: " << dummy.currHP << std::endl;
     }
 }
 

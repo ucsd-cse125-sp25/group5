@@ -10,9 +10,16 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+
+#define STB_IMAGE_IMPLEMENTATION
 #include <Object.h>
+#include <Scene.h>
+#include <UIManager.h>
+
 
 Object* obj;
+Scene* scene;
+UIManager* uimanager;
 
 void error_callback(int error, const char* description) {
     // Print error.
@@ -58,9 +65,6 @@ void print_versions() {
 
 int main(int argc, char* argv[]) {
     std::cout << "Hello World" << std::endl;
-
-    obj = new Object();
-    obj->create("../../assets/test.obj");
 
     static Skeleton* skel;
     static Skin* skin;
@@ -113,10 +117,21 @@ int main(int argc, char* argv[]) {
         if (!Window::initializeObjects(argv[1], argv[2], argv[3], skel, skin, player)) exit(EXIT_FAILURE);
     }
 	else {
-		if (!Window::initializeObjects("../../include/wasp.skel", "../../include/wasp.skin", 
-            "../../include/wasp_walk/wasp/wasp_dance.anim", skel, skin, player)) exit(EXIT_FAILURE);
+		if (!Window::initializeObjects("../../../include/wasp.skel", "../../../include/wasp.skin", 
+            "../../../include/wasp_walk/wasp/wasp_dance.anim", skel, skin, player)) exit(EXIT_FAILURE);
 		//if (!Window::initializeObjects("../../../include/wasp.skin", skel, skin)) exit(EXIT_FAILURE);
     }
+
+    obj = new Object();
+    obj->create("../../../assets/test.obj");
+
+    //Testing stuff
+
+    scene = new Scene();
+    scene->createGame();
+
+    uimanager = new UIManager();
+    uimanager->Init();
 
     char** JN;
     int listsize=0;
