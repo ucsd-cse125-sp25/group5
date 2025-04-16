@@ -7,8 +7,8 @@
 //Scene Class which will contain data about map, players, etc
 class Scene {
 private:
-	std::vector<Object> objects;
-	std::vector<Object> players;
+	std::vector<Object*> objects;
+	std::vector<Object*> players; //this will be changed to AnimObject* or Player*
 	Skybox* skybox; //each player holds a copy of the skybox
 	//std::vector<Lights>; ??? maybe
 public:

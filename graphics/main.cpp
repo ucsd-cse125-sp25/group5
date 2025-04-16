@@ -11,7 +11,6 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#define STB_IMAGE_IMPLEMENTATION // <-- ONLY DO THIS ONCE
 #include <Object.h>
 #include <Scene.h>
 
@@ -121,8 +120,6 @@ int main(int argc, char* argv[]) {
             (char*)animstr.c_str(), skel, skin, player)) exit(EXIT_FAILURE);
 		//if (!Window::initializeObjects("../../../include/wasp.skin", skel, skin)) exit(EXIT_FAILURE);
     }
-    obj = new Object();
-    obj->create("../../../assets/test.obj");
 
     scene = new Scene();
     scene->createGame();
