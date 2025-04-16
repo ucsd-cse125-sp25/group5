@@ -4,6 +4,7 @@
 #include "Cube.h"
 #include "Shader.h"
 #include "core.h"
+#include <ClientGame.h>
 
 class Window {
 public:
@@ -23,8 +24,11 @@ public:
     static bool initializeObjects();
     static void cleanUp();
 
+    //the client...
+    static ClientGame* client;
+
     // for the Window
-    static GLFWwindow* createWindow(int width, int height);
+    static GLFWwindow* createWindow(int width, int height, ClientGame* _client);
     static void resizeCallback(GLFWwindow* window, int width, int height);
 
     // update and draw functions
@@ -38,4 +42,7 @@ public:
     static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
     static void cursor_callback(GLFWwindow* window, double currX, double currY);
+
+    static PlayerIntentPacket PlayerIntent;
+
 };

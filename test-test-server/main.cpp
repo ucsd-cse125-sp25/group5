@@ -7,7 +7,7 @@
 // used for multi-threading
 #include <process.h>
 
-void serverLoop(void *);
+void serverLoop();
 
 ServerGame * server;
 
@@ -16,15 +16,10 @@ int main()
 
 	// initialize the server
 	server = new ServerGame();
-
-	// create thread with arbitrary argument for the run function
-    _beginthread( serverLoop, 0, (void*)12);
-    while (true) {
-
-    }
+    serverLoop();
 }
 
-void serverLoop(void * arg) 
+void serverLoop() 
 { 
     while(true) 
     {

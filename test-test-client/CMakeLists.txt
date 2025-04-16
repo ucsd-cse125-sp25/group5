@@ -11,7 +11,7 @@ set(
     src/Shader.cpp
     src/Tokenizer.cpp
     src/Window.cpp
-)
+ "src/ClientGame.cpp" "src/ClientNetwork.cpp" "src/NetworkServices.cpp" "src/stdafx.cpp")
 
 # Add header files
 set(
@@ -22,6 +22,11 @@ set(
     include/Shader.h
     include/Tokenizer.h
     include/Window.h
+    include/ClientGame.h 
+    include/ClientNetwork.h 
+    include/NetworkData.h 
+    include/stdafx.h 
+    include/targetver.h  
 )
 
 # Require GL

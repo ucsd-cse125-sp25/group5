@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "core.h"
+#include <iostream>
+#include "glm/gtx/string_cast.hpp"
 
 class Cube {
 private:
@@ -25,6 +27,5 @@ public:
     void update();
 
     void spin(float deg);
-    void moveX(float delta);
-    void moveY(float delta);
+	void setModel(glm::mat4 model) {this->model = model;}
 };

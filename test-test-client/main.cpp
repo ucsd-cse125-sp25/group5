@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "core.h"
+#include "ClientGame.h"
 
 void error_callback(int error, const char* description) {
     // Print error.
@@ -45,7 +46,10 @@ void print_versions() {
 
 int main(void) {
     // Create the GLFW window.
-    GLFWwindow* window = Window::createWindow(800, 600);
+    ClientGame* client = new ClientGame();
+    GLFWwindow* window = Window::createWindow(800, 600, client);
+    
+
     if (!window) exit(EXIT_FAILURE);
 
     // Print OpenGL and GLSL versions.
@@ -67,6 +71,8 @@ int main(void) {
 
         // Idle callback. Updating objects, etc. can be done here.
         Window::idleCallback();
+        
+        
     }
 
     Window::cleanUp();

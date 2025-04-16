@@ -9,6 +9,11 @@ add_executable(server_app
     ServerNetwork.cpp
     NetworkServices.cpp
     stdafx.cpp
+ )
+
+# Add include directories
+include_directories(
+    include
 )
 
 target_include_directories(server_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

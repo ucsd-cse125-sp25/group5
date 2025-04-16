@@ -15,5 +15,5 @@ public:
 	void createGame();
 	void loadObjects();
 	void update();
-	void draw();
+	void draw(Camera* cam);
 };

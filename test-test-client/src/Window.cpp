@@ -14,10 +14,13 @@ Camera* Cam;
 // Interaction Variables
 bool LeftDown, RightDown;
 int MouseX, MouseY;
-bool A_Down, D_Down;
+bool A_Down, D_Down, W_Down, S_Down;
 
 // The shader program id
 GLuint Window::shaderProgram;
+
+ClientGame* Window::client;
+PlayerIntentPacket Window::PlayerIntent;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
@@ -30,13 +33,18 @@ bool Window::initializeProgram() {
         return false;
     }
 
+    
+
     return true;
 }
 
 bool Window::initializeObjects() {
     // Create a cube
     cube = new Cube();
-    // cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
+
+    // Update the line causing the error to reference the specific object of the class  
+    PlayerIntent = PlayerIntentPacket();
+    //cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
 
     return true;
 }
@@ -50,7 +58,7 @@ void Window::cleanUp() {
 }
 
 // for the Window
-GLFWwindow* Window::createWindow(int width, int height) {
+GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     // Initialize GLFW.
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -86,10 +94,11 @@ GLFWwindow* Window::createWindow(int width, int height) {
     // initialize the interaction variables
     LeftDown = RightDown = false;
     MouseX = MouseY = 0;
-    A_Down = D_Down = false;
+    A_Down = D_Down = W_Down = S_Down = false;
 
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
+    Window::client = _client;
 
     return window;
 }
@@ -108,7 +117,17 @@ void Window::idleCallback() {
     // Perform any updates as necessary.
     Cam->Update();
 
-    cube->update();
+    //cube->update();
+	//cube->setModel(client->GameState.getModelMatrix());
+    cube->setModel(client->GameState.cubeModel);
+
+    //do game stuff
+    client->update(PlayerIntent);
+
+    //oooh we're getting an update from the game state
+    /*if (client->GameState == 2) {
+        
+    }*/
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -137,36 +156,42 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
      */
 
     // Check for a key press.
-    if (action == GLFW_PRESS) {
-        switch (key) {
-            case GLFW_KEY_ESCAPE:
-                // Close the window. This causes the program to also terminate.
-                glfwSetWindowShouldClose(window, GL_TRUE);
-                break;
+    //if (action == GLFW_PRESS) {
+    //    switch (key) {
+    //        case GLFW_KEY_ESCAPE:
+    //            // Close the window. This causes the program to also terminate.
+    //            glfwSetWindowShouldClose(window, GL_TRUE);
+    //            break;
 
-            case GLFW_KEY_R:
-                resetCamera();
-                break;
+    //        case GLFW_KEY_R:
+    //            resetCamera();
+    //            break;
 
-            case GLFW_KEY_D:
-                cube->moveX(1.0f);
-                break;
+    //        case GLFW_KEY_D:
+				//D_Down = (action == GLFW_PRESS);
+    //            break;
 
-            case GLFW_KEY_A:
-                cube->moveX(-1.0f);
-                    
-            case GLFW_KEY_S:
-                cube->moveY(-1.0f);
-                break;
+    //        case GLFW_KEY_A:
+				//A_Down = (action == GLFW_PRESS);
+    //            break;
+    //                
+    //        case GLFW_KEY_S:
+				//S_Down = (action == GLFW_PRESS);
+    //            break;
 
-            case GLFW_KEY_W:
-                cube->moveY(1.0f);
-                break;
-           
-            default:
-                break;
-        }
-    }
+    //        case GLFW_KEY_W:
+				//W_Down = (action == GLFW_PRESS);
+    //            break;
+    //       
+    //        default:
+    //            break;
+    //    }
+
+		PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+		PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+		PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+		PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+   // }
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {
