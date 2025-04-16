@@ -6,24 +6,18 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <Mesh.h>
 
 class Object {
 private:
-    GLuint VAO, texture;
-    GLuint VBO_positions, VBO_normals, EBO;
 
-    glm::mat4 model;
+    glm::mat4 model; //also model matrix for all children meshes
 
-    // Cube Information
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<unsigned int> indices;
+    std::vector<Mesh*> meshes;
 
 public:
 
-    glm::vec3 color;
-
-    void create(char* filename);
+    void create(char* filename, glm::mat4 model);
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
     void update(glm::mat4 new_model);
 };
