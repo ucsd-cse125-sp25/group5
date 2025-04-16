@@ -9,10 +9,12 @@ class Scene {
 private:
 	std::vector<Object*> objects;
 	std::vector<Object*> players; //this will be changed to AnimObject* or Player*
+	std::vector<GLuint> shaders;
 	Skybox* skybox; //each player holds a copy of the skybox
 	//std::vector<Lights>; ??? maybe
 public:
 	void createGame();
+	void initShaders();
 	void loadObjects();
 	void update();
 	void draw(Camera* cam);
