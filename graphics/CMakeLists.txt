@@ -9,6 +9,8 @@ file(GLOB SOURCES
     imgui/*.cpp
     include/*.h
     src/*.cpp
+    include/network/*.h
+    src/network/*.cpp
 )
 
 add_subdirectory(lib/assimp)

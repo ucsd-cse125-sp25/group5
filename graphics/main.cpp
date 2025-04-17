@@ -13,6 +13,7 @@
 
 #include <Object.h>
 #include <Scene.h>
+#include "network/ClientGame.h"
 
 Object* obj;
 Scene* scene;
@@ -62,6 +63,9 @@ void print_versions() {
 int main(int argc, char* argv[]) {
     std::cout << "Hello World" << std::endl;
 
+    //initialize the client
+    ClientGame* client = new ClientGame();
+
     static Skeleton* skel;
     static Skin* skin;
     static Animation* animation;
@@ -72,7 +76,7 @@ int main(int argc, char* argv[]) {
     std::vector<char *> Jointnameslist{};
 
     //// Create the GLFW window.
-    GLFWwindow* window = Window::createWindow(1200, 900);
+    GLFWwindow* window = Window::createWindow(1200, 900, client);
     if (!window) exit(EXIT_FAILURE);
 
     //// Our state
