@@ -52,7 +52,6 @@ bool Window::initializeProgram() {
     dummy.ID = 0;
     dummy.maxHP = 250;
     dummy.currHP = dummy.maxHP;
-
     return true;
 }
 

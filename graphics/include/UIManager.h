@@ -3,11 +3,7 @@
 #include <core.h>
 #include "Global.h"
 #include "Shader.h"
-
-enum class GameState {
-	LOBBY,
-	MATCH
-};
+#include "UIImg.h"
 
 class UIManager {
 public:
@@ -18,13 +14,9 @@ public:
 	void SetGameState(GameState state);
 private:
 	GameState currState;
-
 	GLuint shaderProgram;
-
-	//Have one for each game state
-	GLuint VAO, VBO;
-
-	unsigned int maxHP, currHP;
+	glm::mat4 projection;
+	std::vector<UIImg*> imgElements;
 
 	void UpdateLobby(const PlayerStats &p);
 	void DrawLobby();
