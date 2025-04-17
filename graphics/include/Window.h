@@ -15,7 +15,7 @@
 #include "imgui_impl_opengl3.h"
 #include "Animation.h"
 #include "Player.h"
-
+#include "network/ClientGame.h"
 
 
 // Objects to render
@@ -29,7 +29,10 @@ public:
     static int height;
     static const char* windowTitle;
 
+    static Cube* cube;
 
+    //the client
+	static ClientGame* client;
 
     // Shader Program
     static GLuint shaderProgram;
@@ -42,7 +45,7 @@ public:
     static void cleanUp(Skeleton* skel, Skin* skin);
 
     // for the Window
-    static GLFWwindow* createWindow(int width, int height);
+    static GLFWwindow* createWindow(int width, int height, ClientGame* _client);
     static void resizeCallback(GLFWwindow* window, int width, int height);
 
     // update and draw functions
@@ -56,6 +59,8 @@ public:
     static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
     static void cursor_callback(GLFWwindow* window, double currX, double currY);
+
+    static PlayerIntentPacket PlayerIntent;
 };
 
 #endif
