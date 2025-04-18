@@ -25,75 +25,30 @@ bool doJoints = false;
 bool LeftDown, RightDown;
 int MouseX, MouseY;
 
-// The shader program id
-GLuint Window::shaderProgram;
-
-extern Object* obj;
 extern Scene* scene;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
-    // Create a shader program with a vertex shader and a fragment shader.
-    shaderProgram = LoadShaders("shaders/texShader.vert", "shaders/texShader.frag");
-
-    // Check the shader program.
-    if (!shaderProgram) {
-        std::cerr << "Failed to initialize shader program" << std::endl;
-        return false;
-    }
-
+    //nothing for now
     return true;
 }
 
-bool Window::initializeObjects(char* fileOne, char* fileTwo, Skeleton * skel, Skin * skin) {
+//maintain this as model for how to load an animation 
+//bool Window::initializeObjects(char* fileOne, char* fileTwo, char* fileThree, Skeleton* skel, Skin* skin, Player* player) {
+//    skin->doSkinning();
+//    skel->doSkel();
+//    player->animation->doAnimation();
+//    skel->Load(fileOne);
+//    skin->Load(fileTwo);
+//    player->animation->Load(fileThree);
+//    doJoints = true;
+//
+//    return true;
+//}
 
 
-    skin->doSkinning();
-    skel->doSkel();
-    skel->Load(fileOne);
-	skin->Load(fileTwo);
-    doJoints = true;
-    //	std::cout << file << std::endl;
-        // cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
-
-    return true;
-}
-
-bool Window::initializeObjects(char* fileOne, char* fileTwo, char* fileThree, Skeleton* skel, Skin* skin, Player* player) {
-    skin->doSkinning();
-    skel->doSkel();
-    player->animation->doAnimation();
-    skel->Load(fileOne);
-    skin->Load(fileTwo);
-    player->animation->Load(fileThree);
-    doJoints = true;
-
-    return true;
-}
-
-
-bool Window::initializeObjects(char * file, Skeleton* skel, Skin* skin) {
-    // Create a cube
-	if (strstr(file, ".skel")) {
-        skel->doSkel();
-		skel->Load(file);
-        doJoints = true;
-	}
-    else {
-        skin->doSkinning();
-		skin->Load(file);
-        doJoints = false;
-    }
-    return true;
-}
-
-void Window::cleanUp(Skeleton* skel, Skin* skin) {
-    // Deallcoate the objects.
-    delete skel;
-    delete skin;
-
-    // Delete the shader program.
-    glDeleteProgram(shaderProgram);
+void Window::cleanUp() {
+    //TODO
 }
 
 // for the Window
@@ -150,21 +105,18 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 // update and draw functions
-void Window::idleCallback(Skeleton* skel, Skin* skin, Player * player) {
+void Window::idleCallback() {
     // Perform any updates as necessary.
     Cam->Update();
-    
-    //std::cout << "before update skeleton" << std::endl;
-    skel->update();
-    //std::cout << "after update skeleton" << std::endl;
-    
-	skin->update();
+    scene->update();
 
-    player->update();
+ //   skel->update();
+ //   skin->update();
+ //   player->update();
 	
 }
 
-void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, char* Namelist[], int listsize, ImGuiIO* io) {
+void Window::displayCallback(GLFWwindow* window) {
     // Clear the color and depth buffers.
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -174,7 +126,6 @@ void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, cha
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-    obj->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
     scene->draw(Cam);
     // Gets events, including input such as keyboard and mouse or window resizing.
     // if (!io->WantCaptureMouse) {

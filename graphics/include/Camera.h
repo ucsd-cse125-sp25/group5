@@ -43,6 +43,7 @@ private:
     float Distance;  // Distance of the camera eye position to the origin (meters)
     float Azimuth;   // Rotation of the camera eye position around the Y axis (degrees)
     float Incline;   // Angle of the camera eye position over the XZ plane (degrees)
+    float Pos;       // Position of Camera Center in 3D space
 
     // Computed data
     glm::mat4 ViewProjectMtx;
