@@ -1,6 +1,42 @@
 #include "UIImg.h"
 
 void UIImg::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
+	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
+	projection = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	float offsetX = scWidth * percent;
+	float offsetY = scHeight * percent * ratio;
+
+	uiData = {
+		//Position                                     //UV         //Color
+		startPos[0], startPos[1],                      0.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, uiData.size() * sizeof(float), uiData.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
 
 }
 
@@ -9,7 +45,21 @@ void UIImg::Update(const PlayerStats& p) {
 }
 
 void UIImg::Draw() {
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
+	glDisable(GL_DEPTH_TEST);
+
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
 }
 
 void UIImg::SetTexture(GLuint tex) {
@@ -123,28 +173,3 @@ void HealthBar::Draw() {
 	glEnable(GL_DEPTH_TEST);
 	glBindVertexArray(0);
 }
-
-/*
-GLuint HealthBar::LoadTexture(std::string path) {
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	int width, height, channels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-	if (data) {
-		GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	stbi_image_free(data);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	return textureID;
-}
-*/

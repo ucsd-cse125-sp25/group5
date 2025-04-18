@@ -13,7 +13,10 @@
 * - The aspect ratio of the texture (float)
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-		{ "healthbar", { "../../../assets/healthbar.png", GameState::MATCH, 0.0f, 0.0f, 0.5f, 0.15f } }
+		{ "healthbar", { "../../../assets/healthbar.png", GameState::MATCH, 0.0f, 0.0f, 0.5f, 0.15f } },
+		{ "avatar", {"../../../assets/avatar_back_red.png", GameState::MATCH, 100.0f, 100.0f, 0.35f, 0.5f} },
+		{ "victory", {"../../../assets/end_victory.png", GameState::MATCH, 600.0f, 300.0f, 0.35f, 0.5f} },
+		{ "defeat", {"../../../assets/end_defeat.png", GameState::MATCH, 550.0f, 650.0f, 0.35f, 0.5f} }
 };
 
 //Loads textures and creates UI elements

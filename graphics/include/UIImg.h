@@ -15,10 +15,11 @@ public:
 
 	std::string name;
 private:
-	glm::vec3 baseColor; // {1.0,1.0,1.0} means no change to texture color
+	glm::vec3 baseColor = { 1.0f, 1.0f, 1.0f }; // {1.0,1.0,1.0} means no change to texture color
 	GLuint texture;
 	GLuint shaderProgram;
 	glm::mat4 projection;
+	std::vector<float> uiData;
 
 	GLuint VAO, VBO, EBO;
 	
