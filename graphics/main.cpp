@@ -13,6 +13,7 @@
 
 #include <Object.h>
 #include <Scene.h>
+#include "network/ClientGame.h"
 
 Scene* scene;
 
@@ -69,9 +70,10 @@ int main(int argc, char* argv[]) {
     //animation = new Animation();
     //static Player* player = new Player(skel, animation, std::chrono::steady_clock::now());
     //std::vector<char *> Jointnameslist{};
+    ClientGame* client = new ClientGame();
 
     //// Create the GLFW window.
-    GLFWwindow* window = Window::createWindow(1200, 900);
+    GLFWwindow* window = Window::createWindow(1200, 900, client);
     if (!window) exit(EXIT_FAILURE);
 
     //// Our state

@@ -18,6 +18,9 @@ const char* Window::windowTitle = "Model Environment";
 // Objects to render
 //Skeleton* Window::skel;
 
+// Objects to render
+Cube* Window::cube;
+
 // Camera Properties
 Camera* Cam;
 
@@ -25,12 +28,16 @@ bool doJoints = false;
 // Interaction Variables
 bool LeftDown, RightDown;
 int MouseX, MouseY;
+bool A_Down, D_Down, W_Down, S_Down;
 
 extern Scene* scene;
 
+ClientGame* Window::client;
+PlayerIntentPacket Window::PlayerIntent;
+
 // Constructors and desctructors
 bool Window::initializeProgram() {
-    //nothing for now
+    cube = new Cube();
     return true;
 }
 
@@ -47,13 +54,12 @@ bool Window::initializeProgram() {
 //    return true;
 //}
 
-
 void Window::cleanUp() {
-    //TODO
+    delete cube;
 }
 
 // for the Window
-GLFWwindow* Window::createWindow(int width, int height) {
+GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     // Initialize GLFW.
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -88,13 +94,15 @@ GLFWwindow* Window::createWindow(int width, int height) {
 
     // initialize the interaction variables
     LeftDown = RightDown = false;
+    A_Down = D_Down = W_Down = S_Down = false;
+  
     MouseX = width/2;
     MouseY = height / 2;
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
+    Window::client = _client;
 
     return window;
 }
@@ -114,9 +122,10 @@ void Window::idleCallback() {
     Cam->Update();
     scene->update();
 
- //   skel->update();
- //   skin->update();
- //   player->update();
+	if (cube != NULL) {
+        cube->setModel(client->GameState.cubeModel);
+	}
+    client->update(PlayerIntent);
 	
 }
 
@@ -135,6 +144,12 @@ void Window::displayCallback(GLFWwindow* window) {
     // if (!io->WantCaptureMouse) {
       //   glfwPollEvents();
     // }
+
+    if (cube != NULL) {
+        cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+    }
+	
+
     glfwPollEvents();
 
     if (doJoints) {
@@ -234,6 +249,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 break;
         }
     }
+
+    PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+    PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+    PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+    PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {
