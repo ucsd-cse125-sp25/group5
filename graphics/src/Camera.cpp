@@ -10,8 +10,15 @@ Camera::Camera() {
 void Camera::Update() {
     // Compute camera world matrix
     glm::mat4 world(1);
-    world[3][2] = Distance;
-    world = glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
+    glm::mat4 translate(1);
+    translate[3][0] = Pos.x;
+    translate[3][1] = Pos.y;
+    translate[3][2] = Pos.z;
+
+    world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
+
+    //world[3][2] = Distance;
+    //world = glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
 
     // Compute view matrix (inverse of world matrix)
     glm::mat4 view = glm::inverse(world);
@@ -33,4 +40,7 @@ void Camera::Reset() {
     Distance = 10.0f;
     Azimuth = 0.0f;
     Incline = 20.0f;
+    Pos = glm::vec3(0, 0, 2.0);
+
+    sensitivity = 0.6f;
 }

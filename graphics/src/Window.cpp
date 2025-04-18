@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "core.h"
 #include "Window.h"
 #include "Skin.h"
 #include "imgui.h"
@@ -29,10 +30,6 @@ bool LeftDown, RightDown;
 int MouseX, MouseY;
 bool A_Down, D_Down, W_Down, S_Down;
 
-// The shader program id
-GLuint Window::shaderProgram;
-
-extern Object* obj;
 extern Scene* scene;
 
 ClientGame* Window::client;
@@ -40,78 +37,25 @@ PlayerIntentPacket Window::PlayerIntent;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
-    // Create a shader program with a vertex shader and a fragment shader.
-    shaderProgram = LoadShaders("shaders/texShader.vert", "shaders/texShader.frag");
-
-    // Check the shader program.
-    if (!shaderProgram) {
-        std::cerr << "Failed to initialize shader program" << std::endl;
-        return false;
-    }
-
-    return true;
-}
-
-bool Window::initializeObjects(char* fileOne, char* fileTwo, Skeleton * skel, Skin * skin) {
     cube = new Cube();
-
-    PlayerIntent = PlayerIntentPacket();
-    //animation stuff
-    skin->doSkinning();
-    skel->doSkel();
-    skel->Load(fileOne);
-	skin->Load(fileTwo);
-    doJoints = true;
-    //	std::cout << file << std::endl;
-        // cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
-
     return true;
 }
 
-bool Window::initializeObjects(char* fileOne, char* fileTwo, char* fileThree, Skeleton* skel, Skin* skin, Player* player) {
-    cube = new Cube();
+//maintain this as model for how to load an animation 
+//bool Window::initializeObjects(char* fileOne, char* fileTwo, char* fileThree, Skeleton* skel, Skin* skin, Player* player) {
+//    skin->doSkinning();
+//    skel->doSkel();
+//    player->animation->doAnimation();
+//    skel->Load(fileOne);
+//    skin->Load(fileTwo);
+//    player->animation->Load(fileThree);
+//    doJoints = true;
+//
+//    return true;
+//}
 
-    PlayerIntent = PlayerIntentPacket();
-    skin->doSkinning();
-    skel->doSkel();
-    player->animation->doAnimation();
-    skel->Load(fileOne);
-    skin->Load(fileTwo);
-    player->animation->Load(fileThree);
-    doJoints = true;
-
-    return true;
-}
-
-
-bool Window::initializeObjects(char * file, Skeleton* skel, Skin* skin) {
-    // Create a cube
-	if (strstr(file, ".skel")) {
-        skel->doSkel();
-		skel->Load(file);
-        doJoints = true;
-	}
-    else {
-        skin->doSkinning();
-		skin->Load(file);
-        doJoints = false;
-    }
-
-    cube = new Cube();
-
-    PlayerIntent = PlayerIntentPacket();
-    return true;
-}
-
-void Window::cleanUp(Skeleton* skel, Skin* skin) {
-    // Deallcoate the objects.
-    delete skel;
-    delete skin;
-
+void Window::cleanUp() {
     delete cube;
-
-    // Delete the shader program.
-    glDeleteProgram(shaderProgram);
 }
 
 // for the Window
@@ -150,9 +94,12 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
 
     // initialize the interaction variables
     LeftDown = RightDown = false;
-    MouseX = MouseY = 0;
     A_Down = D_Down = W_Down = S_Down = false;
+  
+    MouseX = width/2;
+    MouseY = height / 2;
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
     Window::client = _client;
@@ -170,28 +117,19 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 // update and draw functions
-void Window::idleCallback(Skeleton* skel, Skin* skin, Player * player) {
+void Window::idleCallback() {
     // Perform any updates as necessary.
     Cam->Update();
-    
-    //std::cout << "before update skeleton" << std::endl;
-    skel->update();
-    //std::cout << "after update skeleton" << std::endl;
-    
-	skin->update();
-
-    player->update();
+    scene->update();
 
 	if (cube != NULL) {
         cube->setModel(client->GameState.cubeModel);
 	}
-	
-
     client->update(PlayerIntent);
 	
 }
 
-void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, char* Namelist[], int listsize, ImGuiIO* io) {
+void Window::displayCallback(GLFWwindow* window) {
     // Clear the color and depth buffers.
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -201,7 +139,6 @@ void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, cha
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-    obj->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
     scene->draw(Cam);
     // Gets events, including input such as keyboard and mouse or window resizing.
     // if (!io->WantCaptureMouse) {
@@ -330,22 +267,25 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
     int maxDelta = 100;
-    int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
-    int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
+    int dx = Cam->sensitivity * glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
+    int dy = Cam->sensitivity * glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
 
-    MouseX = (int)currX;
-    MouseY = (int)currY;
+    //MouseX = (int)currX;
+    //MouseY = (int)currY;
+    glfwSetCursorPos(window, MouseX, MouseY);
 
     // Move camera
     // NOTE: this should really be part of Camera::Update()
-    if (LeftDown) {
-        const float rate = 1.0f;
-        Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
-        Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
-    }
-    if (RightDown) {
-        const float rate = 0.005f;
-        float dist = glm::clamp(Cam->GetDistance() * (1.0f - dx * rate), 0.01f, 1000.0f);
-        Cam->SetDistance(dist);
-    }
+
+    //if (LeftDown) {
+    const float rate = 1.0f;
+    Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
+    Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
+    //}
+    
+    //if (RightDown) {
+    //    const float rate = 0.005f;
+    //    float dist = glm::clamp(Cam->GetDistance() * (1.0f - dx * rate), 0.01f, 1000.0f);
+    //    Cam->SetDistance(dist);
+    //}
 }

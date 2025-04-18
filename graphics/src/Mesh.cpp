@@ -8,6 +8,7 @@ void Mesh::create(aiMesh* mMesh, aiMaterial* mMaterial, glm::mat4 model) {
     tex = false;
     this->model = model;
 
+    indices.reserve(mMesh->mNumFaces * 3);
     for (int j = 0; j < mMesh->mNumFaces; j++) {
 
         indices.push_back(mMesh->mFaces[j].mIndices[0]);
@@ -15,6 +16,8 @@ void Mesh::create(aiMesh* mMesh, aiMaterial* mMaterial, glm::mat4 model) {
         indices.push_back(mMesh->mFaces[j].mIndices[2]);
     }
 
+    positions.reserve(mMesh->mNumVertices);
+    normals.reserve(mMesh->mNumVertices);
     for (int j = 0; j < mMesh->mNumVertices; j++) {
         glm::vec3 vert(mMesh->mVertices[j].x, mMesh->mVertices[j].y, mMesh->mVertices[j].z);
         positions.push_back(vert);
@@ -23,6 +26,7 @@ void Mesh::create(aiMesh* mMesh, aiMaterial* mMaterial, glm::mat4 model) {
     }
 
     if (mMesh->HasTextureCoords(0)) {
+        uvs.reserve(mMesh->mNumVertices);
         for(int t = 0; t < mMesh->mNumVertices; t++){
             float x = mMesh->mTextureCoords[0][t].x;
             float y = mMesh->mTextureCoords[0][t].y;
