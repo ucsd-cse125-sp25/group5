@@ -146,7 +146,7 @@ void Window::displayCallback(GLFWwindow* window) {
     // }
 
     if (cube != NULL) {
-        cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+        cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
     }
 	
 
