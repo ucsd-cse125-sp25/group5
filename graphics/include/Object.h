@@ -12,12 +12,13 @@ class Object {
 private:
 
     glm::mat4 model; //also model matrix for all children meshes
+    GLuint shader;
 
     std::vector<Mesh*> meshes;
 
 public:
 
-    void create(char* filename, glm::mat4 model);
-    void draw(const glm::mat4& viewProjMtx, GLuint shader);
+    void create(char* filename, glm::mat4 model, int shaderIndex);
+    void draw(const glm::mat4& viewProjMtx);
     void update(glm::mat4 new_model);
 };

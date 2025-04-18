@@ -1,32 +1,31 @@
 #include "Object.h"
 #include <iostream>
+#include <Scene.h>
 
-void Object::create(char* filename, glm::mat4 model) {
+extern Scene* scene;
+
+void Object::create(char* filename, glm::mat4 model, int shaderIndex) {
     this->model = model;
 
     std::cout << "entered create" << std::endl;
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+    if (!iscene || iscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !iscene->mRootNode) // if is Not Zero
     {
         std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
         return;
     }
-    //std::cout << "Number of Meshes: " << scene->mNumMeshes << std::endl;
-    //for (int i = 0; i < scene->mNumMeshes; i++) {
-    //    aiColor4D diffuse;
-    //    aiGetMaterialColor(scene->mMaterials[scene->mMeshes[i]->mMaterialIndex], AI_MATKEY_COLOR_DIFFUSE, &diffuse);
-    //    std::cout << diffuse.r << " " << diffuse.g << " " << diffuse.b << std::endl;
-    //}
-    //int count = 0;
-    for (int i = 0; i < scene->mNumMeshes; i++) {
+
+    for (int i = 0; i < iscene->mNumMeshes; i++) {
         Mesh* mesh = new Mesh();
-        mesh->create(scene->mMeshes[i], scene->mMaterials[scene->mMeshes[i]->mMaterialIndex], model);
+        mesh->create(iscene->mMeshes[i], iscene->mMaterials[iscene->mMeshes[i]->mMaterialIndex], model);
         meshes.push_back(mesh);
     }
+
+    shader = scene->shaders[shaderIndex];
 }
 
-void Object::draw(const glm::mat4& viewProjMtx, GLuint shader) {
+void Object::draw(const glm::mat4& viewProjMtx) {
     for (int i = 0; i < meshes.size(); i++) {
         meshes[i]->draw(viewProjMtx, shader);
     }

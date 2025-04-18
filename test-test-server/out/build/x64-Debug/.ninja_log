@@ -1,19 +1,9 @@
 # ninja log v6
-22	228	7663841072874980	CMakeFiles/server_app.dir/stdafx.cpp.obj	24c61fdc6a86c8a
-20	426	7663841072874980	CMakeFiles/server_app.dir/NetworkServices.cpp.obj	adb151b68f8ffc16
-5	892	7667121565652201	CMakeFiles/server_app.dir/main.cpp.obj	fdbf86a8ccf572c1
-8	899	7667121565672197	CMakeFiles/server_app.dir/ServerGame.cpp.obj	26746ee179787fdf
-10	904	7667121565692236	CMakeFiles/server_app.dir/ServerNetwork.cpp.obj	8e057716b709992c
-475	650	7663864004161694	server_app.exe	ae8924452b776438
-4	13	7663841072440539	clean	3f9b83505c84670f
-13	244	7667125031317342	CMakeFiles/server_app.dir/stdafx.cpp.obj	24c61fdc6a86c8a
-11	438	7667125031317342	CMakeFiles/server_app.dir/NetworkServices.cpp.obj	adb151b68f8ffc16
-5	458	7667125031161884	CMakeFiles/server_app.dir/main.cpp.obj	fdbf86a8ccf572c1
-8	492	7667125031317342	CMakeFiles/server_app.dir/ServerGame.cpp.obj	26746ee179787fdf
-10	497	7667125031317342	CMakeFiles/server_app.dir/ServerNetwork.cpp.obj	8e057716b709992c
 13	209	7667125378697884	CMakeFiles/server_app.dir/stdafx.cpp.obj	24c61fdc6a86c8a
 11	411	7667125378697884	CMakeFiles/server_app.dir/NetworkServices.cpp.obj	adb151b68f8ffc16
 5	446	7667125378547086	CMakeFiles/server_app.dir/main.cpp.obj	fdbf86a8ccf572c1
-9	478	7667125378697884	CMakeFiles/server_app.dir/ServerNetwork.cpp.obj	8e057716b709992c
-7	483	7667125378697884	CMakeFiles/server_app.dir/ServerGame.cpp.obj	26746ee179787fdf
 5	232	7667125741469221	CMakeFiles/server_app.dir/physics/PhysicsSystem.cpp.obj	23450232589c8e6a
+7	483	7667125378697884	CMakeFiles/server_app.dir/ServerGame.cpp.obj	26746ee179787fdf
+9	478	7667125378697884	CMakeFiles/server_app.dir/ServerNetwork.cpp.obj	8e057716b709992c
+475	650	7663864004161694	server_app.exe	ae8924452b776438
+4	13	7663841072440539	clean	3f9b83505c84670f
