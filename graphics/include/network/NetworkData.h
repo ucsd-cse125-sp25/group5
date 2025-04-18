@@ -43,7 +43,12 @@ struct PlayerIntentPacket {
 };
 
 struct GameStatePacket {
+
+	unsigned int packet_type;
     glm::mat4 cubeModel;
+
+	unsigned int num_objects;
+    glm::mat4 objects[100];
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));
