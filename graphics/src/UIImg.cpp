@@ -12,8 +12,6 @@ void UIImg::Draw() {
 
 }
 
-
-
 /**
 * @brief Initalizes the quads of both the health and container bars.
 * Using pixel coordinates: (0,0) will be bottom left of the screen
@@ -76,9 +74,13 @@ void HealthBar::Init(float scWidth, float scHeight, std::vector<float> startPos,
 }
 
 void HealthBar::Update(const PlayerStats &p) {
+	float leftX = container[0];
+	float rightX = container[5];
+	float width = rightX - leftX;
 	float percentage = float(p.currHP) / float(p.maxHP);
-	health[5] = container[5] * percentage;
-	health[10] = container[10] * percentage;
+	std::cout << percentage << std::endl;
+	health[5] = leftX + width * percentage;
+	health[10] = leftX + width * percentage;
 
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
@@ -91,7 +93,6 @@ void HealthBar::Update(const PlayerStats &p) {
 }
 
 void HealthBar::Draw() {
-	//std::cout << "Drawing the Healthbar!" << std::endl;
 	glDisable(GL_DEPTH_TEST);
 
 	glBindVertexArray(VAO[0]);
