@@ -10,8 +10,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
-#define STB_IMAGE_IMPLEMENTATION
+#include "Global.h"
 #include <Object.h>
 #include <Scene.h>
 #include <UIManager.h>

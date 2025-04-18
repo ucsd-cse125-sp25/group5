@@ -1,4 +1,5 @@
 #include "Skybox.h"
+#include "stb_image.h"
 
 // Will populate the VAO, VBOs, and textures
 void Skybox::initSkybox() {

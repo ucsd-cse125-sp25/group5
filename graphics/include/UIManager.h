@@ -4,6 +4,7 @@
 #include "Global.h"
 #include "Shader.h"
 #include "UIImg.h"
+#include "unordered_map"
 
 class UIManager {
 public:
@@ -11,15 +12,19 @@ public:
 	void update(const PlayerStats &p);
 	void draw();
 
+	//Texture Manager
+	void LoadTexture(const std::string& name, const std::string& path);
+	GLuint GetTexture(const std::string& name);
+	void UIManager::UnloadAllTextures();
+
 	void SetGameState(GameState state);
 private:
 	GameState currState;
-	GLuint shaderProgram;
+	//GLuint shaderProgram;
 	glm::mat4 projection;
-	std::vector<UIImg*> imgElements;
 
-	void UpdateLobby(const PlayerStats &p);
-	void DrawLobby();
-	void UpdateMatch(const PlayerStats &p);
-	void DrawMatch();
+	// Add more vectors for the different game states
+	std::vector<UIImg*> matchElements;
+	std::vector<UIImg*> lobbyElements;
+	std::unordered_map<std::string, GLuint> textures;
 };

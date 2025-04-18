@@ -12,6 +12,10 @@ void UIImg::Draw() {
 
 }
 
+void UIImg::SetTexture(GLuint tex) {
+	texture = tex;
+}
+
 /**
 * @brief Initalizes the quads of both the health and container bars.
 * Using pixel coordinates: (0,0) will be bottom left of the screen
@@ -23,26 +27,32 @@ void UIImg::Draw() {
 * @param ratio: Aspect ratio of the UI element
 **/
 void HealthBar::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
-	containerColor = { 1.0f, 1.0f, 1.0f };
-	healthColor = { 0.3f, 0.0f, 0.0f };
+
+	shaderProgram = LoadShaders("shaders/healthbar.vert", "shaders/healthbar.frag");
+	projection = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	containerColor = { 0.2f, 0.2f, 1.0f };
+	healthColor = { 1.0f, 1.0f, 1.0f };
 
 	float offsetX = scWidth * percent;
 	float offsetY = scHeight * percent * ratio;
 
 	health = {
-		//Position                                       //Color
-		startPos[0], startPos[1],                        healthColor[0], healthColor[1], healthColor[2],
-		startPos[0] + offsetX, startPos[1],              healthColor[0], healthColor[1], healthColor[2],
-		startPos[0] + offsetX, startPos[1] + offsetY,    healthColor[0], healthColor[1], healthColor[2],
-		startPos[0], startPos[1] + offsetY,              healthColor[0], healthColor[1], healthColor[2],
+		//Position                                     //UV         //Color
+		startPos[0], startPos[1],                      0.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
+		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
+		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
+		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
 	};
 
 	container = {
-		//Position                                       //Color
-		startPos[0], startPos[1],                        containerColor[0], containerColor[1], containerColor[2],
-		startPos[0] + offsetX, startPos[1],              containerColor[0], containerColor[1], containerColor[2],
-		startPos[0] + offsetX, startPos[1] + offsetY,    containerColor[0], containerColor[1], containerColor[2],
-		startPos[0], startPos[1] + offsetY,              containerColor[0], containerColor[1], containerColor[2],
+		//Position                                     //UV        //Color
+		startPos[0], startPos[1],                      0.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
+		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
+		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
+		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
 	};
 
 	glGenVertexArrays(2, VAO);
@@ -55,52 +65,86 @@ void HealthBar::Init(float scWidth, float scHeight, std::vector<float> startPos,
 
 	glBindVertexArray(VAO[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
 	glBufferData(GL_ARRAY_BUFFER, container.size() * sizeof(float), container.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	glBindVertexArray(VAO[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
 	glBufferData(GL_ARRAY_BUFFER, health.size() * sizeof(float), health.data(), GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindVertexArray(0);
 }
 
 void HealthBar::Update(const PlayerStats &p) {
 	float leftX = container[0];
-	float rightX = container[5];
+	float rightX = container[7];
 	float width = rightX - leftX;
 	float percentage = float(p.currHP) / float(p.maxHP);
-	std::cout << percentage << std::endl;
-	health[5] = leftX + width * percentage;
-	health[10] = leftX + width * percentage;
 
-	glBindVertexArray(VAO[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glUseProgram(shaderProgram);
+	glUniform1f(glGetUniformLocation(shaderProgram, "healthPercent"), percentage);
+}
 
-	glBufferSubData(GL_ARRAY_BUFFER, 1 * 5 * sizeof(float), 5 * sizeof(float), &health[5]);
-	glBufferSubData(GL_ARRAY_BUFFER, 2 * 5 * sizeof(float), 5 * sizeof(float), &health[10]);
-
-	glBindVertexArray(0);
-
+void HealthBar::SetTexture(GLuint texture) {
+	healthTexture = texture;
 }
 
 void HealthBar::Draw() {
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, healthTexture);
+
 	glDisable(GL_DEPTH_TEST);
 
+	glUniform1i(glGetUniformLocation(shaderProgram, "health"), false);
 	glBindVertexArray(VAO[0]);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+	glUniform1i(glGetUniformLocation(shaderProgram, "health"), true);
 	glBindVertexArray(VAO[1]);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDisable(GL_BLEND);
 
 	glEnable(GL_DEPTH_TEST);
 	glBindVertexArray(0);
 }
+
+/*
+GLuint HealthBar::LoadTexture(std::string path) {
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	int width, height, channels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+	if (data) {
+		GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	stbi_image_free(data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	return textureID;
+}
+*/
