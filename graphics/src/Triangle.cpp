@@ -82,6 +82,7 @@ void Triangle::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     glUniformMatrix4fv(glGetUniformLocation(shader, "viewProj"), 1, false, (float*)&viewProjMtx);
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
     glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
+    glUniform1i(glGetUniformLocation(shader, "istex"), 0);
 
     // Bind the VAO
     glBindVertexArray(VAO);

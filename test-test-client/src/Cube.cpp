@@ -121,6 +121,13 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) {
     // Unbind the VBOs.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    //print all the stuff in model
+	/*for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			printf("%f ", model[i][j]);
+		}
+	}*/
 }
 
 Cube::~Cube() {
@@ -153,18 +160,10 @@ void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
 void Cube::update() {
     // Spin the cube
-    spin(0.05f);
+    //spin(0.05f);
 }
 
 void Cube::spin(float deg) {
     // Update the model matrix by multiplying a rotation matrix
     model = model * glm::rotate(glm::radians(deg), glm::vec3(0.0f, 1.0f, 0.0f));
-}
-
-void Cube::moveX(float delta) {
-    model = glm::translate(model, glm::vec3(delta, 0.0f, 0.0f));
-}
-
-void Cube::moveY(float delta) {
-    model = glm::translate(model, glm::vec3(0.0f, delta, 0.0f));
 }

@@ -9,6 +9,8 @@ file(GLOB SOURCES
     imgui/*.cpp
     include/*.h
     src/*.cpp
+    include/network/*.h
+    src/network/*.cpp
 )
 
 add_subdirectory(lib/assimp)
@@ -30,7 +32,11 @@ link_directories(
  
 
 # Add executable
-add_executable(${PROJECT_NAME} ${SOURCES}  "include/imgui.h" "include/imgui_impl_opengl3.h" "include/imconfig.h" "include/stb_image.h" "include/imgui_impl_opengl3_loader.h" "include/imgui_impl_win32.h" "include/imgui_impl_glfw.h" "src/imgui_impl_glfw.cpp" "src/Keyframe.cpp" "include/Keyframe.h" "include/Channel.h" "include/Animation.h" "src/Animation.cpp" "src/Channel.cpp" "src/Player.cpp" "include/Player.h" "src/Object.cpp" "include/Object.h" "src/Scene.cpp" "include/Scene.h" "include/Skybox.h" "src/Skybox.cpp" "include/UIManager.h" "src/UIManager.cpp" "include/Global.h" "src/UIImg.cpp" "include/UIImg.h" "src/stb_image_impl.cpp")
+add_executable(${PROJECT_NAME} ${SOURCES}  "include/imgui.h" "include/imgui_impl_opengl3.h" "include/imconfig.h" "include/imgui_impl_opengl3_loader.h" "include/imgui_impl_win32.h" "include/imgui_impl_glfw.h" "src/imgui_impl_glfw.cpp" "src/Keyframe.cpp" "include/Keyframe.h" "include/Channel.h" "include/Animation.h" "src/Animation.cpp" "src/Channel.cpp" "src/Player.cpp" "include/Player.h" "src/Object.cpp" "include/Object.h" "src/Scene.cpp" "include/Scene.h" "include/Skybox.h" "src/Skybox.cpp" "src/Mesh.cpp" "include/Mesh.h" "include/stb_image.h" "src/stb_image_definer.cpp" "src/stb_image_impl.cpp" "include/network/ClientGame.h" "include/UIManager.h" "src/UIManager.cpp" "include/Global.h" "src/UIImg.cpp" "include/UIImg.h")
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE 
+    PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+)
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES} glew32s.lib glfw3 assimp)

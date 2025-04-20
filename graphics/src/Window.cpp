@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "core.h"
 #include "Window.h"
 #include "Skin.h"
 #include "imgui.h"
@@ -19,6 +20,9 @@ const char* Window::windowTitle = "Model Environment";
 // Objects to render
 //Skeleton* Window::skel;
 
+// Objects to render
+Cube* Window::cube;
+
 // Camera Properties
 Camera* Cam;
 
@@ -26,11 +30,8 @@ bool doJoints = false;
 // Interaction Variables
 bool LeftDown, RightDown;
 int MouseX, MouseY;
+bool A_Down, D_Down, W_Down, S_Down;
 
-// The shader program id
-GLuint Window::shaderProgram;
-
-extern Object* obj;
 extern Scene* scene;
 extern UIManager* uimanager;
 
@@ -38,75 +39,34 @@ extern UIManager* uimanager;
 PlayerStats dummy; //IN GLOBAL.h
 //THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
 
+ClientGame* Window::client;
+PlayerIntentPacket Window::PlayerIntent;
+
 // Constructors and desctructors
 bool Window::initializeProgram() {
-    // Create a shader program with a vertex shader and a fragment shader.
-    shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
-
-    // Check the shader program.
-    if (!shaderProgram) {
-        std::cerr << "Failed to initialize shader program" << std::endl;
-        return false;
-    }
-
-    dummy.ID = 0;
-    dummy.maxHP = 250;
-    dummy.currHP = dummy.maxHP;
+    cube = new Cube();
     return true;
 }
 
-bool Window::initializeObjects(char* fileOne, char* fileTwo, Skeleton * skel, Skin * skin) {
+//maintain this as model for how to load an animation 
+//bool Window::initializeObjects(char* fileOne, char* fileTwo, char* fileThree, Skeleton* skel, Skin* skin, Player* player) {
+//    skin->doSkinning();
+//    skel->doSkel();
+//    player->animation->doAnimation();
+//    skel->Load(fileOne);
+//    skin->Load(fileTwo);
+//    player->animation->Load(fileThree);
+//    doJoints = true;
+//
+//    return true;
+//}
 
-    skin->doSkinning();
-    skel->doSkel();
-    skel->Load(fileOne);
-	skin->Load(fileTwo);
-    doJoints = true;
-    //	std::cout << file << std::endl;
-        // cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
-
-    return true;
-}
-
-bool Window::initializeObjects(char* fileOne, char* fileTwo, char* fileThree, Skeleton* skel, Skin* skin, Player* player) {
-    skin->doSkinning();
-    skel->doSkel();
-    player->animation->doAnimation();
-    skel->Load(fileOne);
-    skin->Load(fileTwo);
-    player->animation->Load(fileThree);
-    doJoints = true;
-
-    return true;
-}
-
-
-bool Window::initializeObjects(char * file, Skeleton* skel, Skin* skin) {
-    // Create a cube
-	if (strstr(file, ".skel")) {
-        skel->doSkel();
-		skel->Load(file);
-        doJoints = true;
-	}
-    else {
-        skin->doSkinning();
-		skin->Load(file);
-        doJoints = false;
-    }
-    return true;
-}
-
-void Window::cleanUp(Skeleton* skel, Skin* skin) {
-    // Deallcoate the objects.
-    delete skel;
-    delete skin;
-
-    // Delete the shader program.
-    glDeleteProgram(shaderProgram);
+void Window::cleanUp() {
+    delete cube;
 }
 
 // for the Window
-GLFWwindow* Window::createWindow(int width, int height) {
+GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     // Initialize GLFW.
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -141,10 +101,15 @@ GLFWwindow* Window::createWindow(int width, int height) {
 
     // initialize the interaction variables
     LeftDown = RightDown = false;
-    MouseX = MouseY = 0;
+    A_Down = D_Down = W_Down = S_Down = false;
+  
+    MouseX = width/2;
+    MouseY = height / 2;
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
+    Window::client = _client;
 
     return window;
 }
@@ -159,23 +124,18 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 // update and draw functions
-void Window::idleCallback(Skeleton* skel, Skin* skin, Player * player) {
+void Window::idleCallback() {
     // Perform any updates as necessary.
     Cam->Update();
-    
-    //std::cout << "before update skeleton" << std::endl;
-    skel->update();
-    //std::cout << "after update skeleton" << std::endl;
-    
-	skin->update();
-
-    player->update();
-
-    uimanager->update(dummy);
-	
+    scene->update();
+  
+	if (cube != NULL) {
+        cube->setModel(client->GameState.cubeModel);
+	}
+    client->update(PlayerIntent);
 }
 
-void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, char* Namelist[], int listsize, ImGuiIO* io) {
+void Window::displayCallback(GLFWwindow* window) {
     // Clear the color and depth buffers.
     glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -185,7 +145,6 @@ void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, cha
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-    obj->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
     scene->draw(Cam);
 
     //RENDER 2D
@@ -194,6 +153,12 @@ void Window::displayCallback(GLFWwindow* window, Skeleton* skel, Skin* skin, cha
     // if (!io->WantCaptureMouse) {
       //   glfwPollEvents();
     // }
+
+    if (cube != NULL) {
+        cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
+    }
+	
+
     glfwPollEvents();
 
     if (doJoints) {
@@ -290,35 +255,17 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_R:
                 resetCamera();
                 break;
-            case GLFW_KEY_I:
-                std::cout << "Taking 10 damage!" << std::endl;
-                if (dummy.currHP - BURST < 0) {
-                    std::cout << "Already dead!" << std::endl;
-                }
-                else {
-                    dummy.currHP -= 10;
-                }
-                break;
-            case GLFW_KEY_O:
-                std::cout << "Healing 10 damage!" << std::endl;
-                if (dummy.currHP + BURST > dummy.maxHP) {
-                    std::cout << "Already at MAX HP" << std::endl;
-                }
-                else {
-                    dummy.currHP += 10;
-                }
-                break;
-            case GLFW_KEY_P:
-                std::cout << "Death!" << std::endl;
-                dummy.currHP = 0;
-                break;
-
             default:
                 break;
         }
 
         std::cout << "Current HP is: " << dummy.currHP << std::endl;
     }
+
+    PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+    PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+    PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+    PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -332,22 +279,25 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
     int maxDelta = 100;
-    int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
-    int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
+    int dx = Cam->sensitivity * glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
+    int dy = Cam->sensitivity * glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
 
-    MouseX = (int)currX;
-    MouseY = (int)currY;
+    //MouseX = (int)currX;
+    //MouseY = (int)currY;
+    glfwSetCursorPos(window, MouseX, MouseY);
 
     // Move camera
     // NOTE: this should really be part of Camera::Update()
-    if (LeftDown) {
-        const float rate = 1.0f;
-        Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
-        Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
-    }
-    if (RightDown) {
-        const float rate = 0.005f;
-        float dist = glm::clamp(Cam->GetDistance() * (1.0f - dx * rate), 0.01f, 1000.0f);
-        Cam->SetDistance(dist);
-    }
+
+    //if (LeftDown) {
+    const float rate = 1.0f;
+    Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
+    Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
+    //}
+    
+    //if (RightDown) {
+    //    const float rate = 0.005f;
+    //    float dist = glm::clamp(Cam->GetDistance() * (1.0f - dx * rate), 0.01f, 1000.0f);
+    //    Cam->SetDistance(dist);
+    //}
 }

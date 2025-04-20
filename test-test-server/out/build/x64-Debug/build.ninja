@@ -52,7 +52,7 @@ build cmake_object_order_depends_target_server_app: phony || .
 build CMakeFiles\server_app.dir\main.cpp.obj: CXX_COMPILER__server_app_unscanned_Debug C$:\Users\s3shi\Desktop\group5\test-test-server\main.cpp || cmake_object_order_depends_target_server_app
   DEFINES = -D_WIN32_WINNT=0x0601
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server
+  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server\include -IC:\Users\s3shi\Desktop\group5\test-test-server
   OBJECT_DIR = CMakeFiles\server_app.dir
   OBJECT_FILE_DIR = CMakeFiles\server_app.dir
   TARGET_COMPILE_PDB = CMakeFiles\server_app.dir\
@@ -61,7 +61,7 @@ build CMakeFiles\server_app.dir\main.cpp.obj: CXX_COMPILER__server_app_unscanned
 build CMakeFiles\server_app.dir\ServerGame.cpp.obj: CXX_COMPILER__server_app_unscanned_Debug C$:\Users\s3shi\Desktop\group5\test-test-server\ServerGame.cpp || cmake_object_order_depends_target_server_app
   DEFINES = -D_WIN32_WINNT=0x0601
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server
+  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server\include -IC:\Users\s3shi\Desktop\group5\test-test-server
   OBJECT_DIR = CMakeFiles\server_app.dir
   OBJECT_FILE_DIR = CMakeFiles\server_app.dir
   TARGET_COMPILE_PDB = CMakeFiles\server_app.dir\
@@ -70,7 +70,7 @@ build CMakeFiles\server_app.dir\ServerGame.cpp.obj: CXX_COMPILER__server_app_uns
 build CMakeFiles\server_app.dir\ServerNetwork.cpp.obj: CXX_COMPILER__server_app_unscanned_Debug C$:\Users\s3shi\Desktop\group5\test-test-server\ServerNetwork.cpp || cmake_object_order_depends_target_server_app
   DEFINES = -D_WIN32_WINNT=0x0601
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server
+  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server\include -IC:\Users\s3shi\Desktop\group5\test-test-server
   OBJECT_DIR = CMakeFiles\server_app.dir
   OBJECT_FILE_DIR = CMakeFiles\server_app.dir
   TARGET_COMPILE_PDB = CMakeFiles\server_app.dir\
@@ -79,7 +79,7 @@ build CMakeFiles\server_app.dir\ServerNetwork.cpp.obj: CXX_COMPILER__server_app_
 build CMakeFiles\server_app.dir\NetworkServices.cpp.obj: CXX_COMPILER__server_app_unscanned_Debug C$:\Users\s3shi\Desktop\group5\test-test-server\NetworkServices.cpp || cmake_object_order_depends_target_server_app
   DEFINES = -D_WIN32_WINNT=0x0601
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server
+  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server\include -IC:\Users\s3shi\Desktop\group5\test-test-server
   OBJECT_DIR = CMakeFiles\server_app.dir
   OBJECT_FILE_DIR = CMakeFiles\server_app.dir
   TARGET_COMPILE_PDB = CMakeFiles\server_app.dir\
@@ -88,7 +88,7 @@ build CMakeFiles\server_app.dir\NetworkServices.cpp.obj: CXX_COMPILER__server_ap
 build CMakeFiles\server_app.dir\stdafx.cpp.obj: CXX_COMPILER__server_app_unscanned_Debug C$:\Users\s3shi\Desktop\group5\test-test-server\stdafx.cpp || cmake_object_order_depends_target_server_app
   DEFINES = -D_WIN32_WINNT=0x0601
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
-  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server
+  INCLUDES = -IC:\Users\s3shi\Desktop\group5\test-test-server\include -IC:\Users\s3shi\Desktop\group5\test-test-server
   OBJECT_DIR = CMakeFiles\server_app.dir
   OBJECT_FILE_DIR = CMakeFiles\server_app.dir
   TARGET_COMPILE_PDB = CMakeFiles\server_app.dir\

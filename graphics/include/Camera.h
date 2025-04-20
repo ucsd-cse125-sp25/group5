@@ -23,14 +23,18 @@ public:
     void SetDistance(float d) { Distance = d; }
     void SetAzimuth(float a) { Azimuth = a; }
     void SetIncline(float i) { Incline = i; }
+    void SetPosition(glm::vec3 a) { Pos = a; }
 
     float GetDistance() { return Distance; }
     float GetAzimuth() { return Azimuth; }
     float GetIncline() { return Incline; }
+    glm::vec3 GetPosition() { return Pos; }
 
     const glm::mat4 &GetViewProjectMtx() { return ViewProjectMtx; }
     const glm::mat4 &GetViewMtx() { return ViewMtx; }
     const glm::mat4 &GetProjMtx() { return ProjMtx; }
+
+    float sensitivity;
 
 private:
     // Perspective controls
@@ -43,6 +47,7 @@ private:
     float Distance;  // Distance of the camera eye position to the origin (meters)
     float Azimuth;   // Rotation of the camera eye position around the Y axis (degrees)
     float Incline;   // Angle of the camera eye position over the XZ plane (degrees)
+    glm::vec3 Pos;   // Position of Camera Center in 3D space
 
     // Computed data
     glm::mat4 ViewProjectMtx;
