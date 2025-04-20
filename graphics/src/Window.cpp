@@ -9,6 +9,8 @@
 #include "imgui_impl_opengl3.h"
 #include <Object.h>
 #include <Scene.h>
+#include <UIManager.h>
+#include "Global.h"
 
 // Window Properties
 int Window::width;
@@ -31,6 +33,11 @@ int MouseX, MouseY;
 bool A_Down, D_Down, W_Down, S_Down;
 
 extern Scene* scene;
+extern UIManager* uimanager;
+
+//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
+PlayerStats dummy; //IN GLOBAL.h
+//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
 
 ClientGame* Window::client;
 PlayerIntentPacket Window::PlayerIntent;
@@ -121,12 +128,11 @@ void Window::idleCallback() {
     // Perform any updates as necessary.
     Cam->Update();
     scene->update();
-
+  
 	if (cube != NULL) {
         cube->setModel(client->GameState.cubeModel);
 	}
     client->update(PlayerIntent);
-	
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -140,6 +146,9 @@ void Window::displayCallback(GLFWwindow* window) {
 	//skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
     scene->draw(Cam);
+
+    //RENDER 2D
+    uimanager->draw();
     // Gets events, including input such as keyboard and mouse or window resizing.
     // if (!io->WantCaptureMouse) {
       //   glfwPollEvents();
@@ -234,6 +243,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
      */
 
     // Check for a key press.
+    int BURST = 10;
+
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
@@ -244,10 +255,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_R:
                 resetCamera();
                 break;
-
             default:
                 break;
         }
+
+        std::cout << "Current HP is: " << dummy.currHP << std::endl;
     }
 
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;

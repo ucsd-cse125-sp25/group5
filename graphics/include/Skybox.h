@@ -2,8 +2,6 @@
 
 #include <vector>
 #include <string>
-// TODO: #include <stb_image.h> import this later...
-#include "stb_image.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "core.h"
