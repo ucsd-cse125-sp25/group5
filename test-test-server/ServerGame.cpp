@@ -24,6 +24,8 @@ ServerGame::ServerGame(void)
 	GameState = GameStatePacket();
 	PlayerIntent = PlayerIntentPacket();
 
+    /*Initialize the GameState*/
+
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
     
@@ -165,15 +167,15 @@ void ServerGame::sendActionPackets()
     //GameStatePacket packet;
     //packet.cubeModel = GameState.cubeModel;
     
-    printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
-    printf("cube model is: ");
-    for (int j = 0; j < 4; j++) {
-        for (int k = 0; k < 4; k++) {
-            //printf("%f ", GameState.getModelMatrix()[i][j]);
-            printf("%f ", GameState.cubeModel[k][j]);
-        }
-        printf("\n");
-    }
+    //printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
+    //printf("cube model is: ");
+    //for (int j = 0; j < 4; j++) {
+    //    for (int k = 0; k < 4; k++) {
+    //        //printf("%f ", GameState.getModelMatrix()[i][j]);
+    //        printf("%f ", GameState.cubeModel[k][j]);
+    //    }
+    //    printf("\n");
+    //}
     GameState.serialize(packet_data);
 
     network->sendToAll(packet_data, packet_size);

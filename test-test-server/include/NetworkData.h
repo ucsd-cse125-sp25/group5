@@ -1,5 +1,5 @@
 #pragma once
-#include <string.h>
+#include <string.h> 
 
 
 #define MAX_PACKET_SIZE 1000000
@@ -17,11 +17,11 @@ struct Packet {
     unsigned int packet_type;
     char buf[128];
 
-    void serialize(char * data) {
+    void serialize(char* data) {
         memcpy(data, this, sizeof(Packet));
     }
 
-    void deserialize(char * data) {
+    void deserialize(char* data) {
         memcpy(this, data, sizeof(Packet));
     }
 };
@@ -42,7 +42,12 @@ struct PlayerIntentPacket {
 };
 
 struct GameStatePacket {
+
+    unsigned int packet_type;
     glm::mat4 cubeModel;
+
+    unsigned int num_objects;
+    glm::mat4 objects[100];
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));

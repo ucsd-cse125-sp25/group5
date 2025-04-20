@@ -94,7 +94,8 @@
 				1,
 				2,
 				3,
-				4
+				4,
+				7
 			]
 		}
 	],
@@ -150,7 +151,16 @@
 				1,
 				2,
 				3,
-				4
+				4,
+				7
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				5,
+				6
 			]
 		}
 	],
@@ -184,6 +194,22 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "stdafx.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "include/physics/PhysicsData.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "include/physics/PhysicsSystem.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "physics/PhysicsSystem.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],
