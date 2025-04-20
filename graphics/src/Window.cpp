@@ -9,8 +9,9 @@
 #include "imgui_impl_opengl3.h"
 #include <Object.h>
 #include <Scene.h>
-#include <UIManager.h>
 #include "Global.h"
+
+//#include <UIManager.h>
 
 // Window Properties
 int Window::width;
@@ -33,7 +34,7 @@ int MouseX, MouseY;
 bool A_Down, D_Down, W_Down, S_Down;
 
 extern Scene* scene;
-extern UIManager* uimanager;
+//extern UIManager* uimanager;
 
 //THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
 PlayerStats dummy; //IN GLOBAL.h
@@ -148,7 +149,7 @@ void Window::displayCallback(GLFWwindow* window) {
     scene->draw(Cam);
 
     //RENDER 2D
-    uimanager->draw();
+    //uimanager->draw();
     // Gets events, including input such as keyboard and mouse or window resizing.
     // if (!io->WantCaptureMouse) {
       //   glfwPollEvents();
