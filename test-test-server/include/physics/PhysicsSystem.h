@@ -13,4 +13,13 @@ public:
     void checkCollisions(GameObject* obj);
     void resolveCollisions(GameObject* obj);
     void handleGrapple(GameObject* obj, float dt);
+
+
+
+	void addDynamicObject(GameObject* obj) {
+		dynamicObjects.push_back(obj);
+	}
+	void addStaticObject(GameObject* obj) {
+		staticObjects.push_back(obj);
+	}
 };

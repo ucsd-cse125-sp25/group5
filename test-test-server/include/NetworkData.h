@@ -3,6 +3,7 @@
 
 
 #define MAX_PACKET_SIZE 1000000
+#define MAX_ENTITIES 128
 
 enum PacketTypes {
 
@@ -47,7 +48,7 @@ struct GameStatePacket {
     glm::mat4 cubeModel;
 
     unsigned int num_objects;
-    glm::mat4 objects[100];
+    glm::mat4 objects[MAX_ENTITIES];
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));

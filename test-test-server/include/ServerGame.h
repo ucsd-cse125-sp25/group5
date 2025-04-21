@@ -1,6 +1,8 @@
 #pragma once  
 #include "ServerNetwork.h"  
 #include "NetworkData.h"  
+#include "physics/PhysicsData.h"
+#include "physics/PhysicsSystem.h" // Include the PhysicsSystem header
 
 class ServerGame  
 {  
@@ -17,5 +19,6 @@ private:
    ServerNetwork* network;  
    char network_data[MAX_PACKET_SIZE];  
    PlayerIntentPacket PlayerIntent;  
-   GameStatePacket GameState;  
+   GameStatePacket GameState;
+   PhysicsSystem physicsSystem; // Add this line to include the physics system
 };

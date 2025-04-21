@@ -138,6 +138,29 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
     }
 }
 
+void PhysicsSystem::resolveCollisions(GameObject* o) {
+    return;
+}
+
+void PhysicsSystem::applyInput(GameObject* obj, const PlayerIntentPacket& intent) {
+	if (!obj->physics) return;
+	if (intent.moveLeftIntent) {
+		obj->physics->velocity.x = -obj->physics->maxSpeed;
+	}
+	else if (intent.moveRightIntent) {
+		obj->physics->velocity.x = obj->physics->maxSpeed;
+	}
+	else {
+		obj->physics->velocity.x = 0;
+	}
+	if (intent.moveUpIntent && obj->physics->grounded) {
+		obj->physics->velocity.y = 5.0f; // Jump force
+		obj->physics->grounded = false;
+	}
+}
+
+
+
 
 
 //test

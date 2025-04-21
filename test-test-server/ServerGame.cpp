@@ -21,10 +21,19 @@ ServerGame::ServerGame(void)
     // set up the server network to listen 
     network = new ServerNetwork(); 
     glm::vec3(1, 1, 1);
+
+    //the current game state TO SEND (not necessarily full game state)
 	GameState = GameStatePacket();
+
+	//the current player intent received
 	PlayerIntent = PlayerIntentPacket();
 
-    /*Initialize the GameState*/
+    //initialize the physics system
+	PhysicsSystem physicsSystem;
+
+    //boilerplate
+	GameObject* cube = new GameObject();
+
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
@@ -92,12 +101,7 @@ void ServerGame::receiveFromClients()
 
             i += sizeof(PlayerIntentPacket);
 
-
-            //print before
-			//printf("cubeModel before: \n");
-			//printf("x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
-
-            //process
+            //process player input 
             if (PlayerIntent.moveLeftIntent)
             {
 				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f)));
@@ -110,13 +114,21 @@ void ServerGame::receiveFromClients()
             if (PlayerIntent.moveUpIntent) {
                 GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
 				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
-
             }
             if (PlayerIntent.moveDownIntent) {
                 GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
 				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
             }
-            sendActionPackets();
+
+
+            currentTime = std::chrono::high_resolution_clock::now();
+
+            if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.33f) // some fixed constant
+            {
+                lastPacketSentTime = currentTime;
+                sendActionPackets();
+            }
+            //sendActionPackets();
 			//print after
 			//printf("cubeModel after: \n");
 			//printf("x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);

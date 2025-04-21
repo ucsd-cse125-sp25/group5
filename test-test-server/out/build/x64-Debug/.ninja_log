@@ -7,3 +7,11 @@
 9	478	7667125378697884	CMakeFiles/server_app.dir/ServerNetwork.cpp.obj	8e057716b709992c
 475	650	7663864004161694	server_app.exe	ae8924452b776438
 4	13	7663841072440539	clean	3f9b83505c84670f
+40	1186	7668989068992166	CMakeFiles/server_app.dir/stdafx.cpp.obj	24c61fdc6a86c8a
+28	1192	7668989068926595	CMakeFiles/server_app.dir/main.cpp.obj	fdbf86a8ccf572c1
+37	1197	7668989068992166	CMakeFiles/server_app.dir/NetworkServices.cpp.obj	adb151b68f8ffc16
+42	1200	7668989069095231	CMakeFiles/server_app.dir/physics/PhysicsSystem.cpp.obj	23450232589c8e6a
+32	1205	7668989068992166	CMakeFiles/server_app.dir/ServerGame.cpp.obj	26746ee179787fdf
+35	1210	7668989068992166	CMakeFiles/server_app.dir/ServerNetwork.cpp.obj	8e057716b709992c
+5	227	7668989691826813	CMakeFiles/server_app.dir/physics/PhysicsSystem.cpp.obj	23450232589c8e6a
+227	684	7668989694069951	server_app.exe	1360aa1706703719
