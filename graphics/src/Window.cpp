@@ -11,8 +11,6 @@
 #include <Scene.h>
 #include "Global.h"
 
-//#include <UIManager.h>
-
 // Window Properties
 int Window::width;
 int Window::height;
@@ -34,10 +32,9 @@ int MouseX, MouseY;
 bool A_Down, D_Down, W_Down, S_Down;
 
 extern Scene* scene;
-//extern UIManager* uimanager;
 
 //THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
-PlayerStats dummy; //IN GLOBAL.h
+//PlayerStats dummy; //IN GLOBAL.h
 //THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
 
 ClientGame* Window::client;
@@ -260,7 +257,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 break;
         }
 
-        std::cout << "Current HP is: " << dummy.currHP << std::endl;
     }
 
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;

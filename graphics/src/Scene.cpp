@@ -1,10 +1,18 @@
 #include <Scene.h>
 
+PlayerStats dummy;
+
 void Scene::createGame() {
 	//loadObjects();
-	std::cout << "Creating the skybox" << std::endl;
 	skybox = new Skybox();
 	skybox->initSkybox();
+
+	uimanager = new UIManager;
+	uimanager->Init();
+	//Necessary for the uimanager, will change once network protocol gets updated
+	dummy.maxHP = 250;
+	dummy.currHP = dummy.maxHP;
+	dummy.ID = 0;
 }
 
 void Scene::loadObjects() {
@@ -17,6 +25,7 @@ void Scene::loadObjects() {
 void Scene::update() {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
+	uimanager->update(dummy);
 }
 
 bool Scene::initShaders() {
@@ -47,4 +56,6 @@ void Scene::draw(Camera* cam) {
 
 	//Draw skybox last
 	skybox->draw(cam);
+
+	uimanager->draw();
 }
