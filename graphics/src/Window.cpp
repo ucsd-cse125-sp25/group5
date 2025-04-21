@@ -33,10 +33,6 @@ bool A_Down, D_Down, W_Down, S_Down;
 
 extern Scene* scene;
 
-//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
-//PlayerStats dummy; //IN GLOBAL.h
-//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
-
 ClientGame* Window::client;
 PlayerIntentPacket Window::PlayerIntent;
 
