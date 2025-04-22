@@ -139,10 +139,6 @@ Cube::~Cube() {
 }
 
 void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
-    // actiavte the shader program
-    glUseProgram(shader);
-    // get the locations and send the uniforms to the shader
-    glUniformMatrix4fv(glGetUniformLocation(shader, "viewProj"), 1, false, (float*)&viewProjMtx);
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
     glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
 
@@ -154,7 +150,7 @@ void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
     // Unbind the VAO and shader program
     glBindVertexArray(0);
-    glUseProgram(0);
+    //glUseProgram(0);
 }
 
 void Cube::update(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model) {

@@ -20,7 +20,7 @@ const char* Window::windowTitle = "Model Environment";
 //Skeleton* Window::skel;
 
 // Objects to render
-Cube* Window::cube;
+//Cube* Window::cube;
 
 // Camera Properties
 Camera* Cam;
@@ -38,7 +38,7 @@ PlayerIntentPacket Window::PlayerIntent;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
-    cube = new Cube();
+    //cube = new Cube();
     return true;
 }
 
@@ -56,7 +56,7 @@ bool Window::initializeProgram() {
 //}
 
 void Window::cleanUp() {
-    delete cube;
+    //delete cube;
 }
 
 // for the Window
@@ -121,12 +121,10 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 void Window::idleCallback() {
     // Perform any updates as necessary.
     Cam->Update();
-    scene->update();
   
-	if (cube != NULL) {
-        cube->setModel(client->GameState.cubeModel);
-	}
+    //cube->setModel(client->GameState.cubeModel);
     client->update(PlayerIntent);
+    scene->update(client);
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -148,9 +146,7 @@ void Window::displayCallback(GLFWwindow* window) {
       //   glfwPollEvents();
     // }
 
-    if (cube != NULL) {
-        cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
-    }
+    //cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
 	
 
     glfwPollEvents();

@@ -3,21 +3,25 @@
 #include "core.h"
 #include <vector>
 
+//Only point light, we can just pass in 1 directional light
 struct Light {
-    glm::vec4 position; //w = 1.0 (point) 0.0 (directional)
-    glm::vec4 color;    //rgb + a
-    float intensity;    //strength of light
-    float radius;       //point light attenuation
-    int type;           //point = 0, directional = 1
-    float padding[5];   //16-byte aligned + multiple of 64
+    glm::vec4 position; //w = 1.0 (point)
+    glm::vec4 ambient;
+    glm::vec4 diffuse;
+    glm::vec4 specular;
+    float constant;
+    float linear;
+    float quadratic;
+    float padding;
 };
 
 class Lights {
 public:
-	std::vector<Light> lights;
 	void init();
 	void update();
 	void bind();
+    void addLight(Light &l);
 private:
 	GLuint SSBO;
+    std::vector<Light> lights;
 };
