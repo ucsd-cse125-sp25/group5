@@ -1,1 +1,1 @@
-class RigidBody;
+class GameObject;

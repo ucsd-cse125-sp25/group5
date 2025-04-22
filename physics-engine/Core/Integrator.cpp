@@ -1,2 +1,2 @@
 #include "Integrator.h"
-#include "RigidBody.h"
+#include "GameObject.h"

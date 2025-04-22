@@ -1,2 +1,2 @@
 #include "ContactManifold.h"
-#include "RigidBody.h"
+#include "GameObject.h"

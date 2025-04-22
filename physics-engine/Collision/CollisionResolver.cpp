@@ -1,3 +1,3 @@
 #include "CollisionResolver.h"
 #include "ContactManifold.h"
-#include "RigidBody.h"
+#include "GameObject.h"

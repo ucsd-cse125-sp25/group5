@@ -1,5 +1,5 @@
 #include "PhysicsWorld.h"
-#include "RigidBody.h"
+#include "GameObject.h"
 #include "SphereCollider.h"
 #include "BoxCollider.h"
 #include "GravityForce.h"

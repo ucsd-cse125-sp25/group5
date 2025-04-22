@@ -1,6 +1,6 @@
 #include <vector>
 
 // Forward declarations
-class RigidBody;
+class GameObject;
 class Collider;
 class ContactManifold;
