@@ -1,5 +1,8 @@
 #include "physics/PhysicsSystem.h"
 #include "physics/PhysicsData.h"	
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 
@@ -142,23 +145,62 @@ void PhysicsSystem::resolveCollisions(GameObject* o) {
     return;
 }
 
-void PhysicsSystem::applyInput(GameObject* obj, const PlayerIntentPacket& intent) {
-	if (!obj->physics) return;
-	if (intent.moveLeftIntent) {
-		obj->physics->velocity.x = -obj->physics->maxSpeed;
-	}
-	else if (intent.moveRightIntent) {
-		obj->physics->velocity.x = obj->physics->maxSpeed;
-	}
-	else {
-		obj->physics->velocity.x = 0;
-	}
-	if (intent.moveUpIntent && obj->physics->grounded) {
-		obj->physics->velocity.y = 5.0f; // Jump force
-		obj->physics->grounded = false;
-	}
+void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int player) {
+    //process player input 
+	GameObject* target = players[player];
+
+    if (intent.moveLeftIntent)
+    {
+
+		target->transform.position.x -= 0.1f;
+    }
+    if (intent.moveRightIntent) {
+ 
+		target->transform.position.x += 0.1f;
+    }
+    if (intent.moveUpIntent) {
+
+		target->transform.position.y += 0.1f;
+    }
+    if (intent.moveDownIntent) {
+    
+		target->transform.position.y -= 0.1f;
+    }
+
 }
 
+GameObject* PhysicsSystem::makeGameObject() {
+    GameObject* obj = new GameObject;
+    obj->id = dynamicObjects.size();
+    obj->transform.position = glm::vec3(0.0f);
+    obj->transform.rotation = glm::vec3(0.0f);
+    obj->transform.scale = glm::vec3(1.0f);
+    obj->physics = new PhysicsComponent();
+    obj->collider = new ColliderComponent();
+
+    return obj; // return reference to the stored one
+}
+
+// Convert position + quaternion to mat4
+glm::mat4 PhysicsSystem::toMatrix(const glm::vec3& position, const glm::vec3& eulerRadians) {
+    glm::mat4 T = glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 R = glm::eulerAngleYXZ(eulerRadians.y, eulerRadians.x, eulerRadians.z);
+    return T * R;
+}
+
+// Extract position and euler angles (in radians) from a mat4
+void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm::vec3& outEulerRadians) {
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+
+    glm::decompose(mat, scale, rotation, translation, skew, perspective);
+
+    outPosition = translation;
+    outEulerRadians = glm::eulerAngles(rotation);
+}
 
 
 

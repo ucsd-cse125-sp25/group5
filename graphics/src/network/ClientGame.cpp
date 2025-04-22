@@ -109,6 +109,7 @@ void ClientGame::update(PlayerIntentPacket intent)
 					printf("%f ", packet.cubeModel[k][j]);
                 }
             }
+
 			//packet.cubeModel = glm::mat4(1.0f);
 			memcpy(&GameState, &packet, sizeof(GameStatePacket));
             printf("\n");

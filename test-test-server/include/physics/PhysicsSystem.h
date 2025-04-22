@@ -4,16 +4,19 @@
 
 class PhysicsSystem {
 public:
+    GameObject* players[4];
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
 
     void tick(float dt);
-    void applyInput(GameObject* obj, const PlayerIntentPacket& intent);
+    void applyInput(const PlayerIntentPacket& intent, int player);
     void integrate(GameObject* obj, float dt);
     void checkCollisions(GameObject* obj);
     void resolveCollisions(GameObject* obj);
     void handleGrapple(GameObject* obj, float dt);
-
+    glm::mat4 toMatrix(const glm::vec3& position, const glm::vec3& eulerRadians);
+    void fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm::vec3& outEulerRadians);
+    GameObject* makeGameObject();
 
 
 	void addDynamicObject(GameObject* obj) {
