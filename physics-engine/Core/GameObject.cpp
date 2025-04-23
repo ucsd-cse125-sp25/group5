@@ -2,4 +2,4 @@
 #include "Collider.h"
 
 class GameObject {
-    
+};

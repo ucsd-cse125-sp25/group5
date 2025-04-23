@@ -10,7 +10,7 @@ public:
     GameObject(float mass, Collider* collider);
     ~GameObject();
 
-    unsigned int getID() const { return id_; }
+    //unsigned int getID() const { return id_; }
 
     glm::vec3 position;
     glm::vec3 velocity;
