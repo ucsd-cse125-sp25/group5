@@ -18,6 +18,12 @@ void Scene::createGame() {
 	dummy.maxHP = 250;
 	dummy.currHP = dummy.maxHP;
 	dummy.ID = 0;
+	skel = new Skeleton();
+	skin = new Skin(skel);
+	animation = new Animation();
+	waspplayer = new Player(skel, animation, std::chrono::steady_clock::now());
+	skel->doSkel();
+	skin->doSkinning();
 }
 
 void Scene::loadObjects() {
@@ -25,6 +31,11 @@ void Scene::loadObjects() {
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
+
+	//wasp load-in
+	skel->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skel")).c_str());
+	skin->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skin")).c_str());
+	animation->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.anim")).c_str());
 }
 
 void Scene::update(ClientGame* client) {
@@ -33,6 +44,8 @@ void Scene::update(ClientGame* client) {
 	lightmanager->update();
 	cube->setModel(client->GameState.cubeModel);
 	uimanager->update(dummy);
+	skel->update();
+	skin->update();
 }
 
 bool Scene::initShaders() {
@@ -70,6 +83,8 @@ void Scene::draw(Camera* cam) {
 	}
 
 	cube->draw(cam->GetViewProjectMtx(), shaders[1]);
+	skel->draw(cam->GetViewProjectMtx(), shaders[1]);
+	skin->draw(cam->GetViewProjectMtx(), shaders[1]);
 
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
