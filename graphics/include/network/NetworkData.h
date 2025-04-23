@@ -32,6 +32,8 @@ struct PlayerIntentPacket {
     bool moveRightIntent = false;
     bool moveUpIntent = false;
     bool moveDownIntent = false;
+    bool moveForwardIntent = false;
+    bool moveBackIntent = false;
 
 	void serialize(char* data) {
 		memcpy(data, this, sizeof(PlayerIntentPacket));

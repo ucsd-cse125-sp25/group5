@@ -116,6 +116,14 @@ void ServerGame::receiveFromClients()
                 GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
 				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
             }
+            if (PlayerIntent.moveForwardIntent) {
+
+                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, -0.1f));
+            }
+            if (PlayerIntent.moveBackIntent) {
+
+                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
+            }
             sendActionPackets();
 			//print after
 			//printf("cubeModel after: \n");

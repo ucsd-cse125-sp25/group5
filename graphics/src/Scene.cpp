@@ -24,6 +24,7 @@ void Scene::createGame() {
 	waspplayer = new Player(skel, animation, std::chrono::steady_clock::now());
 	skel->doSkel();
 	skin->doSkinning();
+	animation->doAnimation();
 }
 
 void Scene::loadObjects() {
@@ -46,6 +47,7 @@ void Scene::update(ClientGame* client) {
 	skel->updateWorldMat(client->GameState.cubeModel);
 	uimanager->update(dummy);
 	skel->update();
+	//waspplayer->update();
 	skin->update();
 }
 
