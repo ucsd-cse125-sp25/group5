@@ -56,3 +56,7 @@ void Lights::bind() {
 void Lights::addLight(Light &l) {
 	lights.push_back(l);
 }
+
+int Lights::numLights() {
+    return lights.size();
+}
