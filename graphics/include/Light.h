@@ -21,6 +21,7 @@ public:
 	void update();
 	void bind();
     void addLight(Light &l);
+    int numLights();
 private:
 	GLuint SSBO;
     std::vector<Light> lights;

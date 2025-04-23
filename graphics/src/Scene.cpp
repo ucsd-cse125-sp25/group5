@@ -76,6 +76,7 @@ void Scene::draw(Camera* cam) {
 	//We will use a global shader for everything for right now
 
 	glUseProgram(shaders[1]);
+	glUniform1i(glGetUniformLocation(shaders[1], "numLights"), lightmanager->numLights());
 	glm::mat4 viewProjMtx = cam->GetViewProjectMtx();
 	glUniformMatrix4fv(glGetUniformLocation(shaders[1], "viewProj"), 1, false, (float*)&viewProjMtx);
 	glm::vec3 camPos = cam->GetPosition();
