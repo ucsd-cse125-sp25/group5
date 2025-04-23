@@ -10,7 +10,7 @@
 #include <Object.h>
 #include <Scene.h>
 #include "Global.h"
-
+#include <vector>
 //#include <UIManager.h>
 
 // Window Properties
@@ -23,6 +23,8 @@ const char* Window::windowTitle = "Model Environment";
 
 // Objects to render
 Cube* Window::cube;
+
+std::vector<Cube*> Window::cubes; // Use std::vector instead of just vector
 
 // Camera Properties
 Camera* Cam;
@@ -133,6 +135,16 @@ void Window::idleCallback() {
 	if (cube != NULL) {
         cube->setModel(client->GameState.cubeModel);
 	}
+
+    //reset cubes
+	cubes.clear();
+    for (int i = 0; i < client->GameState.num_objects; i++) {   
+		Cube* newCube = new Cube();
+        newCube->setModel(client->GameState.objects[i]);
+		cubes.push_back(newCube);
+        
+    }
+
     client->update(PlayerIntent);
 }
 
@@ -155,9 +167,16 @@ void Window::displayCallback(GLFWwindow* window) {
       //   glfwPollEvents();
     // }
 
+
+    //draw stuff
     if (cube != NULL) {
         cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
     }
+
+    //draw cubes
+	for (int i = 0; i < cubes.size(); i++) {
+		cubes[i]->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
+	}
 	
 
     glfwPollEvents();

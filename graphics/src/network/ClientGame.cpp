@@ -74,33 +74,7 @@ void ClientGame::update(PlayerIntentPacket intent)
 
             packet.deserialize(&(network_data[i]));
 			i += sizeof(GameStatePacket); // read the packet type first
-            /*packet.deserialize(&(network_data[i]));
-            i += sizeof(Packet);
 
-            switch (packet.packet_type) {
-
-            case ACTION_EVENT:
-
-                printf("client received action event packet from server\n");
-
-                GameState = 1;
-
-                break;
-
-            case 2:
-
-                printf("client received 2 event packet from server\n");
-
-                GameState = 2;
-
-            default:
-
-                printf("error in packet types\n");
-
-                break;
-
-
-            }*/
 
 			printf("client received game state packet from server with the following mat4:");
             for (int j = 0; j < 4; j++) {

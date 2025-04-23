@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "ServerGame.h"
 #include <chrono>
+#include <random>
 
 unsigned int ServerGame::client_id; 
 
@@ -33,6 +34,23 @@ ServerGame::ServerGame(void)
 
     //boilerplate
 	GameObject* cube = physicsSystem.makeGameObject();
+
+
+    //create a random number of cubes to put in the world
+    /*random no of cubes*/
+	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+        
+    for (int i = 0; i < numCubes; i++) {
+		GameObject* cube = physicsSystem.makeGameObject();
+		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
+		cube->transform.rotation = glm::vec3(0.0f);
+		cube->transform.scale = glm::vec3(1.0f);
+		cube->physics->velocity = glm::vec3(0.0f);
+		cube->physics->acceleration = glm::vec3(0.0f);
+		cube->physics->drag = 0.1f;
+		cube->physics->maxSpeed = 5.0f;
+		physicsSystem.addDynamicObject(cube);
+    }
 
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
@@ -80,6 +98,7 @@ void ServerGame::writeToGameState() {
     int numEntities = physicsSystem.dynamicObjects.size() + physicsSystem.staticObjects.size();
     GameState.num_objects = numEntities;
 
+    //send all the dynamic objects
     for (int i = 0; i < physicsSystem.dynamicObjects.size(); i++) {
         GameObject* obj = physicsSystem.dynamicObjects[i];
         glm::vec3& position = obj->transform.position;
@@ -90,6 +109,7 @@ void ServerGame::writeToGameState() {
         GameState.objects[i] = modelMatrix; // Replace with actual storage logic
     }
 
+    //send all the static objects
     for (int i = 0; i < physicsSystem.staticObjects.size(); i++) {
         GameObject* obj = physicsSystem.staticObjects[i];
         glm::vec3& position = obj->transform.position;
@@ -138,7 +158,7 @@ void ServerGame::receiveFromClients()
 			//updated game state   
             currentTime = std::chrono::high_resolution_clock::now();
 
-            if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.33f) // some fixed constant
+            if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.033f) // some fixed constant
             {
                 lastPacketSentTime = currentTime;
                 sendActionPackets();

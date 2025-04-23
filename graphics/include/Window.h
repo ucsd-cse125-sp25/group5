@@ -16,7 +16,7 @@
 #include "Animation.h"
 #include "Player.h"
 #include "network/ClientGame.h"
-
+#include <vector>
 
 // Objects to render
 
@@ -31,6 +31,8 @@ public:
 
     static Cube* cube;
 
+
+    static std::vector<Cube*> cubes; // Use std::vector instead of just vector
     //the client
     static ClientGame* client;
 
