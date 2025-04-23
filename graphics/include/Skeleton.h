@@ -25,8 +25,10 @@ public:
     bool Load(const char* file);
     void update();
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
+    void updateWorldMat(glm::mat4 newWorldMat);
 
 private:
+    glm::mat4 worldMat;
 };
 
 #endif

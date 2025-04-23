@@ -42,7 +42,8 @@ void Scene::update(ClientGame* client) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
-	cube->setModel(client->GameState.cubeModel);
+	//cube->setModel(client->GameState.cubeModel);
+	skel->updateWorldMat(client->GameState.cubeModel);
 	uimanager->update(dummy);
 	skel->update();
 	skin->update();
@@ -82,7 +83,7 @@ void Scene::draw(Camera* cam) {
 		//objects[i]->draw(cam->GetViewProjectMtx());
 	}
 
-	cube->draw(cam->GetViewProjectMtx(), shaders[1]);
+	//cube->draw(cam->GetViewProjectMtx(), shaders[1]);
 	skel->draw(cam->GetViewProjectMtx(), shaders[1]);
 	skin->draw(cam->GetViewProjectMtx(), shaders[1]);
 
