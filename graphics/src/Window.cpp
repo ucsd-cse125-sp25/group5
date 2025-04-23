@@ -120,7 +120,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 // update and draw functions
 void Window::idleCallback() {
     // Perform any updates as necessary.
-    Cam->Update();
+    Cam->Update(client);
   
     //cube->setModel(client->GameState.cubeModel);
     client->update(PlayerIntent);
@@ -283,6 +283,10 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
     //if (LeftDown) {
     const float rate = 1.0f;
+
+    PlayerIntent.azimuthIntent = Cam->GetAzimuth() + dx * rate;
+    PlayerIntent.inclineIntent = glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f);
+
     Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
     Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
     //}

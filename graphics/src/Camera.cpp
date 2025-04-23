@@ -3,11 +3,14 @@
 ////////////////////////////////////////
 
 #include "Camera.h"
+#include "network/ClientGame.h"
 
 Camera::Camera() {
     Reset();
 }
-void Camera::Update() {
+
+
+void Camera::Update(ClientGame* client) {
     // Compute camera world matrix
     glm::mat4 world(1);
     glm::mat4 translate(1);

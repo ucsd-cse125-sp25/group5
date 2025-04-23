@@ -7,6 +7,7 @@ unsigned int ServerGame::client_id;
 //time now
 
 #include <chrono> // Ensure this is included for time-related functionality
+#include <glm/gtx/euler_angles.hpp>
 
 // Declare variables for time tracking
 std::chrono::time_point<std::chrono::high_resolution_clock> currentTime;
@@ -124,6 +125,11 @@ void ServerGame::receiveFromClients()
 
                 GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
             }
+
+            GameState.cubeModel *= glm::eulerAngleY(glm::radians(-PlayerIntent.azimuthIntent)) * glm::eulerAngleX(glm::radians(-PlayerIntent.inclineIntent));
+        /*    GameState.cubeModel = glm::rotate(GameState.cubeModel, PlayerIntent.azimuthIntent, glm::vec3(0.0f, 1.0f, 0.0f));
+            GameState.cubeModel = glm::rotate(GameState.cubeModel, PlayerIntent.inclineIntent, glm::vec3(1.0f, 0.0f, 0.0f));*/
+
             sendActionPackets();
 			//print after
 			//printf("cubeModel after: \n");
