@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <memory>
+#include <unordered_map>
 #include <glm/glm.hpp>
 
 // Forward declarations
@@ -19,11 +19,11 @@ public:
     
     void tick(float dt);
 
-    void addGameObject(GameObject* rb);
+    void addGameObject(GameObject* rb, bool isStatic = false);
     void removeGameObject(GameObject* rb);
 
-    void addCollider(Collider* collider);
-    void removeCollider(Collider* collider);
+    void addCollider(Collider* collider, GameObject* owner);
+    void removeCollider(Collider* collider, GameObject* owner);
 
     void addForceGenerator(ForceGenerator* forceGenerator);
     void removeForceGenerator(ForceGenerator* forceGenerator);
@@ -45,10 +45,13 @@ private:
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
     std::vector<Collider*> colliders;
+    std::unordered_map<Collider*, GameObject*> ownersOfCollidersMap;
+    
     std::vector<ForceGenerator*> forceGenerators;
+    std::vector<CollisionManifold> collisionManifolds;
 
-    CollisionDetection* collisionDetection;
-    CollisionResolver* collisionResolver;
+    CollisionDetection* collisionDetection = nullptr;
+    CollisionResolver* collisionResolver = nullptr;
 
-    glm::vec3 gravity = glm::vec3(0.0f, -9.80665f, 0.0f);
+    glm::vec3 gravity = glm::vec3(0.0f, -9.81f, 0.0f);
 };
