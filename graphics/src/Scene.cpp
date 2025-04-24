@@ -83,7 +83,7 @@ void Scene::draw(Camera* cam) {
 	glUniform3fv(glGetUniformLocation(shaders[1], "viewPos"), 1, &camPos[0]);
 	lightmanager->bind();
 	for (int i = 0; i < objects.size(); i++) {
-		//objects[i]->draw(cam->GetViewProjectMtx());
+		objects[i]->draw(cam->GetViewProjectMtx());
 	}
 
 	//cube->draw(cam->GetViewProjectMtx(), shaders[1]);

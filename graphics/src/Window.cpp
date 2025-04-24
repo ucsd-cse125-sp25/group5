@@ -118,12 +118,12 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 // update and draw functions
-void Window::idleCallback() {
+void Window::idleCallback() { 
     // Perform any updates as necessary.
-    Cam->Update(client);
   
     //cube->setModel(client->GameState.cubeModel);
     client->update(PlayerIntent);
+    Cam->Update(client);
     scene->update(client);
 }
 

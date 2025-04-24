@@ -92,41 +92,61 @@ void ServerGame::receiveFromClients()
             printf("moveDownIntent: %s\n", PlayerIntent.moveDownIntent ? "true" : "false");*/
 
             i += sizeof(PlayerIntentPacket);
-
-
             //print before
 			//printf("cubeModel before: \n");
 			//printf("x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
+            //Pulling the translation from the cube and resetting the 
+
+            //Reset cube model
+            glm::vec3 delta = glm::vec3(0.016f);
+            float azimuth = glm::radians(-PlayerIntent.azimuthIntent);
+            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
+            glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
+            glm::vec3 translation = glm::vec3(GameState.cubeModel[3]);
+            glm::vec3 right = glm::normalize(glm::cross(up, forward));
+
+            //GameState.cubeModel = glm::rotate(GameState.cubeModel, azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
 
             //process
             if (PlayerIntent.moveLeftIntent)
             {
-				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f)));
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
+                translation +=  (- right) * delta;
+				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f));
+                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
             }
             if (PlayerIntent.moveRightIntent) {
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
+                translation += right * delta;
+                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
 				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
             }
             if (PlayerIntent.moveUpIntent) {
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
+                translation += up * delta;
+                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
 				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
 
             }
             if (PlayerIntent.moveDownIntent) {
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
+                translation += (-up) * delta;
+                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
 				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
             }
             if (PlayerIntent.moveForwardIntent) {
-
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, -0.1f));
+                translation += (-forward) * delta;
+                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, -0.1f));
             }
             if (PlayerIntent.moveBackIntent) {
-
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
+                translation += forward * delta;
+                //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
             }
 
-            GameState.cubeModel *= glm::eulerAngleY(glm::radians(-PlayerIntent.azimuthIntent)) * glm::eulerAngleX(glm::radians(-PlayerIntent.inclineIntent));
+            //glm::mat4 id = glm::mat4(1.0f);
+            //GameState.cubeModel = glm::translate(GameState.cubeModel, translation);
+            GameState.cubeModel = rotation;
+            GameState.cubeModel[3] = glm::vec4(translation, 1.0f);
+
+         
+            //GameState.cubeModel *= glm::eulerAngleY(glm::radians(-PlayerIntent.azimuthIntent)) * glm::eulerAngleX(glm::radians(-PlayerIntent.inclineIntent));
         /*    GameState.cubeModel = glm::rotate(GameState.cubeModel, PlayerIntent.azimuthIntent, glm::vec3(0.0f, 1.0f, 0.0f));
             GameState.cubeModel = glm::rotate(GameState.cubeModel, PlayerIntent.inclineIntent, glm::vec3(1.0f, 0.0f, 0.0f));*/
 
