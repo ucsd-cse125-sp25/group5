@@ -146,23 +146,63 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int player) {
     //process player input 
 	GameObject* target = players[player];
 
-    if (intent.moveLeftIntent)
+   /* if (intent.moveLeftIntent)
     {
 
 		target->transform.position.x -= 0.1f;
+    }*/
+
+    glm::vec3 delta = glm::vec3(0.016f);
+    float azimuth = glm::radians(intent.azimuthIntent);
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
+    glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
+    //glm::vec3 translation = glm::vec3(target.cubeModel[3]);
+	glm::vec3 translation = target->transform.position;
+    glm::vec3 right = glm::normalize(glm::cross(up, forward));
+
+    //GameState.cubeModel = glm::rotate(GameState.cubeModel, azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    //process
+    if (intent.moveLeftIntent)
+    {
+        translation += (-right) * delta;
+        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f));
+        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
     }
     if (intent.moveRightIntent) {
- 
-		target->transform.position.x += 0.1f;
+        translation += right * delta;
+        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
+        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
     }
     if (intent.moveUpIntent) {
+        translation += up * delta;
+        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
+        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
 
-		target->transform.position.y += 0.1f;
     }
     if (intent.moveDownIntent) {
-    
-		target->transform.position.y -= 0.1f;
+        translation += (-up) * delta;
+        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
+        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
     }
+    if (intent.moveForwardIntent) {
+        translation += (-forward) * delta;
+        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, -0.1f));
+    }
+    if (intent.moveBackIntent) {
+        translation += forward * delta;
+        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
+    }
+
+    //glm::mat4 id = glm::mat4(1.0f);
+    //GameState.cubeModel = glm::translate(GameState.cubeModel, translation);
+
+    // Replace the line causing the error with the following code:
+    target->transform.rotation = glm::eulerAngles(glm::quat_cast(rotation));
+	target->transform.position = translation;
+
+
 
 }
 
@@ -182,7 +222,7 @@ GameObject* PhysicsSystem::makeGameObject() {
 glm::mat4 PhysicsSystem::toMatrix(const glm::vec3& position, const glm::vec3& eulerRadians) {
     glm::mat4 T = glm::translate(glm::mat4(1.0f), position);
     glm::mat4 R = glm::eulerAngleYXZ(eulerRadians.y, eulerRadians.x, eulerRadians.z);
-    return T * R;
+    return R * T;
 }
 
 // Extract position and euler angles (in radians) from a mat4

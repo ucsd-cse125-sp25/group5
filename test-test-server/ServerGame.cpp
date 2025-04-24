@@ -87,6 +87,9 @@ void ServerGame::update()
    //}
 }
 
+
+
+
 void ServerGame::writeToGameState() {
 
     // Update the player (first object) in the GameState
