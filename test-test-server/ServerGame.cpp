@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "ServerGame.h"
 #include <chrono>
+#include <random>
 
 unsigned int ServerGame::client_id; 
 
@@ -21,13 +22,40 @@ ServerGame::ServerGame(void)
     // set up the server network to listen 
     network = new ServerNetwork(); 
     glm::vec3(1, 1, 1);
+
+    //the current game state TO SEND (not necessarily full game state)
 	GameState = GameStatePacket();
+
+	//the current player intent received
 	PlayerIntent = PlayerIntentPacket();
 
-    /*Initialize the GameState*/
+    //initialize the physics system
+    physicsSystem = PhysicsSystem();
+
+    //boilerplate
+	GameObject* cube = physicsSystem.makeGameObject();
+
+
+    //create a random number of cubes to put in the world
+    /*random no of cubes*/
+	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+        
+    for (int i = 0; i < numCubes; i++) {
+		GameObject* cube = physicsSystem.makeGameObject();
+		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
+		cube->transform.rotation = glm::vec3(0.0f);
+		cube->transform.scale = glm::vec3(1.0f);
+		cube->physics->velocity = glm::vec3(0.0f);
+		cube->physics->acceleration = glm::vec3(0.0f);
+		cube->physics->drag = 0.1f;
+		cube->physics->maxSpeed = 5.0f;
+		physicsSystem.addDynamicObject(cube);
+    }
+
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
+    physicsSystem.players[0] = cube;
     
 	currentTime = std::chrono::high_resolution_clock::now();
 	lastPacketSentTime = std::chrono::high_resolution_clock::now();
@@ -58,6 +86,41 @@ void ServerGame::update()
    //}
 }
 
+void ServerGame::writeToGameState() {
+
+    // Update the player (first object) in the GameState
+    glm::vec3& playerPositionReference = physicsSystem.players[0]->transform.position;
+    glm::vec3& playerRotationReference = physicsSystem.players[0]->transform.rotation;
+    glm::mat4 playerModel = physicsSystem.toMatrix(playerPositionReference, playerRotationReference);
+    GameState.cubeModel = playerModel;
+
+    // Update all other objects in the GameState
+    int numEntities = physicsSystem.dynamicObjects.size() + physicsSystem.staticObjects.size();
+    GameState.num_objects = numEntities;
+
+    //send all the dynamic objects
+    for (int i = 0; i < physicsSystem.dynamicObjects.size(); i++) {
+        GameObject* obj = physicsSystem.dynamicObjects[i];
+        glm::vec3& position = obj->transform.position;
+        glm::vec3& rotation = obj->transform.rotation;
+        glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
+
+        // Assuming GameState has a way to store multiple objects' model matrices
+        GameState.objects[i] = modelMatrix; // Replace with actual storage logic
+    }
+
+    //send all the static objects
+    for (int i = 0; i < physicsSystem.staticObjects.size(); i++) {
+        GameObject* obj = physicsSystem.staticObjects[i];
+        glm::vec3& position = obj->transform.position;
+        glm::vec3& rotation = obj->transform.rotation;
+        glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
+
+        // Assuming GameState has a way to store multiple objects' model matrices
+        GameState.objects[i + physicsSystem.dynamicObjects.size()] = modelMatrix; // Replace with actual storage logic
+    }
+}
+
 void ServerGame::receiveFromClients()
 {
 
@@ -79,81 +142,27 @@ void ServerGame::receiveFromClients()
         int i = 0;
         while (i < (unsigned int)data_length)
         {
-            /*packet.deserialize(&(network_data[i]));
-            i += sizeof(Packet);*/
 
+            //copy the network packet data into player intent
             PlayerIntent.deserialize(&(network_data[i]));
 
-			/*printf("server received player intent packet from client with the following data:\n");
-            printf("moveLeftIntent: %s\n", PlayerIntent.moveLeftIntent ? "true" : "false");
-            printf("moveRightIntent: %s\n", PlayerIntent.moveRightIntent ? "true" : "false");
-            printf("moveUpIntent: %s\n", PlayerIntent.moveUpIntent ? "true" : "false");
-            printf("moveDownIntent: %s\n", PlayerIntent.moveDownIntent ? "true" : "false");*/
-
+            //increment in case we have more 
             i += sizeof(PlayerIntentPacket);
 
+            //apply the input to our game world, assume player 0 for now 
+			physicsSystem.applyInput(PlayerIntent, 0); 
 
-            //print before
-			//printf("cubeModel before: \n");
-			//printf("x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
+			//put new information into the game state
+			writeToGameState();
 
-            //process
-            if (PlayerIntent.moveLeftIntent)
+			//updated game state   
+            currentTime = std::chrono::high_resolution_clock::now();
+
+            if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.033f) // some fixed constant
             {
-				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f)));
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
+                lastPacketSentTime = currentTime;
+                sendActionPackets();
             }
-            if (PlayerIntent.moveRightIntent) {
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
-				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
-            }
-            if (PlayerIntent.moveUpIntent) {
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
-				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
-
-            }
-            if (PlayerIntent.moveDownIntent) {
-                GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
-				//GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
-            }
-            sendActionPackets();
-			//print after
-			//printf("cubeModel after: \n");
-			//printf("x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
-
-            /*switch (packet.packet_type) {
-
-                case INIT_CONNECTION:
-
-                    printf("server received init packet from client\n");
-
-                    sendActionPackets(ACTION_EVENT);
-
-                    break;
-
-                case ACTION_EVENT:
-
-                    printf("server received action event packet from client\n");
-
-                    sendActionPackets(ACTION_EVENT);
-
-                    break;
-
-                case 2:
-
-                    printf("server received defend event from client\n");
-
-                    sendActionPackets(2);
-
-                    break;
-
-                default:
-
-                    printf("error in packet types\n");
-
-                    break;
-            }
-        }*/
         }
     }
 }
@@ -176,6 +185,15 @@ void ServerGame::sendActionPackets()
     //    }
     //    printf("\n");
     //}
+    printf("server sending game state packet from server with the following mat4:");
+    for (int j = 0; j < 4; j++) {
+        for (int k = 0; k < 4; k++) {
+            //printf("%f ", GameState.getModelMatrix()[i][j]);
+            printf("%f ", GameState.cubeModel[k][j]);
+        }
+    }
+    printf("\n");
+
     GameState.serialize(packet_data);
 
     network->sendToAll(packet_data, packet_size);

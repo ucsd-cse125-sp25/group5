@@ -166,3 +166,4 @@ void Cube::spin(float deg) {
     // Update the model matrix by multiplying a rotation matrix
     model = model * glm::rotate(glm::radians(deg), glm::vec3(0.0f, 1.0f, 0.0f));
 }
+
