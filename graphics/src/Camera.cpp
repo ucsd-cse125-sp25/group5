@@ -3,16 +3,21 @@
 ////////////////////////////////////////
 
 #include "Camera.h"
+#include "network/ClientGame.h"
 
 Camera::Camera() {
     Reset();
 }
-void Camera::Update() {
+
+
+void Camera::Update(ClientGame* client) {
     // Compute camera world matrix
     glm::mat4 world(1);
     glm::mat4 translate(1);
+
+    Pos = glm::vec3(client->GameState.cubeModel[3]);
     translate[3][0] = Pos.x;
-    translate[3][1] = Pos.y;
+    translate[3][1] = Pos.y + 0.3;
     translate[3][2] = Pos.z;
 
     world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;

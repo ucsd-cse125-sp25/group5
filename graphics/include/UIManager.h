@@ -18,8 +18,9 @@ public:
 	void UIManager::UnloadAllTextures();
 
 	void SetGameState(GameState state);
+
+	GameState currState = GameState::MATCH;
 private:
-	GameState currState;
 	//GLuint shaderProgram;
 	glm::mat4 projection;
 

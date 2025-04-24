@@ -22,7 +22,7 @@ const char* Window::windowTitle = "Model Environment";
 //Skeleton* Window::skel;
 
 // Objects to render
-Cube* Window::cube;
+//Cube* Window::cube;
 
 std::vector<Cube*> Window::cubes; // Use std::vector instead of just vector
 
@@ -36,18 +36,13 @@ int MouseX, MouseY;
 bool A_Down, D_Down, W_Down, S_Down;
 
 extern Scene* scene;
-//extern UIManager* uimanager;
-
-//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
-PlayerStats dummy; //IN GLOBAL.h
-//THIS WILL GET REMOVED WHEN WE GET PLAYER CLASS SORTED OUT IF NEEDED
 
 ClientGame* Window::client;
 PlayerIntentPacket Window::PlayerIntent;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
-    cube = new Cube();
+    //cube = new Cube();
     return true;
 }
 
@@ -65,7 +60,7 @@ bool Window::initializeProgram() {
 //}
 
 void Window::cleanUp() {
-    delete cube;
+    //delete cube;
 }
 
 // for the Window
@@ -127,25 +122,13 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 // update and draw functions
-void Window::idleCallback() {
+void Window::idleCallback() { 
     // Perform any updates as necessary.
-    Cam->Update();
-    scene->update();
   
-	if (cube != NULL) {
-        cube->setModel(client->GameState.cubeModel);
-	}
-
-    //reset cubes
-	cubes.clear();
-    for (int i = 0; i < client->GameState.num_objects; i++) {   
-		Cube* newCube = new Cube();
-        newCube->setModel(client->GameState.objects[i]);
-		cubes.push_back(newCube);
-        
-    }
-
+    //cube->setModel(client->GameState.cubeModel);
     client->update(PlayerIntent);
+    Cam->Update(client);
+    scene->update(client);
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -167,16 +150,7 @@ void Window::displayCallback(GLFWwindow* window) {
       //   glfwPollEvents();
     // }
 
-
-    //draw stuff
-    if (cube != NULL) {
-        cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
-    }
-
-    //draw cubes
-	for (int i = 0; i < cubes.size(); i++) {
-		cubes[i]->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
-	}
+    //cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
 	
 
     glfwPollEvents();
@@ -279,13 +253,15 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 break;
         }
 
-        std::cout << "Current HP is: " << dummy.currHP << std::endl;
     }
 
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
-    PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
-    PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+    PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+    PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+    PlayerIntent.moveForwardIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+    PlayerIntent.moveBackIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -311,6 +287,10 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
     //if (LeftDown) {
     const float rate = 1.0f;
+
+    PlayerIntent.azimuthIntent = Cam->GetAzimuth() + dx * rate;
+    PlayerIntent.inclineIntent = glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f);
+
     Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
     Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
     //}

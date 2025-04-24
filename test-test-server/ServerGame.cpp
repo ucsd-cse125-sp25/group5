@@ -8,6 +8,7 @@ unsigned int ServerGame::client_id;
 //time now
 
 #include <chrono> // Ensure this is included for time-related functionality
+#include <glm/gtx/euler_angles.hpp>
 
 // Declare variables for time tracking
 std::chrono::time_point<std::chrono::high_resolution_clock> currentTime;

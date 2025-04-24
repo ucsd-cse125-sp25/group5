@@ -51,12 +51,15 @@ bool Skeleton::Load(const char* file) {
 	return true;
 	
 }
+void Skeleton::updateWorldMat(glm::mat4 newWorldMat) {
+	this->worldMat = newWorldMat;
+}
 
 void Skeleton::update() {
 	if (!doSkeleton) return;
 
 	if (root) {
-		root->Update(glm::mat4(1.0f));
+		root->Update(this->worldMat);
 	}
 
 	

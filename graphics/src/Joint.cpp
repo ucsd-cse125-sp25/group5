@@ -94,7 +94,7 @@ void Joint::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
 	// Cube* box3 = new Cube;
 	//box = new Cube();
 	//box->draw(viewProjMtx * W, shader);
-    box->draw(viewProjMtx, shader);
+    //box->draw(viewProjMtx, shader);
    // this->box2->draw(viewProjMtx, shader);
 
 

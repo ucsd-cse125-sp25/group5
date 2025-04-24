@@ -101,8 +101,6 @@ int main(int argc, char* argv[]) {
     // Initialize the shader program; exit if initialization fails.
     if (!Window::initializeProgram()) exit(EXIT_FAILURE);
 
-    scene = new Scene();
-    scene->initShaders();
     // Initialize objects/pointers for rendering; exit if initialization fails.
 
     /*std::cout << argc << std::endl;
@@ -126,6 +124,8 @@ int main(int argc, char* argv[]) {
 		//if (!Window::initializeObjects("../../../include/wasp.skin", skel, skin)) exit(EXIT_FAILURE);
     }*/
 
+    scene = new Scene();
+    scene->initShaders();
     scene->createGame();
     scene->loadObjects();
 

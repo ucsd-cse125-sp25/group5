@@ -20,9 +20,6 @@ bool AABBOverlap(const AABB& a, const AABB& b) {
         );
 }
 
-
-
-
 void PhysicsSystem::tick(float dt) {
     for (GameObject* obj : dynamicObjects) {
         // Movement input already applied in applyInput()
@@ -40,7 +37,7 @@ void PhysicsSystem::tick(float dt) {
 
         // Collide + resolve
         checkCollisions(obj);
-        resolveCollisions(obj);
+        //resolveCollisions(obj);
 
         // Reset per-frame data
         obj->physics->acceleration = glm::vec3(0);
