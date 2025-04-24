@@ -82,6 +82,7 @@ void ClientGame::update(PlayerIntentPacket intent)
 					//printf("%f ", GameState.getModelMatrix()[i][j]);
 					printf("%f ", packet.cubeModel[k][j]);
                 }
+				printf("\n");
             }
 
 			//packet.cubeModel = glm::mat4(1.0f);

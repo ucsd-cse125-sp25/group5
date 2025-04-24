@@ -14,7 +14,7 @@ public:
     void checkCollisions(GameObject* obj);
     void resolveCollisions(GameObject* obj);
     void handleGrapple(GameObject* obj, float dt);
-    glm::mat4 toMatrix(const glm::vec3& position, const glm::vec3& eulerRadians);
+    glm::mat4 toMatrix(const glm::vec3& position, const glm::quat& quat);
     void fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm::vec3& outEulerRadians);
     GameObject* makeGameObject();
 

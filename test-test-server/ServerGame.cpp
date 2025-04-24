@@ -9,6 +9,7 @@ unsigned int ServerGame::client_id;
 
 #include <chrono> // Ensure this is included for time-related functionality
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 // Declare variables for time tracking
 std::chrono::time_point<std::chrono::high_resolution_clock> currentTime;
@@ -44,7 +45,7 @@ ServerGame::ServerGame(void)
     for (int i = 0; i < numCubes; i++) {
 		GameObject* cube = physicsSystem.makeGameObject();
 		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
-		cube->transform.rotation = glm::vec3(0.0f);
+		cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
 		cube->transform.scale = glm::vec3(1.0f);
 		cube->physics->velocity = glm::vec3(0.0f);
 		cube->physics->acceleration = glm::vec3(0.0f);
@@ -94,19 +95,29 @@ void ServerGame::writeToGameState() {
 
     // Update the player (first object) in the GameState
     glm::vec3& playerPositionReference = physicsSystem.players[0]->transform.position;
-    glm::vec3& playerRotationReference = physicsSystem.players[0]->transform.rotation;
-    glm::mat4 playerModel = physicsSystem.toMatrix(playerPositionReference, playerRotationReference);
-    GameState.cubeModel = playerModel;
+	//glm::vec3& playerPositionReference = glm::vec3(0.0f);
+    glm::quat& playerRotationReference = physicsSystem.players[0]->transform.rotation;
+    /*glm::mat4 playerModel = physicsSystem.toMatrix(playerPositionReference, playerRotationReference);*/
+	//glm::mat4 playerModel = glm::toMat4(glm::quat(playerRotationReference));
+	//playerModel[3] = glm::vec4(playerPositionReference, 1.0f); // Set the translation part of the matrix
+ //   GameState.cubeModel = playerModel;
+
+    glm::mat4 rotationMatrix = glm::toMat4(glm::quat(playerRotationReference));
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), playerPositionReference);
+    GameState.cubeModel = translationMatrix * rotationMatrix;
+
 
     // Update all other objects in the GameState
     int numEntities = physicsSystem.dynamicObjects.size() + physicsSystem.staticObjects.size();
     GameState.num_objects = numEntities;
+   
+
 
     //send all the dynamic objects
     for (int i = 0; i < physicsSystem.dynamicObjects.size(); i++) {
         GameObject* obj = physicsSystem.dynamicObjects[i];
         glm::vec3& position = obj->transform.position;
-        glm::vec3& rotation = obj->transform.rotation;
+        glm::quat& rotation = obj->transform.rotation;
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
 
         // Assuming GameState has a way to store multiple objects' model matrices
@@ -117,7 +128,7 @@ void ServerGame::writeToGameState() {
     for (int i = 0; i < physicsSystem.staticObjects.size(); i++) {
         GameObject* obj = physicsSystem.staticObjects[i];
         glm::vec3& position = obj->transform.position;
-        glm::vec3& rotation = obj->transform.rotation;
+        glm::quat& rotation = obj->transform.rotation;
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
 
         // Assuming GameState has a way to store multiple objects' model matrices
@@ -195,6 +206,7 @@ void ServerGame::sendActionPackets()
             //printf("%f ", GameState.getModelMatrix()[i][j]);
             printf("%f ", GameState.cubeModel[k][j]);
         }
+        printf("\n");
     }
     printf("\n");
 

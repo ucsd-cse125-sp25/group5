@@ -153,7 +153,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int player) {
     }*/
 
     glm::vec3 delta = glm::vec3(0.016f);
-    float azimuth = glm::radians(intent.azimuthIntent);
+    float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
     glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
@@ -162,6 +162,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int player) {
     glm::vec3 right = glm::normalize(glm::cross(up, forward));
 
     //GameState.cubeModel = glm::rotate(GameState.cubeModel, azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
+    
 
     //process
     if (intent.moveLeftIntent)
@@ -198,8 +199,10 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int player) {
     //glm::mat4 id = glm::mat4(1.0f);
     //GameState.cubeModel = glm::translate(GameState.cubeModel, translation);
 
-    // Replace the line causing the error with the following code:
-    target->transform.rotation = glm::eulerAngles(glm::quat_cast(rotation));
+    // Update the line causing the error to properly convert the quaternion to a vec4  
+    //target->transform.rotation = glm::vec4(glm::quat_cast(rotation).x, glm::quat_cast(rotation).y, glm::quat_cast(rotation).z, glm::quat_cast(rotation).w);
+    glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
+    target->transform.rotation = q;
 	target->transform.position = translation;
 
 
@@ -210,7 +213,7 @@ GameObject* PhysicsSystem::makeGameObject() {
     GameObject* obj = new GameObject;
     obj->id = dynamicObjects.size();
     obj->transform.position = glm::vec3(0.0f);
-    obj->transform.rotation = glm::vec3(0.0f);
+	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
@@ -219,10 +222,11 @@ GameObject* PhysicsSystem::makeGameObject() {
 }
 
 // Convert position + quaternion to mat4
-glm::mat4 PhysicsSystem::toMatrix(const glm::vec3& position, const glm::vec3& eulerRadians) {
+glm::mat4 PhysicsSystem::toMatrix(const glm::vec3& position, const glm::quat& quaternion) {
     glm::mat4 T = glm::translate(glm::mat4(1.0f), position);
-    glm::mat4 R = glm::eulerAngleYXZ(eulerRadians.y, eulerRadians.x, eulerRadians.z);
-    return R * T;
+	glm::mat4 R = glm::toMat4(glm::quat(quaternion));
+	//glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+	return T * R;
 }
 
 // Extract position and euler angles (in radians) from a mat4
