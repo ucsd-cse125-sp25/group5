@@ -19,5 +19,6 @@ public:
     void update(PlayerIntentPacket intent);
 
 	GameStatePacket GameState;
+	uint16_t id;
 };
 
