@@ -20,5 +20,6 @@ public:
 
 	//int GameState;
 	GameStatePacket GameState;
+	uint16_t id;
 };
 
