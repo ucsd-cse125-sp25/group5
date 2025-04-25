@@ -2,7 +2,7 @@
 #include <winsock2.h>
 #include <Windows.h>
 #include "ClientNetwork.h"
-#include "NetworkData.h"
+#include "shared/NetworkData.h"
 
 class ClientGame
 {
@@ -18,7 +18,6 @@ public:
 
     void update(PlayerIntentPacket intent);
 
-	//int GameState;
 	GameStatePacket GameState;
 };
 

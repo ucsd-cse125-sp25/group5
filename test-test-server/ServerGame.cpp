@@ -10,7 +10,7 @@ unsigned int ServerGame::client_id;
 
 std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
-
+ 
 ServerGame::ServerGame(void)
 {
     // id's to assign clients for our table
@@ -34,7 +34,7 @@ ServerGame::ServerGame(void)
     //create a random number of cubes to put in the world
     /*random no of cubes*/
 	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
-        
+ 
     for (int i = 0; i < numCubes; i++) {
 		GameObject* cube = physicsSystem.makeGameObject();
 		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
@@ -70,9 +70,10 @@ void ServerGame::update()
 
    bool sendUpdate = receiveFromClients();
 
+   //put new information into the game state
+   writeToGameState();
+
    if (sendUpdate) {
-       //put new information into the game state
-       writeToGameState();
        sendActionPackets();
    }
 
@@ -84,8 +85,6 @@ void ServerGame::update()
        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
    }
 }
-
-
 
 
 void ServerGame::writeToGameState() {
@@ -164,17 +163,8 @@ bool ServerGame::receiveFromClients()
             //increment in case we have more 
             i += sizeof(PlayerIntentPacket);
 
-            //apply the input to our game world, assume player 0 for now 
-			physicsSystem.applyInput(PlayerIntent, 0); 
-
-			////updated game state   
-   //         currentTime = std::chrono::high_resolution_clock::now();
-
-   //         if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.033f) // some fixed constant
-   //         {
-   //             lastPacketSentTime = currentTime;
-   //             sendActionPackets();
-   //         }
+            //apply the input to our game world
+			physicsSystem.applyInput(PlayerIntent, iter->first); 
         }
     }
 

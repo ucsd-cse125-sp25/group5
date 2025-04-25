@@ -1,6 +1,7 @@
 #pragma once
 #include <string.h> 
 #include "core.h"
+#include "ObjectData.h"
 
 #define MAX_PACKET_SIZE 1000000
 #define MAX_ENTITIES 128
@@ -49,10 +50,10 @@ struct PlayerIntentPacket {
 struct GameStatePacket {
 
     unsigned int packet_type;
-    glm::mat4 cubeModel;
+    unsigned int clientId;
 
-    unsigned int num_objects;
-    glm::mat4 objects[MAX_ENTITIES];
+    unsigned int num_entities;
+    struct Entity entities[MAX_ENTITIES];
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));

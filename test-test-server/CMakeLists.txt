@@ -9,7 +9,7 @@ add_executable(server_app
     ServerNetwork.cpp
     NetworkServices.cpp
     stdafx.cpp
-  "include/physics/PhysicsData.h" "include/physics/PhysicsSystem.h" "physics/PhysicsSystem.cpp")
+  "include/physics/PhysicsData.h" "include/physics/PhysicsSystem.h" "physics/PhysicsSystem.cpp" "include/shared/NetworkData.h" "include/shared/ObjectData.h")
 
 # Add include directories
 include_directories(

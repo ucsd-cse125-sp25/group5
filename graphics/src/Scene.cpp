@@ -9,8 +9,8 @@ void Scene::createGame() {
 
 	//loadObjects();
 	cube = new Cube();
-	skybox = new Skybox();
-	skybox->initSkybox();
+	//skybox = new Skybox();
+	//skybox->initSkybox();
 
 	uimanager = new UIManager;
 	uimanager->Init();
@@ -93,6 +93,6 @@ void Scene::draw(Camera* cam) {
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
-	skybox->draw(cam);
+	//skybox->draw(cam);
 	uimanager->draw();
 }

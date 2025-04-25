@@ -1,6 +1,6 @@
 #include "network/StdAfx.h"
 #include "network/ClientGame.h"
-#include "network/NetworkData.h"
+#include "network/shared/NetworkData.h"
 #include <chrono>
 
 
@@ -76,21 +76,21 @@ void ClientGame::update(PlayerIntentPacket intent)
 			i += sizeof(GameStatePacket); // read the packet type first
 
 
-			printf("client received game state packet from server with the following mat4:");
-            for (int j = 0; j < 4; j++) {
-                for (int k = 0; k < 4; k++) {
-					//printf("%f ", GameState.getModelMatrix()[i][j]);
-					printf("%f ", packet.cubeModel[k][j]);
-                }
-				printf("\n");
-            }
+			//printf("client received game state packet from server with the following mat4:");
+   //         for (int j = 0; j < 4; j++) {
+   //             for (int k = 0; k < 4; k++) {
+			//		//printf("%f ", GameState.getModelMatrix()[i][j]);
+			//		printf("%f ", packet.cubeModel[k][j]);
+   //             }
+			//	printf("\n");
+   //         }
 
 			//packet.cubeModel = glm::mat4(1.0f);
 			memcpy(&GameState, &packet, sizeof(GameStatePacket));
             printf("\n");
         }
     }
-       
+
 
 	//throttle the packets
 	currentTime = std::chrono::high_resolution_clock::now();
