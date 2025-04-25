@@ -1,20 +1,15 @@
 #include "StdAfx.h"
 #include "ServerGame.h"
 #include <chrono>
+#include <thread>
 #include <random>
-
-unsigned int ServerGame::client_id; 
-
-//time now
-
-#include <chrono> // Ensure this is included for time-related functionality
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-// Declare variables for time tracking
-std::chrono::time_point<std::chrono::high_resolution_clock> currentTime;
-std::chrono::time_point<std::chrono::high_resolution_clock> lastPacketSentTime;
+unsigned int ServerGame::client_id;
 
+std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
 ServerGame::ServerGame(void)
 {
@@ -22,8 +17,7 @@ ServerGame::ServerGame(void)
     client_id = 0;
 
     // set up the server network to listen 
-    network = new ServerNetwork(); 
-    glm::vec3(1, 1, 1);
+    network = new ServerNetwork();
 
     //the current game state TO SEND (not necessarily full game state)
 	GameState = GameStatePacket();
@@ -36,7 +30,6 @@ ServerGame::ServerGame(void)
 
     //boilerplate
 	GameObject* cube = physicsSystem.makeGameObject();
-
 
     //create a random number of cubes to put in the world
     /*random no of cubes*/
@@ -54,13 +47,9 @@ ServerGame::ServerGame(void)
 		physicsSystem.addDynamicObject(cube);
     }
 
-
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
     physicsSystem.players[0] = cube;
-    
-	currentTime = std::chrono::high_resolution_clock::now();
-	lastPacketSentTime = std::chrono::high_resolution_clock::now();
 }
 
 ServerGame::~ServerGame(void)
@@ -69,6 +58,8 @@ ServerGame::~ServerGame(void)
 
 void ServerGame::update()
 {
+    startTime = std::chrono::high_resolution_clock::now();
+
     // get new clients
    if(network->acceptNewClient(client_id))
    {
@@ -77,15 +68,21 @@ void ServerGame::update()
         client_id++;
    }
 
-   receiveFromClients();
+   bool sendUpdate = receiveFromClients();
 
-   //currentTime = std::chrono::high_resolution_clock::now();
+   if (sendUpdate) {
+       //put new information into the game state
+       writeToGameState();
+       sendActionPackets();
+   }
 
-   //if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.33f) // some fixed constant
-   //{
-   //    lastPacketSentTime = currentTime;
-   //    sendActionPackets();
-   //}
+   endTime = std::chrono::high_resolution_clock::now();
+   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+   if (duration < 50) // If did not spend the whole tick (50ms)
+   {
+       std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+   }
 }
 
 
@@ -136,9 +133,9 @@ void ServerGame::writeToGameState() {
     }
 }
 
-void ServerGame::receiveFromClients()
+bool ServerGame::receiveFromClients()
 {
-
+    bool receivedChanges = false;
     //Packet packet;
 
     // go through all clients
@@ -154,6 +151,9 @@ void ServerGame::receiveFromClients()
             continue;
         }
 
+        receivedChanges = true;
+        printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
+
         int i = 0;
         while (i < (unsigned int)data_length)
         {
@@ -167,19 +167,18 @@ void ServerGame::receiveFromClients()
             //apply the input to our game world, assume player 0 for now 
 			physicsSystem.applyInput(PlayerIntent, 0); 
 
-			//put new information into the game state
-			writeToGameState();
+			////updated game state   
+   //         currentTime = std::chrono::high_resolution_clock::now();
 
-			//updated game state   
-            currentTime = std::chrono::high_resolution_clock::now();
-
-            if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.033f) // some fixed constant
-            {
-                lastPacketSentTime = currentTime;
-                sendActionPackets();
-            }
+   //         if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.033f) // some fixed constant
+   //         {
+   //             lastPacketSentTime = currentTime;
+   //             sendActionPackets();
+   //         }
         }
     }
+
+    return receivedChanges;
 }
 
 void ServerGame::sendActionPackets()
@@ -188,9 +187,6 @@ void ServerGame::sendActionPackets()
     const unsigned int packet_size = sizeof(GameStatePacket);
     char packet_data[packet_size];
 
-    //GameStatePacket packet;
-    //packet.cubeModel = GameState.cubeModel;
-    
     //printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
     //printf("cube model is: ");
     //for (int j = 0; j < 4; j++) {
@@ -200,18 +196,17 @@ void ServerGame::sendActionPackets()
     //    }
     //    printf("\n");
     //}
-    printf("server sending game state packet from server with the following mat4:");
-    for (int j = 0; j < 4; j++) {
-        for (int k = 0; k < 4; k++) {
-            //printf("%f ", GameState.getModelMatrix()[i][j]);
-            printf("%f ", GameState.cubeModel[k][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
+    //printf("server sending game state packet from server with the following mat4:");
+    //for (int j = 0; j < 4; j++) {
+    //    for (int k = 0; k < 4; k++) {
+    //        //printf("%f ", GameState.getModelMatrix()[i][j]);
+    //        printf("%f ", GameState.cubeModel[k][j]);
+    //    }
+    //    printf("\n");
+    //}
+    //printf("\n");
 
     GameState.serialize(packet_data);
-
     network->sendToAll(packet_data, packet_size);
 }
 

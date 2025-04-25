@@ -11,7 +11,7 @@ public:
    ~ServerGame(void);  
 
    void update();  
-   void receiveFromClients();  
+   bool receiveFromClients();  
    void sendActionPackets(); // Ensure this declaration matches the definition in ServerGame.cpp  
    void writeToGameState(); // Ensure this declaration matches the definition in ServerGame.cpp
 
@@ -19,6 +19,7 @@ private:
    static unsigned int client_id;  
    ServerNetwork* network;  
    char network_data[MAX_PACKET_SIZE];  
+
    PlayerIntentPacket PlayerIntent;  
    GameStatePacket GameState;
    PhysicsSystem physicsSystem; // Add this line to include the physics system
