@@ -7,6 +7,8 @@ void Scene::createGame() {
 	lightmanager = new Lights();
 	lightmanager->init();
 
+	initShadows();
+
 	//loadObjects();
 	cube = new Cube();
 	skybox = new Skybox();
@@ -25,6 +27,10 @@ void Scene::createGame() {
 	skel->doSkel();
 	skin->doSkinning();
 	animation->doAnimation();
+
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 }
 
 void Scene::loadObjects() {
@@ -43,6 +49,7 @@ void Scene::update(ClientGame* client) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
+	lightSpaceMatrix = lightmanager->getDirLightMat();
 	//cube->setModel(client->GameState.cubeModel);
 	skel->updateWorldMat(client->GameState.cubeModel);
 	uimanager->update(dummy);
@@ -53,7 +60,7 @@ void Scene::update(ClientGame* client) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader" };
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow" };
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -72,23 +79,75 @@ bool Scene::initShaders() {
 	return true;
 }
 
-void Scene::draw(Camera* cam) {
-	//We will use a global shader for everything for right now
+void Scene::initShadows() {
+	glGenFramebuffers(1, &depthMapFBO);
 
-	glUseProgram(shaders[1]);
-	glUniform1i(glGetUniformLocation(shaders[1], "numLights"), lightmanager->numLights());
-	glm::mat4 viewProjMtx = cam->GetViewProjectMtx();
-	glUniformMatrix4fv(glGetUniformLocation(shaders[1], "viewProj"), 1, false, (float*)&viewProjMtx);
-	glm::vec3 camPos = cam->GetPosition();
-	glUniform3fv(glGetUniformLocation(shaders[1], "viewPos"), 1, &camPos[0]);
-	lightmanager->bind();
-	for (int i = 0; i < objects.size(); i++) {
-		objects[i]->draw(cam->GetViewProjectMtx());
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Scene::draw(Camera* cam) {
+	//SHADOW PASS
+	bool doShadow = true;
+	if (doShadow) {
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		GLuint shadowShader = shaders[2];
+
+		glUseProgram(shadowShader);
+		glUniformMatrix4fv(glGetUniformLocation(shadowShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+
+		for (int i = 0; i < objects.size(); i++) {
+			objects[i]->draw(shadowShader, doShadow);
+		}
+		skin->draw(shadowShader, doShadow);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	//cube->draw(cam->GetViewProjectMtx(), shaders[1]);
-	skel->draw(cam->GetViewProjectMtx(), shaders[1]);
-	skin->draw(cam->GetViewProjectMtx(), shaders[1]);
+
+	//RENDER PASS
+	doShadow = false;
+	glViewport(0, 0, 1200, 900);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//We will use a global shader for everything for right now
+	GLuint mainShader = shaders[1];
+	glUseProgram(mainShader);
+
+	glm::mat4 viewProjMtx = cam->GetViewProjectMtx();
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glm::vec3 camPos = cam->GetPosition();
+	glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
+	glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glUniform1i(glGetUniformLocation(mainShader, "shadowMap"), 1);
+	//glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
+
+	lightmanager->bind();
+	for (int i = 0; i < objects.size(); i++) {
+		objects[i]->draw(mainShader, doShadow);
+	}
+
+	skin->draw(mainShader, doShadow);
 
 	glUseProgram(0); //skybox and uimanager use their own shader
 	

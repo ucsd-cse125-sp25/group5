@@ -114,35 +114,31 @@ void Mesh::create(aiMesh* mMesh, aiMaterial* mMaterial, glm::mat4 model) {
   
 }
 
-void Mesh::draw(const glm::mat4& viewProjMtx, GLuint shader) {
-    //glUseProgram(shader);
-
+void Mesh::draw(GLuint shader, bool shadow) {
     // get the locations and send the uniforms to the shader
-    //glUniformMatrix4fv(glGetUniformLocation(shader, "viewProj"), 1, false, (float*)&viewProjMtx);
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
-    glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
 
-    int istex = tex;
-
-    glUniform1i(glGetUniformLocation(shader, "istex"), istex);
-    //std::cout << istex << std::endl;
+    if (!shadow) {
+        glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
+        int istex = tex;
+        glUniform1i(glGetUniformLocation(shader, "istex"), istex);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(glGetUniformLocation(shader, "tex"), 0);
+    }
 
     // Bind the VAO
     glBindVertexArray(VAO);
-    glActiveTexture(GL_TEXTURE0);
-    GLint texLoc = glGetUniformLocation(shader, "tex");
-    glUniform1i(texLoc, 0);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-
     // draw the points using triangles, indexed with the EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
     // Unbind the VAO and shader program
     glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    //glUseProgram(0);
+    if (!shadow) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    
 }
+
 void Mesh::update(glm::mat4 newModel) {
     model = newModel;
 }

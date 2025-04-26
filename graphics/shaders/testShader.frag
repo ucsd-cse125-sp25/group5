@@ -4,13 +4,16 @@ out vec4 fragColor;
 in vec3 FragPos;
 in vec3 FragNormal;
 in vec2 TexCoord;
+in vec4 FragPosLightSpace;
 
 uniform vec3 AmbientColor = vec3(0.5);
 uniform int numLights; 
 uniform vec3 viewPos;
 uniform vec3 DiffuseColor;
 uniform sampler2D tex;
+uniform sampler2D shadowMap;
 uniform int istex = 0;
+//uniform bool useShadow;
 
 struct Light {
     vec4 position;
@@ -26,6 +29,22 @@ struct Light {
 layout(std430, binding = 0) buffer LightBuffer {
 	Light lights[];
 };
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+}
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth - 0.005 > closestDepth ? 1.0 : 0.0; // bias to prevent acne
+
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return shadow;
+}
 
 void main() 
 {
@@ -54,9 +73,10 @@ void main()
         vec3 specular = light.specular.rgb * spec * attenuation;
 
         //Combine results
-        result += diffuse + specular;
-    }
+        float shadow = ShadowCalculation(FragPosLightSpace);
 
+        result += (1.0 - shadow) * (diffuse + specular);
+    }
 
     fragColor = vec4(result, 1.0);
 }

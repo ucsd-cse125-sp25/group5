@@ -89,7 +89,7 @@ void Joint::Update(glm::mat4& parent) {
 	// Recursively call Update() on children
 }
 
-void Joint::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
+void Joint::Draw(GLuint shader) {
 	//Cube* box3 = new Cube(this->boxmin, this->boxmax);
 	// Cube* box3 = new Cube;
 	//box = new Cube();
@@ -99,7 +99,7 @@ void Joint::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
 
 	for (auto it = children.begin(); it < children.end(); it++) {
-		(*it)->Draw(viewProjMtx, shader);
+		(*it)->Draw(shader);
 	}
 
 	// Draw oriented box with OpenGL

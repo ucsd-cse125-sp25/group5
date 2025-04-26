@@ -25,6 +25,6 @@ public:
     glm::mat4 model;
 
     void create(aiMesh* mMesh, aiMaterial* mMaterial, glm::mat4 model);
-    void draw(const glm::mat4& viewProjMtx, GLuint shader);
+    void draw(GLuint shader, bool shadow);
     void update(glm::mat4 newModel);
 };
