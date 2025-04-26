@@ -31,7 +31,7 @@ layout(std430, binding = 0) buffer LightBuffer {
 };
 
 float ShadowCalculation(vec4 fragPosLightSpace)
-}
+{
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
