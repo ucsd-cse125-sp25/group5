@@ -2,6 +2,8 @@
 
 PlayerStats dummy;
 
+PlayerObject* players[4];
+
 void Scene::createGame() {
 	//setup lights
 	lightmanager = new Lights();
@@ -9,8 +11,8 @@ void Scene::createGame() {
 
 	//loadObjects();
 	cube = new Cube();
-	skybox = new Skybox();
-	skybox->initSkybox();
+	//skybox = new Skybox();
+	//skybox->initSkybox();
 
 	uimanager = new UIManager;
 	uimanager->Init();
@@ -19,6 +21,11 @@ void Scene::createGame() {
 	dummy.currHP = dummy.maxHP;
 	dummy.ID = 0;
 	player = new PlayerObject();
+	players[0] = player;
+
+	for (int i = 1; i < 4; i++) {
+		players[i] = new PlayerObject();
+	}
 }
 
 void Scene::loadObjects() {
@@ -29,6 +36,10 @@ void Scene::loadObjects() {
 
 	//wasp load-in
 	player->LoadAnimation();
+
+	for (int i = 1; i < 4; i++) {
+		players[i]->LoadAnimation();
+	}
 }
 
 void Scene::update(ClientGame* client) {
@@ -36,7 +47,20 @@ void Scene::update(ClientGame* client) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	//cube->setModel(client->GameState.cubeModel);
-	player->Update(client->GameState.cubeModel);
+	player->Update(client->playerModel);
+
+	int i;
+	int j;
+	for (i = 0, j = 1; i < client->GameState.num_entities; i++) {
+		auto entity = client->GameState.entities[i];
+
+		if (entity.id == client->playerId) {
+			continue;
+		}
+
+		players[j++]->Update(entity.model);
+	}
+
 	uimanager->update(dummy);
 	//waspplayer->update();
 }
@@ -81,9 +105,13 @@ void Scene::draw(Camera* cam) {
 	//skin->draw(cam->GetViewProjectMtx(), shaders[1]);
 	player->Draw(cam);
 
+	for (int i = 1; i < 4; i++) {
+		players[i]->Draw(cam);
+	}
+
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
-	skybox->draw(cam);
+	//skybox->draw(cam);
 	uimanager->draw();
 }

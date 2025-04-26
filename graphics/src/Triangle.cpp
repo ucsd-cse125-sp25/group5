@@ -131,7 +131,7 @@ void Triangle::update(std::vector<glm::vec3> positions, std::vector<glm::vec3> n
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
     // Generate EBO, bind the EBO to the bound VAO and send the data
-    glGenBuffers(1, &EBO);
+    // glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
