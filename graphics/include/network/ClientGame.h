@@ -19,6 +19,7 @@ public:
     void update(PlayerIntentPacket intent);
 
 	GameStatePacket GameState;
-	uint16_t id;
+	int playerId = -1;
+	glm::mat4 playerModel = glm::mat4(1.0f);
 };
 

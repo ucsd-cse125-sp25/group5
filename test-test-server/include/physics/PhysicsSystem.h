@@ -1,6 +1,6 @@
 #include <vector>
 #include "PhysicsData.h"
-#include "NetworkData.h"    
+#include "shared/NetworkData.h"    
 
 class PhysicsSystem {
 public:
@@ -8,7 +8,7 @@ public:
     std::vector<GameObject*> staticObjects;
 
     void tick(float dt);
-    void applyInput(const PlayerIntentPacket& intent, int player);
+    void applyInput(const PlayerIntentPacket& intent, int playerId);
     void integrate(GameObject* obj, float dt);
     void checkCollisions(GameObject* obj);
     void resolveCollisions(GameObject* obj);

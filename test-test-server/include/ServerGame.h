@@ -1,6 +1,6 @@
 #pragma once  
 #include "ServerNetwork.h"  
-#include "NetworkData.h"  
+#include "shared/NetworkData.h"  
 #include "physics/PhysicsData.h"
 #include "physics/PhysicsSystem.h" // Include the PhysicsSystem header
 
@@ -12,7 +12,7 @@ public:
 
    void update();  
    bool receiveFromClients();  
-   void sendActionPackets(); // Ensure this declaration matches the definition in ServerGame.cpp  
+   void sendGameStatePackets(); // Ensure this declaration matches the definition in ServerGame.cpp  
    void writeToGameState(); // Ensure this declaration matches the definition in ServerGame.cpp
 
 private:  
