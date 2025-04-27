@@ -254,6 +254,31 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
     outEulerRadians = glm::eulerAngles(rotation);
 }
 
+void PhysicsSystem::getAABBsDistance(std::vector<GameObject*> gobjs) {
+    AABB temp;
+    for (GameObject* go : gobjs) {
+        temp.min, temp.max = getAABB(go);
+        PhysicsSystem::AABBdistances.push_back(glm::distance(temp.min, temp.max));
+    }
+}
+
+float PhysicsSystem::getCellSize() {
+    getAABBsDistance(PhysicsSystem::staticObjects);
+    getAABBsDistance(PhysicsSystem::dynamicObjects);
+
+    // get 90th percentile size
+    std::sort(AABBdistances.begin(), AABBdistances.end(), [](const float& a, const float& b) { retrun a > b});
+    int index = (int) AABBdistances.size() * 0.9;
+    
+    return AABBdistances.at(index);
+}
+
+
+void PhysicsSystem::populateGrid() {
+    cellSize = getCellSize();
+
+
+}
 
 
 

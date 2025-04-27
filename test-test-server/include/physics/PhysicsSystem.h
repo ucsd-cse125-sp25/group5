@@ -1,4 +1,5 @@
 #include <vector>
+#include <map>
 #include "PhysicsData.h"
 #include "shared/NetworkData.h"    
 
@@ -6,6 +7,10 @@ class PhysicsSystem {
 public:
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
+    // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
+    map<glm::vec3, vector<GameObject*>> worldGrid;
+    vector<float> AABBdistances;
+    double cellSize;
 
     void tick(float dt);
     void applyInput(const PlayerIntentPacket& intent, int playerId);
