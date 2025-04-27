@@ -110,6 +110,8 @@ void ServerGame::writeToGameState() {
     // Update all other objects in the GameState
     int numEntities = physicsSystem.dynamicObjects.size() + physicsSystem.staticObjects.size();
     GameState.num_entities = numEntities;
+	int numPlayers = physicsSystem.playerObjects.size();
+	GameState.num_players = numPlayers;
 
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
     for (int i = 0; i < physicsSystem.playerObjects.size(); i++) {
