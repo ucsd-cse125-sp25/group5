@@ -52,7 +52,7 @@ ServerGame::ServerGame(void)
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
- //   physicsSystem.players[0] = cube;
+ //   physicsSystem.playerObjects[0] = cube;
 }
 
 ServerGame::~ServerGame(void)
@@ -70,8 +70,8 @@ void ServerGame::update()
         GameObject* player = physicsSystem.makeGameObject();
 		player->type = PLAYER;
         //place where player gets added
-        //physicsSystem.players[client_id] = player;
-		physicsSystem.addPlayer(player);
+        //physicsSystem.playerObjects[client_id] = player;
+		physicsSystem.addPlayerObject(player);
         //physicsSystem.addDynamicObject(player);
         clientToEntity[client_id] = player->id;
 
@@ -112,8 +112,8 @@ void ServerGame::writeToGameState() {
     GameState.num_entities = numEntities;
 
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
-    for (int i = 0; i < physicsSystem.players.size(); i++) {
-        GameObject* obj = physicsSystem.players[i];
+    for (int i = 0; i < physicsSystem.playerObjects.size(); i++) {
+        GameObject* obj = physicsSystem.playerObjects[i];
         glm::vec3& position = obj->transform.position;
         glm::quat& rotation = obj->transform.rotation;
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
