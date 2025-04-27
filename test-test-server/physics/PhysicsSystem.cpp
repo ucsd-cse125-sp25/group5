@@ -146,7 +146,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //process player input
     GameObject* target = NULL;
 
-    for (auto obj : dynamicObjects) {
+    for (auto obj : players) {
         if (obj->id == playerId) {
             target = obj;
             break;

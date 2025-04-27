@@ -70,7 +70,9 @@ void ServerGame::update()
         GameObject* player = physicsSystem.makeGameObject();
 		player->type = PLAYER;
         //place where player gets added
-        physicsSystem.addDynamicObject(player);
+        //physicsSystem.players[client_id] = player;
+		physicsSystem.addPlayer(player);
+        //physicsSystem.addDynamicObject(player);
         clientToEntity[client_id] = player->id;
 
         JoinResponsePacket packet;
@@ -108,6 +110,16 @@ void ServerGame::writeToGameState() {
     // Update all other objects in the GameState
     int numEntities = physicsSystem.dynamicObjects.size() + physicsSystem.staticObjects.size();
     GameState.num_entities = numEntities;
+
+    //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
+    for (int i = 0; i < physicsSystem.players.size(); i++) {
+        GameObject* obj = physicsSystem.players[i];
+        glm::vec3& position = obj->transform.position;
+        glm::quat& rotation = obj->transform.rotation;
+        glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
+        // Assuming GameState has a way to store multiple objects' model matrices
+        GameState.players[i] = Entity{ (unsigned int)obj->id, PLAYER, modelMatrix };
+    }
    
     //send all the dynamic objects
     for (int i = 0; i < physicsSystem.dynamicObjects.size(); i++) {
@@ -129,6 +141,7 @@ void ServerGame::writeToGameState() {
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i + physicsSystem.dynamicObjects.size()] = Entity{ (unsigned int) obj->id, ENTITY, modelMatrix };
     }
+
 }
 
 bool ServerGame::receiveFromClients()
