@@ -69,9 +69,9 @@ void ClientGame::update(PlayerIntentPacket intent)
 			i += sizeof(GameStatePacket);
 
             // Update playerModel on receiving GameState
-            for (int j = 0; j < GameState.num_entities; j++) {
-                if (GameState.entities[j].id == playerId) {
-                    playerModel = GameState.entities[j].model;
+            for (int j = 0; j < GameState.num_players; j++) {
+                if (GameState.players[j].id == playerId) {
+                    playerModel = GameState.players[j].model;
                     break;
                 }
             }

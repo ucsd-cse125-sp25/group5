@@ -72,8 +72,9 @@ void ServerGame::update()
         //place where player gets added
         //physicsSystem.playerObjects[client_id] = player;
 		physicsSystem.addPlayerObject(player);
+        player->id = client_id;
         //physicsSystem.addDynamicObject(player);
-        clientToEntity[client_id] = player->id;
+        clientToEntity[client_id] = client_id;
 
         JoinResponsePacket packet;
         packet.packet_type = JOIN_RESPONSE;
