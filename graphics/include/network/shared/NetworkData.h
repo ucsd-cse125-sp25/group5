@@ -67,7 +67,7 @@ struct GameStatePacket {
     unsigned int packet_type;
 
     unsigned int num_players;
-	struct Entity players[MAX_ENTITIES];
+    struct Entity players[MAX_ENTITIES];
 
     unsigned int num_entities;
     struct Entity entities[MAX_PLAYERS];
