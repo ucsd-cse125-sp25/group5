@@ -4,6 +4,7 @@
 
 class PhysicsSystem {
 public:
+	std::vector<GameObject*> playerObjects;
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
 
@@ -23,5 +24,8 @@ public:
 	}
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
+	}
+	void addPlayerObject(GameObject* obj) {
+		playerObjects.push_back(obj);
 	}
 };

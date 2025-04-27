@@ -18,6 +18,7 @@ class Scene {
 private:
 	std::vector<Object*> objects;
 	std::vector<Object*> animObjects; //type will be changed later
+	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
 	Skybox* skybox; //each player holds a copy of the skybox
 	UIManager* uimanager;

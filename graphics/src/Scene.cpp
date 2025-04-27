@@ -10,7 +10,7 @@ void Scene::createGame() {
 	lightmanager->init();
 
 	//loadObjects();
-	cube = new Cube();
+	//cube = new Cube();
 	//skybox = new Skybox();
 	//skybox->initSkybox();
 
@@ -51,8 +51,8 @@ void Scene::update(ClientGame* client) {
 
 	int i;
 	int j;
-	for (i = 0, j = 1; i < client->GameState.num_entities; i++) {
-		auto entity = client->GameState.entities[i];
+	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
+		auto entity = client->GameState.players[i];
 
 		if (entity.id == client->playerId) {
 			continue;
@@ -60,6 +60,8 @@ void Scene::update(ClientGame* client) {
 
 		players[j++]->Update(entity.model);
 	}
+
+	
 
 	uimanager->update(dummy);
 	//waspplayer->update();
