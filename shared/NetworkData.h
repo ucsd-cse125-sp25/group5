@@ -5,7 +5,6 @@
 
 #define MAX_PACKET_SIZE 1000000
 #define MAX_ENTITIES 128
-#define MAX_PLAYERS 4
 
 enum PacketTypes {
 
@@ -66,11 +65,8 @@ struct GameStatePacket {
 
     unsigned int packet_type;
 
-    unsigned int num_players;
-	struct Entity players[MAX_ENTITIES];
-
     unsigned int num_entities;
-    struct Entity entities[MAX_PLAYERS];
+    struct Entity entities[MAX_ENTITIES];
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));

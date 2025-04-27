@@ -4,7 +4,8 @@
 
 enum EntityType {
 	ENTITY,
-	PLAYER
+	PLAYER,
+	CUBE
 };
 
 struct Entity {

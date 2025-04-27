@@ -68,6 +68,8 @@ void ServerGame::update()
    {
         printf("client %d has been connected to the server\n",client_id);
         GameObject* player = physicsSystem.makeGameObject();
+		player->type = PLAYER;
+        //place where player gets added
         physicsSystem.addDynamicObject(player);
         clientToEntity[client_id] = player->id;
 

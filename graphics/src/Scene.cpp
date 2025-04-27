@@ -10,7 +10,7 @@ void Scene::createGame() {
 	lightmanager->init();
 
 	//loadObjects();
-	cube = new Cube();
+	//cube = new Cube();
 	//skybox = new Skybox();
 	//skybox->initSkybox();
 
@@ -60,6 +60,8 @@ void Scene::update(ClientGame* client) {
 
 		players[j++]->Update(entity.model);
 	}
+
+	
 
 	uimanager->update(dummy);
 	//waspplayer->update();
