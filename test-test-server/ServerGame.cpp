@@ -36,19 +36,17 @@ ServerGame::ServerGame(void)
 
  //   //create a random number of cubes to put in the world
  //   /*random no of cubes*/
-	//int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
  //
- //   for (int i = 0; i < numCubes; i++) {
-	//	GameObject* cube = physicsSystem.makeGameObject();
-	//	cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
-	//	cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
-	//	cube->transform.scale = glm::vec3(1.0f);
-	//	cube->physics->velocity = glm::vec3(0.0f);
-	//	cube->physics->acceleration = glm::vec3(0.0f);
-	//	cube->physics->drag = 0.1f;
-	//	cube->physics->maxSpeed = 5.0f;
-	//	physicsSystem.addDynamicObject(cube);
- //   }
+    for (int i = 0; i < numCubes; i++) {
+		GameObject* cube = physicsSystem.makeGameObject();
+		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
+		cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
+        cube->type = CUBE;
+		physicsSystem.addDynamicObject(cube);
+    }
+
+	printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
@@ -121,7 +119,7 @@ void ServerGame::writeToGameState() {
         glm::quat& rotation = obj->transform.rotation;
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
         // Assuming GameState has a way to store multiple objects' model matrices
-        GameState.players[i] = Entity{ (unsigned int)obj->id, PLAYER, modelMatrix };
+        GameState.players[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
     }
    
     //send all the dynamic objects
@@ -131,7 +129,7 @@ void ServerGame::writeToGameState() {
         glm::quat& rotation = obj->transform.rotation;
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
         // Assuming GameState has a way to store multiple objects' model matrices
-        GameState.entities[i] = Entity{ (unsigned int) obj->id, ENTITY, modelMatrix };
+        GameState.entities[i] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
     }
 
     //send all the static objects
@@ -142,7 +140,7 @@ void ServerGame::writeToGameState() {
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
 
         // Assuming GameState has a way to store multiple objects' model matrices
-        GameState.entities[i + physicsSystem.dynamicObjects.size()] = Entity{ (unsigned int) obj->id, ENTITY, modelMatrix };
+        GameState.entities[i + physicsSystem.dynamicObjects.size()] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
     }
 
 }
@@ -191,6 +189,10 @@ void ServerGame::sendGameStatePackets()
     // send action packet
     const unsigned int packet_size = sizeof(GameStatePacket);
     char packet_data[packet_size];
+
+
+	printf("Sending num_entities : %d\n", GameState.num_entities);
+	printf("First entity type: %d\n", GameState.entities[0].type);
 
     //printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
     //printf("cube model is: ");

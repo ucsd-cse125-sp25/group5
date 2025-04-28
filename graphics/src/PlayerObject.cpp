@@ -28,6 +28,6 @@ void PlayerObject::Update(glm::mat4 newmodel) {
 }
 
 void PlayerObject::Draw(Camera* cam) {
-	skel->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
+	//skel->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
 	skin->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
 }

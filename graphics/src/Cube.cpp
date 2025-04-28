@@ -1,5 +1,5 @@
 #include "Cube.h"
-
+#include <iostream>
 Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) {
     // Model matrix.
     model = glm::mat4(1.0f);
@@ -140,6 +140,7 @@ Cube::~Cube() {
 
 void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
+	std::cout << "Model Matrix: " << glm::to_string(model) << std::endl;
     glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
 
     // Bind the VAO
