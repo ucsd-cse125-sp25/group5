@@ -4,7 +4,13 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+typedef glm::vec3 vec3;
+typedef glm::vec4 vec4;
+typedef glm::mat3 mat3;
+typedef glm::mat4 mat4;
+typedef glm::quat quat;
 
+using namespace std;
 
 glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float t) {
     glm::vec3 AB = glm::mix(A, B, t);
@@ -280,6 +286,98 @@ void PhysicsSystem::populateGrid() {
 
 }
 
+vector<vec3> getFaceNormals(GameObject* go) {
+    return { go->transform.rotation * vec3(1, 0, 0),
+             go->transform.rotation * vec3(0, 1, 0),
+             go->transform.rotation * vec3(0, 0, 1) };
+}
 
+bool areParallel(vec3 crossProd) {
+    return pow(glm::length(crossProd),2) < 1e-6;
+}
 
+vector<vec3> getCrossProducts(const vector<vec3>& normals1, const vector<vec3>& normals2) {
+    vector<vec3> crossProducts;
+    for (int i = 0; i < normals1.size(); i++) {
+        for (int j = 0; j < normals2.size(); j++) {
+            vec3 crossProd = glm::cross(normals1[i], normals2[j]);
+            if (!areParallel(crossProd)) {
+                crossProducts.push_back(glm::normalize(crossProd));
+            }
+        }
+    }
+    return crossProducts;
+}
+
+void addNormalsToAxes(vector<vec3>& axes, const vector<vec3>& normals) {
+    for (int i = 0; i < normals.size(); i++) {
+        axes.push_back(normals[i]);
+    }
+}
+
+pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis) {
+    float centerProj = glm::dot(center, axis);
+    float halfRadius = 0.0f;
+
+    for (int i = 0; i < 3; i++) {
+        halfRadius += halfExtents[i] * fabs(glm::dot(normals[i], axis));
+    }
+
+    return pair<float,float>(centerProj - halfRadius, centerProj + halfRadius);
+}
+
+float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
+    float overlap = -1.0f;
+
+    // case 1: intervals are separate
+    if (interval1.second < interval2.first || interval2.second < interval1.first) {
+        return overlap;
+    }
+
+    //case 2: one interval is contained in the other
+    if (interval1.first >= interval2.first && interval1.second <= interval2.second) {
+        overlap = interval1.second - interval1.first;
+    }
+    else if (interval2.first > interval1.first && interval2.second < interval1.second) {
+        overlap = interval2.second - interval2.first;
+    }
+
+    // case 3: intervals overlap
+    if (interval1.first < interval2.first && interval1.second > interval2.second) {
+        overlap = interval1.second - interval2.first;
+    }
+    else if (interval2.first < interval1.first && interval2.second > interval1.first) {
+        overlap = interval2.second - interval1.first;
+    }
+
+    return overlap;
+}
+
+pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
+    vector<vec3> normals1 = faceNormals(go1);
+    vector<vec3> normals2 = faceNormals(go2);
+
+    vector<vec3> axes = getCrossProducts(normals1, normals2);
+    addNormalsToAxes(axes, normals1);
+    addNormalsToAxes(axes, normals2);
+
+    float minOverlap = 0.0f;
+    vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
+
+    for (vec3& axis : axes) {
+        pair<float, float> interval1 = getInterval(go1->transform.position, go1->collider->halfExtents, normals1, axis);
+        pair<float, float> interval2 = getInterval(go2->transform.position, go2->collider->halfExtents, normals2, axis);
+
+        float overlap = getOverlap(interval1, interval2);
+        if (overlap == -1.0f) {
+            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -2.0f);
+        }
+        if (minOverlap == 0.0f || overlap < minOverlap) {
+            minOverlap = overlap;
+            minAxis = axis;
+        }
+    }
+
+    return pair<vec3, float>(minAxis, minOverlap);
+}
 //test
