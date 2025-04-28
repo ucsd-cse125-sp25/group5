@@ -24,6 +24,7 @@ private:
 	UIManager* uimanager;
 	Cube* cube;
 	Lights* lightmanager;
+	Cube* testCube;
 	//std::vector<Light*> lights; lights baked into the world
 	//std::vector<Light*> movLights; dynamic lights from abilities/powerups/events etc.
 	

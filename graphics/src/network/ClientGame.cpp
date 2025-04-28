@@ -84,6 +84,8 @@ void ClientGame::update(PlayerIntentPacket intent)
    //             }
 			//	printf("\n");
    //         }
+			printf("Received num_entities: %d\n", GameState.num_entities);
+			printf("First entity is of type %d\n", GameState.entities[0].type);
         }
     }
 

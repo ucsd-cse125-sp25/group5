@@ -10,7 +10,7 @@ void Scene::createGame() {
 	lightmanager->init();
 
 	//loadObjects();
-	//cube = new Cube();
+	cube = new Cube();
 	//skybox = new Skybox();
 	//skybox->initSkybox();
 
@@ -61,6 +61,19 @@ void Scene::update(ClientGame* client) {
 		players[j++]->Update(entity.model);
 	}
 
+
+	cubes.clear();
+	cube->setModel(glm::mat4(1.0f));
+	cubes.push_back(cube);
+	
+	for (i = 0; i < client->GameState.num_entities; i++) {
+		auto entity = client->GameState.entities[i];
+		if (entity.type == CUBE) {
+			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+	}
 	
 
 	uimanager->update(dummy);
@@ -98,19 +111,25 @@ void Scene::draw(Camera* cam) {
 	glm::vec3 camPos = cam->GetPosition();
 	glUniform3fv(glGetUniformLocation(shaders[1], "viewPos"), 1, &camPos[0]);
 	lightmanager->bind();
+	
 	for (int i = 0; i < objects.size(); i++) {
 		objects[i]->draw(cam->GetViewProjectMtx());
+	}
+
+
+	for (int i = 0; i < cubes.size(); i++) {
+		cubes[i]->draw(cam->GetViewProjectMtx(), shaders[1]);
 	}
 
 	//cube->draw(cam->GetViewProjectMtx(), shaders[1]);
 	//skel->draw(cam->GetViewProjectMtx(), shaders[1]);
 	//skin->draw(cam->GetViewProjectMtx(), shaders[1]);
-	player->Draw(cam);
 
-	for (int i = 1; i < 4; i++) {
+	for (int i = 0; i < 4; i++) {
 		players[i]->Draw(cam);
 	}
 
+	
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
