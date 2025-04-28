@@ -1,6 +1,6 @@
 #include "network/StdAfx.h"
 #include "network/ClientGame.h"
-#include "network/shared/NetworkData.h"
+#include "shared/NetworkData.h"
 #include <chrono>
 
 

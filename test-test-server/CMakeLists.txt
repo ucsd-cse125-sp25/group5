@@ -9,14 +9,15 @@ add_executable(server_app
     ServerNetwork.cpp
     NetworkServices.cpp
     stdafx.cpp
-  "include/physics/PhysicsData.h" "include/physics/PhysicsSystem.h" "physics/PhysicsSystem.cpp" "include/shared/NetworkData.h" "include/shared/ObjectData.h" "include/core.h")
+  "include/physics/PhysicsData.h" "include/physics/PhysicsSystem.h" "physics/PhysicsSystem.cpp" "include/core.h")
 
 # Add include directories
 include_directories(
     include
+    "../include"
 )
 
-target_include_directories(server_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(server_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} "../include")
 
 target_link_libraries(server_app PRIVATE ws2_32 mswsock advapi32)
 
