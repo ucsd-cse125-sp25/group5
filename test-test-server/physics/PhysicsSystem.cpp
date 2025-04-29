@@ -5,7 +5,6 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 
-
 glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float t) {
     glm::vec3 AB = glm::mix(A, B, t);
     glm::vec3 BC = glm::mix(B, C, t);
@@ -100,42 +99,7 @@ glm::vec3 getPenetrationVector(const AABB& a, const AABB& b) {
 }
 
 void PhysicsSystem::checkCollisions(GameObject* obj) {
-    if (!obj->collider || !obj->physics) return;
-
-    AABB a = getAABB(obj);
-
-    for (GameObject* platform : staticObjects) {
-        if (!platform->collider) continue;
-
-        AABB b = getAABB(platform);
-
-        if (!AABBOverlap(a, b)) continue;
-
-        glm::vec3 penetration = getPenetrationVector(a, b);
-
-        // Resolve by shallowest axis
-        if (std::abs(penetration.x) < std::abs(penetration.y) &&
-            std::abs(penetration.x) < std::abs(penetration.z)) {
-            obj->transform.position.x += penetration.x;
-            obj->physics->velocity.x = 0;
-        }
-        else if (std::abs(penetration.y) < std::abs(penetration.z)) {
-            obj->transform.position.y += penetration.y;
-            obj->physics->velocity.y = 0;
-
-            // If pushing upward, consider it grounded
-            if (penetration.y > 0) {
-                obj->physics->grounded = true;
-            }
-        }
-        else {
-            obj->transform.position.z += penetration.z;
-            obj->physics->velocity.z = 0;
-        }
-
-        // Update the new AABB for further collisions
-        a = getAABB(obj);
-    }
+    return;
 }
 
 void PhysicsSystem::resolveCollisions(GameObject* o) {
@@ -255,10 +219,9 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
 }
 
 void PhysicsSystem::getAABBsDistance(std::vector<GameObject*> gobjs) {
-    AABB temp;
     for (GameObject* go : gobjs) {
-        temp.min, temp.max = getAABB(go);
-        PhysicsSystem::AABBdistances.push_back(glm::distance(temp.min, temp.max));
+        go->transform.aabb = getAABB(go);
+        PhysicsSystem::AABBdistances.push_back(glm::distance(go->transform.aabb.min, go->transform.aabb.max));
     }
 }
 
@@ -268,7 +231,7 @@ float PhysicsSystem::getCellSize() {
 
     // get 90th percentile size
     std::sort(AABBdistances.begin(), AABBdistances.end(), [](const float& a, const float& b) { retrun a > b});
-    int index = (int) AABBdistances.size() * 0.9;
+    int index = (int) (AABBdistances.size() * 0.9);
     
     return AABBdistances.at(index);
 }
@@ -277,9 +240,74 @@ float PhysicsSystem::getCellSize() {
 void PhysicsSystem::populateGrid() {
     cellSize = getCellSize();
 
+    int numCellsX = (int)(XD / cellSize);
+    int numCellsY = (int)(YD / cellSize);
+    int numCellsZ = (int)(ZD / cellSize);
+    
+
+    for (GameObject* go : staticObjects) {
+        glm::vec3 pos = go->transform.position;
+
+        int cellX = (int)(pos[0] / numCellsZ);
+        int cellY = (int)(pos[1] / numCellsY);
+        int cellZ = (int)(pos[2] / numCellsZ);
+
+        vector<int> cellsX;
+        vector<int> cellsY;
+        vector<int> cellsZ;
+
+        float minx, maxx = go->transform.aabb.min[0], go->transform.aabb.max[0];
+        while (minx < maxx) {
+            int index = (int) (minx / numCellsX);
+            cellsX.push_back(index);
+            minx += cellSize;
+        }
+    }
 
 }
 
+float getBoxDim(GameObject* go) {
+    float AABBMag = distance(go->transform.aabb.min, go->tranform.aabb.max);
+    return AABBMag / sqrtf(3.0f);
+}
 
+std::pair<float, float> projetBox(GameObject *go, glm::vec3 axis, glm::mat3 rotationMat) {
+    glm::vec3 center = glm::dot(go->transformation.position, axis);
+    float radius = 0;
+    for (int i = 0; i < 3; i++) {
+        radius += go->collider->halfExtents[i] * abs(glm::dot(rotationMat[i], axis));
+    }
+    return std::pair(center - radius, center + radius);
+}
+
+bool isOverlap()
+
+void SAT(GameObject* go1, GameObject* go2) {
+    float box1dim = getBoxDim(go1);
+    float box2dim = getBoxDim(go2);
+
+    mat3 rotationMat1 = mat3_cast(g1->transformation.rotation);
+    mat3 rotationMat2 = mat3_cast(g2->transformation.rotation);
+
+    vector<vec3> crossProds;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            vec3 prod = cross(rotationMat1[i], rotationMat2[j]);
+            crossProds.push_back(prod);
+        }
+    }
+
+    glm::vec3 smallestAxis = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    for (glm::vec3 axis : crossProds) {
+        std::pair<float, float> interval1 = projectBox(go1, axis, rotationMat1);
+        std::pair<float, float> interval2 = projectBox(go2, axis, rotationMat2);
+
+        if (interval[0] <= interval2[0] && interval1[1] >= interval2[0]) {
+
+        }
+    }
+
+}
 
 //test
