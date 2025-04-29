@@ -11,11 +11,14 @@
 #include "DOF.h"
 #include "core.h"
 #include "Window.h"
+#include "Skeleton.h"
 #include "Skin.h"
+
+glm::mat4 ConvertMatrix(const aiMatrix4x4& from);
 
 Joint::Joint(Skeleton* jointsskel, Joint * parent) {
 	this->skely = jointsskel;
-	this->box = new Cube;
+	//this->box = new Cube;
 	this->parent = parent;
 	skely->joints.push_back(this);
 
@@ -30,11 +33,45 @@ Joint::Joint(Skeleton* jointsskel, Joint * parent) {
 	if (!parent) { //questionable
 		this->parent = this;
 	}
+	preL = glm::mat4(1);
+	draw = false;
 	W = glm::mat4(1.0f);
 	xDof = new DOF();
 	yDof = new DOF();
 	zDof = new DOF();
 
+}
+
+void Joint::Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone, Skin* skin) {
+
+	strcpy(this->name, node->mName.C_Str());
+	std::cout << this->name <<  " loaded!" << std::endl;
+
+	if (std::string(this->name) == "rp_manuel_animated_001_dancing_hip") {
+		xDof->SetValue(1.6f);
+	}
+
+	if (std::string(this->name) == "rp_manuel_animated_001_dancing_spine_01") {
+		xDof->SetValue(-1.6f);
+	}
+
+	preL = ConvertMatrix(node->mTransformation);
+	if (nodeToBone->count(node) > 0) {
+		aiBone* bone = (*nodeToBone)[node];
+		invbind = ConvertMatrix(bone->mOffsetMatrix);
+		draw = true;
+
+		for (int i = 0; i < bone->mNumWeights; i++) {
+			skin->sw[bone->mWeights[i].mVertexId]->jointIDs.push_back(skely->joints.size() - 1);
+			skin->sw[bone->mWeights[i].mVertexId]->weights.push_back(bone->mWeights[i].mWeight);
+		}
+	}
+	
+	for (int i = 0; i < node->mNumChildren; i++) {
+		Joint* jnt = new Joint(this->skely, this);
+		jnt->Load(node->mChildren[i], nodeToBone, skin);
+		AddChild(jnt);
+	}
 }
 
 
@@ -73,13 +110,13 @@ void Joint::Update(glm::mat4& parent) {
 
 	L = glm::eulerAngleZYX(this->zDof->GetValue(), this->yDof->GetValue(), this->xDof->GetValue());
 	L[3] = glm::vec4(offset, 1.0f);
-	W = parent * L;
+	W = parent * preL * L;
 
 	/*for (const auto& child : children) {
 		child->Update(W);
 	}*/
 
-	box->update(boxmin, boxmax, W);
+	//box->update(boxmin, boxmax, W);
 
 	for (auto it = children.begin(); it < children.end(); it++) {
 		(*it)->Update(W);
@@ -109,6 +146,11 @@ void Joint::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
 glm::mat4 Joint::GetWorldMatrix() {
 	return W;
 }
+
+glm::mat4 Joint::GetInvBindMatrix() {
+	return invbind;
+}
+
 void Joint::AddChild(Joint * child) {
 	this->children.push_back(child);
 }
@@ -117,6 +159,7 @@ bool Joint::Load(Tokenizer & t) {
 	t.GetToken(this->name);
 	t.FindToken("{");
 	int childCount = 0;
+	draw = true;
 	while (1) {
 		char temp[256];
 		t.GetToken(temp);
@@ -181,4 +224,15 @@ bool Joint::Load(Tokenizer & t) {
 				// box = new Cube;
 				// std::cout << "define just one cube 2" << std::endl;
 	return true;
+}
+
+glm::mat4 ConvertMatrix(const aiMatrix4x4& from) {
+	glm::mat4 to;
+
+	to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
+	to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
+	to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
+	to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
+
+	return to;
 }

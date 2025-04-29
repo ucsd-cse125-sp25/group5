@@ -19,6 +19,7 @@ void Scene::createGame() {
 	dummy.currHP = dummy.maxHP;
 	dummy.ID = 0;
 	player = new PlayerObject();
+	test = new PlayerObject();
 }
 
 void Scene::loadObjects() {
@@ -29,6 +30,11 @@ void Scene::loadObjects() {
 
 	//wasp load-in
 	player->LoadAnimation();
+	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+
+	glm::mat4 mov(0.05f);
+	mov[3] = glm::vec4(2.0f, 0, 0, 1);
+	test->UpdateMat(mov);
 }
 
 void Scene::update(ClientGame* client) {
@@ -36,7 +42,9 @@ void Scene::update(ClientGame* client) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	//cube->setModel(client->GameState.cubeModel);
-	player->Update(client->GameState.cubeModel);
+	player->UpdateMat(client->GameState.cubeModel);
+	player->Update();
+	test->Update();
 	uimanager->update(dummy);
 	//waspplayer->update();
 }
@@ -80,6 +88,7 @@ void Scene::draw(Camera* cam) {
 	//skel->draw(cam->GetViewProjectMtx(), shaders[1]);
 	//skin->draw(cam->GetViewProjectMtx(), shaders[1]);
 	player->Draw(cam);
+	test->Draw(cam);
 
 	glUseProgram(0); //skybox and uimanager use their own shader
 	

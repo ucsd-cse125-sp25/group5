@@ -19,6 +19,7 @@ private:
 	std::vector<Object*> objects;
 	std::vector<Object*> animObjects; //type will be changed later
 	PlayerObject* player; //type will be changed later
+	PlayerObject* test;
 	Skybox* skybox; //each player holds a copy of the skybox
 	UIManager* uimanager;
 	Cube* cube;
