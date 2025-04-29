@@ -236,14 +236,15 @@ void PhysicsSystem::getAABBsDistance(std::vector<GameObject*> gobjs) {
 
 // ignore for now
 float PhysicsSystem::getCellSize() {
-    getAABBsDistance(staticObjects);
-    getAABBsDistance(dynamicObjects);
+    //getAABBsDistance(staticObjects);
+    //getAABBsDistance(dynamicObjects);
 
-    // get 90th percentile size
-    std::sort(AABBdistances.begin(), AABBdistances.end(), [](const float& a, const float& b) { return a > b; });
-    int index = (int) AABBdistances.size() * 0.9;
-    
-    return AABBdistances.at(index);
+    //// get 90th percentile size
+    //sort(AABBdistances.begin(), AABBdistances.end(), [](const float& a, const float& b) { return a > b; });
+    //int index = (int) AABBdistances.size() * 0.9;
+    //
+    //return AABBdistances.at(index);
+	return 1.0f; // placeholder
 }
 
 // ignore for now
