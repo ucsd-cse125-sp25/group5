@@ -3,8 +3,6 @@
 #pragma once
 
 typedef glm::vec3 vec3;
-typedef glm::mat4 mat4;
-typedef glm::quat quat;
 
 // Forward declarations for components
 struct PhysicsComponent;

@@ -293,7 +293,7 @@ vector<vec3> getFaceNormals(GameObject* go) {
 }
 
 bool areParallel(vec3 crossProd) {
-    return pow(glm::length(crossProd),2) < 1e-6;
+    return glm::dot(crossProd, crossProd) < 1e-6;
 }
 
 vector<vec3> getCrossProducts(const vector<vec3>& normals1, const vector<vec3>& normals2) {
@@ -327,30 +327,31 @@ pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, cons
 }
 
 float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
-    float overlap = -1.0f;
+    //float overlap = -1.0f;
 
-    // case 1: intervals are separate
-    if (interval1.second < interval2.first || interval2.second < interval1.first) {
-        return overlap;
-    }
+    return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
+    // // case 1: intervals are separate
+    // if (interval1.second < interval2.first || interval2.second < interval1.first) {
+    //     return overlap;
+    // }
 
-    //case 2: one interval is contained in the other
-    if (interval1.first >= interval2.first && interval1.second <= interval2.second) {
-        overlap = interval1.second - interval1.first;
-    }
-    else if (interval2.first > interval1.first && interval2.second < interval1.second) {
-        overlap = interval2.second - interval2.first;
-    }
+    // //case 2: one interval is contained in the other
+    // if (interval1.first >= interval2.first && interval1.second <= interval2.second) {
+    //     overlap = interval1.second - interval1.first;
+    // }
+    // else if (interval2.first > interval1.first && interval2.second < interval1.second) {
+    //     overlap = interval2.second - interval2.first;
+    // }
 
-    // case 3: intervals overlap
-    if (interval1.first < interval2.first && interval1.second > interval2.second) {
-        overlap = interval1.second - interval2.first;
-    }
-    else if (interval2.first < interval1.first && interval2.second > interval1.first) {
-        overlap = interval2.second - interval1.first;
-    }
+    // // case 3: intervals overlap
+    // if (interval1.first < interval2.first && interval1.second > interval2.second) {
+    //     overlap = interval1.second - interval2.first;
+    // }
+    // else if (interval2.first < interval1.first && interval2.second > interval1.first) {
+    //     overlap = interval2.second - interval1.first;
+    // }
 
-    return overlap;
+    // return overlap;
 }
 
 pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
@@ -369,8 +370,8 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
         pair<float, float> interval2 = getInterval(go2->transform.position, go2->collider->halfExtents, normals2, axis);
 
         float overlap = getOverlap(interval1, interval2);
-        if (overlap == -1.0f) {
-            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -2.0f);
+        if (overlap < 0.0f) {   // or <= ?????
+            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
         }
         if (minOverlap == 0.0f || overlap < minOverlap) {
             minOverlap = overlap;
@@ -379,5 +380,24 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
     }
 
     return pair<vec3, float>(minAxis, minOverlap);
+}
+
+vec3 getPointOfContact(GameObject* go1, GameObject* go2) {
+
+    pair<vec3, float> overlapData = SATOverlapTest(go1, go2);
+    if (overlapData.second < 0.0f) {
+        return vec3(0.0f, 0.0f, 0.0f);
+    }
+    float overlap = overlapData.second;
+    vec3 axis = glm::normalize(overlapData.first);
+
+    if (glm::dot(go2->transform.position-go1->transform.position, axis) < 0.0f) {
+        axis = -axis;
+    }
+
+    vec3 center1Translated = go1->transform.position + 0.5f * overlap * axis;
+    vec3 center2Translated = go2->transform.position - 0.5f * overlap * axis;
+
+    return (center1Translated + center2Translated) * 0.5f;
 }
 //test
