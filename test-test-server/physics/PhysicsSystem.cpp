@@ -225,13 +225,16 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
     outEulerRadians = glm::eulerAngles(rotation);
 }
 
+// ignore for now
 void PhysicsSystem::getAABBsDistance(std::vector<GameObject*> gobjs) {
+    AABB temp;
     for (GameObject* go : gobjs) {
         temp = getAABB(go);
         AABBdistances.push_back(glm::distance(temp.min, temp.max));
     }
 }
 
+// ignore for now
 float PhysicsSystem::getCellSize() {
     getAABBsDistance(staticObjects);
     getAABBsDistance(dynamicObjects);
@@ -243,7 +246,7 @@ float PhysicsSystem::getCellSize() {
     return AABBdistances.at(index);
 }
 
-
+// ignore for now
 void PhysicsSystem::populateGrid() {
     cellSize = getCellSize();
 
@@ -263,14 +266,58 @@ void PhysicsSystem::populateGrid() {
         vector<int> cellsY;
         vector<int> cellsZ;
 
-        float minx, maxx = go->transform.aabb.min[0], go->transform.aabb.max[0];
+        float minx = go->transform.aabb.min[0];
+        float maxx = go->transform.aabb.max[0];
+        
         while (minx < maxx) {
             int index = (int) (minx / numCellsX);
             cellsX.push_back(index);
             minx += cellSize;
         }
     }
+}
 
+// ignore for now
+float PhysicsSystem::getBoxDim(GameObject* go) {
+    float AABBMag = glm::distance(go->transform.aabb.min, go->transform.aabb.max);
+    return AABBMag / sqrtf(3.0f);
+}
+
+// ignore for now
+std::pair<float, float> PhysicsSystem::projetBox(GameObject *go, glm::vec3 axis, glm::mat3 rotationMat) {
+    float center = glm::dot((go->transform.position), axis);
+    float radius = 0;
+    for (int i = 0; i < 3; i++) {
+        radius += go->collider->halfExtents[i] * abs(glm::dot(rotationMat[i], axis));
+    }
+    return pair<float, float>(center - radius, center + radius);
+}
+
+// ignore for now
+void PhysicsSystem::SAT(GameObject* go1, GameObject* go2) {
+    float box1dim = getBoxDim(go1);
+    float box2dim = getBoxDim(go2);
+
+    mat3 rotationMat1 = glm::mat3_cast(go1->transform.rotation);
+    mat3 rotationMat2 = glm::mat3_cast(go2->transform.rotation);
+
+    vector<vec3> crossProds;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            vec3 prod = cross(rotationMat1[i], rotationMat2[j]);
+            crossProds.push_back(prod);
+        }
+    }
+
+    glm::vec3 smallestAxis = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    // for (glm::vec3 axis : crossProds) {
+    //     std::pair<float, float> interval1 = projectBox(go1, axis, rotationMat1);
+    //     std::pair<float, float> interval2 = projectBox(go2, axis, rotationMat2);
+
+    //     // if (interval[0] <= interval2[0] && interval1[1] >= interval2[0]) {
+
+    // }
 }
 
 vector<vec3> getFaceNormals(GameObject* go) {
@@ -317,6 +364,7 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
     //float overlap = -1.0f;
 
     return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
+}
     // // case 1: intervals are separate
     // if (interval1.second < interval2.first || interval2.second < interval1.first) {
     //     return overlap;
@@ -339,19 +387,6 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
     // }
 
     // return overlap;
-float getBoxDim(GameObject* go) {
-    float AABBMag = distance(go->transform.aabb.min, go->tranform.aabb.max);
-    return AABBMag / sqrtf(3.0f);
-}
-
-std::pair<float, float> projetBox(GameObject *go, glm::vec3 axis, glm::mat3 rotationMat) {
-    glm::vec3 center = glm::dot(go->transformation.position, axis);
-    float radius = 0;
-    for (int i = 0; i < 3; i++) {
-        radius += go->collider->halfExtents[i] * abs(glm::dot(rotationMat[i], axis));
-    }
-    return std::pair(center - radius, center + radius);
-}
 
 pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
     vector<vec3> normals1 = getFaceNormals(go1);
@@ -361,33 +396,6 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
     addNormalsToAxes(axes, normals1);
     addNormalsToAxes(axes, normals2);
 
-void SAT(GameObject* go1, GameObject* go2) {
-    float box1dim = getBoxDim(go1);
-    float box2dim = getBoxDim(go2);
-
-    mat3 rotationMat1 = mat3_cast(g1->transformation.rotation);
-    mat3 rotationMat2 = mat3_cast(g2->transformation.rotation);
-
-    vector<vec3> crossProds;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            vec3 prod = cross(rotationMat1[i], rotationMat2[j]);
-            crossProds.push_back(prod);
-        }
-    }
-
-    glm::vec3 smallestAxis = glm::vec3(0.0f, 0.0f, 0.0f);
-
-    for (glm::vec3 axis : crossProds) {
-        std::pair<float, float> interval1 = projectBox(go1, axis, rotationMat1);
-        std::pair<float, float> interval2 = projectBox(go2, axis, rotationMat2);
-
-        if (interval[0] <= interval2[0] && interval1[1] >= interval2[0]) {
-
-        }
-    }
-
-}
     float minOverlap = 0.0f;
     vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
 

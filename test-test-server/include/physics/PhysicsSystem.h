@@ -34,7 +34,11 @@ public:
     void getAABBsDistance(std::vector<GameObject*> gobjs);
     float getCellSize();
     void populateGrid();
-    
+    float getBoxDim(GameObject* go);
+    std::pair<float, float> projetBox(GameObject *go, glm::vec3 axis, glm::mat3 rotationMat);
+    std::pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis);
+    std::vector<vec3> getCrossProducts(const std::vector<vec3>& normals1, const std::vector<vec3>& normals2);
+    void SAT(GameObject* go1, GameObject* go2);
 
 
 	void addDynamicObject(GameObject* obj) {
