@@ -417,6 +417,36 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
+pair<vec3, float> SATOverlapTestExperimental(AABB a, AABB b) {
+    //vector<vec3> normals1 = getFaceNormals(go1);
+    //vector<vec3> normals2 = getFaceNormals(go2);
+
+    //vector<vec3> axes = getCrossProducts(normals1, normals2);
+    //addNormalsToAxes(axes, normals1);
+    //addNormalsToAxes(axes, normals2);
+
+    vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
+
+    float minOverlap = 0.0f;
+    vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < 3; i++) {
+        pair<float, float> interval1 = { a.min[i], a.max[i] };
+        pair<float, float> interval2 = { b.min[i], b.max[i] };
+
+        float overlap = getOverlap(interval1, interval2);
+        if (overlap < 0.0f) {   // or <= ?????
+            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
+        }
+        if (minOverlap == 0.0f || overlap < minOverlap) {
+            minOverlap = overlap;
+            minAxis = axes[i];
+        }
+    }
+
+    return pair<vec3, float>(minAxis, minOverlap);
+}
+
 vec3 getPointOfContact(GameObject* go1, GameObject* go2) {
 
     pair<vec3, float> overlapData = SATOverlapTest(go1, go2);
