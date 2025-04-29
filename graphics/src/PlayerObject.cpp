@@ -73,7 +73,9 @@ void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 
 void PlayerObject::Update() {
 	skel->update();
-	animplayer->update();
+	if (animation->channels.size() > 0) {
+		animplayer->update();
+	}
 	skin->update();	
 }
 

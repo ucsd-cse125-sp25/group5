@@ -67,8 +67,8 @@ void Scene::update(ClientGame* client) {
 			continue;
 		}
 
-		players[j++]->UpdateMat(entity.model);
-    players[j++]->Update();
+		players[j]->UpdateMat(entity.model);
+		players[j++]->Update();
 	}
 	
 
