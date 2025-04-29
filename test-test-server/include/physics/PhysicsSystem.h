@@ -15,7 +15,7 @@ public:
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
     map<vec3, vector<GameObject*>> worldGrid;
     vector<float> AABBdistances;
-    double cellSize;
+    float cellSize;
 
     void tick(float dt);
     void applyInput(const PlayerIntentPacket& intent, int playerId);
@@ -26,6 +26,11 @@ public:
     mat4 toMatrix(const vec3& position, const quat& quat);
     void fromMatrix(const mat4& mat, vec3& outPosition, vec3& outEulerRadians);
     GameObject* makeGameObject();
+
+    void getAABBsDistance(std::vector<GameObject*> gobjs);
+    float getCellSize();
+    void populateGrid();
+    
 
 
 	void addDynamicObject(GameObject* obj) {

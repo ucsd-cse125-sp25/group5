@@ -1,4 +1,4 @@
-#include "physics/PhysicsSystem.h"
+#include "PhysicsSystem.h"
 #include "physics/PhysicsData.h"	
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
@@ -263,17 +263,17 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
 void PhysicsSystem::getAABBsDistance(std::vector<GameObject*> gobjs) {
     AABB temp;
     for (GameObject* go : gobjs) {
-        temp.min, temp.max = getAABB(go);
-        PhysicsSystem::AABBdistances.push_back(glm::distance(temp.min, temp.max));
+        temp = getAABB(go);
+        AABBdistances.push_back(glm::distance(temp.min, temp.max));
     }
 }
 
 float PhysicsSystem::getCellSize() {
-    getAABBsDistance(PhysicsSystem::staticObjects);
-    getAABBsDistance(PhysicsSystem::dynamicObjects);
+    getAABBsDistance(staticObjects);
+    getAABBsDistance(dynamicObjects);
 
     // get 90th percentile size
-    std::sort(AABBdistances.begin(), AABBdistances.end(), [](const float& a, const float& b) { retrun a > b});
+    std::sort(AABBdistances.begin(), AABBdistances.end(), [](const float& a, const float& b) { return a > b; });
     int index = (int) AABBdistances.size() * 0.9;
     
     return AABBdistances.at(index);
@@ -354,8 +354,8 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
 }
 
 pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
-    vector<vec3> normals1 = faceNormals(go1);
-    vector<vec3> normals2 = faceNormals(go2);
+    vector<vec3> normals1 = getFaceNormals(go1);
+    vector<vec3> normals2 = getFaceNormals(go2);
 
     vector<vec3> axes = getCrossProducts(normals1, normals2);
     addNormalsToAxes(axes, normals1);
