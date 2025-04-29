@@ -4,8 +4,9 @@
 #include <Windows.h>
 #include "NetworkServices.h"
 #include <ws2tcpip.h>
-#include <stdio.h> 
-#include "NetworkData.h"
+#include <stdio.h>
+
+#include "shared/NetworkData.h"
 
 // size of our buffer
 #define DEFAULT_BUFLEN 512

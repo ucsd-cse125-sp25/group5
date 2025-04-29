@@ -22,7 +22,7 @@ public:
     Cube(glm::vec3 cubeMin = glm::vec3(-1, -1, -1), glm::vec3 cubeMax = glm::vec3(1, 1, 1));
     ~Cube();
 
-    void create(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model);
+    //void create(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model);
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
     void update(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model);
 

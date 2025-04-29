@@ -1,15 +1,15 @@
 #include <vector>
 #include "PhysicsData.h"
-#include "NetworkData.h"    
+#include "shared/NetworkData.h"    
 
 class PhysicsSystem {
 public:
-    GameObject* players[4];
+	std::vector<GameObject*> playerObjects;
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
 
     void tick(float dt);
-    void applyInput(const PlayerIntentPacket& intent, int player);
+    void applyInput(const PlayerIntentPacket& intent, int playerId);
     void integrate(GameObject* obj, float dt);
     void checkCollisions(GameObject* obj);
     void resolveCollisions(GameObject* obj);
@@ -24,5 +24,8 @@ public:
 	}
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
+	}
+	void addPlayerObject(GameObject* obj) {
+		playerObjects.push_back(obj);
 	}
 };

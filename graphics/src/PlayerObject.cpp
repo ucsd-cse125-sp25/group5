@@ -25,7 +25,7 @@ void PlayerObject::LoadAnimation() {
 
 	skel->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skel")).c_str());
 	skin->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skin")).c_str());
-	animation->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.anim")).c_str());
+	animation->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp_dance.anim")).c_str());
 }
 
 void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
@@ -73,11 +73,12 @@ void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 
 void PlayerObject::Update() {
 	skel->update();
-	skin->update();
+	animplayer->update();
+	skin->update();	
 }
 
 void PlayerObject::Draw(Camera* cam) {
-	skel->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
+	//skel->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
 	skin->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
 }
 

@@ -18,12 +18,14 @@ class Scene {
 private:
 	std::vector<Object*> objects;
 	std::vector<Object*> animObjects; //type will be changed later
+	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
 	PlayerObject* test;
 	Skybox* skybox; //each player holds a copy of the skybox
 	UIManager* uimanager;
 	Cube* cube;
 	Lights* lightmanager;
+	Cube* testCube;
 	//std::vector<Light*> lights; lights baked into the world
 	//std::vector<Light*> movLights; dynamic lights from abilities/powerups/events etc.
 	

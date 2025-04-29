@@ -4,7 +4,7 @@
 #include "NetworkServices.h"
 #include <ws2tcpip.h>
 #include <map>
-#include "NetworkData.h"
+#include "shared/NetworkData.h"
 using namespace std; 
 #pragma comment (lib, "Ws2_32.lib")
 
@@ -16,6 +16,8 @@ class ServerNetwork
 public:
     ServerNetwork(void);
     ~ServerNetwork(void);
+
+    void sendTo(unsigned int client_id, char* packets, int totalSize);
 
 	// send data to all clients
     void sendToAll(char * packets, int totalSize);

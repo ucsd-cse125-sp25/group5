@@ -142,9 +142,20 @@ void PhysicsSystem::resolveCollisions(GameObject* o) {
     return;
 }
 
-void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int player) {
-    //process player input 
-	GameObject* target = players[player];
+void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
+    //process player input
+    GameObject* target = NULL;
+
+    for (auto obj : playerObjects) {
+        if (obj->id == playerId) {
+            target = obj;
+            break;
+        }
+    }
+
+    if (target == NULL) {
+        return;
+    }
 
    /* if (intent.moveLeftIntent)
     {
