@@ -4,6 +4,7 @@
 #include <vector>
 
 //Only point light, we can just pass in 1 directional light
+//Each point light will have its down shadow cube map (NOT YET IMPLEMENTED :L)
 struct Light {
     glm::vec4 position; //w = 1.0 (point)
     glm::vec4 ambient;
@@ -17,6 +18,8 @@ struct Light {
 
 struct DirectionalLight {
     glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 specular = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 getLightSpaceMatrix() const {
         glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 30.0f);
         glm::mat4 lightView = glm::lookAt(-direction * 10.0f, glm::vec3(0.0f), glm::vec3(0, 1, 0));
@@ -33,8 +36,10 @@ public:
     int numLights();
     glm::mat4 getDirLightMat() const { return dirLight.getLightSpaceMatrix(); };
     glm::vec3 getDirLightDir() const { return dirLight.direction; };
+    DirectionalLight getDirLight();
 private:
 	GLuint SSBO;
     std::vector<Light> lights;
     DirectionalLight dirLight; //probably only one which will resemble the moon
+    //std::vector<GLuint> shadowMapTextures;
 };

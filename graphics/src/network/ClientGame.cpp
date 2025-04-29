@@ -51,7 +51,7 @@ void ClientGame::sendActionPackets(PlayerIntentPacket intent)
 
     intent.serialize(packet_data);
 
-	printf("client sending action packet to server with the following data: %d %d %d %d\n", intent.moveLeftIntent, intent.moveRightIntent, intent.moveDownIntent, intent.moveUpIntent);    
+	//printf("client sending action packet to server with the following data: %d %d %d %d\n", intent.moveLeftIntent, intent.moveRightIntent, intent.moveDownIntent, intent.moveUpIntent);    
 
 
     NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
@@ -76,18 +76,18 @@ void ClientGame::update(PlayerIntentPacket intent)
 			i += sizeof(GameStatePacket); // read the packet type first
 
 
-			printf("client received game state packet from server with the following mat4:");
+			//printf("client received game state packet from server with the following mat4:");
             for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < 4; k++) {
 					//printf("%f ", GameState.getModelMatrix()[i][j]);
-					printf("%f ", packet.cubeModel[k][j]);
+					//printf("%f ", packet.cubeModel[k][j]);
                 }
-				printf("\n");
+				//printf("\n");
             }
 
 			//packet.cubeModel = glm::mat4(1.0f);
 			memcpy(&GameState, &packet, sizeof(GameStatePacket));
-            printf("\n");
+            //printf("\n");
         }
     }
        

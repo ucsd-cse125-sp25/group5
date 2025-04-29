@@ -6,7 +6,6 @@ void Scene::createGame() {
 	//setup lights
 	lightmanager = new Lights();
 	lightmanager->init();
-
 	initShadows();
 
 	//loadObjects();
@@ -72,10 +71,8 @@ bool Scene::initShaders() {
 			std::cerr << "Failed to initialize shader program" << std::endl;
 			return false;
 		}
-
 		shaders.push_back(shaderProgram);
 	}
-
 	return true;
 }
 
@@ -120,9 +117,7 @@ void Scene::draw(Camera* cam) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-
 	//RENDER PASS
-	doShadow = false;
 	glViewport(0, 0, 1200, 900);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -134,20 +129,25 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(mainShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 	glm::vec3 camPos = cam->GetPosition();
 	glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
+
+	DirectionalLight dirLight = lightmanager->getDirLight();
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight.direction[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight.color[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight.specular[0]);
 	glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
 	glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glUniform1i(glGetUniformLocation(mainShader, "shadowMap"), 1);
-	//glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
+	glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
 
 	lightmanager->bind();
 	for (int i = 0; i < objects.size(); i++) {
-		objects[i]->draw(mainShader, doShadow);
+		objects[i]->draw(mainShader, false);
 	}
 
-	skin->draw(mainShader, doShadow);
+	skin->draw(mainShader, false);
 
 	glUseProgram(0); //skybox and uimanager use their own shader
 	

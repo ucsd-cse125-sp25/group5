@@ -13,7 +13,6 @@ out vec2 TexCoord;
 // Uniform variables
 uniform mat4 viewProj;
 uniform mat4 model;
-
 uniform mat4 lightSpaceMatrix;
 out vec4 FragPosLightSpace;
 
