@@ -18,12 +18,13 @@ PlayerObject::PlayerObject() {
 void PlayerObject::LoadAnimation() {
 	skel->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skel")).c_str());
 	skin->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skin")).c_str());
-	animation->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.anim")).c_str());
+	animation->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp_dance.anim")).c_str());
 }
 
 void PlayerObject::Update(glm::mat4 newmodel) {
 	skel->updateWorldMat(newmodel);
 	skel->update();
+	animplayer->update();
 	skin->update();	
 }
 

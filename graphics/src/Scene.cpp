@@ -60,11 +60,13 @@ void Scene::update(ClientGame* client) {
 
 		players[j++]->Update(entity.model);
 	}
+	
 
-
+	for (int i = 0; i < cubes.size(); i++) {
+		delete(cubes[i]);
+	}
 	cubes.clear();
-	cube->setModel(glm::mat4(1.0f));
-	cubes.push_back(cube);
+
 	
 	for (i = 0; i < client->GameState.num_entities; i++) {
 		auto entity = client->GameState.entities[i];
