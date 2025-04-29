@@ -1,9 +1,10 @@
 #include <stdafx.h>
 
-using namespace std;
-using namespace glm;
-
 #pragma once
+using namespace std;
+
+typedef glm::vec3 vec3;
+
 // Forward declarations for components
 struct PhysicsComponent;
 struct ColliderComponent;
