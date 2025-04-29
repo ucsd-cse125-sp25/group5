@@ -106,6 +106,11 @@ glm::vec3 getPenetrationVector(const AABB& a, const AABB& b) {
 }
 
 void PhysicsSystem::checkCollisions(GameObject* obj) {
+    //general idea
+    //1. ensure all AABBs for all objects are initialized already
+    //2. iterate through every object and get its AABB
+    //3. feed the AABB of this object, and of the iterated object, to SATOverlapTestExperimental
+    //4. call resolveCollisions with the result, if there is a collision (change params and return for resolveCollisions)
     return;
 }
 
