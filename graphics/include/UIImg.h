@@ -45,3 +45,41 @@ private:
 
 	GLuint VAO[2], VBO[2], EBO;
 };
+
+struct MagicElement {
+	std::string name;
+	glm::vec2 position;
+	float angleOffset;
+	float currMana;
+	GLuint borderTexture;
+	GLuint manaTexture;
+};
+
+class Magic : public UIImg {
+public:
+	void Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const PlayerStats& p) override;
+	void SetTexture(GLuint texture);
+
+	std::vector<MagicElement> powers;
+	std::string name;
+	float centerX;
+	float centerY;
+private:
+	std::vector<float> quad;
+	std::vector<float> mana;
+	GLuint shaderProgram;
+	GLuint manaProgram;
+	glm::mat4 projection;
+
+	GLuint backTexture;
+
+	GLuint backVAO, backVBO;
+	GLuint elemVAO, elemVBO;
+	GLuint EBO;
+
+	float uiWidth;
+	float uiHeight;
+	float manaWidth;
+};
