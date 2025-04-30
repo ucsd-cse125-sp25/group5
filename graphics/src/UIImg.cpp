@@ -249,6 +249,31 @@ void Magic::Init(float scWidth, float scHeight, std::vector<float> startPos, flo
 
 void Magic::Update(const PlayerStats& p) {
 	//loop through each struct and update according to the player
+	float waterPerc = float(p.currWater) / float(p.maxWater);
+	float firePerc = float(p.currFire) / float(p.maxFire);
+	float earthPerc = float(p.currEarth) / float(p.maxEarth);
+	float woodPerc = float(p.currWood) / float(p.maxWood);
+	float metalPerc = float(p.currMetal) / float(p.maxMetal);
+	std::cout << waterPerc << " " << firePerc << " " << earthPerc << " " << woodPerc << " " << metalPerc << std::endl;
+	int size = powers.size();
+	for (int i = 0; i < size; i++) {
+		const std::string name = powers[i].name;
+		if (name == "water") {
+			powers[i].currMana = waterPerc;
+		}
+		else if (name == "fire") {
+			powers[i].currMana = firePerc;
+		}
+		else if (name == "earth") {
+			powers[i].currMana = earthPerc;
+		}
+		else if (name == "wood") {
+			powers[i].currMana = woodPerc;
+		}
+		else if (name == "metal") {
+			powers[i].currMana = metalPerc;
+		}
+	}
 }
 
 void Magic::Draw() {
@@ -266,18 +291,25 @@ void Magic::Draw() {
 	glBindVertexArray(0);
 
 	//loop through each struct, send the uniform for mana % then draw
+	float seconds = glfwGetTime();
 	glUseProgram(manaProgram);
 	glUniformMatrix4fv(glGetUniformLocation(manaProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+	glUniform1f(glGetUniformLocation(manaProgram, "time"), seconds);
 	glBindVertexArray(elemVAO);
 	for (const auto& p : powers) {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(p.position.x - manaWidth / 2.0f, p.position.y - manaWidth / 2.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(manaProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glUniform1f(glGetUniformLocation(manaProgram, "manaPercent"), p.currMana);
+		//std::cout << "Current mana: " << p.currMana << std::endl;
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), true);
 		glBindTexture(GL_TEXTURE_2D, p.manaTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), false);
 		glBindTexture(GL_TEXTURE_2D, p.borderTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
+	//std::cout << "END OF MANA DISPLAYING" << std::endl;
 	glDisable(GL_BLEND);
 
 	glEnable(GL_DEPTH_TEST);
