@@ -301,7 +301,6 @@ void Magic::Draw() {
 		model = glm::translate(model, glm::vec3(p.position.x - manaWidth / 2.0f, p.position.y - manaWidth / 2.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(manaProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glUniform1f(glGetUniformLocation(manaProgram, "manaPercent"), p.currMana);
-		//std::cout << "Current mana: " << p.currMana << std::endl;
 		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), true);
 		glBindTexture(GL_TEXTURE_2D, p.manaTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -309,7 +308,6 @@ void Magic::Draw() {
 		glBindTexture(GL_TEXTURE_2D, p.borderTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
-	//std::cout << "END OF MANA DISPLAYING" << std::endl;
 	glDisable(GL_BLEND);
 
 	glEnable(GL_DEPTH_TEST);

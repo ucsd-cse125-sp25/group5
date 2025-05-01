@@ -11,9 +11,9 @@ uniform float time;
 uniform sampler2D texture1;
 
 void main() {
-    float waveAmp = 0.05;
-    float waveFreq = 15.0;
-    float waveSpeed = 1.5;
+    float waveAmp = 0.03;
+    float waveFreq = 12.0;
+    float waveSpeed = 0.75;
 
     float wave = sin(TexCoord.x * waveFreq + time * waveSpeed) * waveAmp;
 

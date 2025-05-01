@@ -74,6 +74,7 @@ void UIManager::Init() {
 				e.borderTexture = GetTexture(border);
 				e.manaTexture = GetTexture(bar);
 				ma->powers.push_back(e);
+
 			}
 
 			const float radius = 75;
