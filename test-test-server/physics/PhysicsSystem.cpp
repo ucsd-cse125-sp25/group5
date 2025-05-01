@@ -111,6 +111,7 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
     //2. iterate through every object and get its AABB
     //3. feed the AABB of this object, and of the iterated object, to SATOverlapTestExperimental
     //4. call resolveCollisions with the result, if there is a collision (change params and return for resolveCollisions)
+    //test change
     return;
 }
 
