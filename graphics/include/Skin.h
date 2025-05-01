@@ -37,7 +37,6 @@ private:
 	std::vector<unsigned int> triangles;
     std::vector<glm::vec2> uvs;
 	std::vector<glm::mat4> bindings;
-    glm::vec3 color;
     glm::mat4 oneglm;
 };
 

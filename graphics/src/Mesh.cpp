@@ -148,12 +148,18 @@ void Mesh::update(glm::mat4 newModel) {
 }
 
 std::string getLastPathPart(const std::string& path) {
-    size_t end = path.find_last_not_of('/');
+    if (path.empty()) {
+        return "";
+    }
+
+    // Find the last non-slash character (either '/' or '\')
+    size_t end = path.find_last_not_of("/\\");
     if (end == std::string::npos) {
         return ""; // The path only contains slashes
     }
 
-    size_t start = path.find_last_of('/', end);
+    // Find the last slash (either '/' or '\') before or at 'end'
+    size_t start = path.find_last_of("/\\", end);
     if (start == std::string::npos) {
         return path.substr(0, end + 1); // No slash found, return whole string
     }
