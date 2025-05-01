@@ -25,7 +25,7 @@ public:
     void applyInput(const PlayerIntentPacket& intent, int playerId);
     void integrate(GameObject* obj, float dt);
     void checkCollisions(GameObject* obj);
-    void resolveCollisions(GameObject* obj);
+    void resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& SATresult);
     void handleGrapple(GameObject* obj, float dt);
     mat4 toMatrix(const vec3& position, const quat& quat);
     void fromMatrix(const mat4& mat, vec3& outPosition, vec3& outEulerRadians);

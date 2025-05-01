@@ -63,6 +63,7 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 	}
 
 	obj->transform.position += obj->physics->velocity * dt;
+    obj->transform.aabb = getAABB(obj);
 }
 
 
@@ -109,12 +110,28 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
     //general idea
     //1. ensure all AABBs for all objects are initialized already
     //2. iterate through every object and get its AABB
+    for (auto sobj : staticObjects) {
+        if (obj->id == sobj->id) {
+            continue; 
+        }
+        pair<vec3, float> SATresult = SATOverlapTestExperimental(obj->transform.aabb, sobj->transform.aabb);
+        if (SATresult.second != -1.0f) {
+            resolveCollision(obj, sobj, SATresult);
+        }  
+
+
+    }
     //3. feed the AABB of this object, and of the iterated object, to SATOverlapTestExperimental
     //4. call resolveCollisions with the result, if there is a collision (change params and return for resolveCollisions)
     return;
 }
 
-void PhysicsSystem::resolveCollisions(GameObject* o) {
+void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& SATresult) {
+    float sign = glm::dot(SATresult.first, go1->transform.position);
+
+    go1->transform.position = go1->transform.position + sign * SATresult.first * SATresult.second / 2.0f;
+    go2->transform.position = go2->transform.position - sign * SATresult.first * SATresult.second / 2.0f;
+
     return;
 }
 
@@ -191,7 +208,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
     target->transform.rotation = q;
 	target->transform.position = translation;
-
+    target->transform.aabb = getAABB(target);
 
 
 }
@@ -202,6 +219,7 @@ GameObject* PhysicsSystem::makeGameObject() {
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
+    obj->transform.aabb = getAABB(obj);
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
 
