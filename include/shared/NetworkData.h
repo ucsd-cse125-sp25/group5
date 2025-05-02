@@ -38,6 +38,10 @@ struct PlayerIntentPacket {
     bool moveBackIntent = false;
     float azimuthIntent = 0.0f;
     float inclineIntent = 0.0f;
+	bool rightClickIntent = false;
+	bool leftClickIntent = false;
+    bool scrollUpIntent = false;
+	bool scrollDownIntent = false;
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(PlayerIntentPacket));
@@ -47,6 +51,8 @@ struct PlayerIntentPacket {
         memcpy(this, data, sizeof(PlayerIntentPacket));
     }
 };
+
+
 
 struct JoinResponsePacket {
     unsigned int packet_type;
@@ -65,6 +71,8 @@ struct JoinResponsePacket {
 struct GameStatePacket {
 
     unsigned int packet_type;
+
+	struct PlayerStats player_stats[MAX_PLAYERS];
 
     unsigned int num_players;
     struct Entity players[MAX_PLAYERS];
