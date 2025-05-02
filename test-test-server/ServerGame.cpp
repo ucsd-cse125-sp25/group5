@@ -31,11 +31,9 @@ ServerGame::ServerGame(void)
     //initialize the physics system
     physicsSystem = PhysicsSystem();
 
- //   //boilerplate
-	//GameObject* cube = physicsSystem.makeGameObject();
+ 
 
- //   //create a random number of cubes to put in the world
- //   /*random no of cubes*/
+    //initialization of the game state
 	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
  //
     for (int i = 0; i < numCubes; i++) {

@@ -220,9 +220,14 @@ GameObject* PhysicsSystem::makeGameObject() {
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
-    obj->transform.aabb = getAABB(obj);
+
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
+
+    obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    obj->isDynamic = false;
+    obj->transform.aabb = getAABB(obj);
 
     return obj; // return reference to the stored one
 }
