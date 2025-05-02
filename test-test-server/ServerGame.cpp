@@ -86,6 +86,8 @@ void ServerGame::update()
 
    bool sendUpdate = receiveFromClients();
 
+
+
    //put new information into the game state
    writeToGameState();
 

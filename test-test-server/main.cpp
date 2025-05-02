@@ -17,7 +17,7 @@ int main()
 {
 
 	// initialize the server
-    AABB a;
+    /*AABB a;
     a.min = vec3(0, 0, 0);
     a.max = vec3(4, 4, 4);
 
@@ -28,7 +28,7 @@ int main()
     std::pair<vec3, float> ret = SATOverlapTestExperimental(a, b);
 
     cout << ret.first.x << " " << ret.first.y << " " << ret.first.z << " " << ret.second << endl;
-
+    */
 	server = new ServerGame();
     serverLoop();
 }

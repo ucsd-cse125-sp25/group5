@@ -85,7 +85,7 @@ void PhysicsSystem::handleGrapple(GameObject* obj, float dt) {
 	}
 }
 
-AABB getAABB(GameObject* obj) {
+AABB PhysicsSystem::getAABB(GameObject* obj) {
     glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
     glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
     return { min, max };
@@ -128,10 +128,10 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
 }
 
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& SATresult) {
-    float sign = glm::dot(SATresult.first, go1->transform.position);
 
-    go1->transform.position = go1->transform.position + sign * SATresult.first * SATresult.second / 2.0f;
-    go2->transform.position = go2->transform.position - sign * SATresult.first * SATresult.second / 2.0f;
+    go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
+
+    //IP
 
     return;
 }
@@ -428,6 +428,9 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
         pair<float, float> interval1 = getInterval(go1->transform.position, go1->collider->halfExtents, normals1, axis);
         pair<float, float> interval2 = getInterval(go2->transform.position, go2->collider->halfExtents, normals2, axis);
 
+
+        //get overlap    return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
+
         float overlap = getOverlap(interval1, interval2);
         if (overlap < 0.0f) {   // or <= ?????
             return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
@@ -441,7 +444,7 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
-pair<vec3, float> SATOverlapTestExperimental(AABB a, AABB b) {
+pair<vec3, float> PhysicsSystem::SATOverlapTestExperimental(AABB a, AABB b) {
     //vector<vec3> normals1 = getFaceNormals(go1);
     //vector<vec3> normals2 = getFaceNormals(go2);
 
@@ -462,6 +465,8 @@ pair<vec3, float> SATOverlapTestExperimental(AABB a, AABB b) {
         if (overlap < 0.0f) {   // or <= ?????
             return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
         }
+
+		// check for small epsilon interval, not 0 to avoid floating point arithmetic issues
         if (minOverlap == 0.0f || overlap < minOverlap) {
             minOverlap = overlap;
             minAxis = axes[i];
