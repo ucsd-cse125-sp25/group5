@@ -28,12 +28,6 @@ bool AABBOverlap(const AABB& a, const AABB& b) {
 
 void PhysicsSystem::tick(float dt) {
     for (GameObject* obj : dynamicObjects) {
-        // Movement input already applied in applyInput()
-
-        if (obj->physics->grappling) {
-            handleGrapple(obj, dt);
-            continue;
-        }
 
         // Apply gravity
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
@@ -43,7 +37,7 @@ void PhysicsSystem::tick(float dt) {
 
         // Collide + resolve
         checkCollisions(obj);
-        //resolveCollisions(obj);
+        //resolveCollision(obj);
 
         // Reset per-frame data
         obj->physics->acceleration = glm::vec3(0);
@@ -118,9 +112,9 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
         if (SATresult.second != -1.0f) {
             resolveCollision(obj, sobj, SATresult);
         }  
-
-
+		printf("Detected collision between %d and %d\n", obj->id, sobj->id);
     }
+	printf("length of static objects %d", staticObjects.size());
     //3. feed the AABB of this object, and of the iterated object, to SATOverlapTestExperimental
     //4. call resolveCollisions with the result, if there is a collision (change params and return for resolveCollisions)
     //test change
@@ -129,11 +123,23 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
 
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& SATresult) {
 
-    go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
+    vec3 normal = glm::normalize(SATresult.first);
+    float penetration = SATresult.second;
 
-    //IP
+    // Positional correction: push go1 out of go2
+    go1->transform.position += normal * penetration;
 
-    return;
+    // Velocity resolution: bounce off if moving into object
+    vec3 relativeVelocity = go1->physics->velocity;
+    float velAlongNormal = glm::dot(relativeVelocity, normal);
+
+    if (velAlongNormal < 0.0f) {
+        float restitution = 0.1f; // tweak this if you want it more bouncy
+        float impulse = -(1.0f + restitution) * velAlongNormal;
+        vec3 impulseVec = impulse * normal;
+
+        go1->physics->velocity += impulseVec;
+    }
 }
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
@@ -157,7 +163,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 		target->transform.position.x -= 0.1f;
     }*/
 
-    glm::vec3 delta = glm::vec3(0.016f);
+    glm::vec3 delta = glm::vec3(0.064f);
     float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
@@ -185,7 +191,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
         translation += up * delta;
         //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
         //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
-
+        
     }
     if (intent.moveDownIntent) {
         translation += (-up) * delta;
@@ -214,17 +220,110 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 
 }
 
+float getOverlap(pair<float, float> interval1, pair<float, float> interval2) {
+    //float overlap = -1.0f;
+
+    return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
+}
+// // case 1: intervals are separate
+// if (interval1.second < interval2.first || interval2.second < interval1.first) {
+//     return overlap;
+// }
+
+// //case 2: one interval is contained in the other
+// if (interval1.first >= interval2.first && interval1.second <= interval2.second) {
+//     overlap = interval1.second - interval1.first;
+// }
+// else if (interval2.first > interval1.first && interval2.second < interval1.second) {
+//     overlap = interval2.second - interval2.first;
+// }
+
+// // case 3: intervals overlap
+// if (interval1.first < interval2.first && interval1.second > interval2.second) {
+//     overlap = interval1.second - interval2.first;
+// }
+// else if (interval2.first < interval1.first && interval2.second > interval1.first) {
+//     overlap = interval2.second - interval1.first;
+// }
+
+// return overlap;
+
+pair<vec3, float> PhysicsSystem::SATOverlapTestExperimental(AABB a, AABB b) {
+    //vector<vec3> normals1 = getFaceNormals(go1);
+    //vector<vec3> normals2 = getFaceNormals(go2);
+
+    //vector<vec3> axes = getCrossProducts(normals1, normals2);
+    //addNormalsToAxes(axes, normals1);
+    //addNormalsToAxes(axes, normals2);
+
+    vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
+
+    float minOverlap = 999999.0f;
+    vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < 3; i++) {
+        pair<float, float> interval1 = { a.min[i], a.max[i] };
+        pair<float, float> interval2 = { b.min[i], b.max[i] };
+
+        float overlap = getOverlap(interval1, interval2);
+        //      if (overlap < 0.0f) {   // or <= ?????
+        //          return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
+        //      }
+
+              //// check for small epsilon interval, not 0 to avoid floating point arithmetic issues
+        //      if (minOverlap == 0.0f || overlap < minOverlap) {
+        //          minOverlap = overlap;
+        //          minAxis = axes[i];
+        //      }
+
+        if (overlap <= 0.0f) {  // use <= to be safe, objects just touching
+            return pair<vec3, float>(vec3(0.0f), -1.0f);
+        }
+
+        if (overlap < minOverlap) {
+            minOverlap = overlap;
+            minAxis = axes[i];
+        }
+    }
+
+    return pair<vec3, float>(minAxis, minOverlap);
+}
+
 GameObject* PhysicsSystem::makeGameObject() {
     GameObject* obj = new GameObject;
-    obj->id = dynamicObjects.size();
+    obj->id = dynamicObjects.size() + staticObjects.size() + 10;
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
-    obj->transform.aabb = getAABB(obj);
+
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
 
+    obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    obj->isDynamic = false;
+    obj->transform.aabb = getAABB(obj);
+
     return obj; // return reference to the stored one
+}
+
+
+GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
+	GameObject* obj = new GameObject;
+	obj->id = dynamicObjects.size();
+	obj->transform.position = position;
+	obj->transform.rotation = rotation;
+	obj->transform.scale = glm::vec3(1.0f);
+
+	obj->physics = new PhysicsComponent();
+	obj->collider = new ColliderComponent();
+
+	obj->collider->halfExtents = halfExtents;
+
+	obj->isDynamic = false;
+	obj->transform.aabb = getAABB(obj);
+
+    return obj;
 }
 
 // Convert position + quaternion to mat4
@@ -385,33 +484,6 @@ pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, cons
     return pair<float,float>(centerProj - halfRadius, centerProj + halfRadius);
 }
 
-float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
-    //float overlap = -1.0f;
-
-    return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
-}
-    // // case 1: intervals are separate
-    // if (interval1.second < interval2.first || interval2.second < interval1.first) {
-    //     return overlap;
-    // }
-
-    // //case 2: one interval is contained in the other
-    // if (interval1.first >= interval2.first && interval1.second <= interval2.second) {
-    //     overlap = interval1.second - interval1.first;
-    // }
-    // else if (interval2.first > interval1.first && interval2.second < interval1.second) {
-    //     overlap = interval2.second - interval2.first;
-    // }
-
-    // // case 3: intervals overlap
-    // if (interval1.first < interval2.first && interval1.second > interval2.second) {
-    //     overlap = interval1.second - interval2.first;
-    // }
-    // else if (interval2.first < interval1.first && interval2.second > interval1.first) {
-    //     overlap = interval2.second - interval1.first;
-    // }
-
-    // return overlap;
 
 pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
     vector<vec3> normals1 = getFaceNormals(go1);
@@ -443,39 +515,6 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
 
     return pair<vec3, float>(minAxis, minOverlap);
 }
-
-pair<vec3, float> PhysicsSystem::SATOverlapTestExperimental(AABB a, AABB b) {
-    //vector<vec3> normals1 = getFaceNormals(go1);
-    //vector<vec3> normals2 = getFaceNormals(go2);
-
-    //vector<vec3> axes = getCrossProducts(normals1, normals2);
-    //addNormalsToAxes(axes, normals1);
-    //addNormalsToAxes(axes, normals2);
-
-    vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
-
-    float minOverlap = 0.0f;
-    vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
-
-    for (int i = 0; i < 3; i++) {
-        pair<float, float> interval1 = { a.min[i], a.max[i] };
-        pair<float, float> interval2 = { b.min[i], b.max[i] };
-
-        float overlap = getOverlap(interval1, interval2);
-        if (overlap < 0.0f) {   // or <= ?????
-            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
-        }
-
-		// check for small epsilon interval, not 0 to avoid floating point arithmetic issues
-        if (minOverlap == 0.0f || overlap < minOverlap) {
-            minOverlap = overlap;
-            minAxis = axes[i];
-        }
-    }
-
-    return pair<vec3, float>(minAxis, minOverlap);
-}
-
 vec3 getPointOfContact(GameObject* go1, GameObject* go2) {
 
     pair<vec3, float> overlapData = SATOverlapTest(go1, go2);

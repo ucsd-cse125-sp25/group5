@@ -34,6 +34,7 @@ public:
     mat4 toMatrix(const vec3& position, const quat& quat);
     void fromMatrix(const mat4& mat, vec3& outPosition, vec3& outEulerRadians);
     GameObject* makeGameObject();
+    GameObject* makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents);
 	AABB getAABB(GameObject* obj);
 	pair<vec3, float> SATOverlapTestExperimental(AABB a, AABB b);
 
