@@ -11,7 +11,7 @@ struct PhysicsComponent;
 struct ColliderComponent;
 struct BehaviorComponent;
 
-const float GRAVITY = 9.8f;
+const float GRAVITY = 9.8f * 0.1f;
 
 struct AABB {
 	vec3 min;

@@ -52,7 +52,7 @@ ServerGame::ServerGame(void)
 
     //add a d_cube
 	GameObject* d_cube = physicsSystem.makeGameObject();
-	d_cube->transform.position = glm::vec3(5.0f, 5.0f, 0.0f);
+	d_cube->transform.position = glm::vec3(5.0f, 30.0f, 0.0f);
 	d_cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
 	d_cube->type = D_CUBE;
 	physicsSystem.addDynamicObject(d_cube);
@@ -117,7 +117,7 @@ void ServerGame::update()
 
    bool sendUpdate = receiveFromClients();
 
-
+   physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
    //put new information into the game state
    writeToGameState();
 
@@ -163,6 +163,9 @@ void ServerGame::writeToGameState() {
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
+
+		printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+		printf("position is %f %f %f\n", position.x, position.y, position.z);
     }
 
     //send all the static objects
@@ -174,6 +177,7 @@ void ServerGame::writeToGameState() {
 
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i + physicsSystem.dynamicObjects.size()] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
+
     }
 
 }

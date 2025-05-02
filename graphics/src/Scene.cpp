@@ -93,7 +93,7 @@ void Scene::update(ClientGame* client) {
 
 			printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
 			printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
-
+			
 			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
