@@ -157,7 +157,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 		target->transform.position.x -= 0.1f;
     }*/
 
-    glm::vec3 delta = glm::vec3(0.016f);
+    glm::vec3 delta = glm::vec3(0.064f);
     float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
@@ -230,6 +230,25 @@ GameObject* PhysicsSystem::makeGameObject() {
     obj->transform.aabb = getAABB(obj);
 
     return obj; // return reference to the stored one
+}
+
+
+GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
+	GameObject* obj = new GameObject;
+	obj->id = dynamicObjects.size();
+	obj->transform.position = position;
+	obj->transform.rotation = rotation;
+	obj->transform.scale = glm::vec3(1.0f);
+
+	obj->physics = new PhysicsComponent();
+	obj->collider = new ColliderComponent();
+
+	obj->collider->halfExtents = halfExtents;
+
+	obj->isDynamic = false;
+	obj->transform.aabb = getAABB(obj);
+
+    return obj;
 }
 
 // Convert position + quaternion to mat4

@@ -85,6 +85,24 @@ void Scene::update(ClientGame* client) {
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
+		else if (entity.type == ISLAND) {
+			glm::vec3 island_min = glm::vec3(0, 0, 0);
+			island_min -= island_extents;
+			glm::vec3 island_max = glm::vec3(0, 0, 0);
+			island_max += island_extents;
+
+			printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
+			printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
+
+			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == D_CUBE) {
+			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
 	}
   
 	uimanager->update(dummy);

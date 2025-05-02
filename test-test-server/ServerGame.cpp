@@ -41,8 +41,22 @@ ServerGame::ServerGame(void)
 		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
 		cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
         cube->type = CUBE;
-		physicsSystem.addDynamicObject(cube);
+		physicsSystem.addStaticObject(cube);
     }
+
+
+    //add an island
+	GameObject* island = physicsSystem.makeGameObject(glm::vec3(5.0f, -10.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), island_extents);
+	island->type = ISLAND;
+	physicsSystem.addStaticObject(island);
+
+    //add a d_cube
+	GameObject* d_cube = physicsSystem.makeGameObject();
+	d_cube->transform.position = glm::vec3(5.0f, 5.0f, 0.0f);
+	d_cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
+	d_cube->type = D_CUBE;
+	physicsSystem.addDynamicObject(d_cube);
+
 
 	printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
