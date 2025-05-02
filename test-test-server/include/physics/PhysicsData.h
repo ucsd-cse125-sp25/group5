@@ -1,4 +1,5 @@
 #include <stdafx.h>
+#include "shared/ObjectData.h"
 
 #pragma once
 using namespace std;
@@ -67,6 +68,8 @@ struct GameObject {
 	PhysicsComponent* physics = nullptr;
 	ColliderComponent* collider = nullptr;
 	BehaviorComponent* behavior = nullptr;
+	EntityType type = EntityType::ENTITY; // Default to ENTITY
+
 
 	bool isDynamic = true; // true if dynamic, false if static
 };

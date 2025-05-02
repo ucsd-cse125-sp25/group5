@@ -17,10 +17,15 @@ void Camera::Update(ClientGame* client) {
 
     Pos = glm::vec3(client->playerModel[3]);
     translate[3][0] = Pos.x;
-    translate[3][1] = Pos.y + 0.3;
+    translate[3][1] = Pos.y;
     translate[3][2] = Pos.z;
 
-    world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
+    glm::mat4 translateAugment(1);
+    translateAugment[3][0] =  0.0f;
+    translateAugment[3][1] =  1.5f;
+    translateAugment[3][2] =  2.0f;
+
+    world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment * glm::eulerAngleX(glm::radians(-Incline)) *   world;
 
     //world[3][2] = Distance;
     //world = glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;

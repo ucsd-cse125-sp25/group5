@@ -6,7 +6,7 @@
 #include <ws2tcpip.h>
 #include <stdio.h>
 
-#include "network/shared/NetworkData.h"
+#include "shared/NetworkData.h"
 
 // size of our buffer
 #define DEFAULT_BUFLEN 512
