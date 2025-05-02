@@ -14,12 +14,16 @@ using namespace std;
 
 class PhysicsSystem {
 public:
-    vector<GameObject*> dynamicObjects;
-    vector<GameObject*> staticObjects;
+
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
     map<vec3, vector<GameObject*>> worldGrid;
     vector<float> AABBdistances;
     float cellSize;
+
+	  std::vector<GameObject*> playerObjects;
+    std::vector<GameObject*> dynamicObjects;
+    std::vector<GameObject*> staticObjects;
+
 
     void tick(float dt);
     void applyInput(const PlayerIntentPacket& intent, int playerId);
@@ -48,5 +52,8 @@ public:
 	}
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
+	}
+	void addPlayerObject(GameObject* obj) {
+		playerObjects.push_back(obj);
 	}
 };

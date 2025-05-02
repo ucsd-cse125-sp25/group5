@@ -1,6 +1,6 @@
 #include "network/StdAfx.h"
 #include "network/ClientGame.h"
-#include "network/shared/NetworkData.h"
+#include "shared/NetworkData.h"
 #include <chrono>
 
 
@@ -69,9 +69,9 @@ void ClientGame::update(PlayerIntentPacket intent)
 			i += sizeof(GameStatePacket);
 
             // Update playerModel on receiving GameState
-            for (int j = 0; j < GameState.num_entities; j++) {
-                if (GameState.entities[j].id == playerId) {
-                    playerModel = GameState.entities[j].model;
+            for (int j = 0; j < GameState.num_players; j++) {
+                if (GameState.players[j].id == playerId) {
+                    playerModel = GameState.players[j].model;
                     break;
                 }
             }
@@ -84,6 +84,8 @@ void ClientGame::update(PlayerIntentPacket intent)
    //             }
 			//	printf("\n");
    //         }
+			printf("Received num_entities: %d\n", GameState.num_entities);
+			printf("First entity is of type %d\n", GameState.entities[0].type);
         }
     }
 

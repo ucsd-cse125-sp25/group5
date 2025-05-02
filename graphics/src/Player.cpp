@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
+#include "Skeleton.h"
+#include "Joint.h"
 
 Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clock::time_point realStartTime)
     : skeleton(skeleton), animation(animation) {
@@ -22,10 +24,10 @@ void Player::update() {
         animation->channels[2].getValue(time, animation->channels[2].keyframes.back().time - animation->channels[2].keyframes.front().time, animation->channels[2].keyframes.back().value - animation->channels[2].keyframes.front().value)
     );
 
-    skeleton->root->setTranslation(translation);
-
+    //skeleton->root->setTranslation(translation);
+    skeleton->root->setTranslation(glm::vec3(0));
     // Use the rest of the channels to update the joint rotations
-    for (size_t i = 3; i < animation->channels.size(); i += 3) {
+    for (size_t i = 6; i < animation->channels.size(); i += 3) {
         size_t jointIndex = (i - 3) / 3;
         //jointIndex++;
         if (jointIndex >= skeleton->joints.size()) break;
