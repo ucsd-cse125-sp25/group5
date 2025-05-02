@@ -1,6 +1,6 @@
 #include <Scene.h>
 
-PlayerStats dummy;
+OtherPlayerStats dummy;
 
 PlayerObject* players[4];
 

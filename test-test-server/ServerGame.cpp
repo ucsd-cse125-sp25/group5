@@ -57,6 +57,22 @@ ServerGame::~ServerGame(void)
 {
 }
 
+void PrintPlayerIntent(const PlayerIntentPacket& intent) {
+    //printf("PlayerIntentPacket: \n");
+    //printf("moveLeftIntent: %d\n", intent.moveLeftIntent);
+    //printf("moveRightIntent: %d\n", intent.moveRightIntent);
+    //printf("moveUpIntent: %d\n", intent.moveUpIntent);
+    //printf("moveDownIntent: %d\n", intent.moveDownIntent);
+    //printf("moveForwardIntent: %d\n", intent.moveForwardIntent);
+    //printf("moveBackIntent: %d\n", intent.moveBackIntent);
+    //printf("azimuthIntent: %f\n", intent.azimuthIntent);
+    //printf("inclineIntent: %f\n", intent.inclineIntent);
+    //printf("rightClickIntent: %d\n", intent.rightClickIntent);
+    //printf("leftClickIntent: %d\n", intent.leftClickIntent);
+    printf("scrollUpIntent: %d\n", intent.scrollUpIntent);
+    printf("scrollDownIntent: %d\n", intent.scrollDownIntent);
+}
+
 void ServerGame::update()
 {
     startTime = std::chrono::high_resolution_clock::now();
@@ -73,6 +89,9 @@ void ServerGame::update()
         player->id = client_id;
         //physicsSystem.addDynamicObject(player);
         clientToEntity[client_id] = client_id;
+        
+        //fill up the HP and the mana
+
 
         JoinResponsePacket packet;
         packet.packet_type = JOIN_RESPONSE;
@@ -87,9 +106,9 @@ void ServerGame::update()
    bool sendUpdate = receiveFromClients();
 
 
-
    //put new information into the game state
    writeToGameState();
+
 
    if (sendUpdate) {
        sendGameStatePackets();
