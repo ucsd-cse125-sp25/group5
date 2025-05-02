@@ -1,9 +1,11 @@
 #include <stdafx.h>
 #include "shared/ObjectData.h"
 
-
-
 #pragma once
+using namespace std;
+
+typedef glm::vec3 vec3;
+
 // Forward declarations for components
 struct PhysicsComponent;
 struct ColliderComponent;
@@ -12,8 +14,8 @@ struct BehaviorComponent;
 const float GRAVITY = 9.8f;
 
 struct AABB {
-	glm::vec3 min;
-	glm::vec3 max;
+	vec3 min;
+	vec3 max;
 };
 
 struct Transform {
@@ -22,6 +24,8 @@ struct Transform {
 	//glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Quaternion for rotation
 	glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
+
+	AABB aabb = { vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f) };
 };
 
 struct PhysicsComponent {

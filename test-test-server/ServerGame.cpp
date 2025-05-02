@@ -105,7 +105,6 @@ void ServerGame::update()
 
    bool sendUpdate = receiveFromClients();
 
-   //PrintPlayerIntent(PlayerIntent);
 
    //put new information into the game state
    writeToGameState();

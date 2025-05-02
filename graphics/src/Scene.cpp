@@ -21,6 +21,7 @@ void Scene::createGame() {
 	dummy.currHP = dummy.maxHP;
 	dummy.ID = 0;
 	player = new PlayerObject();
+	test = new PlayerObject();
 	players[0] = player;
 
 	for (int i = 1; i < 4; i++) {
@@ -36,7 +37,12 @@ void Scene::loadObjects() {
 
 	//wasp load-in
 	player->LoadAnimation();
+	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
+	glm::mat4 mov(0.05f);
+	mov[3] = glm::vec4(2.0f, 0, 0, 1);
+	test->UpdateMat(mov);
+  
 	for (int i = 1; i < 4; i++) {
 		players[i]->LoadAnimation();
 	}
@@ -47,7 +53,10 @@ void Scene::update(ClientGame* client) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	//cube->setModel(client->GameState.cubeModel);
-	player->Update(client->playerModel);
+
+	player->UpdateMat(client->playerModel);
+	player->Update();
+	test->Update();
 
 	int i;
 	int j;
@@ -58,7 +67,8 @@ void Scene::update(ClientGame* client) {
 			continue;
 		}
 
-		players[j++]->Update(entity.model);
+		players[j]->UpdateMat(entity.model);
+		players[j++]->Update();
 	}
 	
 
@@ -76,8 +86,7 @@ void Scene::update(ClientGame* client) {
 			cubes.push_back(cu);
 		}
 	}
-	
-
+  
 	uimanager->update(dummy);
 	//waspplayer->update();
 }
@@ -126,6 +135,7 @@ void Scene::draw(Camera* cam) {
 	//cube->draw(cam->GetViewProjectMtx(), shaders[1]);
 	//skel->draw(cam->GetViewProjectMtx(), shaders[1]);
 	//skin->draw(cam->GetViewProjectMtx(), shaders[1]);
+	test->Draw(cam);
 
 	for (int i = 0; i < 4; i++) {
 		players[i]->Draw(cam);

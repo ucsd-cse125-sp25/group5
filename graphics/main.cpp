@@ -70,24 +70,25 @@ int main(int argc, char* argv[]) {
     //animation = new Animation();
     //static Player* player = new Player(skel, animation, std::chrono::steady_clock::now());
     //std::vector<char *> Jointnameslist{};
-    ClientGame* client = new ClientGame();
 
-    //// Create the GLFW window.
+    ClientGame* client = new ClientGame(); //C
+
+    //Create the GLFW window.
     GLFWwindow* window = Window::createWindow(1200, 900, client);
-    if (!window) exit(EXIT_FAILURE);
+    if (!window) exit(EXIT_FAILURE); //C
 
-    //// Our state
+    // Our state
     bool show_demo_window = true;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f); //C
 
     //bool doJoints = !(argc == 2 && strstr(argv[1], ".skin"));
 
-    // Print OpenGL and GLSL versions.
+    //Print OpenGL and GLSL versions.
     print_versions();
     // Setup callbacks.
     setup_callbacks(window);
     // Setup OpenGL settings.
-    setup_opengl_settings();
+    setup_opengl_settings(); //C
 
     //Setup Dear ImGui context
     //IMGUI_CHECKVERSION();
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
     //std::cout << "Hello after imgui" << std::endl;
 
     // Initialize the shader program; exit if initialization fails.
-    if (!Window::initializeProgram()) exit(EXIT_FAILURE);
+    if (!Window::initializeProgram()) exit(EXIT_FAILURE); //C
 
     // Initialize objects/pointers for rendering; exit if initialization fails.
 
@@ -127,7 +128,10 @@ int main(int argc, char* argv[]) {
     scene = new Scene();
     scene->initShaders();
     scene->createGame();
-    scene->loadObjects();
+    scene->loadObjects(); //C
+    //PlayerObject* obj = new PlayerObject();
+    //std::string filename = PROJECT_SOURCE_DIR + std::string("/assets/man.fbx");
+    //obj->LoadExperimental(filename, 1);
 
     //char** JN;
     //int listsize=0;
@@ -184,7 +188,7 @@ int main(int argc, char* argv[]) {
         // Idle callback. Updating objects, etc. can be done here.
         Window::idleCallback();
         //std::cout << "hello?" << std::endl;
-    }
+    } //C
 
     //if (doJoints) {
 
@@ -196,8 +200,8 @@ int main(int argc, char* argv[]) {
     //}
     Window::cleanUp();
     // Destroy the window.
-    glfwDestroyWindow(window);
-    // Terminate GLFW.
+    glfwDestroyWindow(window); //C
+    //Terminate GLFW.
     glfwTerminate();
 
     exit(EXIT_SUCCESS);
