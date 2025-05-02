@@ -20,32 +20,35 @@ public:
     vector<float> AABBdistances;
     float cellSize;
 
-	  std::vector<GameObject*> playerObjects;
+	std::vector<GameObject*> playerObjects;
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
-
 
     void tick(float dt);
     void applyInput(const PlayerIntentPacket& intent, int playerId);
     void integrate(GameObject* obj, float dt);
-    void checkCollisions(GameObject* obj);
+    void handleCollisions(GameObject* obj);
     void resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& SATresult);
     void handleGrapple(GameObject* obj, float dt);
     mat4 toMatrix(const vec3& position, const quat& quat);
     void fromMatrix(const mat4& mat, vec3& outPosition, vec3& outEulerRadians);
     GameObject* makeGameObject();
 	AABB getAABB(GameObject* obj);
-	pair<vec3, float> SATOverlapTestExperimental(AABB a, AABB b);
+	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
 
+    std::pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis);
+    
+
+    // PhysicsDraftFile.cpp
+	pair<vec3, float> SATOverlapTestExperimental(AABB a, AABB b);
     void getAABBsDistance(std::vector<GameObject*> gobjs);
     float getCellSize();
     void populateGrid();
     float getBoxDim(GameObject* go);
     std::pair<float, float> projetBox(GameObject *go, glm::vec3 axis, glm::mat3 rotationMat);
-    std::pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis);
     std::vector<vec3> getCrossProducts(const std::vector<vec3>& normals1, const std::vector<vec3>& normals2);
     void SAT(GameObject* go1, GameObject* go2);
-
+    void checkCollisions(GameObject* obj);
 
 	void addDynamicObject(GameObject* obj) {
 		dynamicObjects.push_back(obj);
