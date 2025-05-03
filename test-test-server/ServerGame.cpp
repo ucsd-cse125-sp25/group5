@@ -56,7 +56,7 @@ ServerGame::ServerGame(void)
 	d_cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
 	d_cube->type = D_CUBE;
 	physicsSystem.addDynamicObject(d_cube);
-
+    physicsSystem.addMovingObject(d_cube);
 
 	printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
@@ -98,6 +98,7 @@ void ServerGame::update()
         //place where player gets added
         //physicsSystem.playerObjects[client_id] = player;
 		physicsSystem.addPlayerObject(player);
+        physicsSystem.addMovingObject(player);
         player->id = client_id;
         //physicsSystem.addDynamicObject(player);
         clientToEntity[client_id] = client_id;
