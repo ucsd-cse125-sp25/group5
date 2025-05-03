@@ -198,12 +198,6 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 
 }
 
-float getOverlap(pair<float, float> interval1, pair<float, float> interval2) {
-    //float overlap = -1.0f;
-
-    return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
-}
-
 GameObject* PhysicsSystem::makeGameObject() {
     GameObject* obj = new GameObject;
     obj->id = dynamicObjects.size() + staticObjects.size() + 10;
