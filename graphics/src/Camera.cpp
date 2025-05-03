@@ -4,6 +4,8 @@
 
 #include "Camera.h"
 #include "network/ClientGame.h"
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 Camera::Camera() {
     Reset();
@@ -27,6 +29,10 @@ void Camera::Update(ClientGame* client) {
 
     world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment * glm::eulerAngleX(glm::radians(-Incline)) *   world;
 
+    translate[3] = glm::vec4(GetPosition(), 1.0);
+    world = translate * world;
+
+    //std::cout << "Camera position!" << glm::to_string(world[3]) << std::endl;
     //world[3][2] = Distance;
     //world = glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
 

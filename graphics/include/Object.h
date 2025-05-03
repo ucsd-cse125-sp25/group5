@@ -19,6 +19,6 @@ private:
 public:
 
     void create(char* filename, glm::mat4 model, int shaderIndex);
-    void draw(const glm::mat4& viewProjMtx);
+    void draw(GLuint shader, bool shadow);
     void update(glm::mat4 new_model);
 };

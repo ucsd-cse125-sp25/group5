@@ -1,4 +1,5 @@
 #include "Light.h"
+#include <iostream>
 
 #define MAX_LIGHTS 50
 #define BINDING_POINT 0
@@ -42,6 +43,7 @@ void Lights::init() {
     addLight(light3);
 }
 
+
 void Lights::update() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, SSBO);
 	glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Light) * lights.size(), lights.data());
@@ -59,4 +61,8 @@ void Lights::addLight(Light &l) {
 
 int Lights::numLights() {
     return lights.size();
+}
+
+DirectionalLight Lights::getDirLight() {
+    return dirLight;
 }

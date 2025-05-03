@@ -66,11 +66,11 @@ void Skeleton::update() {
 }// –(traverse tree& compute all joint matrices)
 
 
-void Skeleton::draw(const glm::mat4& viewProjMtx, GLuint shader) {
+void Skeleton::draw(GLuint shader) {
 	if (!doSkeleton) return;
 
 	if (root) {
-		root->Draw(viewProjMtx, shader);
+		root->Draw(shader);
 	}
 	
 }

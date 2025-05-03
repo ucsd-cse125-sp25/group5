@@ -13,10 +13,21 @@
 * - The aspect ratio of the texture (float)
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-		{ "healthbar", { PROJECT_SOURCE_DIR + std::string("/assets/healthbar.png"), GameState::MATCH, 0.0f, 0.0f, 0.5f, 0.15f } },
-		{ "avatar", {PROJECT_SOURCE_DIR + std::string("/assets/avatar_back_red.png"), GameState::MATCH, 100.0f, 100.0f, 0.35f, 0.5f} },
-		{ "victory", {PROJECT_SOURCE_DIR + std::string("/assets/end_victory.png"), GameState::MATCH, 600.0f, 300.0f, 0.35f, 0.5f} },
-		{ "defeat", {PROJECT_SOURCE_DIR + std::string("/assets/end_defeat.png"), GameState::MATCH, 550.0f, 650.0f, 0.35f, 0.5f} }
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 835.0, 0.0, 0.3, 1.0} },
+};
+
+/**
+* MagicUI is a map that holds the textures for each element
+* The data is a tuple containing:
+* - path to the juice texture (std::string)
+* - path to the border texture (std::string)
+**/
+static std::unordered_map<std::string, std::tuple<std::string, std::string>> MagicUI = {
+	{"water", {PROJECT_SOURCE_DIR + std::string("/assets/water_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/water_outline.png")}},
+	{"fire", {PROJECT_SOURCE_DIR + std::string("/assets/fire_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/fire_outline.png")}},
+	{"earth", {PROJECT_SOURCE_DIR + std::string("/assets/earth_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/earth_outline.png")}},
+	{"wood", {PROJECT_SOURCE_DIR + std::string("/assets/wood_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/wood_outline.png")}},
+	{"metal", {PROJECT_SOURCE_DIR + std::string("/assets/metal_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/metal_outline.png")}}
 };
 
 //Loads textures and creates UI elements
@@ -37,11 +48,45 @@ void UIManager::Init() {
 		if (name == "healthbar") {
 			img = new HealthBar();
 		}
+		else if (name == "magicback") {
+			img = new Magic();
+		}
 		else {
 			img = new UIImg();
 		}
+
 		img->Init(scWidth, scHeight, { startX, startY }, percent, aspect);
 		img->SetTexture(GetTexture(name));
+
+		if (name == "magicback") {
+			Magic* ma = dynamic_cast<Magic*>(img);
+			for (const auto& pair : MagicUI) {
+				const std::string& elementName = pair.first;
+				const std::string& path1 = std::get<0>(pair.second);
+				const std::string& path2 = std::get<1>(pair.second);
+				const std::string& bar = elementName + "bar";
+				const std::string& border = elementName + "border";
+				LoadTexture(bar, path1);
+				LoadTexture(border, path2);
+
+				MagicElement e;
+				e.name = elementName;
+				e.borderTexture = GetTexture(border);
+				e.manaTexture = GetTexture(bar);
+				ma->powers.push_back(e);
+
+			}
+
+			const float radius = 75;
+			const float total = ma->powers.size();
+			for (int i = 0; i < total; i++) {
+				float angle = glm::radians(360.0f / total * i);
+				float x = ma->centerX + cos(angle) * radius;
+				float y = ma->centerY + sin(angle) * radius;
+				ma->powers[i].position = glm::vec2(x, y);
+				ma->powers[i].angleOffset = angle;
+			}
+		}
 
 
 		switch (state) {

@@ -2,7 +2,7 @@
 
 void UIImg::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
-	projection = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, scWidth, 0.0f, scHeight, -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
@@ -79,7 +79,7 @@ void UIImg::SetTexture(GLuint tex) {
 void HealthBar::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
 
 	shaderProgram = LoadShaders("shaders/healthbar.vert", "shaders/healthbar.frag");
-	projection = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, scWidth, 0.0f, scHeight, -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
@@ -172,4 +172,148 @@ void HealthBar::Draw() {
 
 	glEnable(GL_DEPTH_TEST);
 	glBindVertexArray(0);
+}
+
+void Magic::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
+	uiWidth = scWidth * percent;
+	uiHeight = scHeight * percent * ratio;
+
+	centerX = startPos[0] + (uiWidth / 2.0f) + 15;
+	centerY = startPos[1] + (uiHeight / 2.0f) - 15;
+
+	manaWidth = scWidth * 0.1;
+
+	std::cout << "Creating the magic ui element" << std::endl;
+
+	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
+	manaProgram = LoadShaders("shaders/magic.vert", "shaders/magic.frag");
+	projection = glm::ortho(0.0f, scWidth, 0.0f, scHeight, -1.0f, 1.0f);
+
+	float offsetX = uiWidth;
+	float offsetY = uiHeight;
+
+	quad = {
+		//Position                                     //UV         //Color
+		startPos[0], startPos[1],                      0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+	};
+
+	mana = {
+		//Position                     //UV         //Color
+		0.0f, 0.0f,                    0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		manaWidth, 0.0f,               1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		manaWidth, manaWidth,         1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		0.0f, manaWidth,              0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+	};
+
+	//Buffers for the background
+	glGenVertexArrays(1, &backVAO);
+	glGenBuffers(1, &backVBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(backVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, backVBO);
+	glBufferData(GL_ARRAY_BUFFER, quad.size() * sizeof(float), quad.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindVertexArray(0);
+
+
+	//Buffers for the acutal elements
+	glGenVertexArrays(1, &elemVAO);
+	glGenBuffers(1, &elemVBO);
+
+	glBindVertexArray(elemVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, elemVBO);
+	glBufferData(GL_ARRAY_BUFFER, mana.size() * sizeof(float), mana.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindVertexArray(0);
+}
+
+void Magic::Update(const PlayerStats& p) {
+	//loop through each struct and update according to the player
+	float waterPerc = float(p.currWater) / float(p.maxWater);
+	float firePerc = float(p.currFire) / float(p.maxFire);
+	float earthPerc = float(p.currEarth) / float(p.maxEarth);
+	float woodPerc = float(p.currWood) / float(p.maxWood);
+	float metalPerc = float(p.currMetal) / float(p.maxMetal);
+	std::cout << waterPerc << " " << firePerc << " " << earthPerc << " " << woodPerc << " " << metalPerc << std::endl;
+	int size = powers.size();
+	for (int i = 0; i < size; i++) {
+		const std::string name = powers[i].name;
+		if (name == "water") {
+			powers[i].currMana = waterPerc;
+		}
+		else if (name == "fire") {
+			powers[i].currMana = firePerc;
+		}
+		else if (name == "earth") {
+			powers[i].currMana = earthPerc;
+		}
+		else if (name == "wood") {
+			powers[i].currMana = woodPerc;
+		}
+		else if (name == "metal") {
+			powers[i].currMana = metalPerc;
+		}
+	}
+}
+
+void Magic::Draw() {
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, backTexture);
+
+	glDisable(GL_DEPTH_TEST);
+
+	glBindVertexArray(backVAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	//loop through each struct, send the uniform for mana % then draw
+	float seconds = glfwGetTime();
+	glUseProgram(manaProgram);
+	glUniformMatrix4fv(glGetUniformLocation(manaProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+	glUniform1f(glGetUniformLocation(manaProgram, "time"), seconds);
+	glBindVertexArray(elemVAO);
+	for (const auto& p : powers) {
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(p.position.x - manaWidth / 2.0f, p.position.y - manaWidth / 2.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(manaProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glUniform1f(glGetUniformLocation(manaProgram, "manaPercent"), p.currMana);
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), true);
+		glBindTexture(GL_TEXTURE_2D, p.manaTexture);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), false);
+		glBindTexture(GL_TEXTURE_2D, p.borderTexture);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
+
+void Magic::SetTexture(GLuint texture) {
+	backTexture = texture;
 }

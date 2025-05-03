@@ -23,7 +23,7 @@ public:
     std::vector<Joint*> joints;
     bool Load(const char* file);
     void update();
-    void draw(const glm::mat4& viewProjMtx, GLuint shader);
+    void draw(GLuint shader);
     void updateWorldMat(glm::mat4 newWorldMat);
 
 private:
