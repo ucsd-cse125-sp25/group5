@@ -186,7 +186,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     float moveAccel = 10.0f; // tweakable acceleration magnitude
     glm::vec3 accel = glm::vec3(0.0f);
 
-    // Rotation setup (yaw only)
+    glm::vec3 delta = glm::vec3(0.015f);
     float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);

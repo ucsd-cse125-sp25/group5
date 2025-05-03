@@ -13,6 +13,8 @@
 #include "Animation.h"
 #include "PlayerObject.h"
 
+const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+
 //Scene Class which will contain data about map, players, etc
 class Scene {
 private:
@@ -28,11 +30,20 @@ private:
 	Cube* testCube;
 	//std::vector<Light*> lights; lights baked into the world
 	//std::vector<Light*> movLights; dynamic lights from abilities/powerups/events etc.
+
+	GLuint depthMapFBO, depthMap;
+	glm::mat4 lightSpaceMatrix;
+
+	//Skeleton* skel;
+	//Skin* skin;
+	//Animation* animation;
+	//Player* waspplayer;
 	
 public:
 	std::vector<GLuint> shaders;
 	void createGame();
 	bool initShaders();
+	void initShadows();
 	void loadObjects();
 	void update(ClientGame* client);
 	void draw(Camera* cam);

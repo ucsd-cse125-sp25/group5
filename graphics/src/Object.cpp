@@ -25,9 +25,9 @@ void Object::create(char* filename, glm::mat4 model, int shaderIndex) {
     shader = scene->shaders[shaderIndex];
 }
 
-void Object::draw(const glm::mat4& viewProjMtx) {
+void Object::draw(GLuint shader, bool shadow) {
     for (int i = 0; i < meshes.size(); i++) {
-        meshes[i]->draw(viewProjMtx, shader);
+        meshes[i]->draw(shader, shadow);
     }
 }
 void Object::update(glm::mat4 new_model) {

@@ -4,6 +4,8 @@
 
 #include "Camera.h"
 #include "network/ClientGame.h"
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 Camera::Camera() {
     Reset();
@@ -25,8 +27,9 @@ void Camera::Update(ClientGame* client) {
     translateAugment[3][1] =  1.5f;
     translateAugment[3][2] =  2.0f;
 
-    world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment * glm::eulerAngleX(glm::radians(-Incline)) *   world;
+    world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment *  glm::eulerAngleX(glm::radians(-Incline)) * world;
 
+    //std::cout << "Camera position!" << glm::to_string(world[3]) << std::endl;
     //world[3][2] = Distance;
     //world = glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
 
@@ -40,6 +43,8 @@ void Camera::Update(ClientGame* client) {
     ViewProjectMtx = project * view;
     ViewMtx = view;
     ProjMtx = project;
+
+    std::cout << "CAM POSITION" << glm::to_string(GetPosition()) << std::endl;
 }
 void Camera::Reset() {
     FOV = 45.0f;

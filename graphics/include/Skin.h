@@ -29,7 +29,7 @@ public:
     bool Load(aiMesh* mMesh, aiMaterial* mMaterial);
     bool Load(const char* file);
     void update(); //smooth skin algorithm
-    void draw(const glm::mat4& viewProjMtx, GLuint shader);
+    void draw(GLuint shader, bool shadow);
 
 private:
 	std::vector<glm::vec3> positions;

@@ -64,10 +64,7 @@ Triangle::~Triangle() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-void Triangle::draw(const glm::mat4& viewProjMtx, GLuint shader) {
-    // actiavte the shader program
-    glUseProgram(shader);
-
+void Triangle::draw(GLuint shader, bool shadow) {
     this->cr = this->cr + 0.0001;
     this->cg = this->cg + 0.0001;
     this->cb = this->cb + 0.0001;
@@ -79,20 +76,19 @@ void Triangle::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
 
     // get the locations and send the uniforms to the shader
-    glUniformMatrix4fv(glGetUniformLocation(shader, "viewProj"), 1, false, (float*)&viewProjMtx);
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
-    glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
-    glUniform1i(glGetUniformLocation(shader, "istex"), 0);
+
+    if (!shadow) {
+        glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
+        glUniform1i(glGetUniformLocation(shader, "istex"), 0);
+    }
 
     // Bind the VAO
     glBindVertexArray(VAO);
-
     // draw the points using triangles, indexed with the EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
     // Unbind the VAO and shader program
     glBindVertexArray(0);
-    glUseProgram(0);
 }
 
 void Triangle::update(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<unsigned int> triangles, glm::mat4 new_model) {

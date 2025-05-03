@@ -79,9 +79,9 @@ void PlayerObject::Update() {
 	skin->update();	
 }
 
-void PlayerObject::Draw(Camera* cam) {
+void PlayerObject::Draw(GLuint shader, bool shadow) {
 	//skel->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
-	skin->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
+	skin->draw(shader, shadow);
 }
 
 unsigned int CountNodes(const aiNode* node) {
