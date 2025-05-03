@@ -40,7 +40,7 @@ void UIImg::Init(float scWidth, float scHeight, std::vector<float> startPos, flo
 
 }
 
-void UIImg::Update(const PlayerStats& p) {
+void UIImg::Update(const OtherPlayerStats& p) {
 
 }
 
@@ -137,7 +137,7 @@ void HealthBar::Init(float scWidth, float scHeight, std::vector<float> startPos,
 	glBindVertexArray(0);
 }
 
-void HealthBar::Update(const PlayerStats &p) {
+void HealthBar::Update(const OtherPlayerStats &p) {
 	float leftX = container[0];
 	float rightX = container[7];
 	float width = rightX - leftX;

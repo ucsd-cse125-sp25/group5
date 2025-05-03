@@ -101,7 +101,7 @@ void UIManager::Init() {
 	}
 }
 
-void UIManager::update(const PlayerStats& p) {
+void UIManager::update(const OtherPlayerStats& p) {
 	switch (currState) {
 	case GameState::LOBBY:
 		for (auto* img : matchElements) {

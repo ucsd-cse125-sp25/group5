@@ -4,7 +4,6 @@
 #define SKEL_DEF
 #include "core.h"
 #include "glm/gtx/euler_angles.hpp"
-#include "Joint.h"
 #include <vector>
 #include <string>
 

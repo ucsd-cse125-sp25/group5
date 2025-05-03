@@ -9,6 +9,9 @@
 #include "Triangle.h"
 #include "Window.h"
 #include "Skeleton.h"
+#include <stb_image.h>
+
+std::string getLastPathPart(const std::string& path);
 
 Skin::Skin(Skeleton* skinsskel) {
 
@@ -16,11 +19,100 @@ Skin::Skin(Skeleton* skinsskel) {
 	std::vector<glm::mat4> bindMatrices = {};
 	this->skely = skinsskel;
 	this->oneglm = glm::mat4(1.0f);
+	color = glm::vec3(0);
+}
+
+void Skin::Preload(int capacity) {
+	sw.reserve(capacity);
+	for (int i = 0; i < capacity; i++) {
+		SkinWeights* weights = new SkinWeights();
+		sw.push_back(weights);
+	}
 }
 
 void Skin::doSkinning() {
 	this->doSkin = true;
 }
+
+bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
+
+	triangles.reserve(mMesh->mNumFaces * 3);
+	for (int j = 0; j < mMesh->mNumFaces; j++) {
+
+		triangles.push_back(mMesh->mFaces[j].mIndices[0]);
+		triangles.push_back(mMesh->mFaces[j].mIndices[1]);
+		triangles.push_back(mMesh->mFaces[j].mIndices[2]);
+	}
+
+	positions.reserve(mMesh->mNumVertices);
+	normals.reserve(mMesh->mNumVertices);
+	for (int j = 0; j < mMesh->mNumVertices; j++) {
+		glm::vec3 vert(mMesh->mVertices[j].x, mMesh->mVertices[j].y, mMesh->mVertices[j].z);
+		positions.push_back(vert);
+		glm::vec3 normal(mMesh->mNormals[j].x, mMesh->mNormals[j].y, mMesh->mNormals[j].z);
+		normals.push_back(normal);
+	}
+
+	if (mMesh->HasTextureCoords(0)) {
+		uvs.reserve(mMesh->mNumVertices);
+		for (int t = 0; t < mMesh->mNumVertices; t++) {
+			float x = mMesh->mTextureCoords[0][t].x;
+			float y = mMesh->mTextureCoords[0][t].y;
+			glm::vec2 uv(x, y);
+			uvs.push_back(uv);
+		}
+	}
+
+	this->tri = new Triangle(positions, normals, triangles);
+	tri->tex = false;
+
+	aiColor4D diffuse;
+	aiGetMaterialColor(mMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse);
+	color.x = diffuse.r;
+	color.y = diffuse.g;
+	color.z = diffuse.b;
+
+	aiString texPath;
+	if (mMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		const char* path = texPath.C_Str();
+		std::string filename = getLastPathPart(std::string(path));
+		std::string source = PROJECT_SOURCE_DIR;
+		std::string  middle = "/assets/textures/";
+		source = source + middle + filename;
+
+		int width, height, nrChannels;
+		unsigned char* data = stbi_load(source.c_str(), &width, &height, &nrChannels, 0);
+
+		if (data)
+		{
+			tri->tex = true;
+			glGenTextures(1, &(tri->texture));
+			glBindTexture(GL_TEXTURE_2D, tri->texture);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+
+		stbi_image_free(data);
+
+		//More Debug
+		std::cout << "vertex 0: " << sw[0]->jointIDs.size();
+		std::cout << "vertex 0: " << sw[0]->weights.size();
+
+
+	}
+	return true;
+}
+
 bool Skin::Load(const char* file) {
 	if (!doSkin) return false;
 
@@ -107,11 +199,19 @@ void Skin::update() {
 	std::vector<glm::mat4>  jointMatrices;
 	std::vector<glm::vec3>  transformedPositions;
 	std::vector<glm::vec3>  transformedNormals;
-	for (int i = 0; i < this->skely->joints.size(); i++) {
-		// std::cout << "joint matrix count: " << jointMatrices.size() << std::endl;
-		jointMatrices.push_back(this->skely->joints[i]->GetWorldMatrix() * inverse(bindMatrices.at(i)));
+	if (bindMatrices.size() > 0) {
+		for (int i = 0; i < this->skely->joints.size(); i++) {
+			// std::cout << "joint matrix count: " << jointMatrices.size() << std::endl;
+			jointMatrices.push_back(this->skely->joints[i]->GetWorldMatrix() * inverse(bindMatrices.at(i)));
+		}
 	}
-	
+	else {
+		for (int i = 0; i < this->skely->joints.size(); i++) {
+			// std::cout << "joint matrix count: " << jointMatrices.size() << std::endl;
+			jointMatrices.push_back(this->skely->joints[i]->GetWorldMatrix() * this->skely->joints[i]->GetInvBindMatrix());
+		}
+	}
+
 	for (int i = 0; i < positions.size(); i++) {
 		glm::mat4 newPosMat = glm::mat4(0.0f);
 		glm::mat4 newNormMat = glm::mat4(0.0f);

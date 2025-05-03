@@ -1,5 +1,5 @@
 #include "Cube.h"
-
+#include <iostream>
 Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) {
     // Model matrix.
     model = glm::mat4(1.0f);
@@ -130,6 +130,14 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) {
 	}*/
 }
 
+Cube::Cube() : Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1)) {
+	this->color = glm::vec3(1.0f, 0.95f, 0.1f);
+}
+
+Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::vec3 color) : Cube(cubeMin, cubeMax) {  
+   this->color = color;  
+}
+
 Cube::~Cube() {
     // Delete the VBOs and the VAO.
     glDeleteBuffers(1, &VBO_positions);
@@ -140,6 +148,7 @@ Cube::~Cube() {
 
 void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
+	std::cout << "Model Matrix: " << glm::to_string(model) << std::endl;
     glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
 
     // Bind the VAO
@@ -160,6 +169,6 @@ void Cube::update(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model) {
 
 void Cube::spin(float deg) {
     // Update the model matrix by multiplying a rotation matrix
-    model = model * glm::rotate(glm::radians(deg), glm::vec3(0.0f, 1.0f, 0.0f));
+    //model = model * glm::rotate(glm::radians(deg), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 

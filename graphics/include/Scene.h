@@ -11,6 +11,7 @@
 #include "Skin.h"
 #include "Player.h"
 #include "Animation.h"
+#include "PlayerObject.h"
 
 const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
@@ -19,21 +20,24 @@ class Scene {
 private:
 	std::vector<Object*> objects;
 	std::vector<Object*> animObjects; //type will be changed later
-	Object* player; //type will be changed later
+	std::vector<Cube*> cubes; //for dummy testing
+	PlayerObject* player; //type will be changed later
+	PlayerObject* test;
 	Skybox* skybox; //each player holds a copy of the skybox
 	UIManager* uimanager;
 	Cube* cube;
 	Lights* lightmanager;
+	Cube* testCube;
 	//std::vector<Light*> lights; lights baked into the world
 	//std::vector<Light*> movLights; dynamic lights from abilities/powerups/events etc.
 
 	GLuint depthMapFBO, depthMap;
 	glm::mat4 lightSpaceMatrix;
 
-	Skeleton* skel;
-	Skin* skin;
-	Animation* animation;
-	Player* waspplayer;
+	//Skeleton* skel;
+	//Skin* skin;
+	//Animation* animation;
+	//Player* waspplayer;
 	
 public:
 	std::vector<GLuint> shaders;

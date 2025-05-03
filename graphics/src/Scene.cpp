@@ -1,6 +1,8 @@
 #include <Scene.h>
 
-PlayerStats dummy;
+OtherPlayerStats dummy;
+
+PlayerObject* players[4];
 
 void Scene::createGame() {
 	//setup lights
@@ -10,8 +12,8 @@ void Scene::createGame() {
 
 	//loadObjects();
 	cube = new Cube();
-	skybox = new Skybox();
-	skybox->initSkybox();
+	//skybox = new Skybox();
+	//skybox->initSkybox();
 
 	uimanager = new UIManager;
 	uimanager->Init();
@@ -19,17 +21,16 @@ void Scene::createGame() {
 	dummy.maxHP = 250;
 	dummy.currHP = dummy.maxHP;
 	dummy.ID = 0;
-	skel = new Skeleton();
-	skin = new Skin(skel);
-	animation = new Animation();
-	waspplayer = new Player(skel, animation, std::chrono::steady_clock::now());
-	skel->doSkel();
-	skin->doSkinning();
-	animation->doAnimation();
-
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 	//glFrontFace(GL_CCW);
+	player = new PlayerObject();
+	test = new PlayerObject();
+	players[0] = player;
+
+	for (int i = 1; i < 4; i++) {
+		players[i] = new PlayerObject();
+	}
 }
 
 void Scene::loadObjects() {
@@ -39,9 +40,16 @@ void Scene::loadObjects() {
 	objects.push_back(obj);
 
 	//wasp load-in
-	skel->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skel")).c_str());
-	skin->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.skin")).c_str());
-	animation->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp.anim")).c_str());
+	player->LoadAnimation();
+	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+
+	glm::mat4 mov(0.05f);
+	mov[3] = glm::vec4(2.0f, 0, 0, 1);
+	test->UpdateMat(mov);
+  
+	for (int i = 1; i < 4; i++) {
+		players[i]->LoadAnimation();
+	}
 }
 
 void Scene::update(ClientGame* client) {
@@ -50,11 +58,60 @@ void Scene::update(ClientGame* client) {
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
 	//cube->setModel(client->GameState.cubeModel);
-	skel->updateWorldMat(client->GameState.cubeModel);
+
+	player->UpdateMat(client->playerModel);
+	player->Update();
+	test->Update();
+
+	int i;
+	int j;
+	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
+		auto entity = client->GameState.players[i];
+
+		if (entity.id == client->playerId) {
+			continue;
+		}
+
+		players[j]->UpdateMat(entity.model);
+		players[j++]->Update();
+	}
+	
+
+	for (int i = 0; i < cubes.size(); i++) {
+		delete(cubes[i]);
+	}
+	cubes.clear();
+
+	
+	for (i = 0; i < client->GameState.num_entities; i++) {
+		auto entity = client->GameState.entities[i];
+		if (entity.type == CUBE) {
+			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == ISLAND) {
+			glm::vec3 island_min = glm::vec3(0, 0, 0);
+			island_min -= island_extents;
+			glm::vec3 island_max = glm::vec3(0, 0, 0);
+			island_max += island_extents;
+
+			printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
+			printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
+			
+			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == D_CUBE) {
+			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+	}
+  
 	uimanager->update(dummy);
-	skel->update();
 	//waspplayer->update();
-	skin->update();
 }
 
 bool Scene::initShaders() {
@@ -143,15 +200,28 @@ void Scene::draw(Camera* cam) {
 	glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
 
 	lightmanager->bind();
+	
 	for (int i = 0; i < objects.size(); i++) {
 		objects[i]->draw(mainShader, false);
 	}
 
-	skin->draw(mainShader, false);
+	for (int i = 0; i < cubes.size(); i++) {
+		cubes[i]->draw(cam->GetViewProjectMtx(), shaders[1]);
+	}
 
+	//cube->draw(cam->GetViewProjectMtx(), shaders[1]);
+	//skel->draw(cam->GetViewProjectMtx(), shaders[1]);
+	//skin->draw(cam->GetViewProjectMtx(), shaders[1]);
+	test->Draw(cam);
+
+	for (int i = 0; i < 4; i++) {
+		players[i]->Draw(cam);
+	}
+
+	
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
-	skybox->draw(cam);
+	//skybox->draw(cam);
 	uimanager->draw();
 }

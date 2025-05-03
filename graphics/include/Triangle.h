@@ -6,9 +6,6 @@
 
 class Triangle {
 private:
-    GLuint VAO;
-    GLuint VBO_positions, VBO_normals, EBO;
-
     float cr = 0.001;
     float cg = 0.001;
     float cb = 0.001;
@@ -21,6 +18,11 @@ private:
     std::vector<unsigned int> indices;
 
 public:
+    GLuint VAO, texture;
+    GLuint VBO_positions, VBO_normals, VBO_UVs, EBO;
+
+    bool tex;
+
     Triangle();
     Triangle(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<unsigned int> triangles);
     ~Triangle();
