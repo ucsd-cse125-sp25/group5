@@ -145,6 +145,13 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     return;
 }
 
+/**
+ * Get the impulse vector for collision resolution
+ * @param normal Normal vector of the penetration vector
+ * @param relativeVelocity Relative velocity of the two objects
+ * @param restitution Coefficient of restitution (bounciness)
+ * @return Impulse vector to apply to the object
+ */
 vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution) {
     float velAlongNormal = glm::dot(relativeVelocity, normal);
     if (velAlongNormal < 0.0f) {
@@ -153,6 +160,12 @@ vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVel
     }
 }
 
+/**
+ * Resolve collision between a dynamic object and a static object
+ * @param go1 dynamic GameObject to resolve collision for
+ * @param penetration penetration vector and depth
+ * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
+*/
 void PhysicsSystem::resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration) {
     // Resolve collision between dynamic and static objects
     vec3 normal = glm::normalize(penetration.first);
@@ -165,6 +178,13 @@ void PhysicsSystem::resolveCollisionDySt(GameObject* go1, const pair<vec3, float
     go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity, 0.1f);
 }
 
+/**
+ * Resolve collision between two dynamic objects
+ * @param go1 First dynamic GameObject to resolve collision for
+ * @param go2 Second dynamic GameObject to resolve collision for
+ * @param penetration penetration vector and depth
+ * @note This function resolves the collision by adjusting the position and velocity of both dynamic objects
+*/
 void PhysicsSystem::resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration) {
     // Resolve collision between two dynamic objects
     vec3 normal = glm::normalize(penetration.first);
