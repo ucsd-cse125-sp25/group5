@@ -28,8 +28,7 @@ public:
     void applyInput(const PlayerIntentPacket& intent, int playerId);
     void integrate(GameObject* obj, float dt);
     void handleCollisions(GameObject* obj);
-    void resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration);
-    void resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration);
+    void resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status);
     void handleGrapple(GameObject* obj, float dt);
     mat4 toMatrix(const vec3& position, const quat& quat);
     void fromMatrix(const mat4& mat, vec3& outPosition, vec3& outEulerRadians);
@@ -53,6 +52,8 @@ public:
     void SAT(GameObject* go1, GameObject* go2);
     void checkCollisions(GameObject* obj);
     void resolveCollision(GameObject* go1, const pair<vec3, float>& penetration);
+    void resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration);
+    void resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration);
 
 
 	void addDynamicObject(GameObject* obj) {

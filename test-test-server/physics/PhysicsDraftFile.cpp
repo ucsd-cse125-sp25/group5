@@ -516,3 +516,42 @@ void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& 
         dobj->physics->velocity += impulseVec;
     }
 }
+
+/**
+ * Resolve collision between a dynamic object and a static object
+ * @param go1 dynamic GameObject to resolve collision for
+ * @param penetration penetration vector and depth
+ * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
+*/
+void PhysicsSystem::resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration) {
+    // Resolve collision between dynamic and static objects
+    vec3 normal = glm::normalize(penetration.first);
+    float overlap = penetration.second;
+
+    // Positional correction: push dynamic obj out of static obj
+    go1->transform.position += normal * overlap;
+
+    // Velocity resolution: bounce off if moving into object
+    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity, 0.1f);
+}
+
+/**
+ * Resolve collision between two dynamic objects
+ * @param go1 First dynamic GameObject to resolve collision for
+ * @param go2 Second dynamic GameObject to resolve collision for
+ * @param penetration penetration vector and depth
+ * @note This function resolves the collision by adjusting the position and velocity of both dynamic objects
+*/
+void PhysicsSystem::resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration) {
+    // Resolve collision between two dynamic objects
+    vec3 normal = glm::normalize(penetration.first);
+    float overlap = penetration.second;
+
+    // Positional correction: push both objects out of each other
+    go1->transform.position += normal * (overlap / 2.0f);
+    go2->transform.position -= normal * (overlap / 2.0f);
+
+    // Velocity resolution: bounce off if moving into each other
+    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+    go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+}

@@ -122,11 +122,11 @@ AABB PhysicsSystem::getAABB(GameObject* obj) {
  * @note This function checks for collisions between the dynamic object and all static objects in the scene
 */
 void PhysicsSystem::handleCollisions(GameObject* obj) {
+    // Check for collisions with static objects
     for (auto sobj : staticObjects) {
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
-        if (penetration.second != -1.0f) {
-            resolveCollisionDySt(obj, penetration);
-            
+        if (penetration.second > 0.0f) {
+            resolveCollision(obj, sobj, penetration, 0);
         }  
 		printf("Detected collision between %d and %d\n", obj->id, sobj->id);
     }
@@ -138,8 +138,8 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
             continue; // Skip self-collision
         }
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
-        if (penetration.second != -1.0f) {
-            resolveCollisionDyDy(obj, dobj, penetration);
+        if (penetration.second > 0.0f) {
+            resolveCollision(obj, dobj, penetration, 1);
         }
     }
     return;
@@ -158,47 +158,30 @@ vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVel
         float impulse = -(1.0f + restitution) * velAlongNormal;
         return impulse * normal;
     }
+    return vec3(0.0f);
 }
 
-/**
- * Resolve collision between a dynamic object and a static object
- * @param go1 dynamic GameObject to resolve collision for
- * @param penetration penetration vector and depth
- * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
-*/
-void PhysicsSystem::resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration) {
-    // Resolve collision between dynamic and static objects
+void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status) {
     vec3 normal = glm::normalize(penetration.first);
     float overlap = penetration.second;
 
-    // Positional correction: push dynamic obj out of static obj
-    go1->transform.position += normal * overlap;
+    float overlapFraction = 0.5f;
+    if (status == 0) { // go2 is static
+        overlapFraction = 1.0f;
+    }
 
-    // Velocity resolution: bounce off if moving into object
-    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity, 0.1f);
-}
+    go1->transform.position += normal * (overlap * overlapFraction);
+    go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
 
-/**
- * Resolve collision between two dynamic objects
- * @param go1 First dynamic GameObject to resolve collision for
- * @param go2 Second dynamic GameObject to resolve collision for
- * @param penetration penetration vector and depth
- * @note This function resolves the collision by adjusting the position and velocity of both dynamic objects
-*/
-void PhysicsSystem::resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration) {
-    // Resolve collision between two dynamic objects
-    vec3 normal = glm::normalize(penetration.first);
-    float overlap = penetration.second;
-
-    // Positional correction: push both objects out of each other
-    go1->transform.position += normal * (overlap / 2.0f);
-    go2->transform.position -= normal * (overlap / 2.0f);
+    // Update AABBs
+    go1->transform.aabb = getAABB(go1);
+    go2->transform.aabb = getAABB(go2);
 
     // Velocity resolution: bounce off if moving into each other
     go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
     go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 }
-
+    
 /**
  * Apply player input to the GameObject
  * @param intent PlayerIntentPacket containing the input data
@@ -347,7 +330,6 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
 }
 
 pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
-
     vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
 
     float minOverlap = 999999.0f;
@@ -359,7 +341,7 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
 
         float overlap = getOverlap(interval1, interval2);
         if (overlap <= 0.0f) {   
-            return pair<vec3, float>(vec3(0.0f), -1.0f);
+            return pair<vec3, float>(vec3(0.0f), overlap); // No overlap
         }
 
         if (overlap <= minOverlap) {
