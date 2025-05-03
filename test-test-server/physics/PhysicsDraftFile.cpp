@@ -489,3 +489,30 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
     outPosition = translation;
     outEulerRadians = glm::eulerAngles(rotation);
 }
+
+/**
+ * Resolve collision between two objects
+ * @param dobj dynamic GameObject to resolve collision for
+ * @param penetration penetration vector and depth
+ * @return void
+ * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
+*/
+void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& penetration) {
+    vec3 normal = glm::normalize(penetration.first);
+    float overlap = penetration.second;
+
+    // Positional correction: push dynamic obj out of static obj
+    dobj->transform.position += normal * overlap;
+
+    // Velocity resolution: bounce off if moving into object
+    vec3 relativeVelocity = dobj->physics->velocity;
+    float velAlongNormal = glm::dot(relativeVelocity, normal);
+
+    if (velAlongNormal < 0.0f) {
+        float restitution = 0.1f; // tweak this if you want it more bouncy
+        float impulse = -(1.0f + restitution) * velAlongNormal;
+        vec3 impulseVec = impulse * normal;
+
+        dobj->physics->velocity += impulseVec;
+    }
+}

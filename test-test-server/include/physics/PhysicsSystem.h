@@ -28,7 +28,6 @@ public:
     void applyInput(const PlayerIntentPacket& intent, int playerId);
     void integrate(GameObject* obj, float dt);
     void handleCollisions(GameObject* obj);
-    void resolveCollision(GameObject* go1, const pair<vec3, float>& penetration);
     void resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration);
     void resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration);
     void handleGrapple(GameObject* obj, float dt);
@@ -53,6 +52,8 @@ public:
     std::vector<vec3> getCrossProducts(const std::vector<vec3>& normals1, const std::vector<vec3>& normals2);
     void SAT(GameObject* go1, GameObject* go2);
     void checkCollisions(GameObject* obj);
+    void resolveCollision(GameObject* go1, const pair<vec3, float>& penetration);
+
 
 	void addDynamicObject(GameObject* obj) {
 		dynamicObjects.push_back(obj);
