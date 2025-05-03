@@ -26,7 +26,13 @@ glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, flo
     return glm::mix(AB, BC, t);
 }
 
+/** 
+ * update the physics system for each dynamic object
+ * @param dt delta time
+ * @return void
+*/
 void PhysicsSystem::tick(float dt) {
+    // Update all dynamic objects
     for (GameObject* obj : dynamicObjects) {
 
         // Apply gravity
@@ -59,36 +65,56 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
     obj->transform.aabb = getAABB(obj);
 }
 
-
+/**
+ * Handle grapple movement
+ * @param obj GameObject to be grappling
+ * @param dt delta time
+ * @return void
+*/
 void PhysicsSystem::handleGrapple(GameObject* obj, float dt) {
     PhysicsComponent* phys = obj->physics;
     phys->grappleTimer += dt;
 
+    // Calculate the new position using a cubic Bezier curve
 	float t = glm::clamp(phys->grappleTimer / 0.6f, 0.0f, 1.0f);
     glm::vec3 start = obj->transform.position;
     glm::vec3 mid = (start + phys->grappleTarget) * 0.5f + glm::vec3(0, 5.0f, 0);
 	glm::vec3 newPos = bezier(start, mid, phys->grappleTarget, t);
 
+    // Update the velocity and position of the object
 	phys->velocity = (newPos - obj->transform.position) / dt;
     obj->transform.position = newPos;
 
+    // Update grapple state
 	if (t >= 1.0f) {
 		phys->grappling = false;
 		phys->grappleTimer = 0.0f;
 	}
 }
 
+/**
+ * Get the Axis-Aligned Bounding Box (AABB) of a GameObject
+ * @param obj GameObject to get the AABB from
+ * @return AABB of the GameObject
+ * @note The AABB is calculated based on the position and half extents of the collider
+ * @note The AABB is represented as a pair of vectors: min and max
+ * @note The min vector is the minimum corner of the AABB
+ * @note The max vector is the maximum corner of the AABB
+ */
 AABB PhysicsSystem::getAABB(GameObject* obj) {
     glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
     glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
     return { min, max };
 }
 
+/**
+ * Handle collisions between a dynamic object and all static objects
+ * @param obj dynamic GameObject to check for collisions
+ * @return void
+ * @note This function checks for collisions between the dynamic object and all static objects in the scene
+*/
 void PhysicsSystem::handleCollisions(GameObject* obj) {
     for (auto sobj : staticObjects) {
-        if (obj->id == sobj->id) {
-            continue; 
-        }
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
         if (penetration.second != -1.0f) {
             resolveCollision(obj, penetration);
@@ -100,16 +126,22 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     return;
 }
 
-void PhysicsSystem::resolveCollision(GameObject* go1, const pair<vec3, float>& SATresult) {
+/**
+ * Resolve collision between two objects
+ * @param dobj dynamic GameObject to resolve collision for
+ * @param penetration penetration vector and depth
+ * @return void
+ * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
+*/
+void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& penetration) {
+    vec3 normal = glm::normalize(penetration.first);
+    float overlap = penetration.second;
 
-    vec3 normal = glm::normalize(SATresult.first);
-    float penetration = SATresult.second;
-
-    // Positional correction: push go1 out of go2
-    go1->transform.position += normal * penetration;
+    // Positional correction: push dynamic obj out of static obj
+    dobj->transform.position += normal * overlap;
 
     // Velocity resolution: bounce off if moving into object
-    vec3 relativeVelocity = go1->physics->velocity;
+    vec3 relativeVelocity = dobj->physics->velocity;
     float velAlongNormal = glm::dot(relativeVelocity, normal);
 
     if (velAlongNormal < 0.0f) {
@@ -117,10 +149,17 @@ void PhysicsSystem::resolveCollision(GameObject* go1, const pair<vec3, float>& S
         float impulse = -(1.0f + restitution) * velAlongNormal;
         vec3 impulseVec = impulse * normal;
 
-        go1->physics->velocity += impulseVec;
+        dobj->physics->velocity += impulseVec;
     }
 }
 
+/**
+ * Apply player input to the GameObject
+ * @param intent PlayerIntentPacket containing the input data
+ * @param playerId ID of the player
+ * @return void
+ * 
+*/
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //process player input
     GameObject* target = NULL;
