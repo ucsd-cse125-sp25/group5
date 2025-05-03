@@ -20,28 +20,28 @@ using namespace std;
  * @param t Parameter (0 <= t <= 1), where t represents the interpolation factor
  * @return Point on the curve at parameter t
  */
+/**
+ * Cubic Bezier curve function
+ * @param A Start point
+ * @param B Control point 1
+ * @param C Control point 2
+ * @param t Parameter (0 <= t <= 1), where t represents the interpolation factor
+ * @return Point on the curve at parameter t
+ */
 glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float t) {
     glm::vec3 AB = glm::mix(A, B, t);
     glm::vec3 BC = glm::mix(B, C, t);
     return glm::mix(AB, BC, t);
 }
 
-bool AABBOverlap(const AABB& a, const AABB& b) {
-    return (
-        a.min.x <= b.max.x && a.max.x >= b.min.x &&
-        a.min.y <= b.max.y && a.max.y >= b.min.y &&
-        a.min.z <= b.max.z && a.max.z >= b.min.z
-        );
-}
-
+/** 
+ * update the physics system for each dynamic object
+ * @param dt delta time
+ * @return void
+*/
 void PhysicsSystem::tick(float dt) {
+    // Update all dynamic objects
     for (GameObject* obj : dynamicObjects) {
-        // Movement input already applied in applyInput()
-
-        if (obj->physics->grappling) {
-            handleGrapple(obj, dt);
-            continue;
-        }
 
         // Apply gravity
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
@@ -73,68 +73,101 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
     obj->transform.aabb = getAABB(obj);
 }
 
-
+/**
+ * Handle grapple movement
+ * @param obj GameObject to be grappling
+ * @param dt delta time
+ * @return void
+*/
 void PhysicsSystem::handleGrapple(GameObject* obj, float dt) {
     PhysicsComponent* phys = obj->physics;
     phys->grappleTimer += dt;
 
+    // Calculate the new position using a cubic Bezier curve
 	float t = glm::clamp(phys->grappleTimer / 0.6f, 0.0f, 1.0f);
     glm::vec3 start = obj->transform.position;
     glm::vec3 mid = (start + phys->grappleTarget) * 0.5f + glm::vec3(0, 5.0f, 0);
 	glm::vec3 newPos = bezier(start, mid, phys->grappleTarget, t);
 
+    // Update the velocity and position of the object
 	phys->velocity = (newPos - obj->transform.position) / dt;
     obj->transform.position = newPos;
 
+    // Update grapple state
 	if (t >= 1.0f) {
 		phys->grappling = false;
 		phys->grappleTimer = 0.0f;
 	}
 }
 
+/**
+ * Get the Axis-Aligned Bounding Box (AABB) of a GameObject
+ * @param obj GameObject to get the AABB from
+ * @return AABB of the GameObject
+ * @note The AABB is calculated based on the position and half extents of the collider
+ * @note The AABB is represented as a pair of vectors: min and max
+ * @note The min vector is the minimum corner of the AABB
+ * @note The max vector is the maximum corner of the AABB
+ */
 AABB PhysicsSystem::getAABB(GameObject* obj) {
     glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
     glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
     return { min, max };
 }
 
-glm::vec3 getPenetrationVector(const AABB& a, const AABB& b) {
-    glm::vec3 pen;
-
-    pen.x = std::min(a.max.x - b.min.x, b.max.x - a.min.x);
-    pen.y = std::min(a.max.y - b.min.y, b.max.y - a.min.y);
-    pen.z = std::min(a.max.z - b.min.z, b.max.z - a.min.z);
-
-    // Get signs
-    pen.x *= (a.min.x < b.min.x) ? -1.0f : 1.0f;
-    pen.y *= (a.min.y < b.min.y) ? -1.0f : 1.0f;
-    pen.z *= (a.min.z < b.min.z) ? -1.0f : 1.0f;
-
-    return pen;
-}
-
+/**
+ * Handle collisions between a dynamic object and all static objects
+ * @param obj dynamic GameObject to check for collisions
+ * @return void
+ * @note This function checks for collisions between the dynamic object and all static objects in the scene
+*/
 void PhysicsSystem::handleCollisions(GameObject* obj) {
     for (auto sobj : staticObjects) {
-        if (obj->id == sobj->id) {
-            continue; 
-        }
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
         if (penetration.second != -1.0f) {
-            resolveCollision(obj, sobj, penetration);
+            resolveCollision(obj, penetration);
         }  
+		printf("Detected collision between %d and %d\n", obj->id, sobj->id);
     }
-    return;
-}
-
-void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& SATresult) {
-
-    go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
-
-    //IP
+	printf("length of static objects %d", staticObjects.size());
 
     return;
 }
 
+/**
+ * Resolve collision between two objects
+ * @param dobj dynamic GameObject to resolve collision for
+ * @param penetration penetration vector and depth
+ * @return void
+ * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
+*/
+void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& penetration) {
+    vec3 normal = glm::normalize(penetration.first);
+    float overlap = penetration.second;
+
+    // Positional correction: push dynamic obj out of static obj
+    dobj->transform.position += normal * overlap;
+
+    // Velocity resolution: bounce off if moving into object
+    vec3 relativeVelocity = dobj->physics->velocity;
+    float velAlongNormal = glm::dot(relativeVelocity, normal);
+
+    if (velAlongNormal < 0.0f) {
+        float restitution = 0.1f; // tweak this if you want it more bouncy
+        float impulse = -(1.0f + restitution) * velAlongNormal;
+        vec3 impulseVec = impulse * normal;
+
+        dobj->physics->velocity += impulseVec;
+    }
+}
+
+/**
+ * Apply player input to the GameObject
+ * @param intent PlayerIntentPacket containing the input data
+ * @param playerId ID of the player
+ * @return void
+ * 
+*/
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //process player input
     GameObject* target = NULL;
@@ -156,7 +189,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 		target->transform.position.x -= 0.1f;
     }*/
 
-    glm::vec3 delta = glm::vec3(0.016f);
+    glm::vec3 delta = glm::vec3(0.064f);
     float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
@@ -184,7 +217,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
         translation += up * delta;
         //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
         //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
-
+        
     }
     if (intent.moveDownIntent) {
         translation += (-up) * delta;
@@ -214,15 +247,39 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 
 GameObject* PhysicsSystem::makeGameObject() {
     GameObject* obj = new GameObject;
-    obj->id = dynamicObjects.size();
+    obj->id = dynamicObjects.size() + staticObjects.size() + 10;
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
-    obj->transform.aabb = getAABB(obj);
+
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
 
+    obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    obj->isDynamic = false;
+    obj->transform.aabb = getAABB(obj);
+
     return obj; // return reference to the stored one
+}
+
+
+GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
+	GameObject* obj = new GameObject;
+	obj->id = dynamicObjects.size();
+	obj->transform.position = position;
+	obj->transform.rotation = rotation;
+	obj->transform.scale = glm::vec3(1.0f);
+
+	obj->physics = new PhysicsComponent();
+	obj->collider = new ColliderComponent();
+
+	obj->collider->halfExtents = halfExtents;
+
+	obj->isDynamic = false;
+	obj->transform.aabb = getAABB(obj);
+
+    return obj;
 }
 
 // Convert position + quaternion to mat4
@@ -247,88 +304,15 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
     outEulerRadians = glm::eulerAngles(rotation);
 }
 
-vector<vec3> getFaceNormals(GameObject* go) {
-    return { go->transform.rotation * vec3(1, 0, 0),
-             go->transform.rotation * vec3(0, 1, 0),
-             go->transform.rotation * vec3(0, 0, 1) };
-}
-
-bool areParallel(vec3 crossProd) {
-    return glm::dot(crossProd, crossProd) < 1e-6;
-}
-
-vector<vec3> getCrossProducts(const vector<vec3>& normals1, const vector<vec3>& normals2) {
-    vector<vec3> crossProducts;
-    for (int i = 0; i < normals1.size(); i++) {
-        for (int j = 0; j < normals2.size(); j++) {
-            vec3 crossProd = glm::cross(normals1[i], normals2[j]);
-            if (!areParallel(crossProd)) {
-                crossProducts.push_back(glm::normalize(crossProd));
-            }
-        }
-    }
-    return crossProducts;
-}
-
-void addNormalsToAxes(vector<vec3>& axes, const vector<vec3>& normals) {
-    for (int i = 0; i < normals.size(); i++) {
-        axes.push_back(normals[i]);
-    }
-}
-
-pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis) {
-    float centerProj = glm::dot(center, axis);
-    float halfRadius = 0.0f;
-
-    for (int i = 0; i < 3; i++) {
-        halfRadius += halfExtents[i] * fabs(glm::dot(normals[i], axis));
-    }
-
-    return pair<float,float>(centerProj - halfRadius, centerProj + halfRadius);
-}
-
 float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
-    //float overlap = -1.0f;
-
     return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
-}
-
-pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
-    vector<vec3> normals1 = getFaceNormals(go1);
-    vector<vec3> normals2 = getFaceNormals(go2);
-
-    vector<vec3> axes = getCrossProducts(normals1, normals2);
-    addNormalsToAxes(axes, normals1);
-    addNormalsToAxes(axes, normals2);
-
-    float minOverlap = 0.0f;
-    vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
-
-    for (vec3& axis : axes) {
-        pair<float, float> interval1 = getInterval(go1->transform.position, go1->collider->halfExtents, normals1, axis);
-        pair<float, float> interval2 = getInterval(go2->transform.position, go2->collider->halfExtents, normals2, axis);
-
-
-        //get overlap    return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
-
-        float overlap = getOverlap(interval1, interval2);
-        if (overlap < 0.0f) {   // or <= ?????
-            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
-        }
-        if (minOverlap == 0.0f || overlap < minOverlap) {
-            minOverlap = overlap;
-            minAxis = axis;
-        }
-    }
-
-    return pair<vec3, float>(minAxis, minOverlap);
 }
 
 pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
 
     vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
 
-    float minOverlap = 0.0f;
+    float minOverlap = 999999.0f;
     vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
 
     for (int i = 0; i < 3; i++) {
@@ -336,12 +320,11 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
         pair<float, float> interval2 = { b.min[i], b.max[i] };
 
         float overlap = getOverlap(interval1, interval2);
-        if (overlap < 0.0f) {   // or <= ?????
-            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
+        if (overlap <= 0.0f) {   
+            return pair<vec3, float>(vec3(0.0f), -1.0f);
         }
 
-		// check for small epsilon interval, not 0 to avoid floating point arithmetic issues
-        if (minOverlap == 0.0f || overlap < minOverlap) {
+        if (overlap <= minOverlap) {
             minOverlap = overlap;
             minAxis = axes[i];
         }
@@ -349,5 +332,3 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
 
     return pair<vec3, float>(minAxis, minOverlap);
 }
-
-//test

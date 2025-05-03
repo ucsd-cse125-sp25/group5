@@ -31,11 +31,9 @@ ServerGame::ServerGame(void)
     //initialize the physics system
     physicsSystem = PhysicsSystem();
 
- //   //boilerplate
-	//GameObject* cube = physicsSystem.makeGameObject();
+ 
 
- //   //create a random number of cubes to put in the world
- //   /*random no of cubes*/
+    //initialization of the game state
 	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
  //
     for (int i = 0; i < numCubes; i++) {
@@ -43,8 +41,22 @@ ServerGame::ServerGame(void)
 		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
 		cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
         cube->type = CUBE;
-		physicsSystem.addDynamicObject(cube);
+		physicsSystem.addStaticObject(cube);
     }
+
+
+    //add an island
+	GameObject* island = physicsSystem.makeGameObject(glm::vec3(5.0f, -10.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), island_extents);
+	island->type = ISLAND;
+	physicsSystem.addStaticObject(island);
+
+    //add a d_cube
+	GameObject* d_cube = physicsSystem.makeGameObject();
+	d_cube->transform.position = glm::vec3(5.0f, 30.0f, 0.0f);
+	d_cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
+	d_cube->type = D_CUBE;
+	physicsSystem.addDynamicObject(d_cube);
+
 
 	printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
@@ -55,6 +67,22 @@ ServerGame::ServerGame(void)
 
 ServerGame::~ServerGame(void)
 {
+}
+
+void PrintPlayerIntent(const PlayerIntentPacket& intent) {
+    //printf("PlayerIntentPacket: \n");
+    //printf("moveLeftIntent: %d\n", intent.moveLeftIntent);
+    //printf("moveRightIntent: %d\n", intent.moveRightIntent);
+    //printf("moveUpIntent: %d\n", intent.moveUpIntent);
+    //printf("moveDownIntent: %d\n", intent.moveDownIntent);
+    //printf("moveForwardIntent: %d\n", intent.moveForwardIntent);
+    //printf("moveBackIntent: %d\n", intent.moveBackIntent);
+    //printf("azimuthIntent: %f\n", intent.azimuthIntent);
+    //printf("inclineIntent: %f\n", intent.inclineIntent);
+    //printf("rightClickIntent: %d\n", intent.rightClickIntent);
+    //printf("leftClickIntent: %d\n", intent.leftClickIntent);
+    printf("scrollUpIntent: %d\n", intent.scrollUpIntent);
+    printf("scrollDownIntent: %d\n", intent.scrollDownIntent);
 }
 
 void ServerGame::update()
@@ -73,6 +101,9 @@ void ServerGame::update()
         player->id = client_id;
         //physicsSystem.addDynamicObject(player);
         clientToEntity[client_id] = client_id;
+        
+        //fill up the HP and the mana
+
 
         JoinResponsePacket packet;
         packet.packet_type = JOIN_RESPONSE;
@@ -86,10 +117,10 @@ void ServerGame::update()
 
    bool sendUpdate = receiveFromClients();
 
-
-
+   physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
    //put new information into the game state
    writeToGameState();
+
 
    if (sendUpdate) {
        sendGameStatePackets();
@@ -132,6 +163,9 @@ void ServerGame::writeToGameState() {
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
+
+		printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+		printf("position is %f %f %f\n", position.x, position.y, position.z);
     }
 
     //send all the static objects
@@ -143,6 +177,7 @@ void ServerGame::writeToGameState() {
 
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i + physicsSystem.dynamicObjects.size()] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
+
     }
 
 }

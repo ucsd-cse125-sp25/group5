@@ -105,6 +105,8 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     MouseY = height / 2;
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+    glfwSetScrollCallback(window, scroll_callback);
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
     Window::client = _client;
@@ -152,7 +154,8 @@ void Window::displayCallback(GLFWwindow* window) {
 
     //cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
 	
-
+    PlayerIntent.scrollUpIntent = false;
+    PlayerIntent.scrollDownIntent = false;
     glfwPollEvents();
 
     if (doJoints) {
@@ -261,7 +264,30 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
     PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
     PlayerIntent.moveForwardIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
     PlayerIntent.moveBackIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+	PlayerIntent.leftClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+	PlayerIntent.rightClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+	//PlayerIntent.scrollUpIntent = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
+	//PlayerIntent.scrollDownIntent = glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
+	//if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+	//    Cam->SetDistance(Cam->GetDistance() - BURST);
+	//}
+	//if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+	//    Cam->SetDistance(Cam->GetDistance() + BURST);
+	//}
 
+}
+
+void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (yoffset > 0) {
+		PlayerIntent.scrollUpIntent = true;
+		PlayerIntent.scrollDownIntent = false;
+
+	}
+    else if(yoffset < 0){
+		PlayerIntent.scrollDownIntent = true;
+		PlayerIntent.scrollUpIntent = false;
+    }
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {

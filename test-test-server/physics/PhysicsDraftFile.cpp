@@ -369,7 +369,7 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
     return;
 }
 
-void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& SATresult) {
+void PhysicsSystem::resolveCollision(GameObject* go1, const pair<vec3, float>& SATresult) {
 
     go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
 
