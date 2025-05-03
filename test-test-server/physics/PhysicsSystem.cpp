@@ -287,7 +287,7 @@ GameObject* PhysicsSystem::makeGameObject() {
 
 GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
 	GameObject* obj = new GameObject;
-	obj->id = dynamicObjects.size();
+	obj->id = dynamicObjects.size() + staticObjects.size() + 10;
 	obj->transform.position = position;
 	obj->transform.rotation = rotation;
 	obj->transform.scale = glm::vec3(1.0f);
