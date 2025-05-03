@@ -20,9 +20,6 @@ void Scene::createGame() {
 	dummy.maxHP = 250;
 	dummy.currHP = dummy.maxHP;
 	dummy.ID = 0;
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
 	test = new PlayerObject();
 
 	//Cinema
@@ -32,6 +29,10 @@ void Scene::createGame() {
 	for (int i = 1; i < 4; i++) {
 		players[i] = new PlayerObject();
 	}
+
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 }
 
 void Scene::loadObjects() {
@@ -40,8 +41,6 @@ void Scene::loadObjects() {
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 
-	
-	
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
 	glm::mat4 mov(0.05f);
@@ -158,7 +157,7 @@ void Scene::initShadows() {
 
 void Scene::draw(Camera* cam) {
 	//SHADOW PASS
-	bool doShadow = true;
+	bool doShadow = false;
 	if (doShadow) {
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -207,7 +206,7 @@ void Scene::draw(Camera* cam) {
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
-		//cubes[i]->draw(mainShader, false);
+		cubes[i]->draw(mainShader, false);
 	}
 
 	//test->Draw(mainShader, false);

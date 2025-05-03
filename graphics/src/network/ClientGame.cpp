@@ -75,15 +75,6 @@ void ClientGame::update(PlayerIntentPacket intent)
                     break;
                 }
             }
-
-			//printf("client received game state packet from server with the following mat4:");
-   //         for (int j = 0; j < 4; j++) {
-   //             for (int k = 0; k < 4; k++) {
-			//		//printf("%f ", GameState.getModelMatrix()[i][j]);
-			//		printf("%f ", packet.cubeModel[k][j]);
-   //             }
-			//	printf("\n");
-   //         }
 			printf("Received num_entities: %d\n", GameState.num_entities);
 			printf("First entity is of type %d\n", GameState.entities[0].type);
         }
