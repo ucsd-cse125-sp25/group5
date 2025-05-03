@@ -125,11 +125,12 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     for (auto sobj : staticObjects) {
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
         if (penetration.second != -1.0f) {
-            resolveCollision(obj, penetration);
+            resolveCollisionDySt(obj, penetration);
+            
         }  
 		printf("Detected collision between %d and %d\n", obj->id, sobj->id);
     }
-	printf("length of static objects %d", staticObjects.size());
+	printf("length of static objects %d", int(staticObjects.size()));
 
     // Check for collisions between dynamic objects
     for (auto dobj : dynamicObjects) {
