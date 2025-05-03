@@ -183,10 +183,10 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     PhysicsComponent* phys = target->physics;
 
     // Movement force settings
-    float moveAccel = 10.0f; // tweakable acceleration magnitude
+    float moveAccel = 1.0f; // tweakable acceleration magnitude
     glm::vec3 accel = glm::vec3(0.0f);
 
-    glm::vec3 delta = glm::vec3(0.015f);
+    glm::vec3 delta = glm::vec3(0.02f);
     float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
@@ -214,8 +214,6 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     target->transform.rotation = q;
 
     // DO NOT touch target->transform.position here!
-
-
 }
 
 float getOverlap(pair<float, float> interval1, pair<float, float> interval2) {
