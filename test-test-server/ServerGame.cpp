@@ -35,7 +35,7 @@ ServerGame::ServerGame(void)
 
     //initialization of the game state
 	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
- //
+ 
     for (int i = 0; i < numCubes; i++) {
 		GameObject* cube = physicsSystem.makeGameObject();
 		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
@@ -95,6 +95,7 @@ void ServerGame::update()
         printf("client %d has been connected to the server\n",client_id);
         GameObject* player = physicsSystem.makeGameObject();
 		player->type = PLAYER;
+		player->transform.position = glm::vec3(2.0f * client_id, 0.0f, 3.0f);
         //place where player gets added
         //physicsSystem.playerObjects[client_id] = player;
 		physicsSystem.addPlayerObject(player);
@@ -153,6 +154,8 @@ void ServerGame::writeToGameState() {
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.players[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
+        //printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+        //printf("position is %f %f %f\n", position.x, position.y, position.z);
     }
    
     //send all the dynamic objects
@@ -164,8 +167,8 @@ void ServerGame::writeToGameState() {
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
 
-		printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
-		printf("position is %f %f %f\n", position.x, position.y, position.z);
+		/*printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+		printf("position is %f %f %f\n", position.x, position.y, position.z);*/
     }
 
     //send all the static objects

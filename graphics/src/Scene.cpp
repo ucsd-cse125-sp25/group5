@@ -30,10 +30,10 @@ void Scene::createGame() {
 }
 
 void Scene::loadObjects() {
-	Object* obj = new Object();
+	/*Object* obj = new Object();
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	objects.push_back(obj);
+	objects.push_back(obj);*/
 
 	//wasp load-in
 	player->LoadAnimation();

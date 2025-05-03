@@ -27,6 +27,24 @@ bool AABBOverlap(const AABB& a, const AABB& b) {
 }
 
 void PhysicsSystem::tick(float dt) {
+
+	for (GameObject* obj : playerObjects) {
+        obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
+
+        // Integrate
+        integrate(obj, dt);
+
+        // Collide + resolve
+        checkCollisions(obj);
+        //resolveCollision(obj);
+
+        // Reset per-frame data
+        obj->physics->acceleration = glm::vec3(0);
+
+		/*printf("Velocity: %f %f %f\n", obj->physics->velocity.x, obj->physics->velocity.y, obj->physics->velocity.z);
+		printf("Acceleration: %f %f %f\n", obj->physics->acceleration.x, obj->physics->acceleration.y, obj->physics->acceleration.z);*/
+	}
+
     for (GameObject* obj : dynamicObjects) {
 
         // Apply gravity
@@ -55,6 +73,13 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 	if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
 		obj->physics->velocity = glm::normalize(obj->physics->velocity) * obj->physics->maxSpeed;
 	}
+
+    //debug
+    if (obj->id == 0) {
+		printf("Velocity: %f %f %f\n", obj->physics->velocity.x, obj->physics->velocity.y, obj->physics->velocity.z);
+		printf("Acceleration: %f %f %f\n", obj->physics->acceleration.x, obj->physics->acceleration.y, obj->physics->acceleration.z);
+		printf("Position: %f %f %f\n", obj->transform.position.x, obj->transform.position.y, obj->transform.position.z);
+    }
 
 	obj->transform.position += obj->physics->velocity * dt;
     obj->transform.aabb = getAABB(obj);
@@ -111,10 +136,11 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
         pair<vec3, float> SATresult = SATOverlapTestExperimental(obj->transform.aabb, sobj->transform.aabb);
         if (SATresult.second != -1.0f) {
             resolveCollision(obj, sobj, SATresult);
+            printf("Detected collision between %d and %d\n", obj->id, sobj->id);
         }  
-		printf("Detected collision between %d and %d\n", obj->id, sobj->id);
+		
     }
-	printf("length of static objects %d", staticObjects.size());
+	//printf("length of static objects %d\n", staticObjects.size());
     //3. feed the AABB of this object, and of the iterated object, to SATOverlapTestExperimental
     //4. call resolveCollisions with the result, if there is a collision (change params and return for resolveCollisions)
     //test change
@@ -143,8 +169,7 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
 }
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
-    //process player input
-    GameObject* target = NULL;
+    GameObject* target = nullptr;
 
     for (auto obj : playerObjects) {
         if (obj->id == playerId) {
@@ -153,69 +178,42 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
         }
     }
 
-    if (target == NULL) {
-        return;
-    }
+    if (!target) return;
 
-   /* if (intent.moveLeftIntent)
-    {
+    PhysicsComponent* phys = target->physics;
 
-		target->transform.position.x -= 0.1f;
-    }*/
+    // Movement force settings
+    float moveAccel = 10.0f; // tweakable acceleration magnitude
+    glm::vec3 accel = glm::vec3(0.0f);
 
-    glm::vec3 delta = glm::vec3(0.064f);
+    // Rotation setup (yaw only)
     float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
-    glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
-    //glm::vec3 translation = glm::vec3(target.cubeModel[3]);
-	glm::vec3 translation = target->transform.position;
+    glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0, 0, 1, 0)));
     glm::vec3 right = glm::normalize(glm::cross(up, forward));
 
-    //GameState.cubeModel = glm::rotate(GameState.cubeModel, azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
-    
+    // Directional input
+    if (intent.moveForwardIntent)  accel += -forward;
+    if (intent.moveBackIntent)     accel += forward;
+    if (intent.moveLeftIntent)     accel += -right;
+    if (intent.moveRightIntent)    accel += right;
+    if (intent.moveUpIntent)       accel += up;
+    if (intent.moveDownIntent)     accel += -up;
 
-    //process
-    if (intent.moveLeftIntent)
-    {
-        translation += (-right) * delta;
-        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f));
-        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
-    }
-    if (intent.moveRightIntent) {
-        translation += right * delta;
-        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
-        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
-    }
-    if (intent.moveUpIntent) {
-        translation += up * delta;
-        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
-        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
-        
-    }
-    if (intent.moveDownIntent) {
-        translation += (-up) * delta;
-        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
-        //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
-    }
-    if (intent.moveForwardIntent) {
-        translation += (-forward) * delta;
-        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, -0.1f));
-    }
-    if (intent.moveBackIntent) {
-        translation += forward * delta;
-        //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
+    // Normalize to prevent diagonal speedup, then scale
+    if (glm::length(accel) > 0.0f) {
+        accel = glm::normalize(accel) * moveAccel;
     }
 
-    //glm::mat4 id = glm::mat4(1.0f);
-    //GameState.cubeModel = glm::translate(GameState.cubeModel, translation);
+    // Apply to physics
+    phys->acceleration += accel;
 
-    // Update the line causing the error to properly convert the quaternion to a vec4  
-    //target->transform.rotation = glm::vec4(glm::quat_cast(rotation).x, glm::quat_cast(rotation).y, glm::quat_cast(rotation).z, glm::quat_cast(rotation).w);
-    glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
+    // Update facing rotation (but not position!)
+    glm::quat q = glm::angleAxis(azimuth, glm::vec3(0, 1, 0));
     target->transform.rotation = q;
-	target->transform.position = translation;
-    target->transform.aabb = getAABB(target);
+
+    // DO NOT touch target->transform.position here!
 
 
 }
@@ -310,7 +308,7 @@ GameObject* PhysicsSystem::makeGameObject() {
 
 GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
 	GameObject* obj = new GameObject;
-	obj->id = dynamicObjects.size();
+	obj->id = dynamicObjects.size() + staticObjects.size() + 10;
 	obj->transform.position = position;
 	obj->transform.rotation = rotation;
 	obj->transform.scale = glm::vec3(1.0f);
