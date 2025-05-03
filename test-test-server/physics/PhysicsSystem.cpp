@@ -131,6 +131,16 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     }
 	printf("length of static objects %d", staticObjects.size());
 
+    // Check for collisions between dynamic objects
+    for (auto dobj : dynamicObjects) {
+        if (obj->id == dobj->id) {
+            continue; // Skip self-collision
+        }
+        pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
+        if (penetration.second != -1.0f) {
+            resolveCollisionDyDy(obj, dobj, penetration);
+        }
+    }
     return;
 }
 
@@ -159,6 +169,40 @@ void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& 
 
         dobj->physics->velocity += impulseVec;
     }
+}
+
+vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution) {
+    float velAlongNormal = glm::dot(relativeVelocity, normal);
+    if (velAlongNormal < 0.0f) {
+        float impulse = -(1.0f + restitution) * velAlongNormal;
+        return impulse * normal;
+    }
+}
+
+void PhysicsSystem::resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration) {
+    // Resolve collision between dynamic and static objects
+    vec3 normal = glm::normalize(penetration.first);
+    float overlap = penetration.second;
+
+    // Positional correction: push dynamic obj out of static obj
+    go1->transform.position += normal * overlap;
+
+    // Velocity resolution: bounce off if moving into object
+    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity, 0.1f);
+}
+
+void PhysicsSystem::resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration) {
+    // Resolve collision between two dynamic objects
+    vec3 normal = glm::normalize(penetration.first);
+    float overlap = penetration.second;
+
+    // Positional correction: push both objects out of each other
+    go1->transform.position += normal * (overlap / 2.0f);
+    go2->transform.position -= normal * (overlap / 2.0f);
+
+    // Velocity resolution: bounce off if moving into each other
+    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+    go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 }
 
 /**

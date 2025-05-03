@@ -29,6 +29,8 @@ public:
     void integrate(GameObject* obj, float dt);
     void handleCollisions(GameObject* obj);
     void resolveCollision(GameObject* go1, const pair<vec3, float>& penetration);
+    void resolveCollisionDySt(GameObject* go1, const pair<vec3, float>& penetration);
+    void resolveCollisionDyDy(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration);
     void handleGrapple(GameObject* obj, float dt);
     mat4 toMatrix(const vec3& position, const quat& quat);
     void fromMatrix(const mat4& mat, vec3& outPosition, vec3& outEulerRadians);
@@ -36,6 +38,7 @@ public:
     GameObject* makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents);
 	AABB getAABB(GameObject* obj);
 	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
+    vec3 getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution);
 
     std::pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis);
     
