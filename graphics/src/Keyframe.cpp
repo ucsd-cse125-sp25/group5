@@ -33,6 +33,6 @@ void Keyframe::computeCoefficients(float nextValue,  float nextTime, float nextT
     //d = value;
 
     // Debug print statements
-    std::cout << "Keyframe: time=" << time << ", value=" << value << ", tangentIn=" << tangentIn << ", tangentOut=" << tangentOut << std::endl;
-    std::cout << "Coefficients: a=" << a << ", b=" << b << ", c=" << c << ", d=" << d << std::endl;
+    //std::cout << "Keyframe: time=" << time << ", value=" << value << ", tangentIn=" << tangentIn << ", tangentOut=" << tangentOut << std::endl;
+    //std::cout << "Coefficients: a=" << a << ", b=" << b << ", c=" << c << ", d=" << d << std::endl;
 }

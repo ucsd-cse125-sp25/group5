@@ -10,10 +10,9 @@ void Scene::createGame() {
 	lightmanager->init();
 	initShadows();
 
-	//loadObjects();
 	cube = new Cube();
-	//skybox = new Skybox();
-	//skybox->initSkybox();
+	skybox = new Skybox();
+	skybox->initSkybox();
 
 	uimanager = new UIManager;
 	uimanager->Init();
@@ -24,8 +23,10 @@ void Scene::createGame() {
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 	//glFrontFace(GL_CCW);
-	player = new PlayerObject();
 	test = new PlayerObject();
+
+	//Cinema
+	player = new PlayerObject();
 	players[0] = player;
 
 	for (int i = 1; i < 4; i++) {
@@ -39,14 +40,16 @@ void Scene::loadObjects() {
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 
-	//wasp load-in
-	player->LoadAnimation();
-	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	
+	
+	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
 	glm::mat4 mov(0.05f);
 	mov[3] = glm::vec4(2.0f, 0, 0, 1);
-	test->UpdateMat(mov);
-  
+	//test->UpdateMat(mov);
+
+	//wasp load-in
+	player->LoadAnimation();
 	for (int i = 1; i < 4; i++) {
 		players[i]->LoadAnimation();
 	}
@@ -61,7 +64,7 @@ void Scene::update(ClientGame* client) {
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
-	test->Update();
+	//test->Update();
 
 	int i;
 	int j;
@@ -111,7 +114,6 @@ void Scene::update(ClientGame* client) {
 	}
   
 	uimanager->update(dummy);
-	//waspplayer->update();
 }
 
 bool Scene::initShaders() {
@@ -168,9 +170,8 @@ void Scene::draw(Camera* cam) {
 		glUniformMatrix4fv(glGetUniformLocation(shadowShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 
 		for (int i = 0; i < objects.size(); i++) {
-			objects[i]->draw(shadowShader, doShadow);
+			//objects[i]->draw(shadowShader, doShadow);
 		}
-		skin->draw(shadowShader, doShadow);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
@@ -206,22 +207,19 @@ void Scene::draw(Camera* cam) {
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
-		cubes[i]->draw(cam->GetViewProjectMtx(), shaders[1]);
+		//cubes[i]->draw(mainShader, false);
 	}
 
-	//cube->draw(cam->GetViewProjectMtx(), shaders[1]);
-	//skel->draw(cam->GetViewProjectMtx(), shaders[1]);
-	//skin->draw(cam->GetViewProjectMtx(), shaders[1]);
-	test->Draw(cam);
+	//test->Draw(mainShader, false);
 
 	for (int i = 0; i < 4; i++) {
-		players[i]->Draw(cam);
+		players[i]->Draw(mainShader, false);
 	}
 
 	
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
-	//skybox->draw(cam);
+	skybox->draw(cam);
 	uimanager->draw();
 }

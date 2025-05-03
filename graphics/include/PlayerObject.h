@@ -21,5 +21,5 @@ public:
 	void LoadExperimental(std::string filename, int meshindex);
 	void UpdateMat(glm::mat4 newmodel);
 	void Update();
-	void Draw(Camera* cam);
+	void Draw(GLuint shader, bool shadow);
 };

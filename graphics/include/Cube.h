@@ -25,7 +25,7 @@ public:
     ~Cube();
 
     //void create(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model);
-    void draw(const glm::mat4& viewProjMtx, GLuint shader);
+    void draw(GLuint shader, bool shadow);
     void update(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model);
 
     void spin(float deg);

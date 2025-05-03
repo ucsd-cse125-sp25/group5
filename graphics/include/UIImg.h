@@ -59,7 +59,7 @@ class Magic : public UIImg {
 public:
 	void Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const PlayerStats& p) override;
+	void Update(const OtherPlayerStats& p);
 	void SetTexture(GLuint texture);
 
 	std::vector<MagicElement> powers;

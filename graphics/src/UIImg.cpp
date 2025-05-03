@@ -247,7 +247,7 @@ void Magic::Init(float scWidth, float scHeight, std::vector<float> startPos, flo
 	glBindVertexArray(0);
 }
 
-void Magic::Update(const PlayerStats& p) {
+void Magic::Update(const OtherPlayerStats& p) {
 	//loop through each struct and update according to the player
 	float waterPerc = float(p.currWater) / float(p.maxWater);
 	float firePerc = float(p.currFire) / float(p.maxFire);
