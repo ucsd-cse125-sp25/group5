@@ -20,6 +20,7 @@ public:
     vector<float> AABBdistances;
     float cellSize;
 
+    std::vector<GameObject*> movingObjects;
 	std::vector<GameObject*> playerObjects;
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
@@ -65,4 +66,8 @@ public:
 	void addPlayerObject(GameObject* obj) {
 		playerObjects.push_back(obj);
 	}
+
+    void addMovingObject(GameObject* obj) {
+        movingObjects.push_back(obj);
+    }
 };

@@ -41,7 +41,7 @@ glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, flo
 */
 void PhysicsSystem::tick(float dt) {
     // Update all dynamic objects
-    for (GameObject* obj : dynamicObjects) {
+    for (GameObject* obj : movingObjects) {
 
         // Apply gravity
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
@@ -133,7 +133,7 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 	printf("length of static objects %d", int(staticObjects.size()));
 
     // Check for collisions between dynamic objects
-    for (auto dobj : dynamicObjects) {
+    for (auto dobj : movingObjects) {
         if (obj->id == dobj->id) {
             continue; // Skip self-collision
         }
