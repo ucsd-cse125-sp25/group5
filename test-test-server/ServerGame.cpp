@@ -210,6 +210,7 @@ bool ServerGame::receiveFromClients()
 
             //copy the network packet data into player intent
             PlayerIntent.deserialize(&(network_data[i]));
+			physicsSystem.PlayerIntents[iter->first].deserialize(&(network_data[i]));
 
             //increment in case we have more 
             i += sizeof(PlayerIntentPacket);

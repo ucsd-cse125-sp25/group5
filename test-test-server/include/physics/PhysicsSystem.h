@@ -25,7 +25,11 @@ public:
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
 
+	PlayerIntentPacket PlayerIntents[4];
+
+
     void tick(float dt);
+	glm::vec3 getInputVelocity(const PlayerIntentPacket& intent, int playerId);
     void applyInput(const PlayerIntentPacket& intent, int playerId);
     void integrate(GameObject* obj, float dt);
     void handleCollisions(GameObject* obj);
