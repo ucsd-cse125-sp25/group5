@@ -18,11 +18,7 @@ public:
 	void UIManager::UnloadAllTextures();
 
 	void SetGameState(GameState state);
-
 	void TriggerAnim(int anim);
-
-	void SetDim(int width, int height);
-
 	GameState currState = GameState::MATCH;
 private:
 	//GLuint shaderProgram;
@@ -32,5 +28,4 @@ private:
 	std::vector<UIImg*> matchElements;
 	std::vector<UIImg*> lobbyElements;
 	std::unordered_map<std::string, GLuint> textures;
-	int scWidth, scHeight;
 };

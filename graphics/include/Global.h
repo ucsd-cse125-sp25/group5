@@ -24,3 +24,6 @@ struct OtherPlayerStats {
     ElementType currElem = ElementType::WATER;
     //unsigned int ID : 4;
 };
+
+extern int WINDOWWIDTH;
+extern int WINDOWHEIGHT;

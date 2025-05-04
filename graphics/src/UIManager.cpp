@@ -38,8 +38,6 @@ static std::vector<std::string> MagicOrder{
 
 //Loads textures and creates UI elements
 void UIManager::Init() {
-	int scWidth = 1200, scHeight = 900;
-
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
@@ -61,7 +59,7 @@ void UIManager::Init() {
 			img = new UIImg();
 		}
 
-		img->Init(scWidth, scHeight, { percX, percY }, percent, aspect);
+		img->Init({ percX, percY }, percent, aspect);
 		img->SetTexture(GetTexture(name));
 
 		if (name == "magicback") {
@@ -93,7 +91,7 @@ void UIManager::Init() {
 				if (angle < 0.0f) {
 					angle += glm::two_pi<float>();
 				}
-				float radius = ma->manaRadius * scWidth;
+				float radius = ma->manaRadius * WINDOWWIDTH;
 				float x = ma->centerX + cos(angle) * radius;
 				float y = ma->centerY + sin(angle) * radius;
 				ma->powers[i].position = glm::vec2(x, y);
@@ -121,12 +119,12 @@ void UIManager::update(const OtherPlayerStats& p) {
 	switch (currState) {
 	case GameState::LOBBY:
 		for (auto* img : matchElements) {
-			img->Update(p, scWidth, scHeight);
+			img->Update(p);
 		}
 		break;
 	case GameState::MATCH:
 		for (auto* img : matchElements) {
-			img->Update(p, scWidth, scHeight);
+			img->Update(p);
 		}
 		break;
 	}
@@ -209,9 +207,4 @@ void UIManager::TriggerAnim(int anim) {
 			}
 		}
 	}
-}
-
-void UIManager::SetDim(int width, int height) {
-	scWidth = width;
-	scHeight = height;
 }

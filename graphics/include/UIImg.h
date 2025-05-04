@@ -8,9 +8,9 @@
 
 class UIImg {
 public:
-	virtual void Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio);
+	virtual void Init(std::vector<float> startPos, float percent, float ratio);
 	virtual void Draw();
-	virtual void Update(const OtherPlayerStats& p, int scWidth, int scHeight);
+	virtual void Update(const OtherPlayerStats& p);
 	virtual void SetTexture(GLuint tex);
 
 	std::string name;
@@ -28,9 +28,9 @@ private:
 
 class HealthBar : public UIImg {
 public:
-	void Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio) override;
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p, int scWidth, int scHeight) override;
+	void Update(const OtherPlayerStats& p) override;
 	void SetTexture(GLuint texture);
 
 	std::string name;
@@ -58,10 +58,10 @@ struct MagicElement {
 
 class Magic : public UIImg {
 public:
-	void Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio) override;
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p, int scWidth, int scHeight) override;
-	void UpdateLayout(int scWidth, int scHeight);
+	void Update(const OtherPlayerStats& p) override;
+	void UpdateLayout();
 	void SetTexture(GLuint texture);
 	void StartRotate(int anim);
 
@@ -73,6 +73,7 @@ public:
 	float centerX = 0.0f;
 	float centerY = 0.0f;
 	float manaRadius = 0.06f;
+	int scWidth; int scHeight;
 private:
 	std::vector<float> quad;
 	std::vector<float> mana;
@@ -92,7 +93,6 @@ private:
 	std::vector<float> position;
 	float percent;
 	float ratio;
-	int scWidth, scHeight;
 
 	double animStart;
 	bool animating;

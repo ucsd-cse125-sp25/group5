@@ -1,13 +1,13 @@
 #include "UIImg.h"
 
-void UIImg::Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio) {
+void UIImg::Init(std::vector<float> startPos, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
-	projection = glm::ortho(0.0f, float(scWidth), 0.0f, float(scHeight), -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
-	float offsetX = scWidth * percent;
-	float offsetY = scHeight * percent * ratio;
+	float offsetX = WINDOWWIDTH * percent;
+	float offsetY = WINDOWHEIGHT * percent * ratio;
 
 	uiData = {
 		//Position                                     //UV         //Color
@@ -40,7 +40,7 @@ void UIImg::Init(int scWidth, int scHeight, std::vector<float> startPos, float p
 
 }
 
-void UIImg::Update(const OtherPlayerStats& p, int scWidth, int scHeight) {
+void UIImg::Update(const OtherPlayerStats& p) {
 
 }
 
@@ -70,24 +70,22 @@ void UIImg::SetTexture(GLuint tex) {
 * @brief Initalizes the quads of both the health and container bars.
 * Using pixel coordinates: (0,0) will be bottom left of the screen
 *
-* @param scWidth: Width of the window
-* @param scHeight: Height of the window
 * @param startPos: Starting coordinate of quad
 * @param percent: Percentage of the window width the UI element should occupy
 * @param ratio: Aspect ratio of the UI element
 **/
-void HealthBar::Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio) {
+void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 
 	shaderProgram = LoadShaders("shaders/healthbar.vert", "shaders/healthbar.frag");
-	projection = glm::ortho(0.0f, float(scWidth), 0.0f, float(scHeight), -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
 	containerColor = { 0.2f, 0.2f, 1.0f };
 	healthColor = { 1.0f, 1.0f, 1.0f };
 
-	float offsetX = scWidth * percent;
-	float offsetY = scHeight * percent * ratio;
+	float offsetX = WINDOWWIDTH * percent;
+	float offsetY = WINDOWHEIGHT * percent * ratio;
 
 	health = {
 		//Position                                     //UV         //Color
@@ -137,7 +135,7 @@ void HealthBar::Init(int scWidth, int scHeight, std::vector<float> startPos, flo
 	glBindVertexArray(0);
 }
 
-void HealthBar::Update(const OtherPlayerStats &p, int scWidth, int scHeight) {
+void HealthBar::Update(const OtherPlayerStats &p) {
 	float leftX = container[0];
 	float rightX = container[7];
 	float width = rightX - leftX;
@@ -174,24 +172,24 @@ void HealthBar::Draw() {
 	glBindVertexArray(0);
 }
 
-void Magic::Init(int width, int height, std::vector<float> startPerc, float p, float r) {
-	scWidth = width;
-	scHeight = height;
+void Magic::Init(std::vector<float> startPerc, float p, float r) {
+	scHeight = WINDOWHEIGHT;
+	scWidth = WINDOWWIDTH;
 	percent = p;
 	ratio = r;
 	percX = startPerc[0];
 	percY = startPerc[1];
-	position = { percX * width, percY * height };
-	uiWidth = scWidth * percent;
-	uiHeight = scHeight * percent * ratio;
+	position = { percX * WINDOWWIDTH, percY * WINDOWHEIGHT };
+	uiWidth = WINDOWWIDTH * percent;
+	uiHeight = WINDOWHEIGHT * percent * ratio;
 	centerX = position[0] + (uiWidth / 2.0f) + 15;
 	centerY = position[1] + (uiHeight / 2.0f) - 15;
 
-	manaWidth = scWidth * 0.1;
+	manaWidth = WINDOWWIDTH * 0.1;
 
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
 	manaProgram = LoadShaders("shaders/magic.vert", "shaders/magic.frag");
-	projection = glm::ortho(0.0f, float(scWidth), 0.0f, float(scHeight), -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 
 	float offsetX = uiWidth;
 	float offsetY = uiHeight;
@@ -208,8 +206,8 @@ void Magic::Init(int width, int height, std::vector<float> startPerc, float p, f
 		//Position                     //UV         //Color
 		0.0f, 0.0f,                    0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
 		manaWidth, 0.0f,               1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
-		manaWidth, manaWidth,         1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
-		0.0f, manaWidth,              0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		manaWidth, manaWidth,          1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		0.0f, manaWidth,               0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
 	};
 
 	//Buffers for the background
@@ -251,9 +249,9 @@ void Magic::Init(int width, int height, std::vector<float> startPerc, float p, f
 	glBindVertexArray(0);
 }
 
-void Magic::Update(const OtherPlayerStats& p, int width, int height) {
-	//UPDATE ALL ELEMENTS OF THE UI FROM SCWIDTH/SCHEIGHT
-	UpdateLayout(width, height);
+void Magic::Update(const OtherPlayerStats& p) {
+	//UPDATE ALL ELEMENTS OF THE UI FROM WINDOWWIDTH/WINDOWHEIGHT
+	UpdateLayout();
 	 
 	//loop through each struct and update according to the player
 	float waterPerc = float(p.currWater) / float(p.maxWater);
@@ -282,7 +280,7 @@ void Magic::Update(const OtherPlayerStats& p, int width, int height) {
 	}
 
 	double now = glfwGetTime();
-	float radius = manaRadius * scWidth;
+	float radius = manaRadius * WINDOWWIDTH;
 	if (animating) {
 		double elapsed = now - animStart;
 		float t = elapsed / spinDuration;
@@ -315,25 +313,22 @@ void Magic::Update(const OtherPlayerStats& p, int width, int height) {
 	}
 }
 
-void Magic::UpdateLayout(int width, int height) {
-	if (scHeight == height && scWidth == width) {
-		std::cout << "No change in the window" << std::endl;
+void Magic::UpdateLayout() {
+	if (scHeight == WINDOWHEIGHT && scWidth == WINDOWWIDTH) {
 		return;
 	}
+	scHeight = WINDOWHEIGHT;
+	scWidth = WINDOWWIDTH;
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	uiWidth = WINDOWWIDTH * percent;
+	uiHeight = WINDOWHEIGHT * percent * ratio;
 
-	std::cout << "Change in window!!" << std::endl;
-	scHeight = height;
-	scWidth = width;
-	projection = glm::ortho(0.0f, float(scWidth), 0.0f, float(scHeight), -1.0f, 1.0f);
-	uiWidth = scWidth * percent;
-	uiHeight = scHeight * percent * ratio;
-
-	position[0] = percX * width;
-	position[1] = percY * height;
+	position[0] = percX * WINDOWWIDTH;
+	position[1] = percY * WINDOWHEIGHT;
 
 	centerX = position[0] + (uiWidth / 2.0f) + 15;
 	centerY = position[1] + (uiHeight / 2.0f) - 15;
-	manaWidth = scWidth * 0.1;
+	manaWidth = WINDOWWIDTH * 0.1;
 	float offsetX = uiWidth;
 	float offsetY = uiHeight;
 
@@ -363,7 +358,7 @@ void Magic::UpdateLayout(int width, int height) {
 	//Loop through all the powers and update the position accordinly
 	const float total = powers.size();
 	for (int i = 0; i < total; i++) {
-		float radius = manaRadius * scWidth;
+		float radius = manaRadius * WINDOWWIDTH;
 		float x = centerX + cos(baseAngles[powers[i].currIdx]) * radius;
 		float y = centerY + sin(baseAngles[powers[i].currIdx]) * radius;
 		powers[i].position = glm::vec2(x, y);

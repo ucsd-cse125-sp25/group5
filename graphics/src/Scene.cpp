@@ -1,5 +1,8 @@
 #include <Scene.h>
 
+int WINDOWWIDTH = 1200;
+int WINDOWHEIGHT = 900;
+
 OtherPlayerStats dummy;
 
 PlayerObject* players[4];
@@ -53,9 +56,7 @@ void Scene::loadObjects() {
 	}
 }
 
-void Scene::update(ClientGame* client, int width, int height) {
-	scWidth = width;
-	scHeight = height;
+void Scene::update(ClientGame* client) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
@@ -111,8 +112,6 @@ void Scene::update(ClientGame* client, int width, int height) {
 			cubes.push_back(cu);
 		}
 	}
-  
-	uimanager->SetDim(scWidth, scHeight);
 	uimanager->update(dummy);
 }
 
@@ -176,7 +175,7 @@ void Scene::draw(Camera* cam) {
 	}
 
 	//RENDER PASS
-	glViewport(0, 0, scWidth, scHeight);
+	glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//We will use a global shader for everything for right now

@@ -33,12 +33,6 @@ private:
 
 	GLuint depthMapFBO, depthMap;
 	glm::mat4 lightSpaceMatrix;
-	int scWidth, scHeight;
-
-	//Skeleton* skel;
-	//Skin* skin;
-	//Animation* animation;
-	//Player* waspplayer;
 	
 public:
 	std::vector<GLuint> shaders;
@@ -46,7 +40,7 @@ public:
 	bool initShaders();
 	void initShadows();
 	void loadObjects();
-	void update(ClientGame* client, int scWidth, int scHeight);
+	void update(ClientGame* client);
 	void draw(Camera* cam);
 	void TriggerAnim(int anim);
 };

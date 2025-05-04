@@ -99,6 +99,8 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
     std::cout << "Resized window" << std::endl;
     Window::width = width;
     Window::height = height;
+    WINDOWWIDTH = width;
+    WINDOWHEIGHT = height;
     // Set the viewport size.
     glViewport(0, 0, width, height);
 
@@ -108,10 +110,9 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 // update and draw functions
 void Window::idleCallback() { 
     // Perform any updates as necessary.
-  
     client->update(PlayerIntent);
     Cam->Update(client);
-    scene->update(client, Window::width, Window::height);
+    scene->update(client);
 }
 
 void Window::displayCallback(GLFWwindow* window) {
