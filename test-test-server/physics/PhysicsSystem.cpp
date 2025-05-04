@@ -341,7 +341,7 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
-int getNextId() {
+int PhysicsSystem::getNextId() {
     nextid++;
     return nextid-1;
 }

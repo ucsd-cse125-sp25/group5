@@ -42,6 +42,7 @@ public:
     void deleteGameObject(GameObject* obj);
     void deleteGameObjectVector(std::vector<GameObject*>& obj);
     void deleteAllGameObjects();
+    int getNextId();
     
     std::pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis);
     
