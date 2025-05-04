@@ -345,21 +345,3 @@ int PhysicsSystem::getNextId() {
     nextid++;
     return nextid-1;
 }
-
-//void deleteGameObject(GameObject* obj) {
-//    delete obj->physics;
-//    delete obj->collider;
-//    delete obj->behavior;
-//    delete obj;
-//}
-//
-//void deleteGameObjectVector(std::vector<GameObject*>& obj) {
-//    for (auto& go : obj) {
-//        deleteGameObject(go);
-//    }
-//}
-//void PhysicsSystem::deleteAllGameObjects() {
-//    deleteGameObjectVector(movingObjects);
-//    deleteGameObjectVector(staticObjects);
-//}
-//
