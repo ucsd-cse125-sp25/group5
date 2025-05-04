@@ -84,7 +84,6 @@ ServerNetwork::ServerNetwork(void)
     }
 }
 
-
 ServerNetwork::~ServerNetwork(void)
 {
 }

@@ -12,6 +12,8 @@ typedef glm::quat quat;
 
 using namespace std;
 
+int nextid = 4;
+
 /**
  * Cubic Bezier curve function
  * @param A Start point
@@ -260,7 +262,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 
 GameObject* PhysicsSystem::makeGameObject() {
     GameObject* obj = new GameObject;
-    obj->id = dynamicObjects.size() + staticObjects.size() + 10;
+    obj->id = getNextId();
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
@@ -339,20 +341,25 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
-void deleteGameObject(GameObject* obj) {
-    delete obj->physics;
-    delete obj->collider;
-    delete obj->behavior;
-    delete obj;
+int getNextId() {
+    nextid++;
+    return nextid-1;
 }
 
-void deleteGameObjectVector(std::vector<GameObject*>& obj) {
-    for (auto& go : obj) {
-        deleteGameObject(go);
-    }
-}
-void PhysicsSystem::deleteAllGameObjects() {
-    deleteGameObjectVector(movingObjects);
-    deleteGameObjectVector(staticObjects);
-}
-
+//void deleteGameObject(GameObject* obj) {
+//    delete obj->physics;
+//    delete obj->collider;
+//    delete obj->behavior;
+//    delete obj;
+//}
+//
+//void deleteGameObjectVector(std::vector<GameObject*>& obj) {
+//    for (auto& go : obj) {
+//        deleteGameObject(go);
+//    }
+//}
+//void PhysicsSystem::deleteAllGameObjects() {
+//    deleteGameObjectVector(movingObjects);
+//    deleteGameObjectVector(staticObjects);
+//}
+//
