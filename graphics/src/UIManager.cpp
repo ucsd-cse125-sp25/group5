@@ -2,19 +2,20 @@
 #include <iostream>
 #include "stb_image.h"
 #include <map>
+#include <glm/gtx/string_cast.hpp>
 
 /**
 * UIStorage is a map that holds the texture configurations for UI elements
 * The data is a tuple containing:
 * - path to the texture (std::string)
 * - Game state it should appear during (GameState)
-* - start position x (float)
-* - start position y (float)
+* - start position x (float) 5/4 - changed to percent of total width
+* - start position y (float) 5/4 - changed to percent of total height
 * - The width as a percentage of screen width (float)
 * - The aspect ratio of the texture (float)
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 835.0, 0.0, 0.3, 1.0} },
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
 };
 
 /**
@@ -37,14 +38,14 @@ static std::vector<std::string> MagicOrder{
 
 //Loads textures and creates UI elements
 void UIManager::Init() {
-	float scWidth = 1200, scHeight = 900;
+	int scWidth = 1200, scHeight = 900;
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
 		GameState state = std::get<1>(pair.second);
-		float startX = std::get<2>(pair.second);
-		float startY = std::get<3>(pair.second);
+		float percX = std::get<2>(pair.second);
+		float percY = std::get<3>(pair.second);
 		float percent = std::get<4>(pair.second);
 		float aspect = std::get<5>(pair.second);
 
@@ -60,7 +61,7 @@ void UIManager::Init() {
 			img = new UIImg();
 		}
 
-		img->Init(scWidth, scHeight, { startX, startY }, percent, aspect);
+		img->Init(scWidth, scHeight, { percX, percY }, percent, aspect);
 		img->SetTexture(GetTexture(name));
 
 		if (name == "magicback") {
@@ -92,13 +93,15 @@ void UIManager::Init() {
 				if (angle < 0.0f) {
 					angle += glm::two_pi<float>();
 				}
-				float x = ma->centerX + cos(angle) * MANA_RADIUS;
-				float y = ma->centerY + sin(angle) * MANA_RADIUS;
+				float radius = ma->manaRadius * scWidth;
+				float x = ma->centerX + cos(angle) * radius;
+				float y = ma->centerY + sin(angle) * radius;
 				ma->powers[i].position = glm::vec2(x, y);
 				ma->powers[i].currIdx = i;
 				ma->powers[i].targetIdx = i;
 				ma->baseAngles.push_back(angle);
 			}
+
 		}
 
 
@@ -118,12 +121,12 @@ void UIManager::update(const OtherPlayerStats& p) {
 	switch (currState) {
 	case GameState::LOBBY:
 		for (auto* img : matchElements) {
-			img->Update(p);
+			img->Update(p, scWidth, scHeight);
 		}
 		break;
 	case GameState::MATCH:
 		for (auto* img : matchElements) {
-			img->Update(p);
+			img->Update(p, scWidth, scHeight);
 		}
 		break;
 	}
@@ -206,4 +209,9 @@ void UIManager::TriggerAnim(int anim) {
 			}
 		}
 	}
+}
+
+void UIManager::SetDim(int width, int height) {
+	scWidth = width;
+	scHeight = height;
 }

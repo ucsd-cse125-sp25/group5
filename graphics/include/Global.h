@@ -24,6 +24,3 @@ struct OtherPlayerStats {
     ElementType currElem = ElementType::WATER;
     //unsigned int ID : 4;
 };
-
-constexpr float MANA_RADIUS = 75.0f;
-constexpr float SPIN_DURATION = 0.5f;

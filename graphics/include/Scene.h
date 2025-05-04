@@ -33,6 +33,7 @@ private:
 
 	GLuint depthMapFBO, depthMap;
 	glm::mat4 lightSpaceMatrix;
+	int scWidth, scHeight;
 
 	//Skeleton* skel;
 	//Skin* skin;
@@ -45,7 +46,7 @@ public:
 	bool initShaders();
 	void initShadows();
 	void loadObjects();
-	void update(ClientGame* client);
+	void update(ClientGame* client, int scWidth, int scHeight);
 	void draw(Camera* cam);
 	void TriggerAnim(int anim);
 };

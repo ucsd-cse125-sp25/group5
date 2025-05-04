@@ -8,9 +8,9 @@
 
 class UIImg {
 public:
-	virtual void Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio);
+	virtual void Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio);
 	virtual void Draw();
-	virtual void Update(const OtherPlayerStats& p);
+	virtual void Update(const OtherPlayerStats& p, int scWidth, int scHeight);
 	virtual void SetTexture(GLuint tex);
 
 	std::string name;
@@ -28,9 +28,9 @@ private:
 
 class HealthBar : public UIImg {
 public:
-	void Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) override;
+	void Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p) override;
+	void Update(const OtherPlayerStats& p, int scWidth, int scHeight) override;
 	void SetTexture(GLuint texture);
 
 	std::string name;
@@ -58,17 +58,21 @@ struct MagicElement {
 
 class Magic : public UIImg {
 public:
-	void Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) override;
+	void Init(int scWidth, int scHeight, std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p);
+	void Update(const OtherPlayerStats& p, int scWidth, int scHeight) override;
+	void UpdateLayout(int scWidth, int scHeight);
 	void SetTexture(GLuint texture);
 	void StartRotate(int anim);
 
 	std::vector<MagicElement> powers;
 	std::vector<float> baseAngles;
 	std::string name;
-	float centerX;
-	float centerY;
+	float percX;
+	float percY;
+	float centerX = 0.0f;
+	float centerY = 0.0f;
+	float manaRadius = 0.06f;
 private:
 	std::vector<float> quad;
 	std::vector<float> mana;
@@ -85,7 +89,13 @@ private:
 	float uiWidth;
 	float uiHeight;
 	float manaWidth;
+	std::vector<float> position;
+	float percent;
+	float ratio;
+	int scWidth, scHeight;
 
 	double animStart;
 	bool animating;
+	float spinDuration = 0.5f;
+
 };

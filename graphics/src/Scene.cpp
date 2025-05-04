@@ -53,12 +53,13 @@ void Scene::loadObjects() {
 	}
 }
 
-void Scene::update(ClientGame* client) {
+void Scene::update(ClientGame* client, int width, int height) {
+	scWidth = width;
+	scHeight = height;
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
-	//cube->setModel(client->GameState.cubeModel);
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
@@ -111,6 +112,7 @@ void Scene::update(ClientGame* client) {
 		}
 	}
   
+	uimanager->SetDim(scWidth, scHeight);
 	uimanager->update(dummy);
 }
 
@@ -174,7 +176,7 @@ void Scene::draw(Camera* cam) {
 	}
 
 	//RENDER PASS
-	glViewport(0, 0, 1200, 900);
+	glViewport(0, 0, scWidth, scHeight);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//We will use a global shader for everything for right now
