@@ -35,7 +35,7 @@ ServerGame::ServerGame(void)
 
     //initialization of the game state
 	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
- //
+ 
     for (int i = 0; i < numCubes; i++) {
 		GameObject* cube = physicsSystem.makeGameObject();
 		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
