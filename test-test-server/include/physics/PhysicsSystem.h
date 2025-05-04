@@ -43,6 +43,8 @@ public:
 	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
     vec3 getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution);
 
+    int getNextId();
+    
     std::pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis);
     
 

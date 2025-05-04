@@ -12,14 +12,8 @@ typedef glm::quat quat;
 
 using namespace std;
 
-/**
- * Cubic Bezier curve function
- * @param A Start point
- * @param B Control point 1
- * @param C Control point 2
- * @param t Parameter (0 <= t <= 1), where t represents the interpolation factor
- * @return Point on the curve at parameter t
- */
+int nextid = 4;
+
 /**
  * Cubic Bezier curve function
  * @param A Start point
@@ -320,7 +314,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 
 GameObject* PhysicsSystem::makeGameObject() {
     GameObject* obj = new GameObject;
-    obj->id = dynamicObjects.size() + staticObjects.size() + 10;
+    obj->id = getNextId();
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
@@ -338,18 +332,14 @@ GameObject* PhysicsSystem::makeGameObject() {
 
 
 GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
-	GameObject* obj = new GameObject;
-	obj->id = dynamicObjects.size() + staticObjects.size() + 10;
+
+	GameObject* obj = makeGameObject();
+
 	obj->transform.position = position;
 	obj->transform.rotation = rotation;
-	obj->transform.scale = glm::vec3(1.0f);
-
-	obj->physics = new PhysicsComponent();
-	obj->collider = new ColliderComponent();
 
 	obj->collider->halfExtents = halfExtents;
 
-	obj->isDynamic = false;
 	obj->transform.aabb = getAABB(obj);
 
     return obj;
@@ -403,4 +393,9 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
     }
 
     return pair<vec3, float>(minAxis, minOverlap);
+}
+
+int PhysicsSystem::getNextId() {
+    nextid++;
+    return nextid-1;
 }
