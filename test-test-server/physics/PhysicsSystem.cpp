@@ -278,18 +278,12 @@ GameObject* PhysicsSystem::makeGameObject() {
 
 
 GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
-	GameObject* obj = new GameObject;
-	obj->id = dynamicObjects.size();
+	GameObject* obj = makeGameObject();
 	obj->transform.position = position;
 	obj->transform.rotation = rotation;
-	obj->transform.scale = glm::vec3(1.0f);
-
-	obj->physics = new PhysicsComponent();
-	obj->collider = new ColliderComponent();
 
 	obj->collider->halfExtents = halfExtents;
 
-	obj->isDynamic = false;
 	obj->transform.aabb = getAABB(obj);
 
     return obj;
