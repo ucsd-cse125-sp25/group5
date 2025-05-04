@@ -20,14 +20,6 @@ using namespace std;
  * @param t Parameter (0 <= t <= 1), where t represents the interpolation factor
  * @return Point on the curve at parameter t
  */
-/**
- * Cubic Bezier curve function
- * @param A Start point
- * @param B Control point 1
- * @param C Control point 2
- * @param t Parameter (0 <= t <= 1), where t represents the interpolation factor
- * @return Point on the curve at parameter t
- */
 glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float t) {
     glm::vec3 AB = glm::mix(A, B, t);
     glm::vec3 BC = glm::mix(B, C, t);
@@ -352,3 +344,21 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
 
     return pair<vec3, float>(minAxis, minOverlap);
 }
+
+void deleteGameObject(GameObject* obj) {
+    delete obj->physics;
+    delete obj->collider;
+    delete obj->behavior;
+    delete obj;
+}
+
+void deleteGameObjectVector(std::vector<GameObject*>& obj) {
+    for (auto& go : obj) {
+        deleteGameObject(go);
+    }
+}
+void PhysicsSystem::deleteAllGameObjects() {
+    deleteGameObjectVector(movingObjects);
+    deleteGameObjectVector(staticObjects);
+}
+
