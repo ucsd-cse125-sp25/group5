@@ -59,7 +59,7 @@ void ClientGame::update(PlayerIntentPacket intent)
                 playerId = packet.entity_id;
                 i += sizeof(JoinResponsePacket);
 
-                printf("Received playerId %d from server\n", packet.entity_id);
+                //printf("Received playerId %d from server\n", packet.entity_id);
                 continue;
             }
 
@@ -75,8 +75,8 @@ void ClientGame::update(PlayerIntentPacket intent)
                     break;
                 }
             }
-			printf("Received num_entities: %d\n", GameState.num_entities);
-			printf("First entity is of type %d\n", GameState.entities[0].type);
+			//printf("Received num_entities: %d\n", GameState.num_entities);
+			//printf("First entity is of type %d\n", GameState.entities[0].type);
         }
     }
 

@@ -19,6 +19,8 @@ public:
 
 	void SetGameState(GameState state);
 
+	void TriggerAnim(int anim);
+
 	GameState currState = GameState::MATCH;
 private:
 	//GLuint shaderProgram;

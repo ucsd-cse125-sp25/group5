@@ -49,7 +49,8 @@ private:
 struct MagicElement {
 	std::string name;
 	glm::vec2 position;
-	float angleOffset;
+	int currIdx;
+	int targetIdx;
 	float currMana;
 	GLuint borderTexture;
 	GLuint manaTexture;
@@ -61,8 +62,10 @@ public:
 	void Draw() override;
 	void Update(const OtherPlayerStats& p);
 	void SetTexture(GLuint texture);
+	void StartRotate(int anim);
 
 	std::vector<MagicElement> powers;
+	std::vector<float> baseAngles;
 	std::string name;
 	float centerX;
 	float centerY;
@@ -82,4 +85,7 @@ private:
 	float uiWidth;
 	float uiHeight;
 	float manaWidth;
+
+	double animStart;
+	bool animating;
 };

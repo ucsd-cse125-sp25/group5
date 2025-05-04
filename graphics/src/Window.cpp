@@ -251,6 +251,14 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_R:
                 resetCamera();
                 break;
+            case GLFW_KEY_Z:
+                //ROTATE CCW
+                scene->TriggerAnim(0);
+                break;
+            case GLFW_KEY_X:
+                //ROTATE CW
+                scene->TriggerAnim(1);
+                break;
             default:
                 break;
         }

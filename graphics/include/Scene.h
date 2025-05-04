@@ -47,4 +47,5 @@ public:
 	void loadObjects();
 	void update(ClientGame* client);
 	void draw(Camera* cam);
+	void TriggerAnim(int anim);
 };

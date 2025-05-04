@@ -1,6 +1,7 @@
 #include "UIManager.h"
 #include <iostream>
 #include "stb_image.h"
+#include <map>
 
 /**
 * UIStorage is a map that holds the texture configurations for UI elements
@@ -28,6 +29,10 @@ static std::unordered_map<std::string, std::tuple<std::string, std::string>> Mag
 	{"earth", {PROJECT_SOURCE_DIR + std::string("/assets/earth_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/earth_outline.png")}},
 	{"wood", {PROJECT_SOURCE_DIR + std::string("/assets/wood_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/wood_outline.png")}},
 	{"metal", {PROJECT_SOURCE_DIR + std::string("/assets/metal_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/metal_outline.png")}}
+};
+
+static std::vector<std::string> MagicOrder{
+	"water", "fire", "earth", "wood", "metal"
 };
 
 //Loads textures and creates UI elements
@@ -60,10 +65,11 @@ void UIManager::Init() {
 
 		if (name == "magicback") {
 			Magic* ma = dynamic_cast<Magic*>(img);
-			for (const auto& pair : MagicUI) {
-				const std::string& elementName = pair.first;
-				const std::string& path1 = std::get<0>(pair.second);
-				const std::string& path2 = std::get<1>(pair.second);
+			for (const auto& key : MagicOrder) {
+				const auto& tuple = MagicUI[key];
+				const std::string& elementName = key;
+				const std::string& path1 = std::get<0>(tuple);
+				const std::string& path2 = std::get<1>(tuple);
 				const std::string& bar = elementName + "bar";
 				const std::string& border = elementName + "border";
 				LoadTexture(bar, path1);
@@ -77,14 +83,21 @@ void UIManager::Init() {
 
 			}
 
-			const float radius = 75;
 			const float total = ma->powers.size();
+			const auto startAngle = glm::radians(144.0f);
 			for (int i = 0; i < total; i++) {
-				float angle = glm::radians(360.0f / total * i);
-				float x = ma->centerX + cos(angle) * radius;
-				float y = ma->centerY + sin(angle) * radius;
+				float angle = startAngle - glm::radians(360.0f / total * i);
+
+				// Normalize to [0 2pi]
+				if (angle < 0.0f) {
+					angle += glm::two_pi<float>();
+				}
+				float x = ma->centerX + cos(angle) * MANA_RADIUS;
+				float y = ma->centerY + sin(angle) * MANA_RADIUS;
 				ma->powers[i].position = glm::vec2(x, y);
-				ma->powers[i].angleOffset = angle;
+				ma->powers[i].currIdx = i;
+				ma->powers[i].targetIdx = i;
+				ma->baseAngles.push_back(angle);
 			}
 		}
 
@@ -118,16 +131,16 @@ void UIManager::update(const OtherPlayerStats& p) {
 
 void UIManager::draw() {
 	switch (currState) {
-		case GameState::LOBBY:
-			for (auto* img : matchElements) {
-				img->Draw();
-			}
-			break;
-		case GameState::MATCH:
-			for (auto* img : matchElements) {
-				img->Draw();
-			}
-			break;
+	case GameState::LOBBY:
+		for (auto* img : matchElements) {
+			img->Draw();
+		}
+		break;
+	case GameState::MATCH:
+		for (auto* img : matchElements) {
+			img->Draw();
+		}
+		break;
 	}
 }
 
@@ -183,4 +196,14 @@ void UIManager::UnloadAllTextures() {
 void UIManager::SetGameState(GameState newState) {
 	if (currState == newState) return;
 	currState = newState;
+}
+
+void UIManager::TriggerAnim(int anim) {
+	for (auto* img : matchElements) {
+		if (Magic* ma = dynamic_cast<Magic*>(img)) {
+			if (anim == 0 || anim == 1) {
+				ma->StartRotate(anim);
+			}
+		}
+	}
 }

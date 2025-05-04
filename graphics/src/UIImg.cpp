@@ -254,7 +254,7 @@ void Magic::Update(const OtherPlayerStats& p) {
 	float earthPerc = float(p.currEarth) / float(p.maxEarth);
 	float woodPerc = float(p.currWood) / float(p.maxWood);
 	float metalPerc = float(p.currMetal) / float(p.maxMetal);
-	std::cout << waterPerc << " " << firePerc << " " << earthPerc << " " << woodPerc << " " << metalPerc << std::endl;
+	//std::cout << waterPerc << " " << firePerc << " " << earthPerc << " " << woodPerc << " " << metalPerc << std::endl;
 	int size = powers.size();
 	for (int i = 0; i < size; i++) {
 		const std::string name = powers[i].name;
@@ -272,6 +272,38 @@ void Magic::Update(const OtherPlayerStats& p) {
 		}
 		else if (name == "metal") {
 			powers[i].currMana = metalPerc;
+		}
+	}
+
+	double now = glfwGetTime();
+	if (animating) {
+		double elapsed = now - animStart;
+		float t = elapsed / SPIN_DURATION;
+		if (elapsed >= SPIN_DURATION) {
+			animating = false;
+			for (int i = 0; i < size; i++) {
+				powers[i].currIdx = powers[i].targetIdx;
+				float angle = baseAngles[powers[i].currIdx];
+				float x = centerX + cos(angle) * MANA_RADIUS;
+				float y = centerY + sin(angle) * MANA_RADIUS;
+				powers[i].position = glm::vec2(x, y);
+			}
+		}
+		else {
+			for (int i = 0; i < size; i++) {
+				int curr = powers[i].currIdx;
+				int target = powers[i].targetIdx;
+				float startAngle = baseAngles[curr];
+				float endAngle = baseAngles[target];
+
+				if (endAngle - startAngle > glm::pi<float>()) endAngle -= glm::two_pi<float>();
+				else if (startAngle - endAngle > glm::pi<float>()) endAngle += glm::two_pi<float>();
+
+				float nowAngle = glm::mix(startAngle, endAngle, t);
+				float x = centerX + cos(nowAngle) * MANA_RADIUS;
+				float y = centerY + sin(nowAngle) * MANA_RADIUS;
+				powers[i].position = glm::vec2(x, y);
+			}
 		}
 	}
 }
@@ -297,14 +329,20 @@ void Magic::Draw() {
 	glUniform1f(glGetUniformLocation(manaProgram, "time"), seconds);
 	glBindVertexArray(elemVAO);
 	for (const auto& p : powers) {
+		float scale = (p.targetIdx == 0) ? 1.2f : 0.8f;
+		//translate, scale then translate by the offset
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(p.position.x - manaWidth / 2.0f, p.position.y - manaWidth / 2.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(p.position.x, p.position.y, 0.0f));
+		model = glm::scale(model, glm::vec3(scale, scale, 1.0f));
+		model = glm::translate(model, glm::vec3(-manaWidth / 2.0f, -manaWidth / 2.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(manaProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glUniform1f(glGetUniformLocation(manaProgram, "manaPercent"), p.currMana);
-		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), true);
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), 1);
+		int isSelected = (p.targetIdx == 0) ? 1 : 0;
+		glUniform1i(glGetUniformLocation(manaProgram, "selectedMana"), isSelected);
 		glBindTexture(GL_TEXTURE_2D, p.manaTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), false);
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), 0);
 		glBindTexture(GL_TEXTURE_2D, p.borderTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
@@ -316,4 +354,25 @@ void Magic::Draw() {
 
 void Magic::SetTexture(GLuint texture) {
 	backTexture = texture;
+}
+
+void Magic::StartRotate(int anim) {
+	if (animating) {
+		return;
+	}
+	//Calculate all the corresponding next indices
+	for (auto& p : powers) {
+		int size = baseAngles.size();
+		if (anim == 0) {
+			p.targetIdx = (p.targetIdx - 1 + size) % size;
+		}
+		else if (anim == 1) {
+			p.targetIdx = (p.targetIdx + 1) % size;
+		}
+	}
+
+	//Set bool flag
+	animStart = glfwGetTime();
+	animating = true;
+	
 }

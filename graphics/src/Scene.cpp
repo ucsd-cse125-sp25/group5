@@ -19,7 +19,6 @@ void Scene::createGame() {
 	//Necessary for the uimanager, will change once network protocol gets updated
 	dummy.maxHP = 250;
 	dummy.currHP = dummy.maxHP;
-	dummy.ID = 0;
 	test = new PlayerObject();
 
 	//Cinema
@@ -98,8 +97,8 @@ void Scene::update(ClientGame* client) {
 			glm::vec3 island_max = glm::vec3(0, 0, 0);
 			island_max += island_extents;
 
-			printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
-			printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
+			//printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
+			//printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
 			
 			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
 			cu->setModel(entity.model);
@@ -221,4 +220,8 @@ void Scene::draw(Camera* cam) {
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
 	skybox->draw(cam);
 	uimanager->draw();
+}
+
+void Scene::TriggerAnim(int anim) {
+	uimanager->TriggerAnim(anim);
 }
