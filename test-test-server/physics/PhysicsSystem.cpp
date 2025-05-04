@@ -176,26 +176,19 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 }
 
-glm::vec3 PhysicsSystem::getInputVelocity(const PlayerIntentPacket& intent, int playerId) {
+vec3 PhysicsSystem::getInputVelocity(const PlayerIntentPacket& intent, int playerId) {
 	//process player input
-	GameObject* target = NULL;
-	for (auto obj : playerObjects) {
-		if (obj->id == playerId) {
-			target = obj;
-			break;
-		}
-	}
-	if (target == NULL) {
-		return glm::vec3(0.0f);
-	}
+	GameObject* target = getPlayerObjectById(playerId);
+    if (target == NULL) {
+        return glm::vec3(0.0f);
+    }
+	
 	float azimuth = glm::radians(-intent.azimuthIntent);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
 	glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
-	//glm::vec3 translation = glm::vec3(target.cubeModel[3]);
 	glm::vec3 translation = target->transform.position;
 	glm::vec3 right = glm::normalize(glm::cross(up, forward));
-
 
 	glm::vec3 toRet = glm::vec3(0.0f);
 
@@ -240,12 +233,6 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
         return;
     }
 
-   /* if (intent.moveLeftIntent)
-    {
-
-		target->transform.position.x -= 0.1f;
-    }*/
-
     glm::vec3 delta = glm::vec3(0.015f);
     float azimuth = glm::radians(-intent.azimuthIntent);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -255,49 +242,7 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 	glm::vec3 translation = target->transform.position;
     glm::vec3 right = glm::normalize(glm::cross(up, forward));
 
-    //GameState.cubeModel = glm::rotate(GameState.cubeModel, azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
     
-
-    //process
-  //  if (intent.moveLeftIntent)
-  //  {
-		//target->physics->velocity += (-right) * delta;  
-  //      //translation += (-right) * delta;
-  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f));
-  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
-  //  }
-  //  if (intent.moveRightIntent) {
-		//target->physics->velocity += right * delta;
-  //      //translation += right * delta;
-  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
-  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
-  //  }
-  //  if (intent.moveUpIntent) {
-  //      translation += up * delta;
-  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
-  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
-  //      
-  //  }
-  //  if (intent.moveDownIntent) {
-  //      translation += (-up) * delta;
-  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
-  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
-  //  }
-  //  if (intent.moveForwardIntent) {
-		//target->physics->velocity += -forward * delta;
-  //      //translation += (-forward) * delta;
-  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, -0.1f));
-  //  }
-  //  if (intent.moveBackIntent) {
-		//target->physics->velocity += (forward) * delta;
-  //      //translation += forward * delta;
-  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
-  //  }
-
-    //glm::mat4 id = glm::mat4(1.0f);
-    //GameState.cubeModel = glm::translate(GameState.cubeModel, translation);
-
-    // Update the line causing the error to properly convert the quaternion to a vec4  
     //target->transform.rotation = glm::vec4(glm::quat_cast(rotation).x, glm::quat_cast(rotation).y, glm::quat_cast(rotation).z, glm::quat_cast(rotation).w);
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
     target->transform.rotation = q;
@@ -392,4 +337,13 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
 int PhysicsSystem::getNextId() {
     nextid++;
     return nextid-1;
+}
+
+GameObject* PhysicsSystem::getPlayerObjectById(int id) {
+    for (auto obj : playerObjects) {
+        if (obj->id == id) {
+            return obj;
+        }
+    }
+    return nullptr;
 }
