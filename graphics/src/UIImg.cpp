@@ -252,7 +252,7 @@ void Magic::Init(std::vector<float> startPerc, float p, float r) {
 void Magic::Update(const OtherPlayerStats& p) {
 	//UPDATE ALL ELEMENTS OF THE UI FROM WINDOWWIDTH/WINDOWHEIGHT
 	UpdateLayout();
-	 
+
 	//loop through each struct and update according to the player
 	float waterPerc = float(p.currWater) / float(p.maxWater);
 	float firePerc = float(p.currFire) / float(p.maxFire);

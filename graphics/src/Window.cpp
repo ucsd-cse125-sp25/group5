@@ -149,24 +149,16 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 // Close the window. This causes the program to also terminate.
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
-
             case GLFW_KEY_R:
                 resetCamera();
-                break;
-            case GLFW_KEY_Z:
-                //ROTATE CCW
-                scene->TriggerAnim(0);
-                break;
-            case GLFW_KEY_X:
-                //ROTATE CW
-                scene->TriggerAnim(1);
                 break;
             default:
                 break;
         }
 
     }
-
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) { scene->TriggerAnim(0); }; //Rotate UI CCW
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) { scene->TriggerAnim(1); }; //Rotate UI CW
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;

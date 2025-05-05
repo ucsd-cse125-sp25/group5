@@ -32,9 +32,9 @@ void Scene::createGame() {
 		players[i] = new PlayerObject();
 	}
 
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 }
 
 void Scene::loadObjects() {
