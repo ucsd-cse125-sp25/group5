@@ -3,6 +3,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include "physics/BehaviorComponent.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -13,6 +14,8 @@ typedef glm::quat quat;
 using namespace std;
 
 int nextid = 4;
+
+class BehaviorComponent;
 
 /**
  * Cubic Bezier curve function
@@ -51,29 +54,25 @@ void PhysicsSystem::tick(float dt) {
     }
 }
 
-void PhysicsSystem::integrate(GameObject* obj, float dt) {
+void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
     // apply force 
     obj->physics->velocity += obj->physics->acceleration * dt;
 
-	
-
     //apply drag
-	obj->physics->velocity *= (1.0f - obj->physics->drag * dt);
+    obj->physics->velocity *= (1.0f - obj->physics->drag * dt);
 
-	//clamp velocity
-	if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
-		obj->physics->velocity = glm::normalize(obj->physics->velocity) * obj->physics->maxSpeed;
-	}
+    //clamp velocity
+    if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
+        obj->physics->velocity = glm::normalize(obj->physics->velocity) * obj->physics->maxSpeed;
+    }
 
-    //only apply the player velocity for movement
-    obj->physics->velocity += getInputVelocity(PlayerIntents[obj->id], obj->id);
-
-	obj->transform.position += obj->physics->velocity * dt;
-
-    //remove it after
-    obj->physics->velocity -= getInputVelocity(PlayerIntents[obj->id], obj->id);
+    obj->transform.position += obj->physics->velocity * dt;
 
     obj->transform.aabb = getAABB(obj);
+}
+
+void PhysicsSystem::integrate(GameObject* obj, float dt) {
+	defaultIntegrate(obj, dt);
 }
 
 /**
