@@ -6,6 +6,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <unordered_map>
+#include "physics/BehaviorComponent.h"
 
 unsigned int ServerGame::client_id;
 
@@ -94,6 +95,9 @@ void ServerGame::update()
    {
         printf("client %d has been connected to the server\n",client_id);
         GameObject* player = physicsSystem.makeGameObject();
+		player->behavior = new PlayerBehaviorComponent(player, physicsSystem); //for player objects, we set a behavior component
+		//for player objects, we set a behavior component
+
 		player->type = PLAYER;
         //place where player gets added
         //physicsSystem.playerObjects[client_id] = player;

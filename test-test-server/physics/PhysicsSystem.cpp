@@ -72,7 +72,12 @@ void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
 }
 
 void PhysicsSystem::integrate(GameObject* obj, float dt) {
-	defaultIntegrate(obj, dt);
+	if (obj->behavior != nullptr) {
+		obj->behavior->integrate(obj, dt, *this);
+	}
+	else {
+		defaultIntegrate(obj, dt);
+	}
 }
 
 /**

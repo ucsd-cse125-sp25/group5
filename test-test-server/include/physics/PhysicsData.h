@@ -1,6 +1,7 @@
 #include <stdafx.h>
 #include "shared/ObjectData.h"
 
+
 #pragma once
 using namespace std;
 
@@ -10,6 +11,7 @@ typedef glm::vec3 vec3;
 struct PhysicsComponent;
 struct ColliderComponent;
 struct TestTestBehaviorComponent;
+class BehaviorComponent;
 
 const float GRAVITY = 9.8f * 0.1f;
 
@@ -67,7 +69,8 @@ struct GameObject {
 	Transform transform;
 	PhysicsComponent* physics = nullptr;
 	ColliderComponent* collider = nullptr;
-	TestTestBehaviorComponent* behavior = nullptr;
+	//TestTestBehaviorComponent* behavior = nullptr;
+	BehaviorComponent* behavior = nullptr; // Pointer to the behavior component
 	EntityType type = EntityType::ENTITY; // Default to ENTITY
 
 
