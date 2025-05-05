@@ -35,7 +35,7 @@ void ClientGame::sendActionPackets(PlayerIntentPacket intent)
 
     intent.serialize(packet_data);
 
-	//printf("client sending action packet to server with the following data: %d %d %d %d\n", intent.moveLeftIntent, intent.moveRightIntent, intent.moveDownIntent, intent.moveUpIntent);    
+	//printf("client sending action packet to server with the following data: %d %d %d %d\n", intent.mofffffeftIntent, intent.moveRightIntent, intent.moveDownIntent, intent.moveUpIntent);    
     NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
 }
 

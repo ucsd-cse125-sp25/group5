@@ -9,7 +9,7 @@ typedef glm::vec3 vec3;
 // Forward declarations for components
 struct PhysicsComponent;
 struct ColliderComponent;
-struct BehaviorComponent;
+struct TestTestBehaviorComponent;
 
 const float GRAVITY = 9.8f * 0.1f;
 
@@ -55,7 +55,7 @@ enum class MoveState {
 	InAir
 };
 
-struct BehaviorComponent {
+struct TestTestBehaviorComponent {
 	MoveState state = MoveState::Idle;
 
 	float dashCooldown = 0.0f;
@@ -67,7 +67,7 @@ struct GameObject {
 	Transform transform;
 	PhysicsComponent* physics = nullptr;
 	ColliderComponent* collider = nullptr;
-	BehaviorComponent* behavior = nullptr;
+	TestTestBehaviorComponent* behavior = nullptr;
 	EntityType type = EntityType::ENTITY; // Default to ENTITY
 
 

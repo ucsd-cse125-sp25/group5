@@ -83,24 +83,7 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
  * @return void
 */
 void PhysicsSystem::handleGrapple(GameObject* obj, float dt) {
-    PhysicsComponent* phys = obj->physics;
-    phys->grappleTimer += dt;
-
-    // Calculate the new position using a cubic Bezier curve
-	float t = glm::clamp(phys->grappleTimer / 0.6f, 0.0f, 1.0f);
-    glm::vec3 start = obj->transform.position;
-    glm::vec3 mid = (start + phys->grappleTarget) * 0.5f + glm::vec3(0, 5.0f, 0);
-	glm::vec3 newPos = bezier(start, mid, phys->grappleTarget, t);
-
-    // Update the velocity and position of the object
-	phys->velocity = (newPos - obj->transform.position) / dt;
-    obj->transform.position = newPos;
-
-    // Update grapple state
-	if (t >= 1.0f) {
-		phys->grappling = false;
-		phys->grappleTimer = 0.0f;
-	}
+    
 }
 
 /**
@@ -220,6 +203,9 @@ glm::vec3 PhysicsSystem::getInputVelocity(const PlayerIntentPacket& intent, int 
 	if (intent.moveBackIntent) {
 		toRet += forward;
 	}
+
+
+
 
     return toRet;
 }

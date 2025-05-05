@@ -30,6 +30,8 @@ struct Packet {
 };
 
 struct PlayerIntentPacket {
+
+    //movement
     bool moveLeftIntent = false;
     bool moveRightIntent = false;
     bool moveUpIntent = false;
@@ -38,10 +40,19 @@ struct PlayerIntentPacket {
     bool moveBackIntent = false;
     float azimuthIntent = 0.0f;
     float inclineIntent = 0.0f;
+
+    //attack triggers
 	bool rightClickIntent = false;
 	bool leftClickIntent = false;
     bool scrollUpIntent = false;
 	bool scrollDownIntent = false;
+
+    //powers
+	bool hit1Intent = false;
+	bool hit2Intent = false;
+	bool hit3Intent = false;
+	bool hit4Intent = false;
+	bool hit5Intent = false;
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(PlayerIntentPacket));
