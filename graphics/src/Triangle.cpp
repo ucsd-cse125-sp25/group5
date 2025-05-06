@@ -108,6 +108,7 @@ void Triangle::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     // Bind the VAO
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
     GLint texLoc = glGetUniformLocation(shader, "tex");
     glUniform1i(texLoc, 0);
 

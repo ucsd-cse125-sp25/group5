@@ -3,6 +3,9 @@
 
 #include <vector>
 #include "Channel.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 
 class Animation {
@@ -12,9 +15,12 @@ public:
     float stopTime;
     int channelCount;
     std::vector<Channel> channels;
+    std::vector<std::string> names;
     bool Load(const char* file);
     bool animate;
+    bool import;
     void doAnimation();
+    void Load(const aiScene* scene, int animIndex);
 };
 
 #endif

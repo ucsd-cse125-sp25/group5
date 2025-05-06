@@ -65,6 +65,9 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	root->Load(iscene->mRootNode, &nodeToBone, skin);
 	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex]);
 
+	//load animations
+	std::cout << "NUMBER OF ANIMATIONS: " << iscene->mNumAnimations << std::endl;
+	animation->Load(iscene, 0);
 }
 
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {

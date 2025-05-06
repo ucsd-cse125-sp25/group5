@@ -53,6 +53,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 	}
 
 	if (mMesh->HasTextureCoords(0)) {
+		std::cout << "FOUND UVS" << std::endl;
 		uvs.reserve(mMesh->mNumVertices);
 		for (int t = 0; t < mMesh->mNumVertices; t++) {
 			float x = mMesh->mTextureCoords[0][t].x;
@@ -60,6 +61,9 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 			glm::vec2 uv(x, y);
 			uvs.push_back(uv);
 		}
+	}
+	else {
+		std::cout << "DID NOT FIND UVS" << std::endl;
 	}
 
 	this->tri = new Triangle(positions, normals, uvs, triangles);
