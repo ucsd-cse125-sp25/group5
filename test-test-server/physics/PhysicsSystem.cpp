@@ -15,6 +15,12 @@ using namespace std;
 
 int nextid = 4;
 
+std::array<std::pair<int,int>,12> edges = {{
+    {0,1},{1,3},{3,2},{2,0},   // bottom face
+    {4,5},{5,7},{7,6},{6,4},   // top face
+    {0,4},{1,5},{2,6},{3,7}    // vertical pillars
+}};
+
 class BehaviorComponent;
 
 /**
@@ -37,6 +43,13 @@ glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, flo
  * @return void
 */
 void PhysicsSystem::tick(float dt) {
+    // check for dt being too large to avoid large jumps
+    if (dt > 0.1f) {
+        dt = 0.1f;
+    } else if (dt < 0.0f) {
+        dt = 0.0f;
+    }
+
     // Update all dynamic objects
     for (GameObject* obj : movingObjects) {
 
@@ -58,6 +71,8 @@ void PhysicsSystem::tick(float dt) {
 }
 
 void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
+    assert(obj != NULL);
+
     // apply force 
     obj->physics->velocity += obj->physics->acceleration * dt;
 
@@ -90,7 +105,7 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
  * @return void
 */
 void PhysicsSystem::handleGrapple(GameObject* obj, float dt) {
-    
+    assert(obj != NULL);
 }
 
 /**
@@ -103,6 +118,7 @@ void PhysicsSystem::handleGrapple(GameObject* obj, float dt) {
  * @note The max vector is the maximum corner of the AABB
  */
 AABB PhysicsSystem::getAABB(GameObject* obj) {
+    assert(obj != NULL);
     glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
     glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
     return { min, max };
@@ -115,6 +131,8 @@ AABB PhysicsSystem::getAABB(GameObject* obj) {
  * @note This function checks for collisions between the dynamic object and all static objects in the scene
 */
 void PhysicsSystem::handleCollisions(GameObject* obj) {
+    assert(obj != NULL);
+
     // Check for collisions with static objects
     for (auto sobj : staticObjects) {
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
@@ -156,6 +174,8 @@ vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVel
 }
 
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status) {
+    assert (go1 != NULL && go2 != NULL);
+
     vec3 normal = glm::normalize(penetration.first);
     float overlap = penetration.second;
 
@@ -164,16 +184,17 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
         overlapFraction = 1.0f;
     }
 
+    // Velocity resolution: bounce off if moving into each other
+    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+    go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+
+    // Positional correction: push both objects out of each other
     go1->transform.position += normal * (overlap * overlapFraction);
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
 
     // Update AABBs
     go1->transform.aabb = getAABB(go1);
     go2->transform.aabb = getAABB(go2);
-
-    // Velocity resolution: bounce off if moving into each other
-    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
-    go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 }
 
 vec3 PhysicsSystem::getInputVelocity(const PlayerIntentPacket& intent, int playerId) {
@@ -346,3 +367,35 @@ GameObject* PhysicsSystem::getPlayerObjectById(int id) {
     }
     return nullptr;
 }
+
+vector<vec3> getAABBVertices(const AABB& aabb) {
+    vector<vec3> vertices(8);
+    vec3 min = aabb.min;
+    vec3 max = aabb.max;
+
+    vertices[0] = vec3(min.x, min.y, min.z);
+    vertices[1] = vec3(max.x, min.y, min.z);
+    vertices[2] = vec3(min.x, max.y, min.z);
+    vertices[3] = vec3(max.x, max.y, min.z);
+    vertices[4] = vec3(min.x, min.y, max.z);
+    vertices[5] = vec3(max.x, min.y, max.z);
+    vertices[6] = vec3(min.x, max.y, max.z);
+    vertices[7] = vec3(max.x, max.y, max.z);
+
+    return vertices;
+}
+
+vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
+    vector<vec3> vertices = getAABBVertices(aabb);
+    vector<vec4> worldSpaceVertices(vertices.size());
+
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        vec4 vertex = glm::vec4(vertices[i], 1.0f);
+        worldSpaceVertices[i] = rotation * vertex + vec4(position, 0.0f);
+    }
+
+    return worldSpaceVertices;
+}
+
+
+
