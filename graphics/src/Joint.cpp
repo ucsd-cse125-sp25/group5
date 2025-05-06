@@ -46,7 +46,7 @@ void Joint::Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone,
 
 	strcpy(this->name, node->mName.C_Str());
 	std::cout << this->name <<  " loaded!" << std::endl;
-	skely->JNameMap.emplace(this->name, skely->joints.size() - 1);
+	skely->JNameMap.emplace(std::string(this->name), skely->joints.size() - 1);
 
 	if (std::string(this->name) == "rp_manuel_animated_001_dancing_hip") {
 		xDof->SetValue(1.6f);
