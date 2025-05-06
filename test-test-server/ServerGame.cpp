@@ -34,17 +34,17 @@ ServerGame::ServerGame(void)
 
  
 
-    //initialization of the game state
-	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
- 
-    // create a random number of cubes which are static game objects
-    for (int i = 0; i < numCubes; i++) {
-		GameObject* cube = physicsSystem.makeGameObject();
-		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
-		cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
-        cube->type = CUBE;
-		physicsSystem.addStaticObject(cube);
-    }
+ //   //initialization of the game state
+	//int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+ //
+ //   // create a random number of cubes which are static game objects
+ //   for (int i = 0; i < numCubes; i++) {
+	//	GameObject* cube = physicsSystem.makeGameObject();
+	//	cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
+	//	cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
+ //       cube->type = CUBE;
+	//	physicsSystem.addStaticObject(cube);
+ //   }
 
     //add an island
 	GameObject* island = physicsSystem.makeGameObject(glm::vec3(5.0f, -10.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), island_extents);
@@ -59,7 +59,7 @@ ServerGame::ServerGame(void)
 	physicsSystem.addDynamicObject(d_cube);
     physicsSystem.addMovingObject(d_cube);
 
-	printf("ServerGame::ServerGame created %d cubes\n", numCubes);
+	//printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix

@@ -117,8 +117,9 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
         if (penetration.second > 0.0f) {
             resolveCollision(obj, sobj, penetration, 0);
+            printf("Detected collision between %d and %d\n", obj->id, sobj->id);
         }  
-		printf("Detected collision between %d and %d\n", obj->id, sobj->id);
+		//printf("Detected collision between %d and %d\n", obj->id, sobj->id);
     }
 	printf("length of static objects %d", int(staticObjects.size()));
 

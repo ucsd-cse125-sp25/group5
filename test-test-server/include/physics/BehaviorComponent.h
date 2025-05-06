@@ -2,6 +2,8 @@
 #include "PhysicsData.h"  // Assuming you have a class that represents objects in your game world
 #include "PhysicsSystem.h"
 
+//define a constant here for jump force
+
 
 class BehaviorComponent {  
    
@@ -27,6 +29,9 @@ public:
 };
 
 class PlayerBehaviorComponent : public BehaviorComponent {
+
+const float JUMP_FORCE = 10.0f;
+
 public:
     // just forward to the base
     PlayerBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
