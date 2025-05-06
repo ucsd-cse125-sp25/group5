@@ -241,7 +241,6 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //glm::vec3 translation = glm::vec3(target.cubeModel[3]);
 	glm::vec3 translation = target->transform.position;
     glm::vec3 right = glm::normalize(glm::cross(up, forward));
-
     
     //target->transform.rotation = glm::vec4(glm::quat_cast(rotation).x, glm::quat_cast(rotation).y, glm::quat_cast(rotation).z, glm::quat_cast(rotation).w);
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
