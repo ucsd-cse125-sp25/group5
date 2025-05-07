@@ -3,7 +3,7 @@ project(MoonlightServer CXX)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(server_app
+add_executable(server_app1
     main.cpp
     ServerGame.cpp
     ServerNetwork.cpp
@@ -17,8 +17,8 @@ include_directories(
     "../include"
 )
 
-target_include_directories(server_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} "../include")
+target_include_directories(server_app1 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} "../include")
 
-target_link_libraries(server_app PRIVATE ws2_32 mswsock advapi32)
+target_link_libraries(server_app1 PRIVATE ws2_32 mswsock advapi32)
 
-target_compile_definitions(server_app PRIVATE _WIN32_WINNT=0x0601)
+target_compile_definitions(server_app1 PRIVATE _WIN32_WINNT=0x0601)

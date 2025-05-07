@@ -84,16 +84,25 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	
 	//dash movement
 	if (state == PlayerMovementState::DASH) {
-		obj->physics->velocity = getDirection(
-			glm::radians(-intent.azimuthIntent),
-			glm::radians(-intent.inclineIntent)
-		) * DASH_SPEED;
 		dashTimer -= deltaTime;
 
 		//once we're done, exit dash
 		if (dashTimer <= 0.0f) {
 			state = PlayerMovementState::IDLE;
 			dashTimer = 0.0f;
+			//slow down our player 
+			obj->physics->velocity *= 0.1f;
+		}
+	}
+	else if (state == PlayerMovementState::STOMP) {
+		//straight DOWN
+		
+		stompTimer -= deltaTime;
+
+		//once we're done, exit stomp
+		if (stompTimer <= 0.0f || checkBottom(obj, phys)) {
+			state = PlayerMovementState::IDLE;
+			stompTimer = 0.0f;
 		}
 	}
 	
@@ -104,10 +113,22 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		if (intent.hit4Intent) {
 			state = PlayerMovementState::DASH;
 			dashTimer = DASH_TIME;
+
+			//fix the velocity 
+			obj->physics->velocity = getDirection(
+				glm::radians(-intent.azimuthIntent),
+				glm::radians(-intent.inclineIntent)
+			) * DASH_SPEED;
+
 			return;
 		}
 		if (intent.hit5Intent) {
 			state = PlayerMovementState::STOMP;
+			stompTimer = STOMP_TIME;
+
+			//fix the velocity
+			obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
+
 			return;
 		}
 

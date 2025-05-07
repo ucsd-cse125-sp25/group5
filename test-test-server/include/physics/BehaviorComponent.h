@@ -40,12 +40,13 @@ const float JUMP_FORCE = 10.0f;
 const float DASH_TIME = 0.5f;
 const float DASH_SPEED = 20.0f;
 const float STOMP_TIME = 3.0f;
-const float STOMP_SPEED = 10.0f;
+const float STOMP_SPEED = 20.0f;
 
 
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
     float dashTimer = 0.0f;
+	float stompTimer = 0.0f;
     // just forward to the base
     PlayerBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
         : BehaviorComponent(self, physicsSystem)
