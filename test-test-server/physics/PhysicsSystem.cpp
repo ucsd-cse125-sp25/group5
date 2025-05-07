@@ -123,16 +123,16 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     }
 	printf("length of static objects %d", int(staticObjects.size()));
 
-    // Check for collisions between dynamic objects
-    for (auto dobj : movingObjects) {
-        if (obj->id == dobj->id) {
-            continue; // Skip self-collision
-        }
-        pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
-        if (penetration.second > 0.0f) {
-            resolveCollision(obj, dobj, penetration, 1);
-        }
-    }
+    //// Check for collisions between dynamic objects
+    //for (auto dobj : movingObjects) {
+    //    if (obj->id == dobj->id) {
+    //        continue; // Skip self-collision
+    //    }
+    //    pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
+    //    if (penetration.second > 0.0f) {
+    //        resolveCollision(obj, dobj, penetration, 1);
+    //    }
+    //}
     return;
 }
 
