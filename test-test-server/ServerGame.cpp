@@ -8,6 +8,9 @@
 #include <unordered_map>
 #include "physics/BehaviorComponent.h"
 
+#define TICKS_PER_SECOND 100
+#define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
+
 unsigned int ServerGame::client_id;
 
 std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
@@ -134,9 +137,9 @@ void ServerGame::update()
    endTime = std::chrono::high_resolution_clock::now();
    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
-   if (duration < 50) // If did not spend the whole tick (50ms)
+   if (duration < TICK_TIME_MILLS) // If did not spend the whole tick (50ms)
    {
-       std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+       std::this_thread::sleep_for(std::chrono::milliseconds(TICK_TIME_MILLS - duration));
    }
 }
 
@@ -158,6 +161,9 @@ void ServerGame::writeToGameState() {
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.players[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
+
+        //printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+        printf("position is %f %f %f\n", position.x, position.y, position.z);
     }
    
     //send all the dynamic objects
@@ -169,8 +175,8 @@ void ServerGame::writeToGameState() {
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
 
-		printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
-		printf("position is %f %f %f\n", position.x, position.y, position.z);
+		/*printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+		printf("position is %f %f %f\n", position.x, position.y, position.z);*/
     }
 
     //send all the static objects
@@ -234,8 +240,8 @@ void ServerGame::sendGameStatePackets()
     char packet_data[packet_size];
 
 
-	printf("Sending num_entities : %d\n", GameState.num_entities);
-	printf("First entity type: %d\n", GameState.entities[0].type);
+	/*printf("Sending num_entities : %d\n", GameState.num_entities);
+	printf("First entity type: %d\n", GameState.entities[0].type);*/
 
     //printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
     //printf("cube model is: ");
