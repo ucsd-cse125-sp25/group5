@@ -1,8 +1,11 @@
 ﻿// PlayerBehaviorComponent.cpp
+#define NOMINMAX
 #include "physics/BehaviorComponent.h"   // brings in both BehaviorComponent & PlayerBehaviorComponent
 #include "physics/PhysicsSystem.h"      // for any phys.integrate calls
 #include "physics/PhysicsData.h"        // for GameObject
 #include "ServerGame.h"
+#include <limits>
+
 
 
 
@@ -74,6 +77,67 @@ bool checkBottom(GameObject* obj, PhysicsSystem& phys) {
 	return false;
 }
 
+bool rayIntersectsAABB(const Ray& ray,
+	const AABB& box,
+	float& tHit)
+{
+	float tMin = (box.min.x - ray.origin.x) / ray.dir.x;
+	float tMax = (box.max.x - ray.origin.x) / ray.dir.x;
+	if (tMin > tMax) std::swap(tMin, tMax);
+
+	for (int i = 1; i < 3; ++i) {
+		float originComp = (i == 1 ? ray.origin.y : ray.origin.z);
+		float dirComp = (i == 1 ? ray.dir.y : ray.dir.z);
+		float bMin = (i == 1 ? box.min.y : box.min.z);
+		float bMax = (i == 1 ? box.max.y : box.max.z);
+
+		float t1 = (bMin - originComp) / dirComp;
+		float t2 = (bMax - originComp) / dirComp;
+		if (t1 > t2) std::swap(t1, t2);
+
+		tMin = std::max(tMin, t1);
+		tMax = std::min(tMax, t2);
+		if (tMin > tMax) return false;
+	}
+
+	// at this point [tMin, tMax] is the overlap interval.
+	// we want the first positive hit:
+	if (tMax < 0) return false;      // box is behind ray
+	tHit = tMin >= 0 ? tMin : tMax;  // if origin inside box, tMin<0 so use tMax
+	return true;
+}
+
+pair<glm::vec3, float> PlayerBehaviorComponent::handlePlayerGrapple(GameObject* obj, PhysicsSystem& phys) {
+
+	Ray ray;
+
+	ray.origin = obj->transform.position;
+	ray.dir = getDirection(
+		glm::radians(-phys.PlayerIntents[obj->id].azimuthIntent),
+		glm::radians(-phys.PlayerIntents[obj->id].inclineIntent)
+	);
+
+	float bestT = std::numeric_limits<float>::infinity();
+	GameObject* bestHitObj = nullptr;
+
+	for (auto* staticObj : phys.staticObjects) {
+		AABB box = staticObj->transform.aabb;
+		float t;
+		if (rayIntersectsAABB(ray, box, t) && t < bestT) {
+			bestT = t;
+			bestHitObj = staticObj;
+		}
+	}
+
+	if (bestHitObj) {
+		glm::vec3 hitPoint = ray.origin + ray.dir * bestT;
+		grappleTarget = bestHitObj;
+		return { hitPoint, bestT };
+	}
+	return { glm::vec3(0.0f, 0.0f, 0.0f), -1.0f };
+}
+
+
 //—— integrate — called once per tick
 void PlayerBehaviorComponent::integrate(GameObject* obj,
     float deltaTime,
@@ -105,6 +169,25 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			stompTimer = 0.0f;
 		}
 	}
+	else if (state == PlayerMovementState::GRAPPLE) {
+
+		grappleTimer -= deltaTime;
+		//see if we've collided, this whole thing could be optimized if we use the time as well 
+		pair<vec3, float> penetration = phys.getAABBpenetration(obj->transform.aabb, grappleTarget->transform.aabb);
+
+		//if we've collided with our target object, or if we've run out of time, release the grapple
+		if (grappleTimer <= 0.0f) {
+			printf(
+				"grapple timer expired or collided with target\n");
+
+			printf("grapple timer %f\n", grappleTimer);
+			printf("penetration %f\n", penetration.second);
+			obj->physics->velocity *= 0.1f;
+			state = PlayerMovementState::IDLE;
+			grappleTimer = 0.0f;
+			grappleTarget = nullptr;
+		}
+	}
 	
 
 	//regular movement
@@ -114,7 +197,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			state = PlayerMovementState::DASH;
 			dashTimer = DASH_TIME;
 
-			//fix the velocity 
+			//fix the velocity to the direction we wish to dash in
 			obj->physics->velocity = getDirection(
 				glm::radians(-intent.azimuthIntent),
 				glm::radians(-intent.inclineIntent)
@@ -122,7 +205,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 			return;
 		}
-		if (intent.hit5Intent) {
+		else if (intent.hit5Intent) {
 			state = PlayerMovementState::STOMP;
 			stompTimer = STOMP_TIME;
 
@@ -130,6 +213,31 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
 
 			return;
+		}
+		else if (intent.hit3Intent) {
+			//high jump
+			obj->physics->velocity += glm::vec3(0.0f, JUMP_FORCE * 2.0f, 0.0f);
+		}
+		else if (intent.hit2Intent) {
+			//our target point, we've also set the target object, this could probably use some restructuring
+			
+
+			//result
+			pair<glm::vec3, float> result = handlePlayerGrapple(obj, phys);
+
+			glm::vec3 target = result.first;
+
+			//we have a target
+			if (target != glm::vec3(0.0f, 0.0f, 0.0f)) {
+				//only start grappling if we have a target 
+				state = PlayerMovementState::GRAPPLE;
+				grappleTimer = result.second / GRAPPLE_SPEED;
+				//get our direction
+				glm::vec3 direction = target - obj->transform.position;
+				glm::vec3 normalizedDirection = glm::normalize(direction);
+				//lock the velocity
+				obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+			}
 		}
 
 		// apply force 

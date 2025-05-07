@@ -8,7 +8,8 @@
 enum class PlayerMovementState {
 	IDLE,
 	STOMP,
-    DASH
+    DASH,
+    GRAPPLE
 };
 
 class BehaviorComponent {  
@@ -40,18 +41,24 @@ const float JUMP_FORCE = 10.0f;
 const float DASH_TIME = 0.5f;
 const float DASH_SPEED = 20.0f;
 const float STOMP_TIME = 3.0f;
-const float STOMP_SPEED = 20.0f;
+const float STOMP_SPEED = 30.0f;
+const float GRAPPLE_SPEED = 15.0f;
+const float GRAPPLE_TIME = 10.0f;
 
 
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
     float dashTimer = 0.0f;
 	float stompTimer = 0.0f;
+    float grappleTimer = 0.0f;
+	GameObject* grappleTarget = nullptr;
     // just forward to the base
     PlayerBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
         : BehaviorComponent(self, physicsSystem)
     {
     }
+
+	pair<glm::vec3,float> handlePlayerGrapple(GameObject* obj, PhysicsSystem& phys);
 
     // override the abstract methods
     void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;

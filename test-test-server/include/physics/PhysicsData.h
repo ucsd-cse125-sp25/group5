@@ -49,6 +49,13 @@ struct ColliderComponent {
 	bool isTrigger = false; // no resolution if true
 };
 
+struct Ray {
+	glm::vec3 origin;
+	glm::vec3 dir; // *must* be normalized
+};
+
+
+
 enum class MoveState {
 	Idle,
 	Walking,

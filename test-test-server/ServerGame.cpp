@@ -18,6 +18,25 @@ std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
 unordered_map<int, int> clientToEntity;
  
+void spawnIslands(PhysicsSystem& physicsSystem) {
+	glm::vec3 islandCoordinates[7] = {
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(10.0f, 10.0f, 10.0f),
+		glm::vec3(-10.0f, -10.0f, -10.0f),
+		glm::vec3(20.0f, 20.0f, 20.0f),
+		glm::vec3(-20.0f, -20.0f, -20.0f),
+		glm::vec3(10.0f, -10.0f, -10.0f),
+		glm::vec3(-10.0f, 10.0f, 10.0f)
+	};
+
+	for (int i = 0; i < 7; i++) {
+		GameObject* island = physicsSystem.makeGameObject(islandCoordinates[i] * 2.0f, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), island_extents);
+		island->type = ISLAND;
+		physicsSystem.addStaticObject(island);
+	}
+}
+
+
 ServerGame::ServerGame(void)
 {
     // id's to assign clients for our table
@@ -50,9 +69,7 @@ ServerGame::ServerGame(void)
  //   }
 
     //add an island
-	GameObject* island = physicsSystem.makeGameObject(glm::vec3(5.0f, -10.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), island_extents);
-	island->type = ISLAND;
-	physicsSystem.addStaticObject(island);
+	spawnIslands(physicsSystem);
 
     //add a d_cube
 	GameObject* d_cube = physicsSystem.makeGameObject();
@@ -163,7 +180,7 @@ void ServerGame::writeToGameState() {
         GameState.players[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
 
         //printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
-        printf("position is %f %f %f\n", position.x, position.y, position.z);
+        //printf("position is %f %f %f\n", position.x, position.y, position.z);
     }
    
     //send all the dynamic objects
@@ -212,7 +229,7 @@ bool ServerGame::receiveFromClients()
         }
 
         receivedChanges = true;
-        printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
+        //printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
 
         int i = 0;
         while (i < (unsigned int)data_length)
