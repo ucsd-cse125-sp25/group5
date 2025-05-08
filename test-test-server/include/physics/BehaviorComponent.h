@@ -64,3 +64,17 @@ public:
     void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
     void handleCollision(GameObject* obj, const GameObject& other) override;
 };
+
+class ProjectileBehaviorComponent : public BehaviorComponent {
+
+public:
+	float speed;
+	float damage;
+
+	ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, float speed, float damage)
+		: BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage)
+	{
+	}
+	void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
+	void handleCollision(GameObject* obj, const GameObject& other) override;
+}
