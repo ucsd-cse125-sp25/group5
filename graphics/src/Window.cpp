@@ -241,16 +241,43 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
     // Check for a key press.
     int BURST = 10;
 
+	PlayerIntent.hit1Intent = false;
+	PlayerIntent.hit2Intent = false;
+	PlayerIntent.hit3Intent = false;
+	PlayerIntent.hit4Intent = false;
+	PlayerIntent.hit5Intent = false;
+
+
     if (action == GLFW_PRESS) {
         switch (key) {
             case GLFW_KEY_ESCAPE:
                 // Close the window. This causes the program to also terminate.
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
-
             case GLFW_KEY_R:
                 resetCamera();
                 break;
+			case GLFW_KEY_1:
+				PlayerIntent.hit1Intent = true;
+				//cube->setColor(1.0f, 0.0f, 0.0f);
+				break;
+			case GLFW_KEY_2:
+				PlayerIntent.hit2Intent = true;
+				//cube->setColor(0.0f, 1.0f, 0.0f);
+				break;
+
+			case GLFW_KEY_3:
+				PlayerIntent.hit3Intent = true;
+				//cube->setColor(0.0f, 0.0f, 1.0f);
+				break;
+			case GLFW_KEY_4:
+				PlayerIntent.hit4Intent = true;
+				//cube->setColor(1.0f, 1.0f, 0.0f);
+				break;
+			case GLFW_KEY_5:
+				PlayerIntent.hit5Intent = true;
+				//cube->setColor(0.0f, 1.0f, 1.0f);
+				break;
             default:
                 break;
         }

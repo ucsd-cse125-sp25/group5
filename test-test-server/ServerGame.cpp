@@ -6,6 +6,10 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <unordered_map>
+#include "physics/BehaviorComponent.h"
+
+#define TICKS_PER_SECOND 100
+#define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
 
 unsigned int ServerGame::client_id;
 
@@ -14,6 +18,25 @@ std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
 unordered_map<int, int> clientToEntity;
  
+void spawnIslands(PhysicsSystem& physicsSystem) {
+	glm::vec3 islandCoordinates[7] = {
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(10.0f, 10.0f, 10.0f),
+		glm::vec3(-10.0f, -10.0f, -10.0f),
+		glm::vec3(20.0f, 20.0f, 20.0f),
+		glm::vec3(-20.0f, -20.0f, -20.0f),
+		glm::vec3(10.0f, -10.0f, -10.0f),
+		glm::vec3(-10.0f, 10.0f, 10.0f)
+	};
+
+	for (int i = 0; i < 7; i++) {
+		GameObject* island = physicsSystem.makeGameObject(islandCoordinates[i] * 2.0f, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), island_extents);
+		island->type = ISLAND;
+		physicsSystem.addStaticObject(island);
+	}
+}
+
+
 ServerGame::ServerGame(void)
 {
     // id's to assign clients for our table
@@ -33,22 +56,20 @@ ServerGame::ServerGame(void)
 
  
 
-    //initialization of the game state
-	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
- 
-    // create a random number of cubes which are static game objects
-    for (int i = 0; i < numCubes; i++) {
-		GameObject* cube = physicsSystem.makeGameObject();
-		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
-		cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
-        cube->type = CUBE;
-		physicsSystem.addStaticObject(cube);
-    }
+ //   //initialization of the game state
+	//int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+ //
+ //   // create a random number of cubes which are static game objects
+ //   for (int i = 0; i < numCubes; i++) {
+	//	GameObject* cube = physicsSystem.makeGameObject();
+	//	cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
+	//	cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
+ //       cube->type = CUBE;
+	//	physicsSystem.addStaticObject(cube);
+ //   }
 
     //add an island
-	GameObject* island = physicsSystem.makeGameObject(glm::vec3(5.0f, -10.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), island_extents);
-	island->type = ISLAND;
-	physicsSystem.addStaticObject(island);
+	spawnIslands(physicsSystem);
 
     //add a d_cube
 	GameObject* d_cube = physicsSystem.makeGameObject();
@@ -58,7 +79,7 @@ ServerGame::ServerGame(void)
 	physicsSystem.addDynamicObject(d_cube);
     physicsSystem.addMovingObject(d_cube);
 
-	printf("ServerGame::ServerGame created %d cubes\n", numCubes);
+	//printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
 	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
@@ -94,6 +115,9 @@ void ServerGame::update()
    {
         printf("client %d has been connected to the server\n",client_id);
         GameObject* player = physicsSystem.makeGameObject();
+		player->behavior = new PlayerBehaviorComponent(player, physicsSystem); //for player objects, we set a behavior component
+		//for player objects, we set a behavior component
+
 		player->type = PLAYER;
         //place where player gets added
         //physicsSystem.playerObjects[client_id] = player;
@@ -130,9 +154,9 @@ void ServerGame::update()
    endTime = std::chrono::high_resolution_clock::now();
    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
-   if (duration < 50) // If did not spend the whole tick (50ms)
+   if (duration < TICK_TIME_MILLS) // If did not spend the whole tick (50ms)
    {
-       std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+       std::this_thread::sleep_for(std::chrono::milliseconds(TICK_TIME_MILLS - duration));
    }
 }
 
@@ -154,6 +178,9 @@ void ServerGame::writeToGameState() {
         glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.players[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
+
+        //printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+        //printf("position is %f %f %f\n", position.x, position.y, position.z);
     }
    
     //send all the dynamic objects
@@ -165,8 +192,8 @@ void ServerGame::writeToGameState() {
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
 
-		printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
-		printf("position is %f %f %f\n", position.x, position.y, position.z);
+		/*printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
+		printf("position is %f %f %f\n", position.x, position.y, position.z);*/
     }
 
     //send all the static objects
@@ -202,7 +229,7 @@ bool ServerGame::receiveFromClients()
         }
 
         receivedChanges = true;
-        printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
+        //printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
 
         int i = 0;
         while (i < (unsigned int)data_length)
@@ -230,8 +257,8 @@ void ServerGame::sendGameStatePackets()
     char packet_data[packet_size];
 
 
-	printf("Sending num_entities : %d\n", GameState.num_entities);
-	printf("First entity type: %d\n", GameState.entities[0].type);
+	/*printf("Sending num_entities : %d\n", GameState.num_entities);
+	printf("First entity type: %d\n", GameState.entities[0].type);*/
 
     //printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
     //printf("cube model is: ");
