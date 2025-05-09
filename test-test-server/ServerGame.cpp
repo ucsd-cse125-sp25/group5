@@ -54,6 +54,7 @@ ServerGame::ServerGame(void)
     //initialize the physics system
     physicsSystem = PhysicsSystem();
 
+<<<<<<< HEAD
  
 
  //   //initialization of the game state
@@ -67,6 +68,19 @@ ServerGame::ServerGame(void)
  //       cube->type = CUBE;
 	//	physicsSystem.addStaticObject(cube);
  //   }
+=======
+    //initialization of the game state
+	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+ 
+    // create a random number of cubes which are static game objects
+    for (int i = 0; i < numCubes; i++) {
+		GameObject* cube = physicsSystem.makeGameObject();
+		cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
+		cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
+        cube->type = CUBE;
+		physicsSystem.addStaticObject(cube);
+    }
+>>>>>>> f52f88c (message)
 
     //add an island
 	spawnIslands(physicsSystem);
@@ -128,7 +142,6 @@ void ServerGame::update()
         clientToEntity[client_id] = client_id;
         
         //fill up the HP and the mana
-
 
         JoinResponsePacket packet;
         packet.packet_type = JOIN_RESPONSE;
