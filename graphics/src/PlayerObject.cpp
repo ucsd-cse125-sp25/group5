@@ -38,19 +38,20 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 		return;
 	}
 
-	std::cout << "Bones: " << iscene->mMeshes[1]->mNumBones << std::endl;
-	std::cout << "Verts: " << iscene->mMeshes[1]->mBones[0]->mNumWeights << std::endl;
-	std::cout << "Verts: " << iscene->mMeshes[1]->mBones[1]->mNumWeights << std::endl;
-	std::cout << "Verts: " << iscene->mMeshes[1]->mBones[2]->mNumWeights << std::endl;
-	std::cout << "children: " << iscene->mMeshes[1]->mBones[0]->mNode->mNumChildren << std::endl;
-	std::cout << "children: " << iscene->mMeshes[1]->mBones[1]->mNode->mNumChildren << std::endl;
-	std::cout << "children: " << iscene->mMeshes[1]->mBones[2]->mNode->mNumChildren << std::endl;
-	std::cout << "total Verts: " << iscene->mMeshes[1]->mNumVertices << std::endl;
-	std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
+	//std::cout << "Bones: " << iscene->mMeshes[1]->mNumBones << std::endl;
+	//std::cout << "Verts: " << iscene->mMeshes[1]->mBones[0]->mNumWeights << std::endl;
+	//std::cout << "Verts: " << iscene->mMeshes[1]->mBones[1]->mNumWeights << std::endl;
+	//std::cout << "Verts: " << iscene->mMeshes[1]->mBones[2]->mNumWeights << std::endl;
+	//std::cout << "children: " << iscene->mMeshes[1]->mBones[0]->mNode->mNumChildren << std::endl;
+	//std::cout << "children: " << iscene->mMeshes[1]->mBones[1]->mNode->mNumChildren << std::endl;
+	//std::cout << "children: " << iscene->mMeshes[1]->mBones[2]->mNode->mNumChildren << std::endl;
+	//std::cout << "total Verts: " << iscene->mMeshes[1]->mNumVertices << std::endl;
+	//std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
 	//std::cout << "Skeleton 1 " << iscene->mSkeletons[0]->mNumBones << std::endl;
 	//std::cout << "Skeleton 2 " << iscene->mSkeletons[1]->mNumBones << std::endl;
 
 	std::unordered_map<aiNode*, aiBone*> nodeToBone;
+	std::cout << "meshes: " << iscene->mNumMeshes << std::endl;
 	std::cout << "nodes: " << CountNodes(iscene->mRootNode) << std::endl;
 	for (int i = 0; i < iscene->mMeshes[meshindex]->mNumBones; i++) {
 		//std::cout << "bone: " << iscene->mMeshes[meshindex]->mBones[i]->mName.C_Str() << std::endl;

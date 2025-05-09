@@ -227,5 +227,6 @@ float Channel::getValueInWindow(float time) const {
             return value;
         }
     }
+
     return 0.0f;
 }

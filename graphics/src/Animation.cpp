@@ -90,6 +90,7 @@ void Animation::Load(const aiScene* scene, int animIndex) {
                 Keyframe key(time, value, 0, 0, ruleIn, ruleOut);
                 channel.addKeyframe(key);
             }
+            channel.precalculate();
             channels.push_back(channel);
 
         }

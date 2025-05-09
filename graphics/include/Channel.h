@@ -30,10 +30,10 @@ public:
     float getValue(float time, float duration, float valueChange) const; 
 
     bool Load(Tokenizer& tokenizer);
+    void precalculate();
 
 private:
     float evaluateCubic(float t, const Keyframe& kf) const;
-    void precalculate();
     float getValueInWindow(float time) const;
 };
 

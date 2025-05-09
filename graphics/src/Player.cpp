@@ -15,6 +15,7 @@ Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clo
 
 void Player::update() {
     if (animation->import) {
+        std::cout << "doing anim update" << std::endl;
         if (!skeleton || !animation || !animation->animate) return;
 
         std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
@@ -23,18 +24,23 @@ void Player::update() {
         for (size_t i = 0; i < animation->channels.size(); i += 3) {
             int nameIndex = i / 3;
             size_t jointIndex = skeleton->JNameMap[animation->names[nameIndex]];
-            std::cout << "jointindex: " << jointIndex << std::endl;
+            //std::cout << "jointindex: " << jointIndex << std::endl;
 
             //jointIndex++;
             if (jointIndex >= skeleton->joints.size()) break;
 
             glm::vec3 rotation(
                 animation->channels[i].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
-                animation->channels[i + 1].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
-                animation->channels[i + 2].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value)
+                animation->channels[i + 1].getValue(time, animation->channels[i+1].keyframes.back().time - animation->channels[i+1].keyframes.front().time, animation->channels[i+1].keyframes.back().value - animation->channels[i+1].keyframes.front().value),
+                animation->channels[i + 2].getValue(time, animation->channels[i+2].keyframes.back().time - animation->channels[i+2].keyframes.front().time, animation->channels[i+2].keyframes.back().value - animation->channels[i+2].keyframes.front().value)
             );
 
             skeleton->joints[jointIndex]->setRotation(rotation);
+
+            if (i < 30) {
+                std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << std::endl;
+            }
+            
         }
 
         //std::cout << "Number of Animation Channels" << animation->channels.size() << std::endl;
