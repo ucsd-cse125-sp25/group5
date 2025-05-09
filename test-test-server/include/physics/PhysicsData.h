@@ -54,8 +54,6 @@ struct Ray {
 	glm::vec3 dir; // *must* be normalized
 };
 
-
-
 enum class MoveState {
 	Idle,
 	Walking,

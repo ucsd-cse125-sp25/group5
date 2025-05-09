@@ -137,6 +137,7 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     for (auto sobj : staticObjects) {
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
         if (penetration.second > 0.0f) {
+            printf("Detected collision between %d and %d\n", obj->id, sobj->id);
             resolveCollision(obj, sobj, penetration, 0);
             //printf("Detected collision between %d and %d\n", obj->id, sobj->id);
         }  
@@ -177,6 +178,7 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     assert (go1 != NULL && go2 != NULL);
 
     vec3 normal = glm::normalize(penetration.first);
+    printf("normal: (%f, %f, %f)\n", normal.x, normal.y, normal.z);
     float overlap = penetration.second;
 
     float overlapFraction = 0.5f;
@@ -185,16 +187,28 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     }
 
     // Velocity resolution: bounce off if moving into each other
+    printf("go1 velocity before: (%f, %f, %f)\n", go1->physics->velocity.x, go1->physics->velocity.y, go1->physics->velocity.z);
+    printf("go2 velocity before: (%f, %f, %f)\n", go2->physics->velocity.x, go2->physics->velocity.y, go2->physics->velocity.z);
     go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
     go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+    printf("go1 velocity after: (%f, %f, %f)\n", go1->physics->velocity.x, go1->physics->velocity.y, go1->physics->velocity.z);
+    printf("go2 velocity after: (%f, %f, %f)\n", go2->physics->velocity.x, go2->physics->velocity.y, go2->physics->velocity.z);
 
     // Positional correction: push both objects out of each other
+    printf("go1 position before: (%f, %f, %f)\n", go1->transform.position.x, go1->transform.position.y, go1->transform.position.z);
+    printf("go2 position before: (%f, %f, %f)\n", go2->transform.position.x, go2->transform.position.y, go2->transform.position.z);
     go1->transform.position += normal * (overlap * overlapFraction);
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
+    printf("go1 position after: (%f, %f, %f)\n", go1->transform.position.x, go1->transform.position.y, go1->transform.position.z);
+    printf("go2 position after: (%f, %f, %f)\n", go2->transform.position.x, go2->transform.position.y, go2->transform.position.z);
 
     // Update AABBs
+    printf("go1 AABB before: (%f, %f, %f) (%f, %f, %f)\n", go1->transform.aabb.min.x, go1->transform.aabb.min.y, go1->transform.aabb.min.z, go1->transform.aabb.max.x, go1->transform.aabb.max.y, go1->transform.aabb.max.z);
+    printf("go2 AABB before: (%f, %f, %f) (%f, %f, %f)\n", go2->transform.aabb.min.x, go2->transform.aabb.min.y, go2->transform.aabb.min.z, go2->transform.aabb.max.x, go2->transform.aabb.max.y, go2->transform.aabb.max.z);
     go1->transform.aabb = getAABB(go1);
     go2->transform.aabb = getAABB(go2);
+    printf("go1 AABB after: (%f, %f, %f) (%f, %f, %f)\n", go1->transform.aabb.min.x, go1->transform.aabb.min.y, go1->transform.aabb.min.z, go1->transform.aabb.max.x, go1->transform.aabb.max.y, go1->transform.aabb.max.z);
+    printf("go2 AABB after: (%f, %f, %f) (%f, %f, %f)\n", go2->transform.aabb.min.x, go2->transform.aabb.min.y, go2->transform.aabb.min.z, go2->transform.aabb.max.x, go2->transform.aabb.max.y, go2->transform.aabb.max.z);
 }
 
 vec3 PhysicsSystem::getInputVelocity(const PlayerIntentPacket& intent, int playerId) {
@@ -225,9 +239,6 @@ vec3 PhysicsSystem::getInputVelocity(const PlayerIntentPacket& intent, int playe
 	if (intent.moveBackIntent) {
 		toRet += forward;
 	}
-
-
-
 
     return toRet;
 }
@@ -289,7 +300,6 @@ GameObject* PhysicsSystem::makeGameObject() {
     return obj; // return reference to the stored one
 }
 
-
 GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
 
 	GameObject* obj = makeGameObject();
@@ -341,6 +351,8 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
         pair<float, float> interval2 = { b.min[i], b.max[i] };
 
         float overlap = getOverlap(interval1, interval2);
+        printf("Overlap %d: %f\n", i, overlap);
+
         if (overlap <= 0.0f) {   
             return pair<vec3, float>(vec3(0.0f), overlap); // No overlap
         }
@@ -350,7 +362,7 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
             minAxis = axes[i];
         }
     }
-
+    printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
@@ -396,10 +408,6 @@ vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position
 
     return worldSpaceVertices;
 }
-
-
-
-
 
 GameObject* PhysicsSystem::getPlayerObjectById(int id) {
     for (auto obj : playerObjects) {
