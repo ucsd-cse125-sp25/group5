@@ -1,5 +1,5 @@
 #include <stdafx.h>
-#include "shared/ObjectData.h"
+#include "../include/shared/ObjectData.h"
 
 
 #pragma once

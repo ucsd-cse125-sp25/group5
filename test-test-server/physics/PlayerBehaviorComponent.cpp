@@ -7,8 +7,6 @@
 #include <limits>
 
 
-
-
 glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
 	//process player input
 	GameObject* target = obj;
@@ -137,6 +135,38 @@ pair<glm::vec3, float> PlayerBehaviorComponent::handlePlayerGrapple(GameObject* 
 	return { glm::vec3(0.0f, 0.0f, 0.0f), -1.0f };
 }
 
+glm::quat getRotationFromAzimuthIncline(float azimuth, float incline) {
+	glm::quat yaw = glm::angleAxis(azimuth, glm::vec3(0.0f, 1.0f, 0.0f)); // yaw (Y-axis)
+	glm::quat pitch = glm::angleAxis(incline, glm::vec3(1.0f, 0.0f, 0.0f)); // pitch (X-axis)
+
+	// Order matters: yaw * pitch rotates first by pitch, then yaw
+	return yaw * pitch;
+}
+
+void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
+
+	glm::vec3 facingDirection = getDirection(
+		glm::radians(-phys.PlayerIntents[player->id].azimuthIntent),
+		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
+	);
+	glm::quat rotation = getRotationFromAzimuthIncline(
+		glm::radians(-phys.PlayerIntents[player->id].azimuthIntent),
+		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
+	);
+
+
+	if (type == WOOD) {
+		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f);
+		obj->type = WOOD_PROJ;
+
+
+		phys.addDynamicObject(obj);
+		phys.addMovingObject(obj);
+		//print velocity
+		printf("Projectile velocity %f %f %f\n", obj->physics->velocity.x, obj->physics->velocity.y, obj->physics->velocity.z);
+	}
+}
 
 //—— integrate — called once per tick
 void PlayerBehaviorComponent::integrate(GameObject* obj,
@@ -240,6 +270,19 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			}
 		}
 
+
+
+		//check for attacks
+		if (intent.hitEIntent && debugVar == 0) {
+			spawnProjectile(obj, WOOD, phys);
+			printf("Hit e\n");
+			printf("Physics system size %d\n", int(phys.dynamicObjects.size()));	
+			debugVar = 1;
+		}
+		else {
+			debugVar = 0;
+		}
+
 		// apply force 
 		obj->physics->velocity += obj->physics->acceleration * deltaTime;
 
@@ -279,9 +322,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
     
 }
 
-//—— handleCollision — called when this object hits another
-void PlayerBehaviorComponent::handleCollision(GameObject* obj,
-    const GameObject& other)
+//—— resolveCollision — called when this object hits another
+void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
 {
-
+	physicsSystem.resolveCollision(obj, other, penetration, status);
 }

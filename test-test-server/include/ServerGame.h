@@ -1,6 +1,6 @@
 #pragma once  
 #include "ServerNetwork.h"  
-#include "shared/NetworkData.h"  
+#include "../include/shared/NetworkData.h"  
 #include "physics/PhysicsData.h"
 #include "physics/PhysicsSystem.h" // Include the PhysicsSystem header
 

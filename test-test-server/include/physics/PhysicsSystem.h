@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include "physics/PhysicsData.h"
-#include "shared/NetworkData.h"    
+#include "../include/shared/NetworkData.h"  
 
 #define XD 100
 #define YD 100

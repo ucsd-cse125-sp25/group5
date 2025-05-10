@@ -6,6 +6,12 @@
       ],
       "name": "x86-Debug",
       "includePath": [
+        "${workspaceRoot}\\..\\include\\shared",
+        "${workspaceRoot}\\..\\include\\shared",
+        "${workspaceRoot}\\..\\include\\shared",
+        "${workspaceRoot}\\..\\include\\shared",
+        "${workspaceRoot}\\..\\include\\shared",
+        "${workspaceRoot}\\..\\include\\shared",
         "${env.INCLUDE}",
         "${workspaceRoot}\\**"
       ],

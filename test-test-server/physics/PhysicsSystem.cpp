@@ -13,7 +13,7 @@ typedef glm::quat quat;
 
 using namespace std;
 
-int nextid = 4;
+int nextid = 10;
 
 class BehaviorComponent;
 
@@ -38,21 +38,21 @@ glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, flo
 */
 void PhysicsSystem::tick(float dt) {
     // Update all dynamic objects
-    for (GameObject* obj : movingObjects) {
+    for (size_t i = 0; i < movingObjects.size(); ++i) {
+        GameObject* obj = movingObjects[i];
 
-        // Apply gravity
+        // printf("tick %d\n", obj->id);
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
 
-        // Integrate
         integrate(obj, dt);
     }
 
     // After integration is complete for all objects, start handling collision
-    for (GameObject* obj : movingObjects) {
-        // Collide + resolve
+    for (size_t i = 0; i < movingObjects.size(); ++i) {
+        GameObject* obj = movingObjects[i];
+
         handleCollisions(obj);
 
-        // Reset per-frame data
         obj->physics->acceleration = glm::vec3(0);
     }
 }
@@ -119,7 +119,13 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     for (auto sobj : staticObjects) {
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
         if (penetration.second > 0.0f) {
-            resolveCollision(obj, sobj, penetration, 0);
+			if (obj->behavior != nullptr) {
+				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
+			}
+            else {
+                resolveCollision(obj, sobj, penetration, 0);
+            }
+            
             //printf("Detected collision between %d and %d\n", obj->id, sobj->id);
         }  
 		//printf("Detected collision between %d and %d\n", obj->id, sobj->id);

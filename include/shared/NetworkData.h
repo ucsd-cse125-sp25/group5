@@ -4,7 +4,7 @@
 #include "ObjectData.h"
 
 #define MAX_PACKET_SIZE 1000000
-#define MAX_ENTITIES 128
+#define MAX_ENTITIES 1024
 #define MAX_PLAYERS 4
 
 enum PacketTypes {
@@ -53,6 +53,12 @@ struct PlayerIntentPacket {
 	bool hit3Intent = false;
 	bool hit4Intent = false;
 	bool hit5Intent = false;
+
+	bool hitEIntent = false;
+	bool hitRIntent = false;
+	bool hitTIntent = false;
+	bool hitYIntent = false;
+	bool hitUIntent = false;
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(PlayerIntentPacket));
