@@ -19,6 +19,11 @@ void Scene::createGame() {
 
 	uimanager = new UIManager;
 	uimanager->Init();
+
+	audiomanager = new Audio;
+	audiomanager->Init();
+	audiomanager->PlayAudio("matchsong");
+	audiomanager->PlayAudio("firesound");
 	//Necessary for the uimanager, will change once network protocol gets updated
 	dummy.maxHP = 250;
 	dummy.currHP = dummy.maxHP;
@@ -61,6 +66,8 @@ void Scene::update(ClientGame* client) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
+
+	audiomanager->Update();
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
