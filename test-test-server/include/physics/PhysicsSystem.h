@@ -75,6 +75,8 @@ public:
 	
     //AABB stuff 
     AABB getAABB(GameObject* obj);
+    vec3 getAABBCenter(AABB& a);
+    vec3 getAABBDistanceCenters(AABB& a, AABB& b);
 	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
     vec3 getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution);
     
