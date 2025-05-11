@@ -100,8 +100,8 @@ void PrintPlayerIntent(const PlayerIntentPacket& intent) {
     //printf("inclineIntent: %f\n", intent.inclineIntent);
     //printf("rightClickIntent: %d\n", intent.rightClickIntent);
     //printf("leftClickIntent: %d\n", intent.leftClickIntent);
-    printf("scrollUpIntent: %d\n", intent.scrollUpIntent);
-    printf("scrollDownIntent: %d\n", intent.scrollDownIntent);
+    // printf("scrollUpIntent: %d\n", intent.scrollUpIntent);
+    // printf("scrollDownIntent: %d\n", intent.scrollDownIntent);
 }
 
 void ServerGame::update()
@@ -111,7 +111,7 @@ void ServerGame::update()
     // get new clients
    if(network->acceptNewClient(client_id))
    {
-        printf("client %d has been connected to the server\n",client_id);
+        //printf("client %d has been connected to the server\n",client_id);
         GameObject* player = physicsSystem.makeGameObject();
 		player->behavior = new PlayerBehaviorComponent(player, physicsSystem); //for player objects, we set a behavior component
 		//for player objects, we set a behavior component

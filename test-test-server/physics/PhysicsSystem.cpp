@@ -451,12 +451,3 @@ vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position
 
     return worldSpaceVertices;
 }
-
-GameObject* PhysicsSystem::getPlayerObjectById(int id) {
-    for (auto obj : playerObjects) {
-        if (obj->id == id) {
-            return obj;
-        }
-    }
-    return nullptr;
-}
