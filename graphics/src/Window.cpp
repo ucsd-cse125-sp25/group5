@@ -246,6 +246,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	PlayerIntent.hit3Intent = false;
 	PlayerIntent.hit4Intent = false;
 	PlayerIntent.hit5Intent = false;
+	PlayerIntent.hitEIntent = false;
+	PlayerIntent.hitRIntent = false;
+	PlayerIntent.hitTIntent = false;
+	PlayerIntent.hitYIntent = false;
+	PlayerIntent.hitUIntent = false;
+
 
 
     if (action == GLFW_PRESS) {
@@ -253,9 +259,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_ESCAPE:
                 // Close the window. This causes the program to also terminate.
                 glfwSetWindowShouldClose(window, GL_TRUE);
-                break;
-            case GLFW_KEY_R:
-                resetCamera();
                 break;
 			case GLFW_KEY_1:
 				PlayerIntent.hit1Intent = true;
@@ -265,7 +268,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				PlayerIntent.hit2Intent = true;
 				//cube->setColor(0.0f, 1.0f, 0.0f);
 				break;
-
 			case GLFW_KEY_3:
 				PlayerIntent.hit3Intent = true;
 				//cube->setColor(0.0f, 0.0f, 1.0f);
@@ -278,6 +280,28 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				PlayerIntent.hit5Intent = true;
 				//cube->setColor(0.0f, 1.0f, 1.0f);
 				break;
+            //next for the Keys ,E,R,T,Y,U
+            case GLFW_KEY_E:
+				PlayerIntent.hitEIntent = true;
+				//cube->setColor(1.0f, 0.0f, 0.0f); 
+				break;
+			case GLFW_KEY_R:
+				PlayerIntent.hitRIntent = true;
+				//cube->setColor(0.0f, 1.0f, 0.0f);
+				break;
+			case GLFW_KEY_T:
+				PlayerIntent.hitTIntent = true;
+				//cube->setColor(0.0f, 0.0f, 1.0f);
+				break;
+			case GLFW_KEY_Y:
+				PlayerIntent.hitYIntent = true;
+				//cube->setColor(1.0f, 1.0f, 0.0f);
+				break;
+			case GLFW_KEY_U:
+				PlayerIntent.hitUIntent = true;
+				//cube->setColor(0.0f, 1.0f, 1.0f);
+				break;
+
             default:
                 break;
         }

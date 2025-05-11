@@ -1,5 +1,5 @@
 #include <stdafx.h>
-#include "shared/ObjectData.h"
+#include "../include/shared/ObjectData.h"
 
 
 #pragma once
@@ -78,5 +78,6 @@ struct GameObject {
 
 
 	bool isDynamic = true; // true if dynamic, false if static
+	bool markDeleted = false; // true if marked for deletion
 };
 
