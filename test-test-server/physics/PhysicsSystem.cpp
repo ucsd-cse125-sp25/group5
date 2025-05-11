@@ -338,7 +338,6 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
         if (overlap < minOverlap) {
             minOverlap = overlap;
             minAxis = axes[i] * (dir[i] > 0 ? 1.0f : -1.0f); // Choose the axis direction based on the distance vector
-            printf("minAxis: (%f, %f, %f)\n", minAxis.x, minAxis.y, minAxis.z);
         }
     }
     printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
