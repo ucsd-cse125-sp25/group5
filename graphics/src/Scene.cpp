@@ -110,6 +110,11 @@ void Scene::update(ClientGame* client) {
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
+		else if (entity.type == WOOD_PROJ) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
 	}
   
 	uimanager->update(dummy);

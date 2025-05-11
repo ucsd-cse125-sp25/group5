@@ -361,7 +361,7 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
         }
         pair<vec3, float> SATresult = SATOverlapTestExperimental(obj->transform.aabb, sobj->transform.aabb);
         if (SATresult.second != -1.0f) {
-            resolveCollision(obj, sobj, SATresult);
+            //resolveCollision(obj, sobj, SATresult);
         }  
 
 
@@ -369,14 +369,14 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
     return;
 }
 
-void PhysicsSystem::resolveCollision(GameObject* go1, const pair<vec3, float>& SATresult) {
-
-    go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
-
-    //IP
-
-    return;
-}
+//void PhysicsSystem::resolveCollision(GameObject* go1, const pair<vec3, float>& SATresult) {
+//
+//    go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
+//
+//    //IP
+//
+//    return;
+//}
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //process player input
@@ -497,25 +497,25 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
  * @return void
  * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
 */
-void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& penetration) {
-    vec3 normal = glm::normalize(penetration.first);
-    float overlap = penetration.second;
-
-    // Positional correction: push dynamic obj out of static obj
-    dobj->transform.position += normal * overlap;
-
-    // Velocity resolution: bounce off if moving into object
-    vec3 relativeVelocity = dobj->physics->velocity;
-    float velAlongNormal = glm::dot(relativeVelocity, normal);
-
-    if (velAlongNormal < 0.0f) {
-        float restitution = 0.1f; // tweak this if you want it more bouncy
-        float impulse = -(1.0f + restitution) * velAlongNormal;
-        vec3 impulseVec = impulse * normal;
-
-        dobj->physics->velocity += impulseVec;
-    }
-}
+//void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& penetration) {
+//    vec3 normal = glm::normalize(penetration.first);
+//    float overlap = penetration.second;
+//
+//    // Positional correction: push dynamic obj out of static obj
+//    dobj->transform.position += normal * overlap;
+//
+//    // Velocity resolution: bounce off if moving into object
+//    vec3 relativeVelocity = dobj->physics->velocity;
+//    float velAlongNormal = glm::dot(relativeVelocity, normal);
+//
+//    if (velAlongNormal < 0.0f) {
+//        float restitution = 0.1f; // tweak this if you want it more bouncy
+//        float impulse = -(1.0f + restitution) * velAlongNormal;
+//        vec3 impulseVec = impulse * normal;
+//
+//        dobj->physics->velocity += impulseVec;
+//    }
+//}
 
 /**
  * Resolve collision between a dynamic object and a static object

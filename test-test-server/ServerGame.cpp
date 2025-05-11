@@ -7,6 +7,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <unordered_map>
 #include "physics/BehaviorComponent.h"
+#include "../include/shared/ObjectData.h"
+#include "../include/shared/NetworkData.h"
 
 #define TICKS_PER_SECOND 100
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)

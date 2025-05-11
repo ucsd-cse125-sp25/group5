@@ -7,7 +7,6 @@
 // used for multi-threading
 #include <process.h>
 #include <iostream>
-pair<vec3, float> SATOverlapTestExperimental(AABB a, AABB b);
 
 void serverLoop();
 
