@@ -81,8 +81,6 @@ void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
     }
 
     obj->transform.position += obj->physics->velocity * dt;
-
-    obj->transform.aabb = getAABB(obj);
 }
 
 void PhysicsSystem::integrate(GameObject* obj, float dt) {
@@ -131,7 +129,9 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 
     // Check for collisions with static objects
     for (auto sobj : staticObjects) {
-        pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
+        AABB objAABB = getAABB(obj);
+        AABB sobjAABB = getAABB(sobj);
+        pair<vec3, float> penetration = getAABBpenetration(objAABB, sobjAABB);
         if (penetration.second > 0.0f) {
 			if (obj->behavior != nullptr) {
 				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
@@ -202,14 +202,6 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
     printf("go1 position after: (%f, %f, %f)\n", go1->transform.position.x, go1->transform.position.y, go1->transform.position.z);
     printf("go2 position after: (%f, %f, %f)\n", go2->transform.position.x, go2->transform.position.y, go2->transform.position.z);
-
-    // Update AABBs
-    printf("go1 AABB before: (%f, %f, %f) (%f, %f, %f)\n", go1->transform.aabb.min.x, go1->transform.aabb.min.y, go1->transform.aabb.min.z, go1->transform.aabb.max.x, go1->transform.aabb.max.y, go1->transform.aabb.max.z);
-    printf("go2 AABB before: (%f, %f, %f) (%f, %f, %f)\n", go2->transform.aabb.min.x, go2->transform.aabb.min.y, go2->transform.aabb.min.z, go2->transform.aabb.max.x, go2->transform.aabb.max.y, go2->transform.aabb.max.z);
-    go1->transform.aabb = getAABB(go1);
-    go2->transform.aabb = getAABB(go2);
-    printf("go1 AABB after: (%f, %f, %f) (%f, %f, %f)\n", go1->transform.aabb.min.x, go1->transform.aabb.min.y, go1->transform.aabb.min.z, go1->transform.aabb.max.x, go1->transform.aabb.max.y, go1->transform.aabb.max.z);
-    printf("go2 AABB after: (%f, %f, %f) (%f, %f, %f)\n", go2->transform.aabb.min.x, go2->transform.aabb.min.y, go2->transform.aabb.min.z, go2->transform.aabb.max.x, go2->transform.aabb.max.y, go2->transform.aabb.max.z);
 }
 
     
@@ -249,8 +241,6 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
     target->transform.rotation = q;
 	//target->transform.position = translation;
-    target->transform.aabb = getAABB(target);
-
 }
 
 GameObject* PhysicsSystem::makeGameObject() {
@@ -275,9 +265,6 @@ GameObject* PhysicsSystem::makeGameObject() {
     //isDynamic is lowkey useless 
     obj->isDynamic = false;
 
-    //get the transform as always
-    obj->transform.aabb = getAABB(obj);
-
     return obj; // return reference to the stored one
 }
 
@@ -289,8 +276,6 @@ GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation
 	obj->transform.rotation = rotation;
 
 	obj->collider->halfExtents = halfExtents;
-
-	obj->transform.aabb = getAABB(obj);
 
     return obj;
 }
