@@ -12,10 +12,11 @@ void ProjectileBehaviorComponent::integrate(GameObject* obj,
 	float deltaTime,
 	PhysicsSystem& phys)
 {
-	//just keep going
+	//just keep going, fix the velocity, and update the position
 	obj->physics->velocity = velocity;
 	obj->transform.position += obj->physics->velocity * deltaTime;
-
+	
+	//also get the AABB
 	obj->transform.aabb = phys.getAABB(obj);
 }
 

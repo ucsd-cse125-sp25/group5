@@ -145,22 +145,27 @@ glm::quat getRotationFromAzimuthIncline(float azimuth, float incline) {
 
 void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 
+	//get the direction that the player is facing, that will be our projectile direction
 	glm::vec3 facingDirection = getDirection(
 		glm::radians(-phys.PlayerIntents[player->id].azimuthIntent),
 		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
 	);
+	//get the proper rotation of the projectile
 	glm::quat rotation = getRotationFromAzimuthIncline(
 		glm::radians(-phys.PlayerIntents[player->id].azimuthIntent),
 		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
 	);
 
-
+	//for now, we only spawn wood projectiles 
 	if (type == WOOD) {
+		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+
+		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f);
 		obj->type = WOOD_PROJ;
 
-
+		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
 		//print velocity
