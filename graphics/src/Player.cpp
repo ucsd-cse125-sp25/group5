@@ -20,10 +20,16 @@ void Player::update() {
 
         std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
         float time = time_clock.count();
+        time = time * 1000.0f/60.0f;
 
         for (size_t i = 0; i < animation->channels.size(); i += 3) {
             int nameIndex = i / 3;
-            size_t jointIndex = skeleton->JNameMap[animation->names[nameIndex]];
+            auto it = skeleton->JNameMap.find(animation->names[nameIndex]);
+            if (it == skeleton->JNameMap.end()) {
+                std::cerr << "Missing joint for: " << animation->names[nameIndex] << std::endl;
+                continue;
+            }
+            size_t jointIndex = it->second;
             //std::cout << "jointindex: " << jointIndex << std::endl;
 
             //jointIndex++;
@@ -38,7 +44,8 @@ void Player::update() {
             skeleton->joints[jointIndex]->setRotation(rotation);
 
             if (i < 30) {
-                std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << std::endl;
+
+                std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << " + time = " << time << std::endl;
             }
             
         }

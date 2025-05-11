@@ -48,13 +48,13 @@ void Joint::Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone,
 	std::cout << this->name <<  " loaded!" << std::endl;
 	skely->JNameMap.emplace(std::string(this->name), skely->joints.size() - 1);
 
-	if (std::string(this->name) == "rp_manuel_animated_001_dancing_hip") {
-		xDof->SetValue(1.6f);
-	}
+	//if (std::string(this->name) == "rp_manuel_animated_001_dancing_hip") {
+	//	xDof->SetValue(1.6f);
+	//}
 
-	if (std::string(this->name) == "rp_manuel_animated_001_dancing_spine_01") {
-		xDof->SetValue(-1.6f);
-	}
+	//if (std::string(this->name) == "rp_manuel_animated_001_dancing_spine_01") {
+	//	xDof->SetValue(-1.6f);
+	//}
 
 	preL = ConvertMatrix(node->mTransformation);
 	if (nodeToBone->count(node) > 0) {

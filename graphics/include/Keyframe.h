@@ -1,10 +1,13 @@
 #ifndef KEYFRAME_H
 #define KEYFRAME_H
+#include <glm/gtc/quaternion.hpp>
 
 class Keyframe {
 public:
     float time;
     float value;
+    bool import;
+    glm::quat quatValue;
     float tangentIn;
     float tangentOut;
     char ruleIn;

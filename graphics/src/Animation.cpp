@@ -3,8 +3,10 @@
 #include <iostream>
 #include <unordered_map>
 #include <tuple>
+#include <glm/gtc/quaternion.hpp>
 
 std::tuple<double, double, double> QuaternionToEulerXYZ(double x, double y, double z, double w);
+float unwrapAngle(float prev, float curr);
 
 Animation::Animation() {
     this->animate = false;
@@ -68,14 +70,23 @@ void Animation::Load(const aiScene* scene, int animIndex) {
             for (int j = 0; j < anim->mChannels[i]->mNumRotationKeys; j++) {
              
                 float time = anim->mChannels[i]->mRotationKeys[j].mTime;
-                std::tuple<double, double, double> tup = QuaternionToEulerXYZ(anim->mChannels[i]->mRotationKeys[j].mValue.x, anim->mChannels[i]->mRotationKeys[j].mValue.y, anim->mChannels[i]->mRotationKeys[j].mValue.z, anim->mChannels[i]->mRotationKeys[j].mValue.w);
+                glm::quat quat(anim->mChannels[i]->mRotationKeys[j].mValue.w, anim->mChannels[i]->mRotationKeys[j].mValue.x, anim->mChannels[i]->mRotationKeys[j].mValue.y, anim->mChannels[i]->mRotationKeys[j].mValue.z);
+                glm::vec3 euler = glm::eulerAngles(quat);
+                //std::tuple<double, double, double> tup = QuaternionToEulerXYZ(anim->mChannels[i]->mRotationKeys[j].mValue.x, anim->mChannels[i]->mRotationKeys[j].mValue.y, anim->mChannels[i]->mRotationKeys[j].mValue.z, anim->mChannels[i]->mRotationKeys[j].mValue.w);
 
                 float value = 0;
-                switch (r) {
-                case 0: value = static_cast<float>(std::get<0>(tup)); break;
-                case 1: value = static_cast<float>(std::get<1>(tup)); break;
-                case 2: value = static_cast<float>(std::get<2>(tup)); break;
-                default: throw std::out_of_range("Invalid index");
+                //switch (r) {
+                //case 0: value = static_cast<float>(std::get<0>(tup)); break;
+                //case 1: value = static_cast<float>(std::get<1>(tup)); break;
+                //case 2: value = static_cast<float>(std::get<2>(tup)); break;
+                //default: throw std::out_of_range("Invalid index");
+                //}
+                
+                if (j > 0) {
+                    value = unwrapAngle(channel.keyframes[channel.keyframes.size() - 1].value, euler[r]);
+                }
+                else {
+                    value = euler[r];
                 }
 
                 char ruleIn = 's';
@@ -88,6 +99,9 @@ void Animation::Load(const aiScene* scene, int animIndex) {
                 //std::cout << "printing value: " << value << std::endl;
 
                 Keyframe key(time, value, 0, 0, ruleIn, ruleOut);
+                key.import = true;
+                key.quatValue = quat;
+
                 channel.addKeyframe(key);
             }
             channel.precalculate();
@@ -120,4 +134,11 @@ std::tuple<double, double, double> QuaternionToEulerXYZ(double x, double y, doub
     double yaw = std::atan2(siny_cosp, cosy_cosp);
 
     return { roll, pitch, yaw }; // in radians
+}
+
+float unwrapAngle(float prev, float curr) {
+    float delta = curr - prev;
+    while (delta > glm::pi<float>()) delta -= 2 * glm::pi<float>();
+    while (delta < -glm::pi<float>()) delta += 2 * glm::pi<float>();
+    return prev + delta;
 }
