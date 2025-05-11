@@ -318,7 +318,7 @@ vec3 PhysicsSystem::getAABBCenter(AABB& a) {
 vec3 PhysicsSystem::getAABBDistanceCenters(AABB& a, AABB& b) {
     vec3 aCenterAABB = (a.min + a.max) * 0.5f;
     vec3 bCenterAABB = (b.min + b.max) * 0.5f;
-    return bCenterAABB - aCenterAABB;
+    return aCenterAABB - bCenterAABB;
 }
 pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
     printf("getAABBpenetration\n");
