@@ -15,11 +15,11 @@ using namespace std;
 
 int nextid = 4;
 
-std::array<std::pair<int,int>,12> edges = {{
-    {0,1},{1,3},{3,2},{2,0},   // bottom face
-    {4,5},{5,7},{7,6},{6,4},   // top face
-    {0,4},{1,5},{2,6},{3,7}    // vertical pillars
-}};
+//std::array<std::pair<int,int>,12> edges = {{
+//    {0,1},{1,3},{3,2},{2,0},   // bottom face
+//    {4,5},{5,7},{7,6},{6,4},   // top face
+//    {0,4},{1,5},{2,6},{3,7}    // vertical pillars
+//}};
 
 class BehaviorComponent;
 
@@ -262,7 +262,50 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //glm::vec3 translation = glm::vec3(target.cubeModel[3]);
 	glm::vec3 translation = target->transform.position;
     glm::vec3 right = glm::normalize(glm::cross(up, forward));
+
+    //GameState.cubeModel = glm::rotate(GameState.cubeModel, azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
     
+
+    //process
+  //  if (intent.moveLeftIntent)
+  //  {
+		//target->physics->velocity += (-right) * delta;  
+  //      //translation += (-right) * delta;
+  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(-0.1f, 0.0f, 0.0f));
+  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(-0.1f, 0.0f, 0.0f));
+  //  }
+  //  if (intent.moveRightIntent) {
+		//target->physics->velocity += right * delta;
+  //      //translation += right * delta;
+  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.1f, 0.0f, 0.0f));
+  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.1f, 0.0f, 0.0f)));
+  //  }
+  //  if (intent.moveUpIntent) {
+  //      translation += up * delta;
+  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.1f, 0.0f));
+  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, 0.1f, 0.0f)));
+  //      
+  //  }
+  //  if (intent.moveDownIntent) {
+  //      translation += (-up) * delta;
+  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, -0.1f, 0.0f));
+  //      //GameState.setModelMatrix(glm::translate(GameState.getModelMatrix(), glm::vec3(0.0f, -0.1f, 0.0f)));
+  //  }
+  //  if (intent.moveForwardIntent) {
+		//target->physics->velocity += -forward * delta;
+  //      //translation += (-forward) * delta;
+  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, -0.1f));
+  //  }
+  //  if (intent.moveBackIntent) {
+		//target->physics->velocity += (forward) * delta;
+  //      //translation += forward * delta;
+  //      //GameState.cubeModel = glm::translate(GameState.cubeModel, glm::vec3(0.0f, 0.0f, 0.1f));
+  //  }
+
+    //glm::mat4 id = glm::mat4(1.0f);
+    //GameState.cubeModel = glm::translate(GameState.cubeModel, translation);
+
+    // Update the line causing the error to properly convert the quaternion to a vec4  
     //target->transform.rotation = glm::vec4(glm::quat_cast(rotation).x, glm::quat_cast(rotation).y, glm::quat_cast(rotation).z, glm::quat_cast(rotation).w);
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
     target->transform.rotation = q;
