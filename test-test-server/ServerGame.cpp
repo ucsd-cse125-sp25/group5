@@ -230,7 +230,7 @@ bool ServerGame::receiveFromClients()
         receivedChanges = true;
         //printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
 
-        int i = 0;
+        unsigned int i = 0;
         while (i < (unsigned int)data_length)
         {
 
