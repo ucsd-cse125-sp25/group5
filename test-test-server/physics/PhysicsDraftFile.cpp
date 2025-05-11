@@ -54,8 +54,8 @@ void PhysicsSystem::populateGrid() {
         vector<int> cellsY;
         vector<int> cellsZ;
 
-        float minx = go->transform.aabb.min[0];
-        float maxx = go->transform.aabb.max[0];
+        float minx = getAABB(go).min[0];
+        float maxx = getAABB(go).max[0];
         
         while (minx < maxx) {
             int index = (int) (minx / numCellsX);
@@ -67,7 +67,7 @@ void PhysicsSystem::populateGrid() {
 
 // ignore for now
 float PhysicsSystem::getBoxDim(GameObject* go) {
-    float AABBMag = glm::distance(go->transform.aabb.min, go->transform.aabb.max);
+    float AABBMag = glm::distance(getAABB(go).min, getAABB(go).max);
     return AABBMag / sqrtf(3.0f);
 }
 

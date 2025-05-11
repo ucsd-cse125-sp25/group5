@@ -15,9 +15,6 @@ void ProjectileBehaviorComponent::integrate(GameObject* obj,
 	//just keep going, fix the velocity, and update the position
 	obj->physics->velocity = velocity;
 	obj->transform.position += obj->physics->velocity * deltaTime;
-	
-	//also get the AABB
-	obj->transform.aabb = phys.getAABB(obj);
 }
 
 //—— resolveCollision — called when this object hits another
