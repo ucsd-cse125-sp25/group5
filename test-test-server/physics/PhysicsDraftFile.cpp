@@ -2,9 +2,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include "../include/physics/PhysicsSystem.h"
-#include "../include/physics/PhysicsData.h"
-
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
 typedef glm::mat3 mat3;
@@ -108,7 +105,7 @@ void PhysicsSystem::SAT(GameObject* go1, GameObject* go2) {
     // }
 }
 
-vec3 getPointOfContact(GameObject* go1, GameObject* go2) {
+vec3 static getPointOfContact(GameObject* go1, GameObject* go2) {
 
     pair<vec3, float> overlapData = SATOverlapTest(go1, go2);
     if (overlapData.second < 0.0f) {
@@ -144,7 +141,7 @@ pair<vec3, float> PhysicsSystem::SATOverlapTestExperimental(AABB a, AABB b) {
         pair<float, float> interval1 = { a.min[i], a.max[i] };
         pair<float, float> interval2 = { b.min[i], b.max[i] };
 
-        float overlap = getOverlap(interval1, interval2);
+        float overlap = this.getOverlap(interval1, interval2);
         if (overlap < 0.0f) {   // or <= ?????
             return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
         }
@@ -159,17 +156,17 @@ pair<vec3, float> PhysicsSystem::SATOverlapTestExperimental(AABB a, AABB b) {
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
-vector<vec3> getFaceNormals(GameObject* go) {
+vector<vec3> static getFaceNormals(GameObject* go) {
     return { go->transform.rotation * vec3(1, 0, 0),
              go->transform.rotation * vec3(0, 1, 0),
              go->transform.rotation * vec3(0, 0, 1) };
 }
 
-bool areParallel(vec3 crossProd) {
+bool static areParallel(vec3 crossProd) {
     return glm::dot(crossProd, crossProd) < 1e-6;
 }
 
-vector<vec3> getCrossProducts(const vector<vec3>& normals1, const vector<vec3>& normals2) {
+vector<vec3> static getCrossProducts(const vector<vec3>& normals1, const vector<vec3>& normals2) {
     vector<vec3> crossProducts;
     for (int i = 0; i < normals1.size(); i++) {
         for (int j = 0; j < normals2.size(); j++) {
@@ -182,13 +179,13 @@ vector<vec3> getCrossProducts(const vector<vec3>& normals1, const vector<vec3>& 
     return crossProducts;
 }
 
-void addNormalsToAxes(vector<vec3>& axes, const vector<vec3>& normals) {
+void static addNormalsToAxes(vector<vec3>& axes, const vector<vec3>& normals) {
     for (int i = 0; i < normals.size(); i++) {
         axes.push_back(normals[i]);
     }
 }
 
-pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis) {
+pair<float, float> static getInterval(const vec3& center, const vec3& halfExtents, const vector<vec3>& normals, const vec3& axis) {
     float centerProj = glm::dot(center, axis);
     float halfRadius = 0.0f;
 
@@ -199,13 +196,13 @@ pair<float, float> getInterval(const vec3& center, const vec3& halfExtents, cons
     return pair<float,float>(centerProj - halfRadius, centerProj + halfRadius);
 }
 
-float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
+float static getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
     //float overlap = -1.0f;
 
     return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
 }
 
-pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
+pair<vec3, float> static SATOverlapTest(GameObject* go1, GameObject* go2) {
     vector<vec3> normals1 = getFaceNormals(go1);
     vector<vec3> normals2 = getFaceNormals(go2);
 
@@ -238,7 +235,6 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
 
 #include "physics/PhysicsSystem.h"
 #include "physics/PhysicsData.h"	
-#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
@@ -264,7 +260,7 @@ glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, flo
     return glm::mix(AB, BC, t);
 }
 
-bool AABBOverlap(const AABB& a, const AABB& b) {
+bool static AABBOverlap(const AABB& a, const AABB& b) {
     return (
         a.min.x <= b.max.x && a.max.x >= b.min.x &&
         a.min.y <= b.max.y && a.max.y >= b.min.y &&
@@ -308,7 +304,6 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 	}
 
 	obj->transform.position += obj->physics->velocity * dt;
-    obj->transform.aabb = getAABB(obj);
 }
 
 
@@ -336,7 +331,7 @@ AABB PhysicsSystem::getAABB(GameObject* obj) {
     return { min, max };
 }
 
-glm::vec3 getPenetrationVector(const AABB& a, const AABB& b) {
+glm::vec3 static getPenetrationVector(const AABB& a, const AABB& b) {
     glm::vec3 pen;
 
     pen.x = std::min(a.max.x - b.min.x, b.max.x - a.min.x);
@@ -359,7 +354,7 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
         if (obj->id == sobj->id) {
             continue; 
         }
-        pair<vec3, float> SATresult = SATOverlapTestExperimental(obj->transform.aabb, sobj->transform.aabb);
+        pair<vec3, float> SATresult = SATOverlapTestExperimental(getAABB(obj), getAABB(sobj));
         if (SATresult.second != -1.0f) {
             //resolveCollision(obj, sobj, SATresult);
         }  
@@ -451,8 +446,6 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
     target->transform.rotation = q;
 	target->transform.position = translation;
-    target->transform.aabb = getAABB(target);
-
 }
 
 GameObject* PhysicsSystem::makeGameObject() {
@@ -461,7 +454,6 @@ GameObject* PhysicsSystem::makeGameObject() {
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
-    obj->transform.aabb = getAABB(obj);
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
 

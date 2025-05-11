@@ -38,7 +38,7 @@ glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
 	return toRet;
 }
 
-glm::vec3 getDirection(float azimuth, float incline) {
+glm::vec3 static getDirection(float azimuth, float incline) {
 	// if azimuth & incline are in degrees:
 	// azimuth = glm::radians(azimuth);
 	// incline = glm::radians(incline);
@@ -55,7 +55,7 @@ glm::vec3 getDirection(float azimuth, float incline) {
 }
 
 //god forgive me for what I'm about to do
-bool checkBottom(GameObject* obj, PhysicsSystem& phys) {
+bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 	// 1) compute a single point just below the player's feet
 	float eps = 0.1f;
 	glm::vec3 foot = obj->transform.position
