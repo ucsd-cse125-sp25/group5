@@ -4,6 +4,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include "physics/BehaviorComponent.h"
+#include "PhysicsSystem.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -31,7 +32,7 @@ class BehaviorComponent;
  * @param t Parameter (0 <= t <= 1), where t represents the interpolation factor
  * @return Point on the curve at parameter t
  */
-glm::vec3 static bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float t) {
+glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float t) {
     glm::vec3 AB = glm::mix(A, B, t);
     glm::vec3 BC = glm::mix(B, C, t);
     return glm::mix(AB, BC, t);
@@ -346,7 +347,14 @@ GameObject* PhysicsSystem::getPlayerObjectById(int id) {
     return nullptr;
 }
 
-vector<vec3> static getAABBVertices(const AABB& aabb) {
+// to get rid of warning
+std::pair<float, float> PhysicsSystem::getInterval(const vec3 &center, const vec3 &halfExtents, const vector<vec3> &normals, const vec3 &axis) {
+    printf("inside getInterval\n");
+    return std::pair<float, float>();
+}
+
+vector<vec3> getAABBVertices(const AABB &aabb)
+{
     vector<vec3> vertices(8);
     vec3 min = aabb.min;
     vec3 max = aabb.max;
@@ -363,7 +371,7 @@ vector<vec3> static getAABBVertices(const AABB& aabb) {
     return vertices;
 }
 
-vector<vec4> static convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
+vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
     vector<vec3> vertices = getAABBVertices(aabb);
     vector<vec4> worldSpaceVertices(vertices.size());
 
