@@ -53,6 +53,7 @@ public:
 	float stompTimer = 0.0f;
     float grappleTimer = 0.0f;
 	GameObject* grappleTarget = nullptr;
+	PlayerStats playerStats;
 
     int debugVar = 0;
     // just forward to the base
@@ -77,9 +78,10 @@ public:
    glm::vec3 velocity; // Add this missing member
    float damage;
    static const float WOOD_PROJ_SPEED;
+   int originalPlayer;
 
-   ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage)
-       : BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage)
+   ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage, int originalPlayer)
+	   : BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage), originalPlayer(originalPlayer)
    {
 	   this->self = self;
 	   this->physicsSystem = physicsSystem;

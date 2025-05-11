@@ -12,6 +12,8 @@ static glm::vec3 woodProjExtents = glm::vec3(0.1f, 0.1f, 0.1f);
 
 static float woodProjSpeed = 25.0f;
 
+static int projDamage[5] = { 10, 20, 30, 40, 50 };
+
 enum EntityType {
 	ENTITY,
 	PLAYER,

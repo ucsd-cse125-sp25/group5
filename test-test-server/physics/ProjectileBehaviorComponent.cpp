@@ -24,5 +24,17 @@ void ProjectileBehaviorComponent::integrate(GameObject* obj,
 void ProjectileBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
 {
 	////delete myself
-	obj->markDeleted = true;
+	if (status == 0) {
+		//delete the object
+		obj->markDeleted = true;
+	}
+
+	if (status == 1) {
+		//only delete if it comes into contact with a dynamic object that is a non self player
+		if (other->type == PLAYER && other->id != originalPlayer) {
+			//delete the object
+			obj->markDeleted = true;
+		}
+	}
+
 }
