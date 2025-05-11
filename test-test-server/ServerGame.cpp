@@ -164,9 +164,9 @@ void ServerGame::writeToGameState() {
     GameState.packet_type = GAME_STATE;
 
     // Update all other objects in the GameState
-    size_t numEntities = physicsSystem.dynamicObjects.size() + physicsSystem.staticObjects.size();
+    unsigned int numEntities = physicsSystem.dynamicObjects.size() + physicsSystem.staticObjects.size();
     GameState.num_entities = numEntities;
-	size_t numPlayers = physicsSystem.playerObjects.size();
+	unsigned int numPlayers = physicsSystem.playerObjects.size();
 	GameState.num_players = numPlayers;
 
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
