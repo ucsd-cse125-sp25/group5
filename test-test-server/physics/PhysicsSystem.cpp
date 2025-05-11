@@ -127,15 +127,12 @@ AABB PhysicsSystem::getAABB(GameObject* obj) {
 void PhysicsSystem::handleCollisions(GameObject* obj) {
     assert(obj != NULL);
 
-    printf("handleCollisions %d\n", obj->id);
     // Check for collisions with static objects
     for (auto sobj : staticObjects) {
         AABB objAABB = getAABB(obj);
         AABB sobjAABB = getAABB(sobj);
-        printf("objAABB: (%f, %f, %f) (%f, %f, %f)\n", objAABB.min.x, objAABB.min.y, objAABB.min.z, objAABB.max.x, objAABB.max.y, objAABB.max.z);
-        printf("sobjAABB: (%f, %f, %f) (%f, %f, %f)\n", sobjAABB.min.x, sobjAABB.min.y, sobjAABB.min.z, sobjAABB.max.x, sobjAABB.max.y, sobjAABB.max.z);
         pair<vec3, float> penetration = getAABBpenetration(objAABB, sobjAABB);
-        printf("penetration: (%f, %f, %f) %f\n", penetration.first.x, penetration.first.y, penetration.first.z, penetration.second);
+
         if (penetration.second > 0.0f) {
 			if (obj->behavior != nullptr) {
 				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
@@ -182,7 +179,6 @@ vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVel
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status) {
     assert (go1 != NULL && go2 != NULL);
 
-    printf("resolveCollision %d %d\n", go1->id, go2->id);
     vec3 normal = glm::normalize(penetration.first);
     printf("normal: (%f, %f, %f)\n", normal.x, normal.y, normal.z);
     float overlap = penetration.second;
@@ -312,9 +308,6 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
 }
 
 pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
-    printf("getAABBpenetration\n");
-    printf("aabb1: (%f, %f, %f) (%f, %f, %f)\n", a.min.x, a.min.y, a.min.z, a.max.x, a.max.y, a.max.z);
-    printf("aabb2: (%f, %f, %f) (%f, %f, %f)\n", b.min.x, b.min.y, b.min.z, b.max.x, b.max.y, b.max.z);
     vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
 
     float minOverlap = 999999.0f;
@@ -323,8 +316,6 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
     for (int i = 0; i < 3; i++) {
         pair<float, float> interval1 = { a.min[i], a.max[i] };
         pair<float, float> interval2 = { b.min[i], b.max[i] };
-        printf("interval1: (%f, %f)\n", interval1.first, interval1.second);
-        printf("interval2: (%f, %f)\n", interval2.first, interval2.second);
 
         float overlap = getOverlap(interval1, interval2);
         printf("Overlap %d: %f\n", i, overlap);
@@ -334,7 +325,6 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
         }
 
         if (overlap <= minOverlap) {
-            printf("minOverlap: %f\n", minOverlap);
             minOverlap = overlap;
             minAxis = axes[i];
         }
