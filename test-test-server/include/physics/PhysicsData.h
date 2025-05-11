@@ -26,8 +26,6 @@ struct Transform {
 	//glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Quaternion for rotation
 	glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
-
-	AABB aabb = { vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f) };
 };
 
 struct PhysicsComponent {

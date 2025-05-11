@@ -43,12 +43,6 @@ glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, flo
  * @return void
 */
 void PhysicsSystem::tick(float dt) {
-    // check for dt being too large to avoid large jumps
-    if (dt > 0.1f) {
-        dt = 0.1f;
-    } else if (dt < 0.0f) {
-        dt = 0.0f;
-    }
 
     // Update all dynamic objects
     for (GameObject* obj : movingObjects) {
