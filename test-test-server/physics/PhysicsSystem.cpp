@@ -307,6 +307,15 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
     return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
 }
 
+vec3 PhysicsSystem::getAABBCenter(AABB& a) {
+    return (a.min + a.max) * 0.5f;
+}
+
+vec3 PhysicsSystem::getAABBDistanceCenters(AABB& a, AABB& b) {
+    vec3 aCenterAABB = (a.min + a.max) * 0.5f;
+    vec3 bCenterAABB = (b.min + b.max) * 0.5f;
+    return bCenterAABB - aCenterAABB;
+}
 pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
     vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
 
@@ -317,6 +326,8 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
         pair<float, float> interval1 = { a.min[i], a.max[i] };
         pair<float, float> interval2 = { b.min[i], b.max[i] };
 
+        vec3 dir = getAABBDistanceCenters(a, b);
+
         float overlap = getOverlap(interval1, interval2);
         printf("Overlap %d: %f\n", i, overlap);
 
@@ -324,9 +335,10 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
             return pair<vec3, float>(vec3(0.0f), overlap); // No overlap
         }
 
-        if (overlap <= minOverlap) {
+        if (overlap < minOverlap) {
             minOverlap = overlap;
-            minAxis = axes[i];
+            minAxis = axes[i] * (dir[i] > 0 ? 1.0f : -1.0f); // Choose the axis direction based on the distance vector
+            printf("minAxis: (%f, %f, %f)\n", minAxis.x, minAxis.y, minAxis.z);
         }
     }
     printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
