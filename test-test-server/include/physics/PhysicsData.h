@@ -82,5 +82,6 @@ struct GameObject {
 
 
 	bool isDynamic = true; // true if dynamic, false if static
+	bool markDeleted = false; // true if marked for deletion
 };
 

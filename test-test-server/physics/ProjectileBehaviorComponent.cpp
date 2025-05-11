@@ -24,7 +24,5 @@ void ProjectileBehaviorComponent::integrate(GameObject* obj,
 void ProjectileBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
 {
 	////delete myself
-	printf("Projectile hit %d\n", other->id);
-	physicsSystem.deleteDynamicObject(obj);
-	delete this;
+	obj->markDeleted = true;
 }

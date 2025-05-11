@@ -15,6 +15,23 @@ typedef glm::quat quat;
 using namespace std;
 
 class PhysicsSystem {
+
+private: 
+    //deleting objects
+    void deleteDynamicObject(GameObject* obj) {
+        //remove from moving
+        auto it = std::find(movingObjects.begin(), movingObjects.end(), obj);
+        if (it != movingObjects.end()) {
+            movingObjects.erase(it);
+        }
+        //remove from dynamic
+        it = std::find(dynamicObjects.begin(), dynamicObjects.end(), obj);
+        if (it != dynamicObjects.end()) {
+            dynamicObjects.erase(it);
+        }
+        delete obj;
+    }
+
 public:
 
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
@@ -34,8 +51,7 @@ public:
     //game tick
     void tick(float dt);
 
-    //deprecated 
-	glm::vec3 getInputVelocity(const PlayerIntentPacket& intent, int playerId);
+    //takes care of rotation
     void applyInput(const PlayerIntentPacket& intent, int playerId);
     
     //moving objects 
@@ -95,19 +111,19 @@ public:
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
     }
-
-    //deleting objects
-	void deleteDynamicObject(GameObject* obj) {
-        //remove from moving
-		auto it = std::find(movingObjects.begin(), movingObjects.end(), obj);
-		if (it != movingObjects.end()) {
-			movingObjects.erase(it);
-		}
-        //remove from dynamic
-		it = std::find(dynamicObjects.begin(), dynamicObjects.end(), obj);
-		if (it != dynamicObjects.end()) {
-			dynamicObjects.erase(it);
-		}
-		delete obj;
+	void addDynamicMovingObject(GameObject* obj) {
+		dynamicObjects.push_back(obj);
+		movingObjects.push_back(obj);
 	}
+
+
+	//delete all objects that are marked for deletion
+    void deleteMarkedDynamicObjects() {
+		for (int i = movingObjects.size() - 1; i >= 0; --i) {
+			GameObject* obj = movingObjects[i];
+			if (obj->markDeleted) {
+				deleteDynamicObject(obj);
+			}
+		}
+    }
 };
