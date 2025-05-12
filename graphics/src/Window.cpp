@@ -17,6 +17,9 @@
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "Model Environment";
+double prevTime = 0;
+double currTime = 0;
+bool flag = false;
 
 // Objects to render
 //Skeleton* Window::skel;
@@ -126,6 +129,12 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
 // update and draw functions
 void Window::idleCallback() { 
     // Perform any updates as necessary.
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+    double time = std::chrono::duration<double, std::milli>(now.time_since_epoch()).count();
+
+    prevTime = currTime;
+    currTime = time;
   
     client->update(PlayerIntent);
     Cam->Update(client);

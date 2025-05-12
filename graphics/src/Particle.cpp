@@ -4,7 +4,7 @@
 
 constexpr double pi = 3.14159265358979323846;
 
-Particle::Particle(float mass, glm::vec3 position, glm::vec3 vel, float radius, float elasticity, double creationTime, double lifetime) {
+Particle::Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 vel, float radius, float elasticity, double creationTime, double lifetime) {
 	this->mass = mass;
 	this->position = position;
 	this->velocity = vel;
@@ -14,6 +14,7 @@ Particle::Particle(float mass, glm::vec3 position, glm::vec3 vel, float radius, 
 	this->force = glm::vec3(0);
 	this->fixed = false;
 	this->elasticity = elasticity;
+    this->color = color;
 
 	//set up rendering, currently cube but will be changed to sphere
     
@@ -119,7 +120,7 @@ Particle::Particle(float mass, glm::vec3 position, glm::vec3 vel, float radius, 
 
 
     // The color of the cube. Try setting it to something else!
-    color = glm::vec3(0.7, 0.3, 0.3);
+    //color = glm::vec3(0.7, 0.3, 0.3);
 
     // Generate a vertex array (VAO) and two vertex buffer objects (VBO).
     glGenVertexArrays(1, &VAO);
@@ -251,7 +252,7 @@ void Particle::ApplyDrag(float airdensity) {
 }
 
 void Particle::SetMesh(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* normals, std::vector<unsigned int>* indices, int layersH, int layersW) {
-    positions->push_back(glm::vec3(0, 1, 0));
+    positions->push_back(radius * glm::vec3(0, 1, 0));
     float y = 1.0;
     for (int i = 0; i < layersH; i++) {
         y = cos(pi * (i + 1) / (layersH + 1));
@@ -260,11 +261,11 @@ void Particle::SetMesh(std::vector<glm::vec3>* positions, std::vector<glm::vec3>
         for (int j = 0; j < layersW; j++) {
             float x = hypotenuse * cosf(theta);
             float z = hypotenuse * sinf(theta);
-            positions->push_back(glm::vec3(x, y, z));
+            positions->push_back(radius * glm::vec3(x, y, z));
             theta += ((2.0 * pi) / (layersW));
         }
     }
-    positions->push_back(glm::vec3(0, -1, 0));
+    positions->push_back(radius * glm::vec3(0, -1, 0));
 
     for (int i = 0; i < layersH; i++) {
         for (int j = 0; j < layersW; j++) {

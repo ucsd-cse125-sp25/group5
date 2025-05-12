@@ -23,7 +23,7 @@ void Scene::createGame() {
 	test = new PlayerObject();
 
 	//Cinema
-	player = new PlayerObject();
+	player = new PlayerObject(0);
 	players[0] = player;
 
 	for (int i = 1; i < 4; i++) {

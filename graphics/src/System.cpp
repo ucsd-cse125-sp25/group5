@@ -1,12 +1,12 @@
 #include <System.h>
 #include <random>
 #include <iostream>
+#include <chrono>
 
 std::random_device rd{};
 std::mt19937 gen{ rd() };
 
 extern double currTime;
-extern double prevTime;
 
 void System::InitSimpleParticleSystem() {
 	creationrate = 5;
@@ -18,11 +18,34 @@ void System::InitSimpleParticleSystem() {
 	gravity = 1;
 	airdensity = 2;
 	friction = 0.9;
-	ctime = currTime;
 	particlelifetime = 5000.0;
 	particlelifetimevar = 1000.0;
 	particleElasticity = 0.5f;
+	particleradius = 1.0f;
+	particlecolor = glm::vec3(0.7, 0.3, 0.3);
 	spawn = false;
+
+	ctime = currTime;
+}
+
+void System::InitColoredTrail(glm::vec3 pos, glm::vec3 color) {
+	creationrate = 15;
+	ground = -INFINITY;
+	initpos = pos;
+	initposvar = glm::vec3(0.5, 2.0, 0.5);
+	initvel = glm::vec3(0, 0, 0);
+	initvelvar = glm::vec3(0.5, 0.5, 0.5);
+	gravity = 0.1;
+	airdensity = 2;
+	friction = 0.9;
+	particlelifetime = 5000.0;
+	particlelifetimevar = 1000.0;
+	particleElasticity = 0.5f;
+	particleradius = 0.2f;
+	particlecolor = color;
+	spawn = false;
+
+	ctime = currTime;
 }
 
 void System::CreateParticle(float lifetime) {
@@ -45,8 +68,12 @@ void System::CreateParticle(float lifetime) {
 	float velz = dvz(gen);
 	glm::vec3 vel = glm::vec3(velx, vely, velz);
 
-	Particle* p = new Particle(0.1f, pos, vel, 0.1f, particleElasticity, currTime, lifetime);
+	Particle* p = new Particle(particlecolor, 0.1f, pos, vel, particleradius, particleElasticity, currTime, lifetime);
 	particles.push_back(p);
+}
+
+void System::UpdatePos(glm::vec3 newPos) {
+	initpos = newPos;
 }
 
 void System::Update(float deltaTime) {

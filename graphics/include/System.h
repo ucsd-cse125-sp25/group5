@@ -6,8 +6,10 @@
 class System {
 public:
 	void InitSimpleParticleSystem();
+	void InitColoredTrail(glm::vec3 pos, glm::vec3 color);
 	void CreateParticle(float lifetime);
 	void Update(float deltaTime);
+	void UpdatePos(glm::vec3 newPos);
 	void Draw(const glm::mat4& viewProjMtx, GLuint shader);
 	float creationrate;
 	float particlelifetime;
@@ -17,10 +19,13 @@ public:
 	float gravity;
 	float airdensity;
 	float friction;
+	float particleradius;
 	glm::vec3 initpos;
 	glm::vec3 initposvar;
 	glm::vec3 initvel;
 	glm::vec3 initvelvar;
+	glm::vec3 particlecolor;
+	
 
 private:
 	float ctime;
