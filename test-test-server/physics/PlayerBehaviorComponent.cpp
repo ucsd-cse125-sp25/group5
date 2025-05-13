@@ -276,7 +276,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			}
 		}
 
-
+		if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
+			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+			behavior->owningPlayer = -1;
+			obj->attached = nullptr;
+		}
 
 		//check for attacks
 		if (intent.hitEIntent && debugVar == 0) {
@@ -336,12 +340,11 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 	}
 	else if (status == 1) {
 		//this is fucking terrible 
+		printf("Detected a collision between %d and %d\n", obj->id, other->id);
 
 		//make sure its a projectile
 		if (other->type >= 5 && other->type <= 9) {
 			ProjectileBehaviorComponent* pb = dynamic_cast<ProjectileBehaviorComponent*>(other->behavior);
-
-			printf("Detected a collision between %d and %d\n", obj->id, other->id);
 			printf("pb %d\n", pb);
 			//make sure we didn't fire it
 			if (pb != nullptr && pb->originalPlayer != obj->id) {
