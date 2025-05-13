@@ -15,12 +15,6 @@ using namespace std;
 
 int nextid = 10;
 
-//std::array<std::pair<int,int>,12> edges = {{
-//    {0,1},{1,3},{3,2},{2,0},   // bottom face
-//    {4,5},{5,7},{7,6},{6,4},   // top face
-//    {0,4},{1,5},{2,6},{3,7}    // vertical pillars
-//}};
-
 class BehaviorComponent;
 
 /**

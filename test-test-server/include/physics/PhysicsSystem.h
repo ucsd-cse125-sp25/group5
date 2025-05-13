@@ -99,6 +99,7 @@ public:
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
     }
+
 	void addDynamicMovingObject(GameObject* obj) {
 		dynamicObjects.push_back(obj);
 		movingObjects.push_back(obj);

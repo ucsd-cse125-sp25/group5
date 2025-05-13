@@ -41,22 +41,22 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 
 ServerGame::ServerGame(void)
 {
-    // id's to assign clients for our table
+    // ids to assign clients for our table
     client_id = 0;
 
     // set up the server network to listen 
     network = new ServerNetwork();
 
-    //the current game state TO SEND (not necessarily full game state)
+    // the current game state TO SEND (not necessarily full game state)
 	GameState = GameStatePacket();
 
-	//the current player intent received
+	// the current player intent received
 	PlayerIntent = PlayerIntentPacket();
 
-    //initialize the physics system
+    // initialize the physics system
     physicsSystem = PhysicsSystem();
 
-    //initialization of the game state
+    // initialization of the game state
 	int numCubes = rand() % 30 + 1; // Random number between 1 and 10
  
     // create a random number of cubes which are static game objects
@@ -78,32 +78,10 @@ ServerGame::ServerGame(void)
 	d_cube->type = D_CUBE;
 	physicsSystem.addDynamicObject(d_cube);
     physicsSystem.addMovingObject(d_cube);
-
-	//printf("ServerGame::ServerGame created %d cubes\n", numCubes);
-
-	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
-	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
- //   physicsSystem.playerObjects[0] = cube;
 }
 
 ServerGame::~ServerGame(void)
 {
-}
-
-void PrintPlayerIntent(const PlayerIntentPacket& intent) {
-    //printf("PlayerIntentPacket: \n");
-    //printf("moveLeftIntent: %d\n", intent.moveLeftIntent);
-    //printf("moveRightIntent: %d\n", intent.moveRightIntent);
-    //printf("moveUpIntent: %d\n", intent.moveUpIntent);
-    //printf("moveDownIntent: %d\n", intent.moveDownIntent);
-    //printf("moveForwardIntent: %d\n", intent.moveForwardIntent);
-    //printf("moveBackIntent: %d\n", intent.moveBackIntent);
-    //printf("azimuthIntent: %f\n", intent.azimuthIntent);
-    //printf("inclineIntent: %f\n", intent.inclineIntent);
-    //printf("rightClickIntent: %d\n", intent.rightClickIntent);
-    //printf("leftClickIntent: %d\n", intent.leftClickIntent);
-    // printf("scrollUpIntent: %d\n", intent.scrollUpIntent);
-    // printf("scrollDownIntent: %d\n", intent.scrollDownIntent);
 }
 
 void ServerGame::update()
@@ -113,22 +91,16 @@ void ServerGame::update()
     // get new clients
    if(network->acceptNewClient(client_id))
    {
-        //printf("client %d has been connected to the server\n",client_id);
+        // create a new player
         GameObject* player = physicsSystem.makeGameObject();
-		player->behavior = new PlayerBehaviorComponent(player, physicsSystem); //for player objects, we set a behavior component
-		//for player objects, we set a behavior component
-
-		player->type = PLAYER;
-        //place where player gets added
-        //physicsSystem.playerObjects[client_id] = player;
+		player->behavior = new PlayerBehaviorComponent(player, physicsSystem);  //for player objects, we set a behavior component
+		player->type = PLAYER; 
 		physicsSystem.addPlayerObject(player);
         physicsSystem.addMovingObject(player);
         player->id = client_id;
-        //physicsSystem.addDynamicObject(player);
-        clientToEntity[client_id] = client_id;
+        clientToEntity[client_id] = client_id;  // map client id to entity id
         
         //fill up the HP and the mana
-
         JoinResponsePacket packet;
         packet.packet_type = JOIN_RESPONSE;
         packet.entity_id = player->id;
