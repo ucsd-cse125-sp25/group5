@@ -16,6 +16,7 @@
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}},
 };
 
 /**
