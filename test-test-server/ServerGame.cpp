@@ -56,7 +56,7 @@ ServerGame::ServerGame(void)
 	PlayerIntent = PlayerIntentPacket();
 
     //input management
-    //inputManager = InputManager();
+    inputManager = InputManager();
 
     //initialize the physics system
     physicsSystem = PhysicsSystem();
@@ -162,7 +162,7 @@ void ServerGame::update()
    physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
    //put new information into the game state
    //inputManager.updateTracking(PlayerIntent, client_id);
-
+   writeToGameState();
 
 
    if (sendUpdate) {
@@ -269,9 +269,9 @@ bool ServerGame::receiveFromClients()
 
             //apply the input to our game world
 			physicsSystem.applyInput(PlayerIntent, clientToEntity[iter->first]); 
-           /* inputManager.updateTracking(PlayerIntent, iter->first);
+            inputManager.updateTracking(PlayerIntent, iter->first);
 			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
-			*///print the player intent
+			//print the player intent
 			//PrintPlayerIntent(PlayerIntent);
 			//printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
 			//printf("ServerGame::receiveFromClients received packet of type %d\n", PlayerIntent.packet_type);
