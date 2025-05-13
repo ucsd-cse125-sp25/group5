@@ -113,7 +113,7 @@ void Scene::update(ClientGame* client) {
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
-		else if (entity.type == D_CUBE) {
+		else if (entity.type == FLAG) {
 			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
@@ -227,7 +227,6 @@ void Scene::draw(Camera* cam) {
 		players[i]->Draw(mainShader, false);
 	}
 
-	
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI

@@ -24,8 +24,10 @@ private:
    ServerNetwork* network;  
    char network_data[MAX_PACKET_SIZE];  
 
+   GameObject* flag = nullptr;
+
    GameStatePacket GameState;
-   PlayerIntentPacket PlayerIntent;  
+   //PlayerIntentPacket PlayerIntent;  
    PhysicsSystem physicsSystem; // Add this line to include the physics system
 
    PlayerBehaviorComponent* playerBehaviors[4] = { nullptr, nullptr, nullptr, nullptr }; // Array to hold player behavior components] = { nullptr, nullptr, nullptr, nullptr }; // Array of player behaviors

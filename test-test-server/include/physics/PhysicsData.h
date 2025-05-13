@@ -10,7 +10,6 @@ typedef glm::vec3 vec3;
 // Forward declarations for components
 struct PhysicsComponent;
 struct ColliderComponent;
-struct TestTestBehaviorComponent;
 class BehaviorComponent;
 
 const float GRAVITY = 9.8f * 0.1f;
@@ -54,32 +53,15 @@ struct Ray {
 	glm::vec3 dir; // *must* be normalized
 };
 
-
-
-enum class MoveState {
-	Idle,
-	Walking,
-	Dashing,
-	Grappling,
-	InAir
-};
-
-struct TestTestBehaviorComponent {
-	MoveState state = MoveState::Idle;
-
-	float dashCooldown = 0.0f;
-	float grappleCooldown = 0.0f;
-};
-
 struct GameObject {
 	int id;
 	Transform transform;
 	PhysicsComponent* physics = nullptr;
 	ColliderComponent* collider = nullptr;
-	//TestTestBehaviorComponent* behavior = nullptr;
 	BehaviorComponent* behavior = nullptr; // Pointer to the behavior component
 	EntityType type = EntityType::ENTITY; // Default to ENTITY
 
+	GameObject* attached = nullptr; // flag purposes
 
 	bool isDynamic = true; // true if dynamic, false if static
 	bool markDeleted = false; // true if marked for deletion
