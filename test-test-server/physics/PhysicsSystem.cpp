@@ -13,7 +13,7 @@ typedef glm::quat quat;
 
 using namespace std;
 
-int nextid = 4;
+int nextid = 10;
 
 class BehaviorComponent;
 
@@ -38,23 +38,26 @@ glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, flo
 */
 void PhysicsSystem::tick(float dt) {
     // Update all dynamic objects
-    for (GameObject* obj : movingObjects) {
+    for (size_t i = 0; i < movingObjects.size(); ++i) {
+        GameObject* obj = movingObjects[i];
 
-        // Apply gravity
+        // printf("tick %d\n", obj->id);
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
 
-        // Integrate
         integrate(obj, dt);
     }
 
     // After integration is complete for all objects, start handling collision
-    for (GameObject* obj : movingObjects) {
-        // Collide + resolve
+    for (size_t i = 0; i < movingObjects.size(); ++i) {
+        GameObject* obj = movingObjects[i];
+
         handleCollisions(obj);
 
-        // Reset per-frame data
         obj->physics->acceleration = glm::vec3(0);
     }
+
+    //delete all objects marked for deletion
+	deleteMarkedDynamicObjects();
 }
 
 void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
@@ -119,7 +122,13 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     for (auto sobj : staticObjects) {
         pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, sobj->transform.aabb);
         if (penetration.second > 0.0f) {
-            resolveCollision(obj, sobj, penetration, 0);
+			if (obj->behavior != nullptr) {
+				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
+			}
+            else {
+                resolveCollision(obj, sobj, penetration, 0);
+            }
+            
             //printf("Detected collision between %d and %d\n", obj->id, sobj->id);
         }  
 		//printf("Detected collision between %d and %d\n", obj->id, sobj->id);
@@ -127,15 +136,18 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 	//printf("length of static objects %d", int(staticObjects.size()));
 
     //// Check for collisions between dynamic objects
-    //for (auto dobj : movingObjects) {
-    //    if (obj->id == dobj->id) {
-    //        continue; // Skip self-collision
-    //    }
-    //    pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
-    //    if (penetration.second > 0.0f) {
-    //        resolveCollision(obj, dobj, penetration, 1);
-    //    }
-    //}
+    for (auto dobj : movingObjects) {
+        if (obj->id == dobj->id) {
+            continue; // Skip self-collision
+        }
+        pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
+        if (penetration.second > 0.0f) {
+            /*resolveCollision(obj, dobj, penetration, 1);*/
+            if (obj->behavior != nullptr) {
+				obj->behavior->resolveCollision(obj, dobj, penetration, 1);
+            }
+        }
+    }
     return;
 }
 
@@ -176,47 +188,6 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 }
 
-glm::vec3 PhysicsSystem::getInputVelocity(const PlayerIntentPacket& intent, int playerId) {
-	//process player input
-	GameObject* target = NULL;
-	for (auto obj : playerObjects) {
-		if (obj->id == playerId) {
-			target = obj;
-			break;
-		}
-	}
-	if (target == NULL) {
-		return glm::vec3(0.0f);
-	}
-	float azimuth = glm::radians(-intent.azimuthIntent);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
-	glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
-	//glm::vec3 translation = glm::vec3(target.cubeModel[3]);
-	glm::vec3 translation = target->transform.position;
-	glm::vec3 right = glm::normalize(glm::cross(up, forward));
-
-
-	glm::vec3 toRet = glm::vec3(0.0f);
-
-	if (intent.moveLeftIntent) {
-		toRet += (-right);
-	}
-	if (intent.moveRightIntent) {
-		toRet += right;
-	}
-	if (intent.moveForwardIntent) {
-		toRet += (-forward);
-	}
-	if (intent.moveBackIntent) {
-		toRet += forward;
-	}
-
-
-
-
-    return toRet;
-}
     
 /**
  * Apply player input to the GameObject
@@ -307,18 +278,28 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
 }
 
 GameObject* PhysicsSystem::makeGameObject() {
+    //create the new game object 
     GameObject* obj = new GameObject;
+
+    //set its id
     obj->id = getNextId();
+    
+    //position rotation scale 
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
 
+    //physics and collider 
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
 
+    //collider half extents 
     obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
 
+    //isDynamic is lowkey useless 
     obj->isDynamic = false;
+
+    //get the transform as always
     obj->transform.aabb = getAABB(obj);
 
     return obj; // return reference to the stored one

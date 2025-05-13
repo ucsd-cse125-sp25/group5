@@ -7,6 +7,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include <unordered_map>
 #include "physics/BehaviorComponent.h"
+#include "../include/shared/ObjectData.h"
+#include "../include/shared/NetworkData.h"
 
 #define TICKS_PER_SECOND 100
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
@@ -16,6 +18,8 @@ unsigned int ServerGame::client_id;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
+
+GameStatePacket GameState;
 unordered_map<int, int> clientToEntity;
  
 void spawnIslands(PhysicsSystem& physicsSystem) {
@@ -46,7 +50,7 @@ ServerGame::ServerGame(void)
     network = new ServerNetwork();
 
     //the current game state TO SEND (not necessarily full game state)
-	GameState = GameStatePacket();
+    GameState = GameStatePacket();
 
 	//the current player intent received
 	PlayerIntent = PlayerIntentPacket();
@@ -115,10 +119,15 @@ void ServerGame::update()
    {
         printf("client %d has been connected to the server\n",client_id);
         GameObject* player = physicsSystem.makeGameObject();
-		player->behavior = new PlayerBehaviorComponent(player, physicsSystem); //for player objects, we set a behavior component
+
+        //take care of behavior stuff
+		PlayerBehaviorComponent* playerBehavior = new PlayerBehaviorComponent(player, physicsSystem); //for player objects, we set a behavior component
+        player->behavior = playerBehavior;
+        playerBehaviors[client_id] = playerBehavior;
 		//for player objects, we set a behavior component
 
 		player->type = PLAYER;
+        player->isDynamic = true;
         //place where player gets added
         //physicsSystem.playerObjects[client_id] = player;
 		physicsSystem.addPlayerObject(player);
@@ -126,6 +135,8 @@ void ServerGame::update()
         player->id = client_id;
         //physicsSystem.addDynamicObject(player);
         clientToEntity[client_id] = client_id;
+
+        
         
         //fill up the HP and the mana
 
@@ -205,8 +216,15 @@ void ServerGame::writeToGameState() {
 
         // Assuming GameState has a way to store multiple objects' model matrices
         GameState.entities[i + physicsSystem.dynamicObjects.size()] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
-
     }
+
+	//copy over player stats like health and mana
+	for (int i = 0; i < 4; i++)
+	{
+        if (playerBehaviors[i] != nullptr) {
+            GameState.player_stats[i] = playerBehaviors[i]->playerStats;
+        }
+	}
 
 }
 

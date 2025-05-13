@@ -32,7 +32,7 @@ public:
    virtual void integrate(GameObject* self, float deltaTime, PhysicsSystem& physicsSystem) = 0;  
 
    // Called when a collision is detected with another object  
-   virtual void handleCollision(GameObject* self, const GameObject& other) = 0;  
+   virtual void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) = 0;
 };
 
 class PlayerBehaviorComponent : public BehaviorComponent {
@@ -44,6 +44,7 @@ const float STOMP_TIME = 3.0f;
 const float STOMP_SPEED = 30.0f;
 const float GRAPPLE_SPEED = 15.0f;
 const float GRAPPLE_TIME = 10.0f;
+const float WOOD_PROJ_SPEED = 25.0f;
 
 
 public:
@@ -52,6 +53,9 @@ public:
 	float stompTimer = 0.0f;
     float grappleTimer = 0.0f;
 	GameObject* grappleTarget = nullptr;
+	PlayerStats playerStats;
+
+    int debugVar = 0;
     // just forward to the base
     PlayerBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
         : BehaviorComponent(self, physicsSystem)
@@ -62,5 +66,28 @@ public:
 
     // override the abstract methods
     void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
-    void handleCollision(GameObject* obj, const GameObject& other) override;
+    //void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
+    // Update the base class declaration to match the derived class method signature
+    void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
+	//spawn projectile
+};
+
+class ProjectileBehaviorComponent : public BehaviorComponent {
+
+public:
+   glm::vec3 velocity; // Add this missing member
+   float damage;
+   static const float WOOD_PROJ_SPEED;
+   int originalPlayer;
+
+   ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage, int originalPlayer)
+	   : BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage), originalPlayer(originalPlayer)
+   {
+	   this->self = self;
+	   this->physicsSystem = physicsSystem;
+	   this->velocity = velocity;
+   }
+
+   void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
+   void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
 };
