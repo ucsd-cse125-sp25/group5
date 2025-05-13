@@ -107,6 +107,7 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_callback);
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
     Window::client = _client;
@@ -347,6 +348,12 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         RightDown = (action == GLFW_PRESS);
     }
+	PlayerIntent.leftClickIntent = LeftDown;
+	PlayerIntent.rightClickIntent = RightDown;
+	//std::cout << "LeftDown: " << LeftDown << std::endl;
+	//std::cout << "RightDown: " << RightDown << std::endl;
+	//std::cout << "MouseX: " << MouseX << std::endl;
+	//std::cout << "MouseY: " << MouseY << std::endl;
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {

@@ -279,14 +279,14 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 
 		//check for attacks
-		if (intent.hitEIntent && debugVar == 0) {
+		if (intent.rightClickIntent && debugVar == 0) {
 			spawnProjectile(obj, WOOD, phys);
 			printf("Hit e\n");
 			printf("Physics system size %d\n", int(phys.dynamicObjects.size()));	
 			debugVar = 1;
 		}
 		else {
-			debugVar = intent.hitEIntent;
+			debugVar = intent.rightClickIntent;
 		}
 
 		// apply force 
