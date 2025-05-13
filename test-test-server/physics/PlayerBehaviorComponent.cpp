@@ -172,6 +172,81 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//print velocity
 		printf("Projectile velocity %f %f %f\n", obj->physics->velocity.x, obj->physics->velocity.y, obj->physics->velocity.z);
 	}
+	else if (type == METAL) {
+		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
+		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		//give it the behavior of a projectile object, and make it good type
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->type = METAL_PROJ;
+		obj->isDynamic = true;
+		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
+		phys.addDynamicObject(obj);
+		phys.addMovingObject(obj);
+	}
+	else if (type == WATER) {
+		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
+		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		//give it the behavior of a projectile object, and make it good type
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->type = WATER_PROJ;
+		obj->isDynamic = true;
+		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
+		phys.addDynamicObject(obj);
+		phys.addMovingObject(obj);
+	}
+	else if (type == FIRE) {
+		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
+		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		//give it the behavior of a projectile object, and make it good type
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->type = FIRE_PROJ;
+		obj->isDynamic = true;
+		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
+		phys.addDynamicObject(obj);
+		phys.addMovingObject(obj);
+	}
+	else if (type == EARTH) {
+		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
+		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		//give it the behavior of a projectile object, and make it good type
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->type = EARTH_PROJ;
+		obj->isDynamic = true;
+		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
+		phys.addDynamicObject(obj);
+		phys.addMovingObject(obj);
+	}
+	
+}
+
+void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent) {
+
+	
+
+	if (intent.hitEIntent) {
+		printf("Scroll up %d\n", intent.scrollUpIntent);
+		printf("Scroll down %d\n", intent.scrollDownIntent);
+
+		printf("Player %d active power: %d\n", player->id, playerStats.activePower);
+		int nextPower = (playerStats.activePower + 1) % 5;
+		playerStats.activePower = PowerType(nextPower);
+	}
+	else if (intent.hitRIntent) {
+		printf("Scroll up %d\n", intent.scrollUpIntent);
+		printf("Scroll down %d\n", intent.scrollDownIntent);
+
+		printf("Player %d active power: %d\n", player->id, playerStats.activePower);
+		int nextPower = (playerStats.activePower - 1 + 5) % 5;
+		if (nextPower < 0) {
+			nextPower = 4;
+		}
+		playerStats.activePower = PowerType(nextPower);
+	}
+	else {
+		printf("Player %d active power: %d\n", player->id, playerStats.activePower);
+	}
+
+	
 }
 
 //—— integrate — called once per tick
@@ -182,6 +257,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 	
+	changePlayerPower(obj, phys, intent);
 	//dash movement
 	if (state == PlayerMovementState::DASH) {
 		dashTimer -= deltaTime;
@@ -279,15 +355,15 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 
 		//check for attacks
-		if (intent.rightClickIntent && debugVar == 0) {
-			spawnProjectile(obj, WOOD, phys);
+		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 0) {
+			spawnProjectile(obj, playerStats.activePower, phys);
 			printf("Hit e\n");
 			printf("Physics system size %d\n", int(phys.dynamicObjects.size()));	
-			debugVar = 1;
+			//debugVar = 1;
 		}
-		else {
-			debugVar = intent.rightClickIntent;
-		}
+		//else {
+		//	debugVar = intent.rightClickIntent;
+		//}
 
 		// apply force 
 		obj->physics->velocity += obj->physics->acceleration * deltaTime;

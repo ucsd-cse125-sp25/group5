@@ -1,36 +1,44 @@
+#pragma once
 #include "../include/shared/ObjectData.h"
 #include "../include/shared/NetworkData.h"
 
 struct PlayerIntentTracking {
 	//movement
-	int moveLeftDuration = 0; 
-	int moveRightDuration = 0;
-	int moveUpDuration = 0;
-	int moveDownDuration = 0;
-	int moveForwardDuration = 0;
-	int moveBackDuration = 0;
+	size_t moveLeftDuration = 0; 
+	size_t moveRightDuration = 0;
+	size_t moveUpDuration = 0;
+	size_t moveDownDuration = 0;
+	size_t moveForwardDuration = 0;
+	size_t moveBackDuration = 0;
 
 	//attack triggers
-	int rightClickDuration = 0;
-	int leftClickDuration = 0;
-	int scrollUpDuration = 0;
-	int scrollDownDuration = 0;
+	size_t rightClickDuration = 0;
+	size_t leftClickDuration = 0;
+	size_t scrollUpDuration = 0;
+	size_t scrollDownDuration = 0;
 
 	//powers
-	int hit1Duration = 0;
-	int hit2Duration = 0;
-	int hit3Duration = 0;
-	int hit4Duration = 0;
-	int hit5Duration = 0;
+	size_t hit1Duration = 0;
+	size_t hit2Duration = 0;
+	size_t hit3Duration = 0;
+	size_t hit4Duration = 0;
+	size_t hit5Duration = 0;
 
-	int hitEDuration = 0;
-	int hitRDuration = 0;
-	int hitTDuration = 0;
-	int hitYDuration = 0;
-	int hitQDuration = 0;
+	size_t hitEDuration = 0;
+	size_t hitRDuration = 0;
+	size_t hitTDuration = 0;
+	size_t hitYDuration = 0;
+	size_t hitQDuration = 0;
 
 };
 
 class InputManager {
+
+public:
+	PlayerIntentTracking playerIntentTrackers[MAX_PLAYERS];
+
+
+	void updateTracking(PlayerIntentPacket intent, int id);
+
 
 };

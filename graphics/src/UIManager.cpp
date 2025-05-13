@@ -34,7 +34,7 @@ static std::unordered_map<std::string, std::tuple<std::string, std::string>> Mag
 };
 
 static std::vector<std::string> MagicOrder{
-	"water", "fire", "earth", "wood", "metal"
+	"metal", "wood", "water", "fire", "earth"
 };
 
 //Loads textures and creates UI elements

@@ -87,6 +87,7 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
+
     glfwSetScrollCallback(window, scroll_callback);
 	glfwSetMouseButtonCallback(window, mouse_callback);
     // Call the resize callback to make sure things get drawn immediately.
@@ -114,6 +115,14 @@ void Window::idleCallback() {
     client->update(PlayerIntent);
     Cam->Update(client);
     scene->update(client);
+
+    if (PlayerIntent.scrollIntentTriggered) {
+        PlayerIntent.scrollIntentTriggered = false;
+        PlayerIntent.scrollDownIntent = false;
+        PlayerIntent.scrollUpIntent = false;
+    }
+
+    //set scroll
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -126,8 +135,6 @@ void Window::displayCallback(GLFWwindow* window) {
 
     scene->draw(Cam);
 	
-    PlayerIntent.scrollUpIntent = false;
-    PlayerIntent.scrollDownIntent = false;
     glfwPollEvents();
 
     glfwSwapBuffers(window);
@@ -209,8 +216,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
         }
 
     }
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) { scene->TriggerAnim(0); }; //Rotate UI CCW
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) { scene->TriggerAnim(1); }; //Rotate UI CW
+   
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
@@ -233,14 +239,22 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     if (yoffset > 0) {
+        PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollUpIntent = true;
 		PlayerIntent.scrollDownIntent = false;
 
 	}
     else if(yoffset < 0){
+        PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollDownIntent = true;
 		PlayerIntent.scrollUpIntent = false;
     }
+
+
+	printf("Scroll: %f %f\n", xoffset, yoffset);
+
+    if (PlayerIntent.scrollDownIntent) { scene->TriggerAnim(0); }; //Rotate UI CCW
+    if (PlayerIntent.scrollUpIntent) { scene->TriggerAnim(1); }; //Rotate UI CW
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {

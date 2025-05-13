@@ -47,6 +47,9 @@ struct PlayerIntentPacket {
     bool scrollUpIntent = false;
 	bool scrollDownIntent = false;
 
+    bool scrollIntentTriggered = false;
+    int scrollDirection = 0; // -1 for down, +1 for up, 0 for none
+
     //powers
 	bool hit1Intent = false;
 	bool hit2Intent = false;

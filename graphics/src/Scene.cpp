@@ -123,6 +123,26 @@ void Scene::update(ClientGame* client) {
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
+		else if (entity.type == METAL_PROJ) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.5f, 0.5f, 0.5f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == WATER_PROJ) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.2f, 0.4f, 1.0f)); // Blue-ish
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == FIRE_PROJ) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == EARTH_PROJ) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.4f, 0.3f, 0.1f)); // Brown/soil tone
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
 	}
 	uimanager->update(dummy);
 }

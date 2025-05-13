@@ -4,6 +4,7 @@
 #include "physics/PhysicsData.h"
 #include "physics/PhysicsSystem.h" // Include the PhysicsSystem header
 #include "physics/BehaviorComponent.h"
+#include "InputManager.h"
 
 class ServerGame  
 {  
@@ -27,6 +28,8 @@ private:
    GameStatePacket GameState;
    PlayerIntentPacket PlayerIntent;  
    PhysicsSystem physicsSystem; // Add this line to include the physics system
+   InputManager inputManager; // Input manager instance	
+
 
    PlayerBehaviorComponent* playerBehaviors[4] = { nullptr, nullptr, nullptr, nullptr }; // Array to hold player behavior components] = { nullptr, nullptr, nullptr, nullptr }; // Array of player behaviors
    
