@@ -1,13 +1,12 @@
 #include "UIImg.h"
 
-void UIImg::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
+void UIImg::Init(std::vector<float> startPos, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
-	projection = glm::ortho(0.0f, scWidth, 0.0f, scHeight, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
-
-	float offsetX = scWidth * percent;
-	float offsetY = scHeight * percent * ratio;
+	float offsetX = WINDOWWIDTH * percent;
+	float offsetY = WINDOWHEIGHT * percent * ratio;
 	float uiWidth = offsetX;
 	float uiHeight = offsetY;
 
@@ -72,24 +71,22 @@ void UIImg::SetTexture(GLuint tex) {
 * @brief Initalizes the quads of both the health and container bars.
 * Using pixel coordinates: (0,0) will be bottom left of the screen
 *
-* @param scWidth: Width of the window
-* @param scHeight: Height of the window
 * @param startPos: Starting coordinate of quad
 * @param percent: Percentage of the window width the UI element should occupy
 * @param ratio: Aspect ratio of the UI element
 **/
-void HealthBar::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
+void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 
 	shaderProgram = LoadShaders("shaders/healthbar.vert", "shaders/healthbar.frag");
-	projection = glm::ortho(0.0f, scWidth, 0.0f, scHeight, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
 	containerColor = { 0.2f, 0.2f, 1.0f };
 	healthColor = { 1.0f, 1.0f, 1.0f };
 
-	float offsetX = scWidth * percent;
-	float offsetY = scHeight * percent * ratio;
+	float offsetX = WINDOWWIDTH * percent;
+	float offsetY = WINDOWHEIGHT * percent * ratio;
 
 	health = {
 		//Position                                     //UV         //Color
@@ -176,38 +173,42 @@ void HealthBar::Draw() {
 	glBindVertexArray(0);
 }
 
-void Magic::Init(float scWidth, float scHeight, std::vector<float> startPos, float percent, float ratio) {
-	uiWidth = scWidth * percent;
-	uiHeight = scHeight * percent * ratio;
+void Magic::Init(std::vector<float> startPerc, float p, float r) {
+	scHeight = WINDOWHEIGHT;
+	scWidth = WINDOWWIDTH;
+	percent = p;
+	ratio = r;
+	percX = startPerc[0];
+	percY = startPerc[1];
+	position = { percX * WINDOWWIDTH, percY * WINDOWHEIGHT };
+	uiWidth = WINDOWWIDTH * percent;
+	uiHeight = WINDOWHEIGHT * percent * ratio;
+	centerX = position[0] + (uiWidth / 2.0f) + 15;
+	centerY = position[1] + (uiHeight / 2.0f) - 15;
 
-	centerX = startPos[0] + (uiWidth / 2.0f) + 15;
-	centerY = startPos[1] + (uiHeight / 2.0f) - 15;
-
-	manaWidth = scWidth * 0.1;
-
-	std::cout << "Creating the magic ui element" << std::endl;
+	manaWidth = WINDOWWIDTH * 0.1;
 
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
 	manaProgram = LoadShaders("shaders/magic.vert", "shaders/magic.frag");
-	projection = glm::ortho(0.0f, scWidth, 0.0f, scHeight, -1.0f, 1.0f);
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 
 	float offsetX = uiWidth;
 	float offsetY = uiHeight;
 
 	quad = {
 		//Position                                     //UV         //Color
-		startPos[0], startPos[1],                      0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
-		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
-		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
-		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		position[0], position[1],                      0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		position[0] + offsetX, position[1],            1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		position[0] + offsetX, position[1] + offsetY,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		position[0], position[1] + offsetY,            0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
 	};
 
 	mana = {
 		//Position                     //UV         //Color
 		0.0f, 0.0f,                    0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
 		manaWidth, 0.0f,               1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
-		manaWidth, manaWidth,         1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
-		0.0f, manaWidth,              0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		manaWidth, manaWidth,          1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		0.0f, manaWidth,               0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
 	};
 
 	//Buffers for the background
@@ -221,7 +222,7 @@ void Magic::Init(float scWidth, float scHeight, std::vector<float> startPos, flo
 
 	glBindVertexArray(backVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, backVBO);
-	glBufferData(GL_ARRAY_BUFFER, quad.size() * sizeof(float), quad.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, quad.size() * sizeof(float), quad.data(), GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
@@ -238,7 +239,7 @@ void Magic::Init(float scWidth, float scHeight, std::vector<float> startPos, flo
 
 	glBindVertexArray(elemVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, elemVBO);
-	glBufferData(GL_ARRAY_BUFFER, mana.size() * sizeof(float), mana.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mana.size() * sizeof(float), mana.data(), GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
@@ -250,13 +251,15 @@ void Magic::Init(float scWidth, float scHeight, std::vector<float> startPos, flo
 }
 
 void Magic::Update(const OtherPlayerStats& p) {
+	//UPDATE ALL ELEMENTS OF THE UI FROM WINDOWWIDTH/WINDOWHEIGHT
+	UpdateLayout();
+
 	//loop through each struct and update according to the player
 	float waterPerc = float(p.currWater) / float(p.maxWater);
 	float firePerc = float(p.currFire) / float(p.maxFire);
 	float earthPerc = float(p.currEarth) / float(p.maxEarth);
 	float woodPerc = float(p.currWood) / float(p.maxWood);
 	float metalPerc = float(p.currMetal) / float(p.maxMetal);
-	std::cout << waterPerc << " " << firePerc << " " << earthPerc << " " << woodPerc << " " << metalPerc << std::endl;
 	int size = powers.size();
 	for (int i = 0; i < size; i++) {
 		const std::string name = powers[i].name;
@@ -275,6 +278,91 @@ void Magic::Update(const OtherPlayerStats& p) {
 		else if (name == "metal") {
 			powers[i].currMana = metalPerc;
 		}
+	}
+
+	double now = glfwGetTime();
+	float radius = manaRadius * WINDOWWIDTH;
+	if (animating) {
+		double elapsed = now - animStart;
+		float t = elapsed / spinDuration;
+		if (elapsed >= spinDuration) {
+			animating = false;
+			for (int i = 0; i < size; i++) {
+				powers[i].currIdx = powers[i].targetIdx;
+				float angle = baseAngles[powers[i].currIdx];
+				float x = centerX + cos(angle) * radius;
+				float y = centerY + sin(angle) * radius;
+				powers[i].position = glm::vec2(x, y);
+			}
+		}
+		else {
+			for (int i = 0; i < size; i++) {
+				int curr = powers[i].currIdx;
+				int target = powers[i].targetIdx;
+				float startAngle = baseAngles[curr];
+				float endAngle = baseAngles[target];
+
+				if (endAngle - startAngle > glm::pi<float>()) endAngle -= glm::two_pi<float>();
+				else if (startAngle - endAngle > glm::pi<float>()) endAngle += glm::two_pi<float>();
+
+				float nowAngle = glm::mix(startAngle, endAngle, t);
+				float x = centerX + cos(nowAngle) * radius;
+				float y = centerY + sin(nowAngle) * radius;
+				powers[i].position = glm::vec2(x, y);
+			}
+		}
+	}
+}
+
+void Magic::UpdateLayout() {
+	if (scHeight == WINDOWHEIGHT && scWidth == WINDOWWIDTH) {
+		return;
+	}
+	scHeight = WINDOWHEIGHT;
+	scWidth = WINDOWWIDTH;
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	uiWidth = WINDOWWIDTH * percent;
+	uiHeight = WINDOWHEIGHT * percent * ratio;
+
+	position[0] = percX * WINDOWWIDTH;
+	position[1] = percY * WINDOWHEIGHT;
+
+	centerX = position[0] + (uiWidth / 2.0f) + 15;
+	centerY = position[1] + (uiHeight / 2.0f) - 15;
+	manaWidth = WINDOWWIDTH * 0.1;
+	float offsetX = uiWidth;
+	float offsetY = uiHeight;
+
+	quad = {
+		//Position                                     //UV         //Color
+		position[0], position[1],                      0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		position[0] + offsetX, position[1],            1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		position[0] + offsetX, position[1] + offsetY,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		position[0], position[1] + offsetY,            0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, backVBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, quad.size() * sizeof(float), quad.data());
+
+	mana = {
+		//Position                     //UV         //Color
+		0.0f, 0.0f,                    0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		manaWidth, 0.0f,               1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		manaWidth, manaWidth,          1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		0.0f, manaWidth,               0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, elemVBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, mana.size() * sizeof(float), mana.data());
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//Loop through all the powers and update the position accordinly
+	const float total = powers.size();
+	for (int i = 0; i < total; i++) {
+		float radius = manaRadius * WINDOWWIDTH;
+		float x = centerX + cos(baseAngles[powers[i].currIdx]) * radius;
+		float y = centerY + sin(baseAngles[powers[i].currIdx]) * radius;
+		powers[i].position = glm::vec2(x, y);
 	}
 }
 
@@ -299,14 +387,20 @@ void Magic::Draw() {
 	glUniform1f(glGetUniformLocation(manaProgram, "time"), seconds);
 	glBindVertexArray(elemVAO);
 	for (const auto& p : powers) {
+		float scale = (p.targetIdx == 0) ? 1.2f : 0.8f;
+		//translate, scale then translate by the offset
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(p.position.x - manaWidth / 2.0f, p.position.y - manaWidth / 2.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(p.position.x, p.position.y, 0.0f));
+		model = glm::scale(model, glm::vec3(scale, scale, 1.0f));
+		model = glm::translate(model, glm::vec3(-manaWidth / 2.0f, -manaWidth / 2.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(manaProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glUniform1f(glGetUniformLocation(manaProgram, "manaPercent"), p.currMana);
-		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), true);
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), 1);
+		int isSelected = (p.targetIdx == 0) ? 1 : 0;
+		glUniform1i(glGetUniformLocation(manaProgram, "selectedMana"), isSelected);
 		glBindTexture(GL_TEXTURE_2D, p.manaTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), false);
+		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), 0);
 		glBindTexture(GL_TEXTURE_2D, p.borderTexture);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
@@ -318,4 +412,25 @@ void Magic::Draw() {
 
 void Magic::SetTexture(GLuint texture) {
 	backTexture = texture;
+}
+
+void Magic::StartRotate(int anim) {
+	if (animating) {
+		return;
+	}
+	//Calculate all the corresponding next indices
+	for (auto& p : powers) {
+		int size = baseAngles.size();
+		if (anim == 0) {
+			p.targetIdx = (p.targetIdx - 1 + size) % size;
+		}
+		else if (anim == 1) {
+			p.targetIdx = (p.targetIdx + 1) % size;
+		}
+	}
+
+	//Set bool flag
+	animStart = glfwGetTime();
+	animating = true;
+	
 }

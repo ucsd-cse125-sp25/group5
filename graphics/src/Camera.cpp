@@ -44,7 +44,7 @@ void Camera::Update(ClientGame* client) {
     ViewMtx = view;
     ProjMtx = project;
 
-    std::cout << "CAM POSITION" << glm::to_string(GetPosition()) << std::endl;
+    //std::cout << "CAM POSITION" << glm::to_string(GetPosition()) << std::endl;
 }
 void Camera::Reset() {
     FOV = 45.0f;
