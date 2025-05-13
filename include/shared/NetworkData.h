@@ -69,7 +69,6 @@ struct PlayerIntentPacket {
     }
 };
 
-
 /**
  * @struct JoinResponsePacket
  * @brief Represents a packet sent in response to a join request in the network.
