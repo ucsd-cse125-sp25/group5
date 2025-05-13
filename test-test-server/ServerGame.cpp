@@ -56,7 +56,7 @@ ServerGame::ServerGame(void)
 	PlayerIntent = PlayerIntentPacket();
 
     //input management
-    inputManager = InputManager();
+    //inputManager = InputManager();
 
     //initialize the physics system
     physicsSystem = PhysicsSystem();
@@ -161,7 +161,7 @@ void ServerGame::update()
 
    physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
    //put new information into the game state
-   inputManager.updateTracking(PlayerIntent, client_id);
+   //inputManager.updateTracking(PlayerIntent, client_id);
 
 
 
