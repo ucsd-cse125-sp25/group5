@@ -14,7 +14,6 @@
 #include <Object.h>
 #include <Scene.h>
 #include "network/ClientGame.h"
-
 Scene* scene;
 
 void error_callback(int error, const char* description) {

@@ -1,9 +1,0 @@
-# ninja log v6
-5	68	7661099555381850	CMakeFiles/moonlight_matsuri.dir/stdafx.cpp.obj	9a081acbcea17418
-14	256	7661099555381850	CMakeFiles/moonlight_matsuri.dir/NetworkServices.cpp.obj	2f0e0941f740eb46
-7	258	7661099555381850	CMakeFiles/moonlight_matsuri.dir/ClientGame.cpp.obj	2782f735474ed609
-9	263	7661099555381850	CMakeFiles/moonlight_matsuri.dir/ClientNetwork.cpp.obj	6010efed0a29cc59
-3	365	7661099555225248	CMakeFiles/moonlight_matsuri.dir/main.cpp.obj	c237064182385088
-10	372	7661099555381850	CMakeFiles/moonlight_matsuri.dir/ServerGame.cpp.obj	b72725f4a22977d
-12	382	7661099555381850	CMakeFiles/moonlight_matsuri.dir/ServerNetwork.cpp.obj	f7d26d729a04af9c
-383	795	7661099559134626	moonlight_matsuri.exe	fd72704b2136c307
