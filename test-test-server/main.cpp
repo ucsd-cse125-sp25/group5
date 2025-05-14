@@ -28,6 +28,7 @@ int main()
 
     cout << ret.first.x << " " << ret.first.y << " " << ret.first.z << " " << ret.second << endl;
     */
+    printf("Starting the server on port %s\n", DEFAULT_PORT);
 	server = new ServerGame();
     serverLoop();
 }

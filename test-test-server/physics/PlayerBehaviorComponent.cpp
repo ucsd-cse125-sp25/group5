@@ -359,7 +359,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		}
 
 		//check for attacks
-		printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].rightClickDuration);
+		//printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].rightClickDuration);
+
 		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
 			spawnProjectile(obj, playerStats.activePower, phys);
 			printf("Hit e\n");

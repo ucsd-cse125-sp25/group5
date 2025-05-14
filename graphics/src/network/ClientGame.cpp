@@ -39,45 +39,64 @@ void ClientGame::sendActionPackets(PlayerIntentPacket intent)
     NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
 }
 
+char rem[MAX_PACKET_SIZE];
+int remSize = 0;
+PacketTypes type = NONE;
+
+char network_data[MAX_PACKET_SIZE];
+
+void ClientGame::handleGameStatePacket(char *buf) {
+    GameState.deserialize(buf);
+
+    // Update playerModel on receiving GameState
+    for (int j = 0; j < GameState.num_players; j++) {
+        if (GameState.players[j].id == playerId) {
+            playerModel = GameState.players[j].model;
+            break;
+        }
+    }
+
+    printf("Received num_players: %d\n", GameState.num_players);
+}
+
 //receive packets
 void ClientGame::update(PlayerIntentPacket intent)
 {
-    int data_length = network->receivePackets(network_data);
-	//printf("data length: %d\n", data_length);
-    if (data_length <= 0 ) 
-    {
-        //sendActionPackets(intent);
+    int bytes_received = network->receivePackets(network_data);
+    int i = 0;
+
+    // There is partial packet stored in rem
+    if (type != NONE) {
+
+        type = NONE;
     }
-    else {
-        int i = 0;
-        while (i < (unsigned int)data_length)
-        {
-            if (network_data[i] == JOIN_RESPONSE) {
-                JoinResponsePacket packet;
-                packet.deserialize(&(network_data[i]));
-                // Set playerId on JoinResponse from server
-                playerId = packet.entity_id;
-                i += sizeof(JoinResponsePacket);
 
-                //printf("Received playerId %d from server\n", packet.entity_id);
-                continue;
-            }
-
-            GameStatePacket packet;
+    while (i < bytes_received) {
+        if (network_data[i] == JOIN_RESPONSE) {
+            JoinResponsePacket packet;
             packet.deserialize(&(network_data[i]));
-            memcpy(&GameState, &packet, sizeof(GameStatePacket));
-			i += sizeof(GameStatePacket);
+            // Set playerId on JoinResponse from server
+            playerId = packet.entity_id;
+            i += sizeof(JoinResponsePacket);
 
-            // Update playerModel on receiving GameState
-            for (int j = 0; j < GameState.num_players; j++) {
-                if (GameState.players[j].id == playerId) {
-                    playerModel = GameState.players[j].model;
-                    break;
-                }
-            }
-			//printf("Received num_entities: %d\n", GameState.num_entities);
-			//printf("First entity is of type %d\n", GameState.entities[0].type);
+            //printf("Received playerId %d from server\n", packet.entity_id);
+            continue;
         }
+
+        // GameState Packet
+        int bytes_required = sizeof(GameStatePacket);
+        int bytes_remaining = bytes_received - i;
+
+        // buffer has less bytes than what's needed for processing a full GameState Packet
+        if (bytes_remaining < bytes_required) {
+            memcpy(rem, &(network_data[i]), bytes_remaining);
+            remSize = bytes_remaining;
+            type = GAME_STATE;
+            break;
+        }
+
+        handleGameStatePacket(&(network_data[i]));
+		i += sizeof(GameStatePacket);
     }
 
 	// throttle the packets

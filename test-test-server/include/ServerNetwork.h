@@ -9,7 +9,7 @@ using namespace std;
 #pragma comment (lib, "Ws2_32.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "2399" 
+#define DEFAULT_PORT "2398" 
 
 class ServerNetwork
 {

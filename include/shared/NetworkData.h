@@ -11,7 +11,8 @@ enum PacketTypes {
 
     PLAYER_INTENT = 0,
     JOIN_RESPONSE = 1,
-    GAME_STATE = 2
+    GAME_STATE = 2,
+    NONE = 3
 
 };
 
