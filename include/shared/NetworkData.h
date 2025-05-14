@@ -80,6 +80,8 @@ struct GameStatePacket {
     unsigned int num_entities;
     struct Entity entities[MAX_ENTITIES];
 
+    float seconds;
+
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));
     }

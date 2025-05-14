@@ -26,6 +26,20 @@ private:
 };
 
 
+class Clock : public UIImg {
+public: 
+	void Init(std::vector<float> startPos, float percent, float ratio);
+	void Draw();
+	void Update(const OtherPlayerStats& p, float seconds);
+//	void SetTexture(GLuint tex);
+	std::string name;
+private:
+	GLuint shaderProgram;
+	glm::mat4 projection;
+
+	GLuint VAO, VBO, EBO;
+};
+
 class HealthBar : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;

@@ -15,7 +15,7 @@
 * - The aspect ratio of the texture (float)
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} }
 };
 
 /**
@@ -32,12 +32,39 @@ static std::unordered_map<std::string, std::tuple<std::string, std::string>> Mag
 	{"metal", {PROJECT_SOURCE_DIR + std::string("/assets/metal_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/metal_outline.png")}}
 };
 
+
+//0-9 + colon (:)
+static std::unordered_map<std::string, std::string> Numbers = {
+	{"0", PROJECT_SOURCE_DIR + std::string("/assets/0.png")},
+	{"1", PROJECT_SOURCE_DIR + std::string("/assets/1.png")},
+	{"2", PROJECT_SOURCE_DIR + std::string("/assets/2.png")},
+	{"3", PROJECT_SOURCE_DIR + std::string("/assets/3.png")},
+	{"4", PROJECT_SOURCE_DIR + std::string("/assets/4.png")},
+	{"5", PROJECT_SOURCE_DIR + std::string("/assets/5.png")},
+	{"6", PROJECT_SOURCE_DIR + std::string("/assets/6.png")},
+	{"7", PROJECT_SOURCE_DIR + std::string("/assets/7.png")},
+	{"8", PROJECT_SOURCE_DIR + std::string("/assets/8.png")},
+	{"9", PROJECT_SOURCE_DIR + std::string("/assets/9.png")},
+	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
+};
+
 static std::vector<std::string> MagicOrder{
 	"water", "fire", "earth", "wood", "metal"
 };
 
 //Loads textures and creates UI elements
 void UIManager::Init() {
+
+	//load in number textures to use
+	for (const auto& pair : Numbers) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+	//add a clock to match elements
+	matchElements.push_back(new Clock());
+	
+	//
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
@@ -118,7 +145,7 @@ void UIManager::Init() {
 void UIManager::update(const OtherPlayerStats& p) {
 	switch (currState) {
 	case GameState::LOBBY:
-		for (auto* img : matchElements) {
+		for (auto* img : lobbyElements) {
 			img->Update(p);
 		}
 		break;
@@ -133,7 +160,7 @@ void UIManager::update(const OtherPlayerStats& p) {
 void UIManager::draw() {
 	switch (currState) {
 	case GameState::LOBBY:
-		for (auto* img : matchElements) {
+		for (auto* img : lobbyElements) {
 			img->Draw();
 		}
 		break;
