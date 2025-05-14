@@ -65,12 +65,11 @@ public:
 	pair<glm::vec3,float> handlePlayerGrapple(GameObject* obj, PhysicsSystem& phys);
 
 	void changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent);
+
     // override the abstract methods
     void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
-    //void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
     // Update the base class declaration to match the derived class method signature
     void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
-	//spawn projectile
 };
 
 class ProjectileBehaviorComponent : public BehaviorComponent {

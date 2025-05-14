@@ -38,7 +38,7 @@ glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
 	return toRet;
 }
 
-glm::vec3 getDirection(float azimuth, float incline) {
+glm::vec3 static getDirection(float azimuth, float incline) {
 	// if azimuth & incline are in degrees:
 	// azimuth = glm::radians(azimuth);
 	// incline = glm::radians(incline);
@@ -55,7 +55,7 @@ glm::vec3 getDirection(float azimuth, float incline) {
 }
 
 //god forgive me for what I'm about to do
-bool checkBottom(GameObject* obj, PhysicsSystem& phys) {
+bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 	// 1) compute a single point just below the player's feet
 	float eps = 0.1f;
 	glm::vec3 foot = obj->transform.position
@@ -63,7 +63,7 @@ bool checkBottom(GameObject* obj, PhysicsSystem& phys) {
 
 	// 2) test that point against every static AABB
 	for (auto* s : phys.staticObjects) {
-		const AABB& b = s->transform.aabb;
+		const AABB& b = phys.getAABB(s);
 		if (foot.x >= b.min.x && foot.x <= b.max.x
 			&& foot.y >= b.min.y && foot.y <= b.max.y
 			&& foot.z >= b.min.z && foot.z <= b.max.z)
@@ -119,7 +119,7 @@ pair<glm::vec3, float> PlayerBehaviorComponent::handlePlayerGrapple(GameObject* 
 	GameObject* bestHitObj = nullptr;
 
 	for (auto* staticObj : phys.staticObjects) {
-		AABB box = staticObj->transform.aabb;
+		AABB box = phys.getAABB(staticObj);
 		float t;
 		if (rayIntersectsAABB(ray, box, t) && t < bestT) {
 			bestT = t;
@@ -285,7 +285,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 		grappleTimer -= deltaTime;
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
-		pair<vec3, float> penetration = phys.getAABBpenetration(obj->transform.aabb, grappleTarget->transform.aabb);
+		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
 
 		//if we've collided with our target object, or if we've run out of time, release the grapple
 		if (grappleTimer <= 0.0f) {
@@ -404,8 +404,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 	//remove it after
 	//obj->physics->velocity -= getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
-
-	obj->transform.aabb = physicsSystem.getAABB(obj);
     
 }
 
