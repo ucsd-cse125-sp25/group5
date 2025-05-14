@@ -33,10 +33,12 @@ extern Scene* scene;
 
 ClientGame* Window::client;
 PlayerIntentPacket Window::PlayerIntent;
+double scrollStart;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
     //cube = new Cube();
+    scrollStart = glfwGetTime();
     return true;
 }
 
@@ -238,6 +240,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+
+    double time = glfwGetTime();
+
+    if (time - scrollStart < 0.5) {
+        return;
+    }
     if (yoffset > 0) {
         PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollUpIntent = true;
@@ -255,6 +263,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 	printf("Scroll: %f %f\n", xoffset, yoffset);
 
+    scrollStart = glfwGetTime();
     if (PlayerIntent.scrollDownIntent) { 
         scene->TriggerAnim(0); 
         PlayerIntent.changeToPower = (PowerType)(((int)PlayerIntent.changeToPower + 1) % 5);
