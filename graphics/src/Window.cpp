@@ -243,7 +243,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
     double time = glfwGetTime();
 
-    if (time - scrollStart < 0.5) {
+    if (time - scrollStart < 0.1) {
         return;
     }
     if (yoffset > 0) {
