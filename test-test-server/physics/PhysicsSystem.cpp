@@ -15,44 +15,20 @@ using namespace std;
 
 int nextid = 10;
 
-class BehaviorComponent;
+class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
-/**
- * Cubic Bezier curve function
- * @param A Start point
- * @param B Control point 1
- * @param C Control point 2
- * @param t Parameter (0 <= t <= 1), where t represents the interpolation factor
- * @return Point on the curve at parameter t
- */
-glm::vec3 bezier(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C, float t) {
-    glm::vec3 AB = glm::mix(A, B, t);
-    glm::vec3 BC = glm::mix(B, C, t);
-    return glm::mix(AB, BC, t);
-}
-
-/** 
- * update the physics system for each dynamic object
- * @param dt delta time
- * @return void
-*/
 void PhysicsSystem::tick(float dt) {
     // Update all dynamic objects
     for (size_t i = 0; i < movingObjects.size(); ++i) {
         GameObject* obj = movingObjects[i];
-
-        // printf("tick %d\n", obj->id);
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
-
         integrate(obj, dt);
     }
 
     // After integration is complete for all objects, start handling collision
     for (size_t i = 0; i < movingObjects.size(); ++i) {
         GameObject* obj = movingObjects[i];
-
         handleCollisions(obj);
-
         obj->physics->acceleration = glm::vec3(0);
     }
 
@@ -62,6 +38,8 @@ void PhysicsSystem::tick(float dt) {
 
 void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
     assert(obj != NULL);
+    assert(obj->physics != NULL);
+    assert(obj->transform != NULL);
 
     // apply force 
     obj->physics->velocity += obj->physics->acceleration * dt;
@@ -86,84 +64,35 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 	}
 }
 
-/**
- * Handle grapple movement
- * @param obj GameObject to be grappling
- * @param dt delta time
- * @return void
-*/
-void PhysicsSystem::handleGrapple(GameObject* obj, float dt) {
-    assert(obj != NULL);
-}
-
-/**
- * Get the Axis-Aligned Bounding Box (AABB) of a GameObject
- * @param obj GameObject to get the AABB from
- * @return AABB of the GameObject
- * @note The AABB is calculated based on the position and half extents of the collider
- * @note The AABB is represented as a pair of vectors: min and max
- * @note The min vector is the minimum corner of the AABB
- * @note The max vector is the maximum corner of the AABB
- */
 AABB PhysicsSystem::getAABB(GameObject* obj) {
     assert(obj != NULL);
+    assert(obj->collider != NULL);
+    assert(obj->transform != NULL);
+
     glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
     glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
     return { min, max };
 }
 
-/**
- * Handle collisions between a dynamic object and all static objects
- * @param obj dynamic GameObject to check for collisions
- * @return void
- * @note This function checks for collisions between the dynamic object and all static objects in the scene
-*/
 void PhysicsSystem::handleCollisions(GameObject* obj) {
     assert(obj != NULL);
 
-    printf("handleCollisions %d\n", obj->id);
     // Check for collisions with static objects
     for (auto sobj : staticObjects) {
         AABB objAABB = getAABB(obj);
         AABB sobjAABB = getAABB(sobj);
-        printf("objAABB: (%f, %f, %f) (%f, %f, %f)\n", objAABB.min.x, objAABB.min.y, objAABB.min.z, objAABB.max.x, objAABB.max.y, objAABB.max.z);
-        printf("sobjAABB: (%f, %f, %f) (%f, %f, %f)\n", sobjAABB.min.x, sobjAABB.min.y, sobjAABB.min.z, sobjAABB.max.x, sobjAABB.max.y, sobjAABB.max.z);
+        
         pair<vec3, float> penetration = getAABBpenetration(objAABB, sobjAABB);
-        printf("penetration: (%f, %f, %f) %f\n", penetration.first.x, penetration.first.y, penetration.first.z, penetration.second);
         if (penetration.second > 0.0f) {
 			if (obj->behavior != nullptr) {
 				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
-			}
-            else {
+			} else {
                 resolveCollision(obj, sobj, penetration, 0);
-            }
-            
-            //printf("Detected collision between %d and %d\n", obj->id, sobj->id);
+            }            
         }  
-		//printf("Detected collision between %d and %d\n", obj->id, sobj->id);
     }
-	//printf("length of static objects %d", int(staticObjects.size()));
-
-    //// Check for collisions between dynamic objects
-    //for (auto dobj : movingObjects) {
-    //    if (obj->id == dobj->id) {
-    //        continue; // Skip self-collision
-    //    }
-    //    pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
-    //    if (penetration.second > 0.0f) {
-    //        resolveCollision(obj, dobj, penetration, 1);
-    //    }
-    //}
-    return;
 }
 
-/**
- * Get the impulse vector for collision resolution
- * @param normal Normal vector of the penetration vector
- * @param relativeVelocity Relative velocity of the two objects
- * @param restitution Coefficient of restitution (bounciness)
- * @return Impulse vector to apply to the object
- */
 vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution) {
     float velAlongNormal = glm::dot(relativeVelocity, normal);
     if (velAlongNormal < 0.0f) {
@@ -176,9 +105,7 @@ vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVel
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status) {
     assert (go1 != NULL && go2 != NULL);
 
-    printf("resolveCollision %d %d\n", go1->id, go2->id);
     vec3 normal = glm::normalize(penetration.first);
-    printf("normal: (%f, %f, %f)\n", normal.x, normal.y, normal.z);
     float overlap = penetration.second;
 
     float overlapFraction = 0.5f;
@@ -187,30 +114,14 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     }
 
     // Velocity resolution: bounce off if moving into each other
-    printf("go1 velocity before: (%f, %f, %f)\n", go1->physics->velocity.x, go1->physics->velocity.y, go1->physics->velocity.z);
-    printf("go2 velocity before: (%f, %f, %f)\n", go2->physics->velocity.x, go2->physics->velocity.y, go2->physics->velocity.z);
     go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
     go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
-    printf("go1 velocity after: (%f, %f, %f)\n", go1->physics->velocity.x, go1->physics->velocity.y, go1->physics->velocity.z);
-    printf("go2 velocity after: (%f, %f, %f)\n", go2->physics->velocity.x, go2->physics->velocity.y, go2->physics->velocity.z);
 
     // Positional correction: push both objects out of each other
-    printf("go1 position before: (%f, %f, %f)\n", go1->transform.position.x, go1->transform.position.y, go1->transform.position.z);
-    printf("go2 position before: (%f, %f, %f)\n", go2->transform.position.x, go2->transform.position.y, go2->transform.position.z);
     go1->transform.position += normal * (overlap * overlapFraction);
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
-    printf("go1 position after: (%f, %f, %f)\n", go1->transform.position.x, go1->transform.position.y, go1->transform.position.z);
-    printf("go2 position after: (%f, %f, %f)\n", go2->transform.position.x, go2->transform.position.y, go2->transform.position.z);
 }
 
-    
-/**
- * Apply player input to the GameObject
- * @param intent PlayerIntentPacket containing the input data
- * @param playerId ID of the player
- * @return void
- * 
-*/
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //process player input
     GameObject* target = NULL;
@@ -231,15 +142,10 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
     glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
-    //glm::vec3 translation = glm::vec3(target.cubeModel[3]);
 	glm::vec3 translation = target->transform.position;
-    glm::vec3 right = glm::normalize(glm::cross(up, forward));
-
-    
-    //target->transform.rotation = glm::vec4(glm::quat_cast(rotation).x, glm::quat_cast(rotation).y, glm::quat_cast(rotation).z, glm::quat_cast(rotation).w);
+    glm::vec3 right = glm::normalize(glm::cross(up, forward));    
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
     target->transform.rotation = q;
-	//target->transform.position = translation;
 }
 
 GameObject* PhysicsSystem::makeGameObject() {
@@ -261,29 +167,22 @@ GameObject* PhysicsSystem::makeGameObject() {
     //collider half extents 
     obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
 
-    //isDynamic is lowkey useless 
-    obj->isDynamic = false;
-
-    return obj; // return reference to the stored one
+    return obj; // return reference to the new object
 }
 
 GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
-
 	GameObject* obj = makeGameObject();
 
 	obj->transform.position = position;
 	obj->transform.rotation = rotation;
-
 	obj->collider->halfExtents = halfExtents;
 
     return obj;
 }
 
-// Convert position + quaternion to mat4
 glm::mat4 PhysicsSystem::toMatrix(const glm::vec3& position, const glm::quat& quaternion) {
     glm::mat4 T = glm::translate(glm::mat4(1.0f), position);
 	glm::mat4 R = glm::toMat4(glm::quat(quaternion));
-	//glm::mat4 S = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
 	return T * R;
 }
 
@@ -359,12 +258,6 @@ GameObject* PhysicsSystem::getPlayerObjectById(int id) {
         }
     }
     return nullptr;
-}
-
-// to get rid of warning
-std::pair<float, float> PhysicsSystem::getInterval(const vec3 &center, const vec3 &halfExtents, const vector<vec3> &normals, const vec3 &axis) {
-    printf("inside getInterval\n");
-    return std::pair<float, float>();
 }
 
 vector<vec3> getAABBVertices(const AABB &aabb)

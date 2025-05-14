@@ -68,7 +68,7 @@ ServerGame::ServerGame(void)
 		physicsSystem.addStaticObject(cube);
     }
     
-    //add an island
+    //add islands
 	spawnIslands(physicsSystem);
 
     //add a d_cube
@@ -114,9 +114,7 @@ void ServerGame::update()
    bool sendUpdate = receiveFromClients();
 
    physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
-   //put new information into the game state
-   writeToGameState();
-
+   writeToGameState();  //put new information into the game state
 
    if (sendUpdate) {
        sendGameStatePackets();
@@ -131,6 +129,18 @@ void ServerGame::update()
    }
 }
 
+void sendObjects(std::vector<GameObject*>& objects, Entity& lst, int startIndex) {
+    if (objects.empty()) {
+        return; // No objects to send
+    }
+
+    int index = 0;
+    for (GameObject* obj : objects) {
+        glm::mat4 modelMatrix = physicsSystem.toMatrix(obj->transform.position, obj->transform.rotation);
+        lst[startIndex + index] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
+        index++;
+    }
+}
 
 void ServerGame::writeToGameState() {
     GameState.packet_type = GAME_STATE;
@@ -142,49 +152,18 @@ void ServerGame::writeToGameState() {
 	GameState.num_players = numPlayers;
 
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
-    for (int i = 0; i < physicsSystem.playerObjects.size(); i++) {
-        GameObject* obj = physicsSystem.playerObjects[i];
-        glm::vec3& position = obj->transform.position;
-        glm::quat& rotation = obj->transform.rotation;
-        glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
-        // Assuming GameState has a way to store multiple objects' model matrices
-        GameState.players[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
-
-        //printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
-        //printf("position is %f %f %f\n", position.x, position.y, position.z);
-    }
+    sendObjects(physicsSystem.playerObjects, GameState.players, 0);
    
     //send all the dynamic objects
-    for (int i = 0; i < physicsSystem.dynamicObjects.size(); i++) {
-        GameObject* obj = physicsSystem.dynamicObjects[i];
-        glm::vec3& position = obj->transform.position;
-        glm::quat& rotation = obj->transform.rotation;
-        glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
-        // Assuming GameState has a way to store multiple objects' model matrices
-        GameState.entities[i] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
-
-		/*printf("ServerGame::writeToGameState sending entity %d with type %d\n", obj->id, obj->type);
-		printf("position is %f %f %f\n", position.x, position.y, position.z);*/
-    }
+    sendObjects(physicsSystem.dynamicObjects, GameState.entities, 0);
 
     //send all the static objects
-    for (int i = 0; i < physicsSystem.staticObjects.size(); i++) {
-        GameObject* obj = physicsSystem.staticObjects[i];
-        glm::vec3& position = obj->transform.position;
-        glm::quat& rotation = obj->transform.rotation;
-        glm::mat4 modelMatrix = physicsSystem.toMatrix(position, rotation);
-
-        // Assuming GameState has a way to store multiple objects' model matrices
-        GameState.entities[i + physicsSystem.dynamicObjects.size()] = Entity{ (unsigned int) obj->id, obj->type, modelMatrix };
-
-    }
-
+    sendObjects(physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size());
 }
 
 bool ServerGame::receiveFromClients()
 {
     bool receivedChanges = false;
-    //Packet packet;
 
     // go through all clients
     std::map<unsigned int, SOCKET>::iterator iter;
@@ -200,7 +179,6 @@ bool ServerGame::receiveFromClients()
         }
 
         receivedChanges = true;
-        //printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
 
         unsigned int i = 0;
         while (i < (unsigned int)data_length)
@@ -226,29 +204,6 @@ void ServerGame::sendGameStatePackets()
     // send action packet
     const unsigned int packet_size = sizeof(GameStatePacket);
     char packet_data[packet_size];
-
-
-	/*printf("Sending num_entities : %d\n", GameState.num_entities);
-	printf("First entity type: %d\n", GameState.entities[0].type);*/
-
-    //printf("about to send x: %f, y: %f, z: %f\n", GameState.cubeModel[3][0], GameState.cubeModel[3][1], GameState.cubeModel[3][2]);
-    //printf("cube model is: ");
-    //for (int j = 0; j < 4; j++) {
-    //    for (int k = 0; k < 4; k++) {
-    //        //printf("%f ", GameState.getModelMatrix()[i][j]);
-    //        printf("%f ", GameState.cubeModel[k][j]);
-    //    }
-    //    printf("\n");
-    //}
-    //printf("server sending game state packet from server with the following mat4:");
-    //for (int j = 0; j < 4; j++) {
-    //    for (int k = 0; k < 4; k++) {
-    //        //printf("%f ", GameState.getModelMatrix()[i][j]);
-    //        printf("%f ", GameState.cubeModel[k][j]);
-    //    }
-    //    printf("\n");
-    //}
-    //printf("\n");
 
     GameState.serialize(packet_data);
     network->sendToAll(packet_data, packet_size);
