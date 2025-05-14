@@ -33,10 +33,12 @@ extern Scene* scene;
 
 ClientGame* Window::client;
 PlayerIntentPacket Window::PlayerIntent;
+double scrollStart;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
     //cube = new Cube();
+    scrollStart = glfwGetTime();
     return true;
 }
 
@@ -87,7 +89,9 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
+
     glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_callback);
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
     Window::client = _client;
@@ -113,6 +117,14 @@ void Window::idleCallback() {
     client->update(PlayerIntent);
     Cam->Update(client);
     scene->update(client);
+
+    //if (PlayerIntent.scrollIntentTriggered) {
+    //    PlayerIntent.scrollIntentTriggered = false;
+    //    PlayerIntent.scrollDownIntent = false;
+    //    PlayerIntent.scrollUpIntent = false;
+    //}
+
+    //set scroll
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -125,8 +137,6 @@ void Window::displayCallback(GLFWwindow* window) {
 
     scene->draw(Cam);
 	
-    PlayerIntent.scrollUpIntent = false;
-    PlayerIntent.scrollDownIntent = false;
     glfwPollEvents();
 
     glfwSwapBuffers(window);
@@ -208,8 +218,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
         }
 
     }
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) { scene->TriggerAnim(0); }; //Rotate UI CCW
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) { scene->TriggerAnim(1); }; //Rotate UI CW
+   
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
@@ -231,15 +240,38 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+
+    double time = glfwGetTime();
+
+    if (time - scrollStart < 0.1) {
+        return;
+    }
     if (yoffset > 0) {
+        PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollUpIntent = true;
 		PlayerIntent.scrollDownIntent = false;
 
+		
+
 	}
     else if(yoffset < 0){
+        PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollDownIntent = true;
 		PlayerIntent.scrollUpIntent = false;
     }
+
+
+	printf("Scroll: %f %f\n", xoffset, yoffset);
+
+    scrollStart = glfwGetTime();
+    if (PlayerIntent.scrollDownIntent) { 
+        scene->TriggerAnim(0); 
+        PlayerIntent.changeToPower = (PowerType)(((int)PlayerIntent.changeToPower + 1) % 5);
+    }; //Rotate UI CCW
+    if (PlayerIntent.scrollUpIntent) { 
+        scene->TriggerAnim(1); 
+        PlayerIntent.changeToPower = (PowerType)(((int)(PlayerIntent.changeToPower) - 1 + 5) % 5);
+    }; //Rotate UI CW
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -249,6 +281,12 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         RightDown = (action == GLFW_PRESS);
     }
+	PlayerIntent.leftClickIntent = LeftDown;
+	PlayerIntent.rightClickIntent = RightDown;
+	//std::cout << "LeftDown: " << LeftDown << std::endl;
+	//std::cout << "RightDown: " << RightDown << std::endl;
+	//std::cout << "MouseX: " << MouseX << std::endl;
+	//std::cout << "MouseY: " << MouseY << std::endl;
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {

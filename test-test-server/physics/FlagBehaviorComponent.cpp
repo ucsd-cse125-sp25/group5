@@ -21,7 +21,7 @@ void FlagBehaviorComponent::integrate(GameObject* obj,
 	}
 
 	//also get the AABB
-	obj->transform.aabb = phys.getAABB(obj);
+	//obj->transform.aabb = phys.getAABB(obj);
 }
 
 //—— resolveCollision — called when this object hits another

@@ -3,7 +3,8 @@
 #include <vector>
 #include <map>
 #include "physics/PhysicsData.h"
-#include "../include/shared/NetworkData.h"  
+#include "../include/shared/NetworkData.h"
+#include "InputManager.h"
 
 typedef glm::vec3 vec3;
 typedef glm::mat4 mat4;
@@ -44,6 +45,8 @@ public:
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
+	PlayerIntentTracking PlayerTrackings[4];
+
 
     /**
      * @brief Updates the physics system by advancing the simulation for all dynamic objects.

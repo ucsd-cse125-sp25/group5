@@ -52,11 +52,13 @@ ServerGame::ServerGame(void)
 	//the current player intent received
 	//PlayerIntent = PlayerIntentPacket();
 
-    // initialize the physics system
-    physicsSystem = PhysicsSystem();
-
     // initialization of the game state
 	// int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+    //input management
+    inputManager = InputManager();
+
+    //initialize the physics system
+    physicsSystem = PhysicsSystem();
  
     // create a random number of cubes which are static game objects
     // for (int i = 0; i < numCubes; i++) {
@@ -130,7 +132,9 @@ void ServerGame::update()
    bool sendUpdate = receiveFromClients();
 
    physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
-   writeToGameState();  //put new information into the game state
+   //put new information into the game state
+   //inputManager.updateTracking(PlayerIntent, client_id);
+   writeToGameState();
 
    if (sendUpdate) {
        sendGameStatePackets();
@@ -145,14 +149,17 @@ void ServerGame::update()
    }
 }
 
-void writeEntities(std::vector<GameObject*>& objects, Entity* lst, int startIndex, int endIndex) {
+void writeEntities(PhysicsSystem & physicsSystem, std::vector<GameObject*>& objects, Entity* lst, unsigned int startIndex, unsigned int endIndex) {
     if (objects.empty()) {
         return; // No objects to send
     }
 
-    for (int i = startIndex; i < endIndex; i++) {
-        glm::mat4 modelMatrix = physicsSystem.toMatrix(obj->transform.position, obj->transform.rotation);
-        lst[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
+    unsigned int j = 0;
+
+    for (unsigned int i = startIndex; i < endIndex; i++) {
+        glm::mat4 modelMatrix = physicsSystem.toMatrix(objects[j]->transform.position, objects[j]->transform.rotation);
+        lst[i] = Entity{ (unsigned int)objects[j]->id, objects[j]->type, modelMatrix };
+        j++;
     }
 }
 
@@ -166,13 +173,13 @@ void ServerGame::writeToGameState() {
 	GameState.num_players = numPlayers;
 
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
-    writeEntities(physicsSystem.playerObjects, GameState.players, 0, numPlayers);
+    writeEntities(physicsSystem, physicsSystem.playerObjects, GameState.players, 0, numPlayers);
    
     //send all the dynamic objects
-    writeEntities(physicsSystem.dynamicObjects, GameState.entities, 0, physicsSystem.dynamicObjects.size());
+    writeEntities(physicsSystem, physicsSystem.dynamicObjects, GameState.entities, 0, physicsSystem.dynamicObjects.size());
 
     //send all the static objects
-    writeEntities(physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
+    writeEntities(physicsSystem, physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
 
     for (int i = 0; i < 4; i++)
 	{
@@ -209,11 +216,19 @@ bool ServerGame::receiveFromClients()
             //PlayerIntent.deserialize(&(network_data[i]));
 			physicsSystem.PlayerIntents[iter->first].deserialize(&(network_data[i]));
 
-            //increment in case we have more 
-            i += sizeof(PlayerIntentPacket);
+      //increment in case we have more 
+      i += sizeof(PlayerIntentPacket);
 
             //apply the input to our game world
 			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
+      inputManager.updateTracking(PlayerIntent, iter->first);
+			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
+			//print the player intent
+			//PrintPlayerIntent(PlayerIntent);
+			//printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
+			//printf("ServerGame::receiveFromClients received packet of type %d\n", PlayerIntent.packet_type);
+			//printf("ServerGame::receiveFromClients received packet of size %d\n", data_length);
+
         }
     }
 

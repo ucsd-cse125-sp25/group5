@@ -39,7 +39,6 @@ void PhysicsSystem::tick(float dt) {
 void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
     assert(obj != NULL);
     assert(obj->physics != NULL);
-    assert(obj->transform != NULL);
 
     // apply force 
     obj->physics->velocity += obj->physics->acceleration * dt;
@@ -67,7 +66,6 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 AABB PhysicsSystem::getAABB(GameObject* obj) {
     assert(obj != NULL);
     assert(obj->collider != NULL);
-    assert(obj->transform != NULL);
 
     glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
     glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
@@ -97,7 +95,10 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
         if (obj->id == dobj->id) {
             continue; // Skip self-collision
         }
-        pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
+        AABB objAABB = getAABB(obj);
+        AABB dobjAABB = getAABB(dobj);
+
+        pair<vec3, float> penetration = getAABBpenetration(objAABB, dobjAABB);
         if (penetration.second > 0.0f) {
             /*resolveCollision(obj, dobj, penetration, 1);*/
             if (obj->behavior != nullptr) {

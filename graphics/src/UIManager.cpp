@@ -34,7 +34,7 @@ static std::unordered_map<std::string, std::tuple<std::string, std::string>> Mag
 };
 
 static std::vector<std::string> MagicOrder{
-	"water", "fire", "earth", "wood", "metal"
+	"metal", "wood", "water", "fire", "earth"
 };
 
 //Loads textures and creates UI elements
@@ -177,6 +177,11 @@ void UIManager::LoadTexture(const std::string &name, const std::string &path) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	textures[name] = textureID;
+}
+
+int UIManager::getPowerup() {
+	
+	return 0;
 }
 
 
