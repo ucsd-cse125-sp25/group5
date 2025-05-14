@@ -55,8 +55,6 @@ void ClientGame::handleGameStatePacket(char *buf) {
             break;
         }
     }
-
-    printf("Received num_players: %d\n", GameState.num_players);
 }
 
 //receive packets
@@ -67,8 +65,22 @@ void ClientGame::update(PlayerIntentPacket intent)
 
     // There is partial packet stored in rem
     if (type != NONE) {
+        printf("Not enough bytes\n");
+        int bytes_required = sizeof(GameStatePacket) - remSize;
 
-        type = NONE;
+        // buffer STILL has less bytes than what's needed for processing a full GameState Packet
+        if (bytes_received < bytes_required) {
+            memcpy(&(rem[remSize]), network_data, bytes_received);
+            remSize += bytes_received;
+            type = GAME_STATE;
+            i += bytes_received;
+        } else {
+            memcpy(&(rem[remSize]), network_data, bytes_required);
+            handleGameStatePacket(rem);
+            remSize = 0;
+            type = NONE;
+            i += bytes_required;
+        }
     }
 
     while (i < bytes_received) {
