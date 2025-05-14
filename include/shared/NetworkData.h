@@ -62,6 +62,8 @@ struct PlayerIntentPacket {
 	bool hitYIntent = false;
 	bool hitUIntent = false;
 
+	PowerType changeToPower = METAL;
+
     void serialize(char* data) {
         memcpy(data, this, sizeof(PlayerIntentPacket));
     }

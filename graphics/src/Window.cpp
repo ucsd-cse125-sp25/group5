@@ -116,11 +116,11 @@ void Window::idleCallback() {
     Cam->Update(client);
     scene->update(client);
 
-    if (PlayerIntent.scrollIntentTriggered) {
-        PlayerIntent.scrollIntentTriggered = false;
-        PlayerIntent.scrollDownIntent = false;
-        PlayerIntent.scrollUpIntent = false;
-    }
+    //if (PlayerIntent.scrollIntentTriggered) {
+    //    PlayerIntent.scrollIntentTriggered = false;
+    //    PlayerIntent.scrollDownIntent = false;
+    //    PlayerIntent.scrollUpIntent = false;
+    //}
 
     //set scroll
 }
@@ -243,6 +243,8 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		PlayerIntent.scrollUpIntent = true;
 		PlayerIntent.scrollDownIntent = false;
 
+		
+
 	}
     else if(yoffset < 0){
         PlayerIntent.scrollIntentTriggered = true;
@@ -253,8 +255,14 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 	printf("Scroll: %f %f\n", xoffset, yoffset);
 
-    if (PlayerIntent.scrollDownIntent) { scene->TriggerAnim(0); }; //Rotate UI CCW
-    if (PlayerIntent.scrollUpIntent) { scene->TriggerAnim(1); }; //Rotate UI CW
+    if (PlayerIntent.scrollDownIntent) { 
+        scene->TriggerAnim(0); 
+        PlayerIntent.changeToPower = (PowerType)(((int)PlayerIntent.changeToPower + 1) % 5);
+    }; //Rotate UI CCW
+    if (PlayerIntent.scrollUpIntent) { 
+        scene->TriggerAnim(1); 
+        PlayerIntent.changeToPower = (PowerType)(((int)(PlayerIntent.changeToPower) - 1 + 5) % 5);
+    }; //Rotate UI CW
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {

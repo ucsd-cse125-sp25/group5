@@ -222,8 +222,8 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent) {
 
 	
-
-	if (intent.hitEIntent) {
+	playerStats.activePower = PowerType(phys.PlayerIntents[player->id].changeToPower);
+	/*if (phys.PlayerTrackings[player->id].scrollDownDuration >= 1) {
 		printf("Scroll up %d\n", intent.scrollUpIntent);
 		printf("Scroll down %d\n", intent.scrollDownIntent);
 
@@ -231,7 +231,7 @@ void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSyste
 		int nextPower = (playerStats.activePower + 1) % 5;
 		playerStats.activePower = PowerType(nextPower);
 	}
-	else if (intent.hitRIntent) {
+	else if (phys.PlayerTrackings[player->id].scrollDownDuration >= 1) {
 		printf("Scroll up %d\n", intent.scrollUpIntent);
 		printf("Scroll down %d\n", intent.scrollDownIntent);
 
@@ -244,7 +244,7 @@ void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSyste
 	}
 	else {
 		printf("Player %d active power: %d\n", player->id, playerStats.activePower);
-	}
+	}*/
 
 	
 }

@@ -258,3 +258,7 @@ void Scene::draw(Camera* cam) {
 void Scene::TriggerAnim(int anim) {
 	uimanager->TriggerAnim(anim);
 }
+
+int Scene::getPowerup() {
+	return uimanager->getPowerup();
+}

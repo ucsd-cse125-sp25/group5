@@ -45,4 +45,5 @@ public:
 	void update(ClientGame* client);
 	void draw(Camera* cam);
 	void TriggerAnim(int anim);
+	int getPowerup();
 };

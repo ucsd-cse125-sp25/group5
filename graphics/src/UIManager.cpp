@@ -179,6 +179,11 @@ void UIManager::LoadTexture(const std::string &name, const std::string &path) {
 	textures[name] = textureID;
 }
 
+int UIManager::getPowerup() {
+	
+	return 0;
+}
+
 
 GLuint UIManager::GetTexture(const std::string& name) {
 	if (!textures.count(name)) {
