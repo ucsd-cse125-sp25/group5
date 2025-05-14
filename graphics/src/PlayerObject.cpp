@@ -115,9 +115,6 @@ void PlayerObject::Update() {
 void PlayerObject::Draw(GLuint shader, bool shadow) {
 	//skel->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
 	skin->draw(shader, shadow);
-	if (particlesystem) {
-		particlesystem->Draw(Cam->GetViewProjectMtx(), shader);
-	}
 	
 }
 

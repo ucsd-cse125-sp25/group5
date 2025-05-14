@@ -4,6 +4,8 @@ OtherPlayerStats dummy;
 
 PlayerObject* players[4];
 
+std::vector<System*> particlesystems;
+
 void Scene::createGame() {
 	//setup lights
 	lightmanager = new Lights();
@@ -117,7 +119,7 @@ void Scene::update(ClientGame* client) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow" };
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -213,6 +215,16 @@ void Scene::draw(Camera* cam) {
 
 	for (int i = 0; i < 4; i++) {
 		players[i]->Draw(mainShader, false);
+	}
+
+
+	//All particle effects
+	GLuint particleShader = shaders[3];
+	glUseProgram(particleShader);
+	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+
+	for (int i = 0; i < particlesystems.size(); i++) {
+		particlesystems[i]->Draw(particleShader);
 	}
 
 	

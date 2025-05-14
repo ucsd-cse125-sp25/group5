@@ -10,7 +10,7 @@ public:
 	void CreateParticle(float lifetime);
 	void Update(float deltaTime);
 	void UpdatePos(glm::vec3 newPos);
-	void Draw(const glm::mat4& viewProjMtx, GLuint shader);
+	void Draw(GLuint shader);
 	float creationrate;
 	float particlelifetime;
 	float particlelifetimevar;

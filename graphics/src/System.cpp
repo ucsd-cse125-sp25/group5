@@ -7,6 +7,7 @@ std::random_device rd{};
 std::mt19937 gen{ rd() };
 
 extern double currTime;
+extern std::vector<System*> particlesystems;
 
 void System::InitSimpleParticleSystem() {
 	creationrate = 5;
@@ -26,6 +27,7 @@ void System::InitSimpleParticleSystem() {
 	spawn = false;
 
 	ctime = currTime;
+	particlesystems.push_back(this);
 }
 
 void System::InitColoredTrail(glm::vec3 pos, glm::vec3 color) {
@@ -46,6 +48,7 @@ void System::InitColoredTrail(glm::vec3 pos, glm::vec3 color) {
 	spawn = false;
 
 	ctime = currTime;
+	particlesystems.push_back(this);
 }
 
 void System::CreateParticle(float lifetime) {
@@ -136,8 +139,8 @@ void System::Update(float deltaTime) {
 	}
 }
 
-void System::Draw(const glm::mat4& viewProjMtx, GLuint shader) {
+void System::Draw(GLuint shader) {
 	for (int i = 0; i < particles.size(); i++) {
-		particles[i]->Draw(viewProjMtx, shader);
+		particles[i]->Draw(shader);
 	}
 }

@@ -7,7 +7,7 @@ public:
 	void ApplyForce(glm::vec3& f);
 	void Integrate(float deltaTime);
 	void Update();
-	void Draw(const glm::mat4& viewProjMtx, GLuint shader);
+	void Draw(GLuint shader);
 	glm::vec3 GetPosition();
 	glm::vec3 GetVelocity();
 	float GetMass();
