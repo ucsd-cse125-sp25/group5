@@ -92,3 +92,18 @@ public:
    void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
    void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
 };
+
+class FlagBehaviorComponent : public BehaviorComponent {
+public:
+	int owningPlayer = -1;
+
+	FlagBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
+		: BehaviorComponent(self, physicsSystem)
+	{
+		this->self = self;
+		this->physicsSystem = physicsSystem;
+	}
+
+	void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
+	void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
+};

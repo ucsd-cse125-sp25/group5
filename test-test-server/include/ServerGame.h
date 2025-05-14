@@ -25,8 +25,10 @@ private:
    ServerNetwork* network;  
    char network_data[MAX_PACKET_SIZE];  
 
+   GameObject* flag = nullptr;
+
    GameStatePacket GameState;
-   PlayerIntentPacket PlayerIntent;  
+   //PlayerIntentPacket PlayerIntent;  
    PhysicsSystem physicsSystem; // Add this line to include the physics system
    InputManager inputManager; // Input manager instance	
 

@@ -149,7 +149,6 @@ void ServerNetwork::sendToAll(char * packets, int totalSize)
     }
 }
 
-// send data to all clients
 void ServerNetwork::sendTo(unsigned int clientId, char* packets, int totalSize)
 {
     if (sessions.find(clientId) == sessions.end()) {

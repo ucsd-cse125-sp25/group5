@@ -19,7 +19,7 @@ enum EntityType {
 	PLAYER,
 	CUBE,
 	ISLAND,
-	D_CUBE,
+	FLAG,
 	METAL_PROJ,
 	WOOD_PROJ,
 	WATER_PROJ,

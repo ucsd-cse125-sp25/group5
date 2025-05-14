@@ -5,7 +5,6 @@
 #include <random>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <unordered_map>
 #include "physics/BehaviorComponent.h"
 #include "../include/shared/ObjectData.h"
 #include "../include/shared/NetworkData.h"
@@ -18,10 +17,8 @@ unsigned int ServerGame::client_id;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
-
 GameStatePacket GameState;
-unordered_map<int, int> clientToEntity;
- 
+
 void spawnIslands(PhysicsSystem& physicsSystem) {
 	glm::vec3 islandCoordinates[7] = {
 		glm::vec3(0.0f, 0.0f, 0.0f),
@@ -53,7 +50,7 @@ ServerGame::ServerGame(void)
     GameState = GameStatePacket();
 
 	//the current player intent received
-	PlayerIntent = PlayerIntentPacket();
+	//PlayerIntent = PlayerIntentPacket();
 
     //input management
     inputManager = InputManager();
@@ -80,13 +77,15 @@ ServerGame::ServerGame(void)
     //add an island
 	spawnIslands(physicsSystem);
 
-    //add a d_cube
-	GameObject* d_cube = physicsSystem.makeGameObject();
-	d_cube->transform.position = glm::vec3(5.0f, 30.0f, 0.0f);
-	d_cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
-	d_cube->type = D_CUBE;
-	physicsSystem.addDynamicObject(d_cube);
-    physicsSystem.addMovingObject(d_cube);
+    //add a flag
+	flag = physicsSystem.makeGameObject();
+	flag->transform.position = glm::vec3(5.0f, 30.0f, 0.0f);
+	flag->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
+	flag->type = FLAG;
+    flag->behavior = new FlagBehaviorComponent(flag, physicsSystem);
+    flag->isDynamic = true;
+	physicsSystem.addDynamicObject(flag);
+    physicsSystem.addMovingObject(flag);
 
 	//printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
@@ -139,11 +138,7 @@ void ServerGame::update()
         physicsSystem.addMovingObject(player);
         player->id = client_id;
         //physicsSystem.addDynamicObject(player);
-        clientToEntity[client_id] = client_id;
 
-
-        
-        
         //fill up the HP and the mana
 
 
@@ -261,14 +256,14 @@ bool ServerGame::receiveFromClients()
         {
 
             //copy the network packet data into player intent
-            PlayerIntent.deserialize(&(network_data[i]));
+            //PlayerIntent.deserialize(&(network_data[i]));
 			physicsSystem.PlayerIntents[iter->first].deserialize(&(network_data[i]));
 
             //increment in case we have more 
             i += sizeof(PlayerIntentPacket);
 
             //apply the input to our game world
-			physicsSystem.applyInput(PlayerIntent, clientToEntity[iter->first]); 
+			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
             inputManager.updateTracking(PlayerIntent, iter->first);
 			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
 			//print the player intent
@@ -276,6 +271,7 @@ bool ServerGame::receiveFromClients()
 			//printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
 			//printf("ServerGame::receiveFromClients received packet of type %d\n", PlayerIntent.packet_type);
 			//printf("ServerGame::receiveFromClients received packet of size %d\n", data_length);
+
         }
     }
 
