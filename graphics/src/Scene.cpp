@@ -1,5 +1,8 @@
 #include <Scene.h>
 
+int WINDOWWIDTH = 1200;
+int WINDOWHEIGHT = 900;
+
 OtherPlayerStats dummy;
 
 PlayerObject* players[4];
@@ -16,10 +19,14 @@ void Scene::createGame() {
 
 	uimanager = new UIManager;
 	uimanager->Init();
+
+	audiomanager = new Audio;
+	audiomanager->Init();
+	audiomanager->PlayAudio("matchsong");
+	audiomanager->PlayAudio("firesound");
 	//Necessary for the uimanager, will change once network protocol gets updated
 	dummy.maxHP = 250;
 	dummy.currHP = dummy.maxHP;
-	dummy.ID = 0;
 	test = new PlayerObject();
 
 	//Cinema
@@ -30,9 +37,9 @@ void Scene::createGame() {
 		players[i] = new PlayerObject();
 	}
 
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 }
 
 void Scene::loadObjects() {
@@ -59,7 +66,8 @@ void Scene::update(ClientGame* client) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
-	//cube->setModel(client->GameState.cubeModel);
+
+	audiomanager->Update();
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
@@ -98,14 +106,14 @@ void Scene::update(ClientGame* client) {
 			glm::vec3 island_max = glm::vec3(0, 0, 0);
 			island_max += island_extents;
 
-			printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
-			printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
+			//printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
+			//printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
 			
 			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
-		else if (entity.type == D_CUBE) {
+		else if (entity.type == FLAG) {
 			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
@@ -116,7 +124,6 @@ void Scene::update(ClientGame* client) {
 			cubes.push_back(cu);
 		}
 	}
-  
 	uimanager->update(dummy);
 }
 
@@ -180,7 +187,7 @@ void Scene::draw(Camera* cam) {
 	}
 
 	//RENDER PASS
-	glViewport(0, 0, 1200, 900);
+	glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//We will use a global shader for everything for right now
@@ -220,10 +227,13 @@ void Scene::draw(Camera* cam) {
 		players[i]->Draw(mainShader, false);
 	}
 
-	
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
 	skybox->draw(cam);
 	uimanager->draw();
+}
+
+void Scene::TriggerAnim(int anim) {
+	uimanager->TriggerAnim(anim);
 }

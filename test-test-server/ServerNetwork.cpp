@@ -149,19 +149,6 @@ void ServerNetwork::sendToAll(char * packets, int totalSize)
     }
 }
 
-// send data to all clients
-/**
- * @brief Sends a packet of data to a specific client identified by clientId.
- * 
- * This function checks if the client session exists in the `sessions` map.
- * If the session exists, it retrieves the corresponding socket and sends
- * the data using the `NetworkServices::sendMessage` function. If the send
- * operation fails, an error message is printed to the console.
- * 
- * @param clientId The unique identifier of the client to send data to.
- * @param packets A pointer to the data buffer containing the packet to be sent.
- * @param totalSize The total size of the data buffer in bytes.
- */
 void ServerNetwork::sendTo(unsigned int clientId, char* packets, int totalSize)
 {
     if (sessions.find(clientId) == sessions.end()) {

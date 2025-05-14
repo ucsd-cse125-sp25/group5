@@ -53,6 +53,7 @@ public:
 	float stompTimer = 0.0f;
     float grappleTimer = 0.0f;
 	GameObject* grappleTarget = nullptr;
+	PlayerStats playerStats;
 
     int debugVar = 0;
     // just forward to the base
@@ -74,9 +75,10 @@ public:
    glm::vec3 velocity; // Add this missing member
    float damage;
    static const float WOOD_PROJ_SPEED;
+   int originalPlayer;
 
-   ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage)
-       : BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage)
+   ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage, int originalPlayer)
+	   : BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage), originalPlayer(originalPlayer)
    {
 	   this->self = self;
 	   this->physicsSystem = physicsSystem;
@@ -85,4 +87,19 @@ public:
 
    void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
    void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
+};
+
+class FlagBehaviorComponent : public BehaviorComponent {
+public:
+	int owningPlayer = -1;
+
+	FlagBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
+		: BehaviorComponent(self, physicsSystem)
+	{
+		this->self = self;
+		this->physicsSystem = physicsSystem;
+	}
+
+	void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
+	void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
 };

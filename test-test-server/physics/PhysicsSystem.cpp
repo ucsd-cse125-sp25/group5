@@ -88,9 +88,24 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
 			} else {
                 resolveCollision(obj, sobj, penetration, 0);
-            }            
+            }
+            
         }  
     }
+	
+    for (auto dobj : movingObjects) {
+        if (obj->id == dobj->id) {
+            continue; // Skip self-collision
+        }
+        pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, dobj->transform.aabb);
+        if (penetration.second > 0.0f) {
+            /*resolveCollision(obj, dobj, penetration, 1);*/
+            if (obj->behavior != nullptr) {
+				obj->behavior->resolveCollision(obj, dobj, penetration, 1);
+            }
+        }
+    }
+    return;
 }
 
 vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution) {
