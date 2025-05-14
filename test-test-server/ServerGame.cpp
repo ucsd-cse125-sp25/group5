@@ -52,11 +52,13 @@ ServerGame::ServerGame(void)
 	//the current player intent received
 	//PlayerIntent = PlayerIntentPacket();
 
-    // initialize the physics system
-    physicsSystem = PhysicsSystem();
-
     // initialization of the game state
 	// int numCubes = rand() % 30 + 1; // Random number between 1 and 10
+    //input management
+    inputManager = InputManager();
+
+    //initialize the physics system
+    physicsSystem = PhysicsSystem();
  
     // create a random number of cubes which are static game objects
     // for (int i = 0; i < numCubes; i++) {
@@ -130,7 +132,9 @@ void ServerGame::update()
    bool sendUpdate = receiveFromClients();
 
    physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
-   writeToGameState();  //put new information into the game state
+   //put new information into the game state
+   //inputManager.updateTracking(PlayerIntent, client_id);
+   writeToGameState();
 
    if (sendUpdate) {
        sendGameStatePackets();
@@ -212,11 +216,19 @@ bool ServerGame::receiveFromClients()
             //PlayerIntent.deserialize(&(network_data[i]));
 			physicsSystem.PlayerIntents[iter->first].deserialize(&(network_data[i]));
 
-            //increment in case we have more 
-            i += sizeof(PlayerIntentPacket);
+      //increment in case we have more 
+      i += sizeof(PlayerIntentPacket);
 
             //apply the input to our game world
 			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
+      inputManager.updateTracking(PlayerIntent, iter->first);
+			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
+			//print the player intent
+			//PrintPlayerIntent(PlayerIntent);
+			//printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
+			//printf("ServerGame::receiveFromClients received packet of type %d\n", PlayerIntent.packet_type);
+			//printf("ServerGame::receiveFromClients received packet of size %d\n", data_length);
+
         }
     }
 

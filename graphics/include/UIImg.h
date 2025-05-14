@@ -96,6 +96,6 @@ private:
 
 	double animStart;
 	bool animating;
-	float spinDuration = 0.5f;
+	float spinDuration = 0.1f;
 
 };

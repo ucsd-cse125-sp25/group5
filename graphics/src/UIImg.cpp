@@ -1,21 +1,23 @@
 #include "UIImg.h"
 
-void UIImg::Init(std::vector<float> startPos, float percent, float ratio) {
+void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
-	float offsetX = WINDOWWIDTH * percent;
-	float offsetY = WINDOWHEIGHT * percent * ratio;
-	float uiWidth = offsetX;
-	float uiHeight = offsetY;
+	float uiWidth = WINDOWWIDTH * percent;
+	float uiHeight = uiWidth * ratio;
+	std::vector<float> startPos = {
+		WINDOWWIDTH * startPerc[0],
+		WINDOWHEIGHT * startPerc[1]
+	};
 
 	uiData = {
 		//Position                                     //UV         //Color
 		startPos[0] - (uiWidth/2), startPos[1] - (uiHeight/2),                      0.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
-		startPos[0] + offsetX - (uiWidth / 2), startPos[1] - (uiHeight / 2),            1.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
-		startPos[0] + offsetX - (uiWidth / 2), startPos[1] + offsetY - (uiHeight / 2),  1.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
-		startPos[0] - (uiWidth / 2), startPos[1] + offsetY - (uiHeight / 2),            0.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2),            1.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2),  1.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2),            0.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
 	};
 
 	glGenVertexArrays(1, &VAO);
