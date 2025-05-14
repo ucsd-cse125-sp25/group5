@@ -47,6 +47,8 @@ struct PlayerIntentPacket {
     bool scrollUpIntent = false;
 	bool scrollDownIntent = false;
 
+    bool scrollIntentTriggered = false;
+
     //powers
 	bool hit1Intent = false;
 	bool hit2Intent = false;
@@ -59,6 +61,8 @@ struct PlayerIntentPacket {
 	bool hitTIntent = false;
 	bool hitYIntent = false;
 	bool hitUIntent = false;
+
+	PowerType changeToPower = METAL;
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(PlayerIntentPacket));

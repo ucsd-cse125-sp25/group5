@@ -3,7 +3,8 @@
 #include <vector>
 #include <map>
 #include "physics/PhysicsData.h"
-#include "../include/shared/NetworkData.h"  
+#include "../include/shared/NetworkData.h"
+#include "InputManager.h"
 
 #define XD 100
 #define YD 100
@@ -47,6 +48,8 @@ public:
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
+	PlayerIntentTracking PlayerTrackings[4];
+
 
     //game tick
     void tick(float dt);
