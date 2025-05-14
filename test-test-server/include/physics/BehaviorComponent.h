@@ -47,6 +47,17 @@ const float GRAPPLE_TIME = 10.0f;
 const float WOOD_PROJ_SPEED = 25.0f;
 
 
+const float METAL_PROJ_MANA = 10.0f;
+const float METAL_MOVE_MANA = 5.0f;
+
+const float WOOD_PROJ_MANA = 5.0f;
+const float WOOD_MOVE_MANA = 20.0f;
+
+
+
+
+
+
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
     float dashTimer = 0.0f;
