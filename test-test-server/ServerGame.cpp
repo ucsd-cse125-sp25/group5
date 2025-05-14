@@ -145,14 +145,17 @@ void ServerGame::update()
    }
 }
 
-void writeEntities(std::vector<GameObject*>& objects, Entity* lst, int startIndex, int endIndex) {
+void writeEntities(PhysicsSystem & physicsSystem, std::vector<GameObject*>& objects, Entity* lst, unsigned int startIndex, unsigned int endIndex) {
     if (objects.empty()) {
         return; // No objects to send
     }
 
-    for (int i = startIndex; i < endIndex; i++) {
-        glm::mat4 modelMatrix = physicsSystem.toMatrix(obj->transform.position, obj->transform.rotation);
-        lst[i] = Entity{ (unsigned int)obj->id, obj->type, modelMatrix };
+    unsigned int j = 0;
+
+    for (unsigned int i = startIndex; i < endIndex; i++) {
+        glm::mat4 modelMatrix = physicsSystem.toMatrix(objects[j]->transform.position, objects[j]->transform.rotation);
+        lst[i] = Entity{ (unsigned int)objects[j]->id, objects[j]->type, modelMatrix };
+        j++;
     }
 }
 
@@ -166,13 +169,13 @@ void ServerGame::writeToGameState() {
 	GameState.num_players = numPlayers;
 
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
-    writeEntities(physicsSystem.playerObjects, GameState.players, 0, numPlayers);
+    writeEntities(physicsSystem, physicsSystem.playerObjects, GameState.players, 0, numPlayers);
    
     //send all the dynamic objects
-    writeEntities(physicsSystem.dynamicObjects, GameState.entities, 0, physicsSystem.dynamicObjects.size());
+    writeEntities(physicsSystem, physicsSystem.dynamicObjects, GameState.entities, 0, physicsSystem.dynamicObjects.size());
 
     //send all the static objects
-    writeEntities(physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
+    writeEntities(physicsSystem, physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
 
     for (int i = 0; i < 4; i++)
 	{
