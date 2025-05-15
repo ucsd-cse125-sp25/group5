@@ -29,7 +29,7 @@ ServerNetwork::ServerNetwork(void)
     hints.ai_protocol = IPPROTO_TCP;    // TCP connection!!!
     hints.ai_flags = AI_PASSIVE;
 
-	    // Resolve the server address and port
+	// Resolve the server address and port
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 
     if ( iResult != 0 ) {
@@ -149,7 +149,6 @@ void ServerNetwork::sendToAll(char * packets, int totalSize)
     }
 }
 
-// send data to all clients
 void ServerNetwork::sendTo(unsigned int clientId, char* packets, int totalSize)
 {
     if (sessions.find(clientId) == sessions.end()) {

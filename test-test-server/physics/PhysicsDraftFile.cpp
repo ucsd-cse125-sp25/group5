@@ -1,18 +1,81 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <vector>
 
-#include "../include/physics/PhysicsSystem.h"
-#include "../include/physics/PhysicsData.h"
+#ifdef _WIN32
+#elif defined(__APPLE__) || defined(__linux__)
+// Add any platform-specific headers for macOS or Linux here if needed
+#endif
+#include <cstddef> // Include standard headers as needed for non-Windows platforms
+#include "physics/PhysicsSystem.h"
+#include "physics/PhysicsData.h"
+
+struct PhysicsData {
+    // Add mock members or leave empty if not required
+};
+
+// Define the AABB struct
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
+};
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#ifdef _WIN32
+#include "PhysicsSystem.h"
+#endif
+#ifdef _WIN32
+#include <PhysicsData.h>
+#else
+// Provide a mock or alternative implementation for non-Windows platforms if needed
+struct PhysicsData {
+    // Add mock members or leave empty if not required
+};
+#endif
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
 typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
 typedef glm::quat quat;
-using namespace std;
+
+// Removed "using namespace std;" to avoid ambiguity
 
 // ignore for now
+class PhysicsSystem {
+public:
+    void getAABBsDistance(std::vector<GameObject*> gobjs);
+    AABB getAABB(GameObject* obj); // Declaration added
+    std::pair<glm::vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2); // Declaration added
+    std::pair<glm::vec3, float> SATOverlapTestExperimental(AABB a, AABB b); // Declaration added
+    glm::vec3 getPointOfContact(GameObject* go1, GameObject* go2); // Declaration added
+    float getCellSize(); // Declaration added
+    void populateGrid(); // Declaration added
+    float getBoxDim(GameObject* go); // Declaration added
+    std::pair<float, float> projectBox(GameObject* go, glm::vec3 axis, glm::mat3 rotationMat); // Declaration added
+    std::vector<vec3> getCrossProducts(const std::vector<vec3>& normals1, const std::vector<vec3>& normals2); // Declaration added
+    void SAT(GameObject* go1, GameObject* go2); // Declaration added
+    void tick(float dt); // Declaration added
+    void handleGrapple(GameObject* obj, float dt); // Declaration added
+    void resolveCollisionDySt(GameObject* go1, const std::pair<glm::vec3, float>& penetration); // Declaration added
+    void resolveCollisionDyDy(GameObject* go1, GameObject* go2, const std::pair<glm::vec3, float>& penetration); // Declaration added
+    void integrate(GameObject* obj, float dt); // Declaration added
+    void checkCollisions(GameObject* obj); // Declaration added
+    void applyInput(const PlayerIntentPacket& intent, int playerId); // Declaration added
+    GameObject* makeGameObject(); // Declaration added
+    glm::mat4 toMatrix(const glm::vec3& position, const glm::quat& quaternion); // Declaration added
+    void fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm::vec3& outEulerRadians); // Declaration added
+    // Add other member function declarations here if needed
+
+private:
+    std::vector<float> AABBdistances; // Member variable to store distances
+    float cellSize; // Member variable to store the cell size
+    std::vector<GameObject*> staticObjects; // Member variable to store static objects
+    std::vector<GameObject*> dynamicObjects; // Member variable to store dynamic objects
+    std::vector<GameObject*> playerObjects; // Member variable to store player objects
+};
+
 void PhysicsSystem::getAABBsDistance(std::vector<GameObject*> gobjs) {
     AABB temp;
     for (GameObject* go : gobjs) {
@@ -38,9 +101,13 @@ float PhysicsSystem::getCellSize() {
 void PhysicsSystem::populateGrid() {
     cellSize = getCellSize();
 
-    int numCellsX = (int)(XD / cellSize);
-    int numCellsY = (int)(YD / cellSize);
-    int numCellsZ = (int)(ZD / cellSize);
+    float xDimension = 100.0f; // Example value, replace with actual value
+    float yDimension = 100.0f; // Example value, replace with actual value
+    float zDimension = 100.0f; // Example value, replace with actual value
+
+    int numCellsX = (int)(xDimension / cellSize);
+    int numCellsY = (int)(yDimension / cellSize);
+    int numCellsZ = (int)(zDimension / cellSize);
     
 
     for (GameObject* go : staticObjects) {
@@ -54,8 +121,8 @@ void PhysicsSystem::populateGrid() {
         vector<int> cellsY;
         vector<int> cellsZ;
 
-        float minx = go->transform.aabb.min[0];
-        float maxx = go->transform.aabb.max[0];
+        float minx = getAABB(go).min[0];
+        float maxx = getAABB(go).max[0];
         
         while (minx < maxx) {
             int index = (int) (minx / numCellsX);
@@ -67,21 +134,33 @@ void PhysicsSystem::populateGrid() {
 
 // ignore for now
 float PhysicsSystem::getBoxDim(GameObject* go) {
-    float AABBMag = glm::distance(go->transform.aabb.min, go->transform.aabb.max);
+    float AABBMag = glm::distance(getAABB(go).min, getAABB(go).max);
     return AABBMag / sqrtf(3.0f);
 }
 
 // ignore for now
-std::pair<float, float> PhysicsSystem::projetBox(GameObject *go, glm::vec3 axis, glm::mat3 rotationMat) {
+std::pair<float, float> PhysicsSystem::projectBox(GameObject *go, glm::vec3 axis, glm::mat3 rotationMat) {
     float center = glm::dot((go->transform.position), axis);
     float radius = 0;
     for (int i = 0; i < 3; i++) {
         radius += go->collider->halfExtents[i] * abs(glm::dot(rotationMat[i], axis));
     }
-    return pair<float, float>(center - radius, center + radius);
+    return std::pair<float, float>(center - radius, center + radius);
 }
 
-// ignore for now
+
+std::vector<vec3> PhysicsSystem::getCrossProducts(const std::vector<vec3>& normals1, const std::vector<vec3>& normals2) {
+    std::vector<vec3> crossProducts;
+    for (int i = 0; i < normals1.size(); i++) {
+        for (int j = 0; j < normals2.size(); j++) {
+            vec3 crossProd = glm::cross(normals1[i], normals2[j]);
+            if (!areParallel(crossProd)) {
+                crossProducts.push_back(glm::normalize(crossProd));
+            }
+        }
+    }
+    return crossProducts;
+}
 void PhysicsSystem::SAT(GameObject* go1, GameObject* go2) {
     float box1dim = getBoxDim(go1);
     float box2dim = getBoxDim(go2);
@@ -108,9 +187,9 @@ void PhysicsSystem::SAT(GameObject* go1, GameObject* go2) {
     // }
 }
 
-vec3 getPointOfContact(GameObject* go1, GameObject* go2) {
+vec3 PhysicsSystem::getPointOfContact(GameObject* go1, GameObject* go2) {
 
-    pair<vec3, float> overlapData = SATOverlapTest(go1, go2);
+    pair<vec3, float> overlapData = this->SATOverlapTest(go1, go2);
     if (overlapData.second < 0.0f) {
         return vec3(0.0f, 0.0f, 0.0f);
     }
@@ -146,7 +225,7 @@ pair<vec3, float> PhysicsSystem::SATOverlapTestExperimental(AABB a, AABB b) {
 
         float overlap = getOverlap(interval1, interval2);
         if (overlap < 0.0f) {   // or <= ?????
-            return pair<vec3, float>(vec3(0.0f, 0.0f, 0.0f), -1.0f);
+            return std::pair<glm::vec3, float>(glm::vec3(0.0f, 0.0f, 0.0f), -1.0f);
         }
 
 		// check for small epsilon interval, not 0 to avoid floating point arithmetic issues
@@ -159,7 +238,7 @@ pair<vec3, float> PhysicsSystem::SATOverlapTestExperimental(AABB a, AABB b) {
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
-vector<vec3> getFaceNormals(GameObject* go) {
+vector<vec3> computeFaceNormalsForGameObject(GameObject* go) {
     return { go->transform.rotation * vec3(1, 0, 0),
              go->transform.rotation * vec3(0, 1, 0),
              go->transform.rotation * vec3(0, 0, 1) };
@@ -205,9 +284,9 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
     return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
 }
 
-pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
-    vector<vec3> normals1 = getFaceNormals(go1);
-    vector<vec3> normals2 = getFaceNormals(go2);
+pair<vec3, float> PhysicsSystem::SATOverlapTest(GameObject* go1, GameObject* go2) {
+    vector<vec3> normals1 = computeFaceNormalsForGameObject(go1);
+    vector<vec3> normals2 = computeFaceNormalsForGameObject(go2);
 
     vector<vec3> axes = getCrossProducts(normals1, normals2);
     addNormalsToAxes(axes, normals1);
@@ -235,12 +314,6 @@ pair<vec3, float> SATOverlapTest(GameObject* go1, GameObject* go2) {
 
     return pair<vec3, float>(minAxis, minOverlap);
 }
-
-#include "physics/PhysicsSystem.h"
-#include "physics/PhysicsData.h"	
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -308,7 +381,6 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 	}
 
 	obj->transform.position += obj->physics->velocity * dt;
-    obj->transform.aabb = getAABB(obj);
 }
 
 
@@ -359,9 +431,9 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
         if (obj->id == sobj->id) {
             continue; 
         }
-        pair<vec3, float> SATresult = SATOverlapTestExperimental(obj->transform.aabb, sobj->transform.aabb);
+        pair<vec3, float> SATresult = SATOverlapTestExperimental(getAABB(obj), getAABB(sobj));
         if (SATresult.second != -1.0f) {
-            resolveCollision(obj, sobj, SATresult);
+            //resolveCollision(obj, sobj, SATresult);
         }  
 
 
@@ -369,14 +441,14 @@ void PhysicsSystem::checkCollisions(GameObject* obj) {
     return;
 }
 
-void PhysicsSystem::resolveCollision(GameObject* go1, const pair<vec3, float>& SATresult) {
-
-    go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
-
-    //IP
-
-    return;
-}
+//void PhysicsSystem::resolveCollision(GameObject* go1, const pair<vec3, float>& SATresult) {
+//
+//    go1->transform.position = go1->transform.position + SATresult.first * SATresult.second;
+//
+//    //IP
+//
+//    return;
+//}
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     //process player input
@@ -451,8 +523,6 @@ void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
     glm::quat q = glm::angleAxis(glm::radians(-intent.azimuthIntent), glm::vec3(0, 1, 0));
     target->transform.rotation = q;
 	target->transform.position = translation;
-    target->transform.aabb = getAABB(target);
-
 }
 
 GameObject* PhysicsSystem::makeGameObject() {
@@ -461,7 +531,6 @@ GameObject* PhysicsSystem::makeGameObject() {
     obj->transform.position = glm::vec3(0.0f);
 	obj->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
     obj->transform.scale = glm::vec3(1.0f);
-    obj->transform.aabb = getAABB(obj);
     obj->physics = new PhysicsComponent();
     obj->collider = new ColliderComponent();
 
@@ -497,25 +566,25 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
  * @return void
  * @note This function resolves the collision by adjusting the position and velocity of the dynamic object
 */
-void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& penetration) {
-    vec3 normal = glm::normalize(penetration.first);
-    float overlap = penetration.second;
-
-    // Positional correction: push dynamic obj out of static obj
-    dobj->transform.position += normal * overlap;
-
-    // Velocity resolution: bounce off if moving into object
-    vec3 relativeVelocity = dobj->physics->velocity;
-    float velAlongNormal = glm::dot(relativeVelocity, normal);
-
-    if (velAlongNormal < 0.0f) {
-        float restitution = 0.1f; // tweak this if you want it more bouncy
-        float impulse = -(1.0f + restitution) * velAlongNormal;
-        vec3 impulseVec = impulse * normal;
-
-        dobj->physics->velocity += impulseVec;
-    }
-}
+//void PhysicsSystem::resolveCollision(GameObject* dobj, const pair<vec3, float>& penetration) {
+//    vec3 normal = glm::normalize(penetration.first);
+//    float overlap = penetration.second;
+//
+//    // Positional correction: push dynamic obj out of static obj
+//    dobj->transform.position += normal * overlap;
+//
+//    // Velocity resolution: bounce off if moving into object
+//    vec3 relativeVelocity = dobj->physics->velocity;
+//    float velAlongNormal = glm::dot(relativeVelocity, normal);
+//
+//    if (velAlongNormal < 0.0f) {
+//        float restitution = 0.1f; // tweak this if you want it more bouncy
+//        float impulse = -(1.0f + restitution) * velAlongNormal;
+//        vec3 impulseVec = impulse * normal;
+//
+//        dobj->physics->velocity += impulseVec;
+//    }
+//}
 
 /**
  * Resolve collision between a dynamic object and a static object
@@ -532,7 +601,23 @@ void PhysicsSystem::resolveCollisionDySt(GameObject* go1, const pair<vec3, float
     go1->transform.position += normal * overlap;
 
     // Velocity resolution: bounce off if moving into object
-    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity, 0.1f);
+    go1->physics->velocity += calculateImpulseVector(normal, go1->physics->velocity, 0.1f);
+}
+
+/**
+ * Calculate the impulse vector for collision resolution
+ * @param normal Collision normal vector
+ * @param relativeVelocity Relative velocity of the objects
+ * @param restitution Coefficient of restitution (bounciness)
+ * @return Impulse vector
+ */
+vec3 calculateImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution) {
+    float velAlongNormal = glm::dot(relativeVelocity, normal);
+    if (velAlongNormal > 0.0f) {
+        return vec3(0.0f); // No impulse if objects are separating
+    }
+    float impulseMagnitude = -(1.0f + restitution) * velAlongNormal;
+    return impulseMagnitude * normal;
 }
 
 /**
@@ -552,6 +637,6 @@ void PhysicsSystem::resolveCollisionDyDy(GameObject* go1, GameObject* go2, const
     go2->transform.position -= normal * (overlap / 2.0f);
 
     // Velocity resolution: bounce off if moving into each other
-    go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
-    go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+    go1->physics->velocity += calculateImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
+    go2->physics->velocity -= calculateImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 }

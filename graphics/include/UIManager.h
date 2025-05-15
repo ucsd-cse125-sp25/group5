@@ -18,7 +18,8 @@ public:
 	void UIManager::UnloadAllTextures();
 
 	void SetGameState(GameState state);
-
+	void TriggerAnim(int anim);
+	int getPowerup();
 	GameState currState = GameState::MATCH;
 private:
 	//GLuint shaderProgram;

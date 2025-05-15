@@ -1,20 +1,22 @@
 #include "UIManager.h"
 #include <iostream>
 #include "stb_image.h"
+#include <map>
+#include <glm/gtx/string_cast.hpp>
 
 /**
 * UIStorage is a map that holds the texture configurations for UI elements
 * The data is a tuple containing:
 * - path to the texture (std::string)
 * - Game state it should appear during (GameState)
-* - start position x (float)
-* - start position y (float)
+* - start position x (float) 5/4 - changed to percent of total width
+* - start position y (float) 5/4 - changed to percent of total height
 * - The width as a percentage of screen width (float)
 * - The aspect ratio of the texture (float)
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 835.0, 0.0, 0.3, 1.0} },
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 600.0, 450.0, 0.05, 1.0}},
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}},
 };
 
 /**
@@ -31,16 +33,18 @@ static std::unordered_map<std::string, std::tuple<std::string, std::string>> Mag
 	{"metal", {PROJECT_SOURCE_DIR + std::string("/assets/metal_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/metal_outline.png")}}
 };
 
+static std::vector<std::string> MagicOrder{
+	"metal", "wood", "water", "fire", "earth"
+};
+
 //Loads textures and creates UI elements
 void UIManager::Init() {
-	float scWidth = 1200, scHeight = 900;
-
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
 		GameState state = std::get<1>(pair.second);
-		float startX = std::get<2>(pair.second);
-		float startY = std::get<3>(pair.second);
+		float percX = std::get<2>(pair.second);
+		float percY = std::get<3>(pair.second);
 		float percent = std::get<4>(pair.second);
 		float aspect = std::get<5>(pair.second);
 
@@ -56,15 +60,16 @@ void UIManager::Init() {
 			img = new UIImg();
 		}
 
-		img->Init(scWidth, scHeight, { startX, startY }, percent, aspect);
+		img->Init({ percX, percY }, percent, aspect);
 		img->SetTexture(GetTexture(name));
 
 		if (name == "magicback") {
 			Magic* ma = dynamic_cast<Magic*>(img);
-			for (const auto& pair : MagicUI) {
-				const std::string& elementName = pair.first;
-				const std::string& path1 = std::get<0>(pair.second);
-				const std::string& path2 = std::get<1>(pair.second);
+			for (const auto& key : MagicOrder) {
+				const auto& tuple = MagicUI[key];
+				const std::string& elementName = key;
+				const std::string& path1 = std::get<0>(tuple);
+				const std::string& path2 = std::get<1>(tuple);
 				const std::string& bar = elementName + "bar";
 				const std::string& border = elementName + "border";
 				LoadTexture(bar, path1);
@@ -78,15 +83,24 @@ void UIManager::Init() {
 
 			}
 
-			const float radius = 75;
 			const float total = ma->powers.size();
+			const auto startAngle = glm::radians(144.0f);
 			for (int i = 0; i < total; i++) {
-				float angle = glm::radians(360.0f / total * i);
+				float angle = startAngle - glm::radians(360.0f / total * i);
+
+				// Normalize to [0 2pi]
+				if (angle < 0.0f) {
+					angle += glm::two_pi<float>();
+				}
+				float radius = ma->manaRadius * WINDOWWIDTH;
 				float x = ma->centerX + cos(angle) * radius;
 				float y = ma->centerY + sin(angle) * radius;
 				ma->powers[i].position = glm::vec2(x, y);
-				ma->powers[i].angleOffset = angle;
+				ma->powers[i].currIdx = i;
+				ma->powers[i].targetIdx = i;
+				ma->baseAngles.push_back(angle);
 			}
+
 		}
 
 
@@ -119,16 +133,16 @@ void UIManager::update(const OtherPlayerStats& p) {
 
 void UIManager::draw() {
 	switch (currState) {
-		case GameState::LOBBY:
-			for (auto* img : matchElements) {
-				img->Draw();
-			}
-			break;
-		case GameState::MATCH:
-			for (auto* img : matchElements) {
-				img->Draw();
-			}
-			break;
+	case GameState::LOBBY:
+		for (auto* img : matchElements) {
+			img->Draw();
+		}
+		break;
+	case GameState::MATCH:
+		for (auto* img : matchElements) {
+			img->Draw();
+		}
+		break;
 	}
 }
 
@@ -165,6 +179,11 @@ void UIManager::LoadTexture(const std::string &name, const std::string &path) {
 	textures[name] = textureID;
 }
 
+int UIManager::getPowerup() {
+	
+	return 0;
+}
+
 
 GLuint UIManager::GetTexture(const std::string& name) {
 	if (!textures.count(name)) {
@@ -184,4 +203,14 @@ void UIManager::UnloadAllTextures() {
 void UIManager::SetGameState(GameState newState) {
 	if (currState == newState) return;
 	currState = newState;
+}
+
+void UIManager::TriggerAnim(int anim) {
+	for (auto* img : matchElements) {
+		if (Magic* ma = dynamic_cast<Magic*>(img)) {
+			if (anim == 0 || anim == 1) {
+				ma->StartRotate(anim);
+			}
+		}
+	}
 }

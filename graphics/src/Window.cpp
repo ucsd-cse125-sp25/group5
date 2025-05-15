@@ -21,12 +21,6 @@ double prevTime = 0;
 double currTime = 0;
 bool flag = false;
 
-// Objects to render
-//Skeleton* Window::skel;
-
-// Objects to render
-//Cube* Window::cube;
-
 std::vector<Cube*> Window::cubes; // Use std::vector instead of just vector
 
 // Camera Properties
@@ -42,25 +36,14 @@ extern Scene* scene;
 
 ClientGame* Window::client;
 PlayerIntentPacket Window::PlayerIntent;
+double scrollStart;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
     //cube = new Cube();
+    scrollStart = glfwGetTime();
     return true;
 }
-
-//maintain this as model for how to load an animation 
-//bool Window::initializeObjects(char* fileOne, char* fileTwo, char* fileThree, Skeleton* skel, Skin* skin, Player* player) {
-//    skin->doSkinning();
-//    skel->doSkel();
-//    player->animation->doAnimation();
-//    skel->Load(fileOne);
-//    skin->Load(fileTwo);
-//    player->animation->Load(fileThree);
-//    doJoints = true;
-//
-//    return true;
-//}
 
 void Window::cleanUp() {
     //delete cube;
@@ -104,12 +87,14 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     LeftDown = RightDown = false;
     A_Down = D_Down = W_Down = S_Down = false;
   
-    MouseX = width/2;
+    MouseX = width / 2;
     MouseY = height / 2;
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
+
     glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_callback);
     // Call the resize callback to make sure things get drawn immediately.
     Window::resizeCallback(window, width, height);
     Window::client = _client;
@@ -118,8 +103,11 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
 }
 
 void Window::resizeCallback(GLFWwindow* window, int width, int height) {
+    std::cout << "Resized window" << std::endl;
     Window::width = width;
     Window::height = height;
+    WINDOWWIDTH = width;
+    WINDOWHEIGHT = height;
     // Set the viewport size.
     glViewport(0, 0, width, height);
 
@@ -139,6 +127,14 @@ void Window::idleCallback() {
     client->update(PlayerIntent);
     Cam->Update(client);
     scene->update(client);
+
+    //if (PlayerIntent.scrollIntentTriggered) {
+    //    PlayerIntent.scrollIntentTriggered = false;
+    //    PlayerIntent.scrollDownIntent = false;
+    //    PlayerIntent.scrollUpIntent = false;
+    //}
+
+    //set scroll
 }
 
 void Window::displayCallback(GLFWwindow* window) {
@@ -147,92 +143,13 @@ void Window::displayCallback(GLFWwindow* window) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//skel->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//skin->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
     scene->draw(Cam);
-
-    //RENDER 2D
-    //uimanager->draw();
-    // Gets events, including input such as keyboard and mouse or window resizing.
-    // if (!io->WantCaptureMouse) {
-      //   glfwPollEvents();
-    // }
-
-    //cube->draw(Cam->GetViewProjectMtx(), scene->shaders[0]);
 	
-    PlayerIntent.scrollUpIntent = false;
-    PlayerIntent.scrollDownIntent = false;
     glfwPollEvents();
 
-    if (doJoints) {
-        // (Your code calls glfwPollEvents())
-            // ...
-            // Start the Dear ImGui frame
-    /*    ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();*/
-        // ImGui::ShowDemoWindow(); // Show demo window! :)
-
-        static float x = 0.0f;
-        static float y = 0.0f;
-        static float z = 0.0f;
-        static int jnum = 0;
-
-        static float c1 = 0.5f;
-        static float c2 = 0.5f;
-        static float c3 = 0.5f;
-
-        //{
-        //    ImGui::Begin("DOF");                          // Create a window called "Hello, world!" and append into it.
-
-        //    ImGui::Text("Joint Control.");
-        //    // Combo Box drop down was not working, ended up using listbox
-        //    // ImGui::Combo("Joint", &jnum, &Namelist, 10, 1);
-        //    // ImGui::Combo("Joint", &jnum, Namelist, IM_ARRAYSIZE(Namelist));
-        //    // ImGui::Combo("Joint", &jnum, it, 3);
-        //    ImGui::ListBox("Joint List", &jnum, Namelist, listsize, 3);
-
-        //    //        std::cout << "Jnum: " << jnum << std::endl;
-        //     //       std::cout << "Skel Joint Name: " << skel->joints[jnum]->name << std::endl;
-        //      //      skel->joints.at(jnum)->xDof->SetValue(20.0f);
-        //       //     std::cout << "Skel xDof: " << skel->joints[jnum]->xDof->GetValue() << std::endl;
-        //        //    std::cout << "Skel yDof: " << skel->joints[jnum]->yDof->GetValue() << std::endl;
-        //         //   std::cout << "Skel zDof: " << skel->joints[jnum]->zDof->GetValue() << std::endl;
-
-        //          //  skel->joints[jnum]->zDof->SetValue((float) 20.0);
-        //           // skel->joints.at(jnum)->xDof->SetValue(20.0f);
-
-        //            // Sliders
-        //            // ImGui::SliderFloat("Degree of Freedom X", &skel->joints[jnum]->xDof, 0.0f, 1.0f);
-        //            // ImGui::SliderFloat("Degree of Freedom X", &x, (float) skel->joints.at(jnum)->xDof->min(), skel->joints[jnum]->xDof->min());
-
-        //    ImGui::SliderFloat("Degree of Freedom X", &skel->joints[jnum]->xDof->value, (float)skel->joints[jnum]->xDof->min, (float)skel->joints[jnum]->xDof->max);
-        //    ImGui::SliderFloat("Degree of Freedom Y", &skel->joints[jnum]->yDof->value, (float)skel->joints[jnum]->yDof->min, (float)skel->joints[jnum]->yDof->max);
-        //    ImGui::SliderFloat("Degree of Freedom Z", &skel->joints[jnum]->zDof->value, (float)skel->joints[jnum]->zDof->min, (float)skel->joints[jnum]->zDof->max);
-        //    ImGui::SliderFloat("Red ", &c1, 0.0f, 1.0f);
-        //    ImGui::SliderFloat("Green ", &c2, 0.0f, 1.0f);
-        //    ImGui::SliderFloat("Blue ", &c3, 0.0f, 1.0f);
-
-        //    // skin->tri->color = glm::vec3(c1, c2, c3);
-        //    skin->tri[jnum].color = glm::vec3(c1, c2, c3);
-        //    skel->joints[jnum]->box->color = glm::vec3(c1, c2, c3);
-
-        //    ImGui::End();
-        //}
-
-
-
-        // Rendering
-        // (Your code clears your framebuffer, renders your other stuff etc.)
-        /*ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
-        // (Your code calls glfwSwapBuffers() etc.)
-
-    }
-        // Swap buffers.
-        glfwSwapBuffers(window);
+    glfwSwapBuffers(window);
 }
 
 // helper to reset the camera
@@ -243,10 +160,6 @@ void Window::resetCamera() {
 
 // callbacks - for Interaction
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    /*
-     * TODO: Modify below to add your key callbacks.
-     */
-
     // Check for a key press.
     int BURST = 10;
 
@@ -255,6 +168,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	PlayerIntent.hit3Intent = false;
 	PlayerIntent.hit4Intent = false;
 	PlayerIntent.hit5Intent = false;
+	PlayerIntent.hitEIntent = false;
+	PlayerIntent.hitRIntent = false;
+	PlayerIntent.hitTIntent = false;
+	PlayerIntent.hitYIntent = false;
+	PlayerIntent.hitUIntent = false;
+
 
 
     if (action == GLFW_PRESS) {
@@ -262,9 +181,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
             case GLFW_KEY_ESCAPE:
                 // Close the window. This causes the program to also terminate.
                 glfwSetWindowShouldClose(window, GL_TRUE);
-                break;
-            case GLFW_KEY_R:
-                resetCamera();
                 break;
 			case GLFW_KEY_1:
 				PlayerIntent.hit1Intent = true;
@@ -274,7 +190,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				PlayerIntent.hit2Intent = true;
 				//cube->setColor(0.0f, 1.0f, 0.0f);
 				break;
-
 			case GLFW_KEY_3:
 				PlayerIntent.hit3Intent = true;
 				//cube->setColor(0.0f, 0.0f, 1.0f);
@@ -287,12 +202,33 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				PlayerIntent.hit5Intent = true;
 				//cube->setColor(0.0f, 1.0f, 1.0f);
 				break;
-            default:
-                break;
+            //next for the Keys ,E,R,T,Y,U
+            case GLFW_KEY_E:
+				PlayerIntent.hitEIntent = true;
+				//cube->setColor(1.0f, 0.0f, 0.0f); 
+				break;
+			case GLFW_KEY_R:
+				PlayerIntent.hitRIntent = true;
+				//cube->setColor(0.0f, 1.0f, 0.0f);
+				break;
+			case GLFW_KEY_T:
+				PlayerIntent.hitTIntent = true;
+				//cube->setColor(0.0f, 0.0f, 1.0f);
+				break;
+			case GLFW_KEY_Y:
+				PlayerIntent.hitYIntent = true;
+				//cube->setColor(1.0f, 1.0f, 0.0f);
+				break;
+			case GLFW_KEY_U:
+				PlayerIntent.hitUIntent = true;
+				//cube->setColor(0.0f, 1.0f, 1.0f);
+				break;
+      default:
+        break;
         }
 
     }
-
+   
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
@@ -314,15 +250,38 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+
+    double time = glfwGetTime();
+
+    if (time - scrollStart < 0.1) {
+        return;
+    }
     if (yoffset > 0) {
+        PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollUpIntent = true;
 		PlayerIntent.scrollDownIntent = false;
 
+		
+
 	}
     else if(yoffset < 0){
+        PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollDownIntent = true;
 		PlayerIntent.scrollUpIntent = false;
     }
+
+
+	printf("Scroll: %f %f\n", xoffset, yoffset);
+
+    scrollStart = glfwGetTime();
+    if (PlayerIntent.scrollDownIntent) { 
+        scene->TriggerAnim(0); 
+        PlayerIntent.changeToPower = (PowerType)(((int)PlayerIntent.changeToPower + 1) % 5);
+    }; //Rotate UI CCW
+    if (PlayerIntent.scrollUpIntent) { 
+        scene->TriggerAnim(1); 
+        PlayerIntent.changeToPower = (PowerType)(((int)(PlayerIntent.changeToPower) - 1 + 5) % 5);
+    }; //Rotate UI CW
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -332,6 +291,12 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         RightDown = (action == GLFW_PRESS);
     }
+	PlayerIntent.leftClickIntent = LeftDown;
+	PlayerIntent.rightClickIntent = RightDown;
+	//std::cout << "LeftDown: " << LeftDown << std::endl;
+	//std::cout << "RightDown: " << RightDown << std::endl;
+	//std::cout << "MouseX: " << MouseX << std::endl;
+	//std::cout << "MouseY: " << MouseY << std::endl;
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
