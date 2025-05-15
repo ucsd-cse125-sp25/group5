@@ -143,7 +143,7 @@ glm::quat getRotationFromAzimuthIncline(float azimuth, float incline) {
 	return yaw * pitch;
 }
 
-void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
+void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 
 	//get the direction that the player is facing, that will be our projectile direction
 	glm::vec3 facingDirection = getDirection(
@@ -157,7 +157,7 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 	);
 
 	//for now, we only spawn wood projectiles 
-	if (type == WOOD) {
+	if (type == WOOD && playerStats.mana[1] >= WOOD_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 
@@ -171,8 +171,11 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		phys.addMovingObject(obj);
 		//print velocity
 		printf("Projectile velocity %f %f %f\n", obj->physics->velocity.x, obj->physics->velocity.y, obj->physics->velocity.z);
+
+		//reduce mana
+		playerStats.mana[1] -= WOOD_PROJ_COST;
 	}
-	else if (type == METAL) {
+	else if (type == METAL && playerStats.mana[0] >= METAL_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -182,8 +185,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
+
+		playerStats.mana[0] -= METAL_PROJ_COST;
 	}
-	else if (type == WATER) {
+	else if (type == WATER && playerStats.mana[2] >= WATER_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -193,8 +198,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
+
+		playerStats.mana[2] -= WATER_PROJ_COST;
 	}
-	else if (type == FIRE) {
+	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -204,8 +211,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
+
+		playerStats.mana[3] -= FIRE_PROJ_COST;
 	}
-	else if (type == EARTH) {
+	else if (type == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -215,42 +224,14 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
+
+		playerStats.mana[4] -= EARTH_PROJ_COST;
 	}
 	
-}
-
-void handleMovement(GameObject* player, PowerType type, PhysicsSystem& phys) {
-
 }
 
 void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent) {
-
-	
 	playerStats.activePower = PowerType(phys.PlayerIntents[player->id].changeToPower);
-	/*if (phys.PlayerTrackings[player->id].scrollDownDuration >= 1) {
-		printf("Scroll up %d\n", intent.scrollUpIntent);
-		printf("Scroll down %d\n", intent.scrollDownIntent);
-
-		printf("Player %d active power: %d\n", player->id, playerStats.activePower);
-		int nextPower = (playerStats.activePower + 1) % 5;
-		playerStats.activePower = PowerType(nextPower);
-	}
-	else if (phys.PlayerTrackings[player->id].scrollDownDuration >= 1) {
-		printf("Scroll up %d\n", intent.scrollUpIntent);
-		printf("Scroll down %d\n", intent.scrollDownIntent);
-
-		printf("Player %d active power: %d\n", player->id, playerStats.activePower);
-		int nextPower = (playerStats.activePower - 1 + 5) % 5;
-		if (nextPower < 0) {
-			nextPower = 4;
-		}
-		playerStats.activePower = PowerType(nextPower);
-	}
-	else {
-		printf("Player %d active power: %d\n", player->id, playerStats.activePower);
-	}*/
-
-	
 }
 
 //—— integrate — called once per tick
@@ -310,7 +291,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	if (state == PlayerMovementState::IDLE) {
 		//check for movement powers 
 		if (intent.rightClickIntent) {
-			if (playerStats.activePower == FIRE) {
+			if (playerStats.activePower == FIRE && playerStats.mana[3] >= FIRE_MOVE_COST) {
 				state = PlayerMovementState::DASH;
 				dashTimer = DASH_TIME;
 
@@ -320,22 +301,28 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 					glm::radians(-intent.inclineIntent)
 				) * DASH_SPEED;
 
+				playerStats.mana[3] -= FIRE_MOVE_COST;
+
 				return;
 			}
-			else if (playerStats.activePower == EARTH) {
+			else if (playerStats.activePower == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
 				state = PlayerMovementState::STOMP;
 				stompTimer = STOMP_TIME;
 
 				//fix the velocity
 				obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
 
+				playerStats.mana[4] -= EARTH_MOVE_COST;
+
 				return;
 			}
-			else if (playerStats.activePower == WATER) {
+			else if (playerStats.activePower == WATER && playerStats.mana[2] >= WATER_MOVE_COST) {
 				//high jump
 				obj->physics->velocity += glm::vec3(0.0f, JUMP_FORCE * 2.0f, 0.0f);
+
+				playerStats.mana[2] -= WATER_MOVE_COST;
 			}
-			else if (playerStats.activePower == WOOD) {
+			else if (playerStats.activePower == WOOD && playerStats.mana[1] >= EARTH_MOVE_COST) {
 				//our target point, we've also set the target object, this could probably use some restructuring
 
 
@@ -355,6 +342,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 					//lock the velocity
 					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
 				}
+
+				playerStats.mana[1] -= WOOD_MOVE_COST;
 			}
 		}
 		

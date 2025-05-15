@@ -47,6 +47,17 @@ const float GRAPPLE_TIME = 10.0f;
 const float WOOD_PROJ_SPEED = 25.0f;
 
 
+const float METAL_PROJ_COST = 5.0f;
+const float METAL_MOVE_COST = 15.0f;
+const float WOOD_PROJ_COST = 5.0f;
+const float WOOD_MOVE_COST = 20.0f;
+const float WATER_PROJ_COST = 5.0f;
+const float WATER_MOVE_COST = 25.0f;
+const float FIRE_PROJ_COST = 5.0f;
+const float FIRE_MOVE_COST = 10.0f;
+const float EARTH_PROJ_COST = 5.0f;
+const float EARTH_MOVE_COST = 10.0f;
+
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
     float dashTimer = 0.0f;
@@ -65,6 +76,7 @@ public:
 	pair<glm::vec3,float> handlePlayerGrapple(GameObject* obj, PhysicsSystem& phys);
 
 	void changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent);
+	void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys);
 
     // override the abstract methods
     void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
