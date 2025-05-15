@@ -1,4 +1,5 @@
 #include "UIImg.h"
+//#include "UIManager.h"
 
 void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
@@ -7,17 +8,20 @@ void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 	float percX = startPerc[0];
 	float percY = startPerc[1];
+
 	float offsetX = WINDOWWIDTH * percent;
 	float offsetY = WINDOWHEIGHT * percent * ratio;
+	float uiWidth = offsetX;
+	float uiHeight = offsetY;
 
 	std::vector<float> startPos = {percX * WINDOWWIDTH, percY * WINDOWHEIGHT};
 
 	uiData = {
 		//Position                                     //UV         //Color
-		startPos[0], startPos[1],                      0.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
-		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
-		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
-		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] - (uiWidth/2), startPos[1] - (uiHeight/2),                      0.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] + offsetX - (uiWidth / 2), startPos[1] - (uiHeight / 2),            1.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] + offsetX - (uiWidth / 2), startPos[1] + offsetY - (uiHeight / 2),  1.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
+		startPos[0] - (uiWidth / 2), startPos[1] + offsetY - (uiHeight / 2),            0.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
 	};
 
 	glGenVertexArrays(1, &VAO);
@@ -43,7 +47,7 @@ void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 }
 
-void UIImg::Update(const OtherPlayerStats& p) {
+void UIImg::Update(const UIData& p) {
 
 }
 
@@ -51,12 +55,13 @@ void UIImg::Draw() {
 	glUseProgram(shaderProgram);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	glBindVertexArray(VAO);
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glDisable(GL_DEPTH_TEST);
-
-	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);
@@ -69,40 +74,37 @@ void UIImg::SetTexture(GLuint tex) {
 	texture = tex;
 }
 
-void Clock::Init(std::vector<float> startPos, float percent, float ratio) {
+void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
+	start = glfwGetTime();
 
 	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
+	float uiWidth = WINDOWWIDTH * percent;
+	//float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float startX = WINDOWWIDTH * startPerc[0];
+	float startY = WINDOWHEIGHT * startPerc[1];
+	std::vector<float> startPos = { startX, startY };
 
-	float offsetX = WINDOWWIDTH * percent;
-	float offsetY = WINDOWHEIGHT * percent * ratio;
 
-	//health = {
-	//	//Position                                     //UV         //Color
-	//	startPos[0], startPos[1],                      0.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
-	//	startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
-	//	startPos[0]	//	startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
- + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
-	//};
-
-	//container = {
-	//	//Position                                     //UV        //Color
-	//	startPos[0], startPos[1],                      0.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
-	//	startPos[0] + offsetX, startPos[1],            1.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
-	//	startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
-	//	startPos[0], startPos[1] + offsetY,            0.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
-	//};
-
-	glGenVertexArrays(2, &VAO);
-	glGenBuffers(2, &VBO);
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 
 	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	container = {
+		//Position                                     //UV        //Color
+		startPos[0], startPos[1],                      0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + uiWidth, startPos[1],            1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + uiWidth, startPos[1] + uiWidth,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0], startPos[1] + uiWidth,            0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -118,14 +120,22 @@ void Clock::Init(std::vector<float> startPos, float percent, float ratio) {
 	glBindVertexArray(0);
 }
 
-void Clock::Update(const OtherPlayerStats& p) {
-	float leftX = container[0];
-	float rightX = container[7];
-	float width = rightX - leftX;
-	float percentage = float(p.currHP) / float(p.maxHP);
+void Clock::Update(const UIData& p) {
+	//p.seconds = 10 - (glfwGetTime() - start);
+	int seconds = 600 - (glfwGetTime() - start);
+	//int seconds = (int)p.seconds;
+	int tensMin = seconds / (60 * 10);
+	int onesMin = (seconds / 60 ) % 10 ;
+	int tensSec = (seconds / 10) % 10;
+	int onesSec = seconds % 10;
 
-	glUseProgram(shaderProgram);
-	glUniform1f(glGetUniformLocation(shaderProgram, "healthPercent"), percentage);
+	//std::cout << tensMin << onesMin << ":" << tensSec << onesSec;
+
+	digits[0] = (*texs)[std::to_string(tensMin)];
+	digits[1] = (*texs)[std::to_string(onesMin)];
+	digits[2] = (*texs)[":"];
+	digits[3] = (*texs)[std::to_string(tensSec)];
+	digits[4] = (*texs)[std::to_string(onesSec)];
 }
 
 //void Clock::SetTexture(GLuint texture) {
@@ -139,35 +149,18 @@ void Clock::Draw() {
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, healthTexture);
 
-	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST); 
 
-	for (const auto& p : powers) {
-		float scale = (p.targetIdx == 0) ? 1.2f : 0.8f;
+
+	glBindVertexArray(VAO);
+	glm::mat4 model = glm::mat4(1.0f);
+	for (GLuint num : digits) {
 		//translate, scale then translate by the offset
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(p.position.x, p.position.y, 0.0f));
-		model = glm::scale(model, glm::vec3(scale, scale, 1.0f));
-		model = glm::translate(model, glm::vec3(-manaWidth / 2.0f, -manaWidth / 2.0f, 0.0f));
-		glUniformMatrix4fv(glGetUniformLocation(manaProgram, "model"), 1, GL_FALSE, &model[0][0]);
-		glUniform1f(glGetUniformLocation(manaProgram, "manaPercent"), p.currMana);
-		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), 1);
-		int isSelected = (p.targetIdx == 0) ? 1 : 0;
-		glUniform1i(glGetUniformLocation(manaProgram, "selectedMana"), isSelected);
-		glBindTexture(GL_TEXTURE_2D, p.manaTexture);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glUniform1i(glGetUniformLocation(manaProgram, "isMana"), 0);
-		glBindTexture(GL_TEXTURE_2D, p.borderTexture);
+		model = glm::translate(model, glm::vec3(65.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glBindTexture(GL_TEXTURE_2D, num);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
-
-	glUniform1i(glGetUniformLocation(shaderProgram, "health"), false);
-	glBindVertexArray(VAO[0]);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-	glUniform1i(glGetUniformLocation(shaderProgram, "health"), true);
-	glBindVertexArray(VAO[1]);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
 	glDisable(GL_BLEND);
 
 	glEnable(GL_DEPTH_TEST);
@@ -243,7 +236,7 @@ void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 	glBindVertexArray(0);
 }
 
-void HealthBar::Update(const OtherPlayerStats &p) {
+void HealthBar::Update(const UIData &p) {
 	float leftX = container[0];
 	float rightX = container[7];
 	float width = rightX - leftX;
@@ -357,7 +350,7 @@ void Magic::Init(std::vector<float> startPerc, float p, float r) {
 	glBindVertexArray(0);
 }
 
-void Magic::Update(const OtherPlayerStats& p) {
+void Magic::Update(const UIData& p) {
 	//UPDATE ALL ELEMENTS OF THE UI FROM WINDOWWIDTH/WINDOWHEIGHT
 	UpdateLayout();
 

@@ -11,8 +11,6 @@ ServerNetwork::ServerNetwork(void)
     ListenSocket = INVALID_SOCKET;
     ClientSocket = INVALID_SOCKET;
 
-
-
     // address info for the server to listen to
     struct addrinfo *result = NULL;
     struct addrinfo hints;
@@ -85,7 +83,6 @@ ServerNetwork::ServerNetwork(void)
         exit(1);
     }
 }
-
 
 ServerNetwork::~ServerNetwork(void)
 {

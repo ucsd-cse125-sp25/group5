@@ -1,5 +1,6 @@
 #include <stdafx.h>
-#include "shared/ObjectData.h"
+#include "../include/shared/ObjectData.h"
+
 
 #pragma once
 using namespace std;
@@ -9,7 +10,8 @@ typedef glm::vec3 vec3;
 // Forward declarations for components
 struct PhysicsComponent;
 struct ColliderComponent;
-struct BehaviorComponent;
+struct TestTestBehaviorComponent;
+class BehaviorComponent;
 
 const float GRAVITY = 9.8f * 0.1f;
 
@@ -47,6 +49,13 @@ struct ColliderComponent {
 	bool isTrigger = false; // no resolution if true
 };
 
+struct Ray {
+	glm::vec3 origin;
+	glm::vec3 dir; // *must* be normalized
+};
+
+
+
 enum class MoveState {
 	Idle,
 	Walking,
@@ -55,7 +64,7 @@ enum class MoveState {
 	InAir
 };
 
-struct BehaviorComponent {
+struct TestTestBehaviorComponent {
 	MoveState state = MoveState::Idle;
 
 	float dashCooldown = 0.0f;
@@ -67,10 +76,12 @@ struct GameObject {
 	Transform transform;
 	PhysicsComponent* physics = nullptr;
 	ColliderComponent* collider = nullptr;
-	BehaviorComponent* behavior = nullptr;
+	//TestTestBehaviorComponent* behavior = nullptr;
+	BehaviorComponent* behavior = nullptr; // Pointer to the behavior component
 	EntityType type = EntityType::ENTITY; // Default to ENTITY
 
 
 	bool isDynamic = true; // true if dynamic, false if static
+	bool markDeleted = false; // true if marked for deletion
 };
 

@@ -13,7 +13,7 @@ enum class GameState {
     MATCH
 };
 
-struct OtherPlayerStats {
+struct UIData {
     //damage from powerups will be whole numbers
     int maxHP = 250, currHP = 250;
     int maxWater = 100, currWater = 50;
@@ -22,6 +22,7 @@ struct OtherPlayerStats {
     int maxWood = 100, currWood = 50;
     int maxMetal = 100, currMetal = 50;
     ElementType currElem = ElementType::WATER;
+    float seconds = 10;
     //unsigned int ID : 4;
 };
 

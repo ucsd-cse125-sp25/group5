@@ -9,7 +9,7 @@
 class UIManager {
 public:
 	void Init();
-	void update(const OtherPlayerStats &p);
+	void update(const UIData& p);
 	void draw();
 
 	//Texture Manager
@@ -28,4 +28,5 @@ private:
 	std::vector<UIImg*> matchElements;
 	std::vector<UIImg*> lobbyElements;
 	std::unordered_map<std::string, GLuint> textures;
+	
 };

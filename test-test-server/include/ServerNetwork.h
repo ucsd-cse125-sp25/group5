@@ -4,12 +4,12 @@
 #include "NetworkServices.h"
 #include <ws2tcpip.h>
 #include <map>
-#include "shared/NetworkData.h"
+#include "../include/shared/NetworkData.h"
 using namespace std; 
 #pragma comment (lib, "Ws2_32.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "6881" 
+#define DEFAULT_PORT "2399" 
 
 class ServerNetwork
 {

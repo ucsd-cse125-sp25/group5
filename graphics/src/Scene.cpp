@@ -3,7 +3,7 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
-OtherPlayerStats dummy;
+UIData dummy;
 
 PlayerObject* players[4];
 
@@ -43,10 +43,10 @@ void Scene::createGame() {
 }
 
 void Scene::loadObjects() {
-	Object* obj = new Object();
-	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
-	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	objects.push_back(obj);
+	//Object* obj = new Object();
+	//std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
+	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
+	//objects.push_back(obj);
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
@@ -72,6 +72,15 @@ void Scene::update(ClientGame* client) {
 	player->UpdateMat(client->playerModel);
 	player->Update();
 	//test->Update();
+
+	//get information from client state
+	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
+	dummy.currMetal = client->GameState.player_stats[client->playerId].mana[0];
+	dummy.currWood = client->GameState.player_stats[client->playerId].mana[1];
+	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
+	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
+	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
+	//dummy.seconds = client->GameState.seconds;
 
 	int i;
 	int j;
@@ -115,6 +124,11 @@ void Scene::update(ClientGame* client) {
 		}
 		else if (entity.type == D_CUBE) {
 			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == WOOD_PROJ) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}

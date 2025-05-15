@@ -3,6 +3,7 @@
 #include "core.h"
 #include "Global.h"
 #include "Shader.h"
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 
@@ -10,7 +11,7 @@ class UIImg {
 public:
 	virtual void Init(std::vector<float> startPos, float percent, float ratio);
 	virtual void Draw();
-	virtual void Update(const OtherPlayerStats& p);
+	virtual void Update(const UIData& p);
 	virtual void SetTexture(GLuint tex);
 
 	std::string name;
@@ -25,26 +26,11 @@ private:
 	
 };
 
-
-class Clock : public UIImg {
-public: 
-	void Init(std::vector<float> startPos, float percent, float ratio);
-	void Draw();
-	void Update(const OtherPlayerStats& p, float seconds);
-//	void SetTexture(GLuint tex);
-	std::string name;
-private:
-	GLuint shaderProgram;
-	glm::mat4 projection;
-
-	GLuint VAO, VBO, EBO;
-};
-
 class HealthBar : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p) override;
+	void Update(const UIData& p) override;
 	void SetTexture(GLuint texture);
 
 	std::string name;
@@ -70,11 +56,28 @@ struct MagicElement {
 	GLuint manaTexture;
 };
 
+class Clock : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+private:
+	GLuint digits[5];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	double start = 0.0;
+
+	GLuint VAO, VBO, EBO;
+};
+
 class Magic : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p) override;
+	void Update(const UIData& p) override;
 	void UpdateLayout();
 	void SetTexture(GLuint texture);
 	void StartRotate(int anim);

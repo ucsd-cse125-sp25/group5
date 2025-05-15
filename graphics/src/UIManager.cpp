@@ -15,7 +15,8 @@
 * - The aspect ratio of the texture (float)
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} }
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}}
 };
 
 /**
@@ -62,9 +63,15 @@ void UIManager::Init() {
 		LoadTexture(name, path);
 	}
 	//add a clock to match elements
-	matchElements.push_back(new Clock());
+	//UIImg* clock = new Clock();
+	UIImg* clock = new Clock();
+	std::vector<float> startPerc = { 0.3, 0.9 };
+	clock->Init(startPerc, 0.05, 1.0);
+	matchElements.push_back(clock);
+	Clock* c = dynamic_cast<Clock*>(clock);
+	c->texs = &textures; //Mickey mouse
 	
-	//
+
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
@@ -142,7 +149,7 @@ void UIManager::Init() {
 	}
 }
 
-void UIManager::update(const OtherPlayerStats& p) {
+void UIManager::update(const UIData& p) {
 	switch (currState) {
 	case GameState::LOBBY:
 		for (auto* img : lobbyElements) {
