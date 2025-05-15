@@ -220,9 +220,9 @@ vec3 PhysicsSystem::getAABBDistanceCenters(AABB& a, AABB& b) {
     return aCenterAABB - bCenterAABB;
 }
 pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
-    printf("getAABBpenetration\n");
+    /*printf("getAABBpenetration\n");
     printf("aabb1: (%f, %f, %f) (%f, %f, %f)\n", a.min.x, a.min.y, a.min.z, a.max.x, a.max.y, a.max.z);
-    printf("aabb2: (%f, %f, %f) (%f, %f, %f)\n", b.min.x, b.min.y, b.min.z, b.max.x, b.max.y, b.max.z);
+    printf("aabb2: (%f, %f, %f) (%f, %f, %f)\n", b.min.x, b.min.y, b.min.z, b.max.x, b.max.y, b.max.z);*/
     vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
 
     float minOverlap = 999999.0f;
@@ -231,13 +231,13 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
     for (int i = 0; i < 3; i++) {
         pair<float, float> interval1 = { a.min[i], a.max[i] };
         pair<float, float> interval2 = { b.min[i], b.max[i] };
-        printf("interval1: (%f, %f)\n", interval1.first, interval1.second);
-        printf("interval2: (%f, %f)\n", interval2.first, interval2.second);
+        /*printf("interval1: (%f, %f)\n", interval1.first, interval1.second);
+        printf("interval2: (%f, %f)\n", interval2.first, interval2.second);*/
 
         vec3 dir = getAABBDistanceCenters(a, b);
 
         float overlap = getOverlap(interval1, interval2);
-        printf("Overlap %d: %f\n", i, overlap);
+        //printf("Overlap %d: %f\n", i, overlap);
 
         if (overlap <= 0.0f) {   
             return pair<vec3, float>(vec3(0.0f), overlap); // No overlap
@@ -248,7 +248,7 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
             minAxis = axes[i] * (dir[i] > 0 ? 1.0f : -1.0f); // Choose the axis direction based on the distance vector
         }
     }
-    printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
+    //printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
     return pair<vec3, float>(minAxis, minOverlap);
 }
 
