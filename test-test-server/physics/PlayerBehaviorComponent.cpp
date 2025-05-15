@@ -240,11 +240,56 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
     PhysicsSystem& phys)
 {	
 
+
+
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
+
+	//when death first happens 
+	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
+		//set state to death, start the death timer, do tags
+		state = PlayerMovementState::DEATH;
+		deathTimer = DEATH_TIME;
+		playerStats.alive = false;
+
+		//drop the flag 
+		if (obj->attached != nullptr && obj->attached->type == FLAG) {
+			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+			behavior->owningPlayer = -1;
+			obj->attached = nullptr;
+		}
+
+		//no collider
+		obj->collider->halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
+	}
 	
 	changePlayerPower(obj, phys, intent);
 	//dash movement
-	if (state == PlayerMovementState::DASH) {
+	if(state == PlayerMovementState::DEATH) {
+		deathTimer -= deltaTime;
+
+		//freeze the player
+		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+		if (deathTimer <= 0.0f) {
+			
+			playerStats.hp = 100.0f;
+			playerStats.alive = true;
+			state = PlayerMovementState::IDLE;
+			deathTimer = 0.0f;
+
+			//half the amount of mana
+			for (int i = 0; i < 5; i++) {
+				playerStats.mana[i] /= 2.0f;
+			}
+
+			//turn collider back on
+			//TODO: set extents to player defaults
+			obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+		return;
+	}
+	else if (state == PlayerMovementState::DASH) {
 		dashTimer -= deltaTime;
 
 		//once we're done, exit dash
@@ -364,6 +409,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
 			behavior->owningPlayer = -1;
 			obj->attached = nullptr;
+		}
+
+		if (intent.hit2Intent) {
+			//kill self
+			playerStats.hp = 0.0f;
 		}
 
 		//check for attacks

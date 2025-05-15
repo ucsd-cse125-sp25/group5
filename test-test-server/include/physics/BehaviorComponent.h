@@ -9,7 +9,8 @@ enum class PlayerMovementState {
 	IDLE,
 	STOMP,
     DASH,
-    GRAPPLE
+    GRAPPLE,
+	DEATH
 };
 
 class BehaviorComponent {  
@@ -46,6 +47,8 @@ const float GRAPPLE_SPEED = 15.0f;
 const float GRAPPLE_TIME = 10.0f;
 const float WOOD_PROJ_SPEED = 25.0f;
 
+const float DEATH_TIME = 10.0f;
+
 
 const float METAL_PROJ_COST = 5.0f;
 const float METAL_MOVE_COST = 15.0f;
@@ -63,6 +66,7 @@ public:
     float dashTimer = 0.0f;
 	float stompTimer = 0.0f;
     float grappleTimer = 0.0f;
+	float deathTimer = 0.0f;
 	GameObject* grappleTarget = nullptr;
     PlayerStats playerStats;
     int debugVar = 0;
