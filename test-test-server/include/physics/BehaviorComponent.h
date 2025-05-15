@@ -64,8 +64,7 @@ public:
 	float stompTimer = 0.0f;
     float grappleTimer = 0.0f;
 	GameObject* grappleTarget = nullptr;
-	PlayerStats playerStats;
-
+    PlayerStats playerStats;
     int debugVar = 0;
     // just forward to the base
     PlayerBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)

@@ -108,6 +108,11 @@ void ServerGame::update()
         player->behavior = playerBehavior;
         playerBehaviors[client_id] = playerBehavior;
 		//for player objects, we set a behavior component
+        printf("Metal mana %d\n", playerBehavior->playerStats.mana[0]);
+        printf("Wood mana %d\n", playerBehavior->playerStats.mana[1]);
+        printf("Water mana %d\n", playerBehavior->playerStats.mana[2]);
+        printf("Fire mana %d\n", playerBehavior->playerStats.mana[3]);
+        printf("Earth mana %d\n", playerBehavior->playerStats.mana[4]);
 
 		player->type = PLAYER;
         player->isDynamic = true;

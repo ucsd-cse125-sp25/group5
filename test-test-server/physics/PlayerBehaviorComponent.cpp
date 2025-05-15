@@ -290,7 +290,13 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	//regular movement
 	if (state == PlayerMovementState::IDLE) {
 		//check for movement powers 
-		if (intent.rightClickIntent) {
+		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
+
+			printf("Metal mana %d\n", playerStats.mana[0]);
+			printf("Wood mana %d\n", playerStats.mana[1]);
+			printf("Water mana %d\n", playerStats.mana[2]);
+			printf("Fire mana %d\n", playerStats.mana[3]);
+			printf("Earth mana %d\n", playerStats.mana[4]);
 			if (playerStats.activePower == FIRE && playerStats.mana[3] >= FIRE_MOVE_COST) {
 				state = PlayerMovementState::DASH;
 				dashTimer = DASH_TIME;
@@ -345,6 +351,12 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 				playerStats.mana[1] -= WOOD_MOVE_COST;
 			}
+
+			printf("Metal mana %d\n", playerStats.mana[0]);
+			printf("Wood mana %d\n", playerStats.mana[1]);
+			printf("Water mana %d\n", playerStats.mana[2]);
+			printf("Fire mana %d\n", playerStats.mana[3]);
+			printf("Earth mana %d\n", playerStats.mana[4]);
 		}
 		
 
@@ -355,7 +367,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		}
 
 		//check for attacks
-		printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].leftClickDuration);
+		//printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].leftClickDuration);
 		if (intent.leftClickIntent && phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
 			spawnProjectile(obj, playerStats.activePower, phys);
 			printf("Hit e\n");
@@ -386,6 +398,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 		//apply player movement
 		obj->transform.position += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * deltaTime;
+
+		
+
 	}
 
 

@@ -3,7 +3,7 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
-OtherPlayerStats dummy;
+UIData dummy;
 
 PlayerObject* players[4];
 
@@ -94,6 +94,8 @@ void Scene::update(ClientGame* client) {
 	}
 	cubes.clear();
 
+
+	
 	
 	for (i = 0; i < client->GameState.num_entities; i++) {
 		auto entity = client->GameState.entities[i];
@@ -146,6 +148,15 @@ void Scene::update(ClientGame* client) {
 			cubes.push_back(cu);
 		}
 	}
+
+
+	dummy.currMetal = client->GameState.player_stats[client->playerId].mana[0];
+	dummy.currWood = client->GameState.player_stats[client->playerId].mana[1];
+	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
+	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
+	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
+	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
+
 	uimanager->update(dummy);
 }
 

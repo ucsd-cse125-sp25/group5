@@ -9,7 +9,7 @@
 class UIManager {
 public:
 	void Init();
-	void update(const OtherPlayerStats &p);
+	void update(const UIData &p);
 	void draw();
 
 	//Texture Manager
