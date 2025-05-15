@@ -219,6 +219,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 	
 }
 
+void handleMovement(GameObject* player, PowerType type, PhysicsSystem& phys) {
+
+}
+
 void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent) {
 
 	
@@ -305,52 +309,55 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	//regular movement
 	if (state == PlayerMovementState::IDLE) {
 		//check for movement powers 
-		if (intent.hit4Intent) {
-			state = PlayerMovementState::DASH;
-			dashTimer = DASH_TIME;
+		if (intent.rightClickIntent) {
+			if (playerStats.activePower == FIRE) {
+				state = PlayerMovementState::DASH;
+				dashTimer = DASH_TIME;
 
-			//fix the velocity to the direction we wish to dash in
-			obj->physics->velocity = getDirection(
-				glm::radians(-intent.azimuthIntent),
-				glm::radians(-intent.inclineIntent)
-			) * DASH_SPEED;
+				//fix the velocity to the direction we wish to dash in
+				obj->physics->velocity = getDirection(
+					glm::radians(-intent.azimuthIntent),
+					glm::radians(-intent.inclineIntent)
+				) * DASH_SPEED;
 
-			return;
-		}
-		else if (intent.hit5Intent) {
-			state = PlayerMovementState::STOMP;
-			stompTimer = STOMP_TIME;
+				return;
+			}
+			else if (playerStats.activePower == EARTH) {
+				state = PlayerMovementState::STOMP;
+				stompTimer = STOMP_TIME;
 
-			//fix the velocity
-			obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
+				//fix the velocity
+				obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
 
-			return;
-		}
-		else if (intent.hit3Intent) {
-			//high jump
-			obj->physics->velocity += glm::vec3(0.0f, JUMP_FORCE * 2.0f, 0.0f);
-		}
-		else if (intent.hit2Intent) {
-			//our target point, we've also set the target object, this could probably use some restructuring
-			
+				return;
+			}
+			else if (playerStats.activePower == WATER) {
+				//high jump
+				obj->physics->velocity += glm::vec3(0.0f, JUMP_FORCE * 2.0f, 0.0f);
+			}
+			else if (playerStats.activePower == WOOD) {
+				//our target point, we've also set the target object, this could probably use some restructuring
 
-			//result
-			pair<glm::vec3, float> result = handlePlayerGrapple(obj, phys);
 
-			glm::vec3 target = result.first;
+				//result
+				pair<glm::vec3, float> result = handlePlayerGrapple(obj, phys);
 
-			//we have a target
-			if (target != glm::vec3(0.0f, 0.0f, 0.0f)) {
-				//only start grappling if we have a target 
-				state = PlayerMovementState::GRAPPLE;
-				grappleTimer = result.second / GRAPPLE_SPEED;
-				//get our direction
-				glm::vec3 direction = target - obj->transform.position;
-				glm::vec3 normalizedDirection = glm::normalize(direction);
-				//lock the velocity
-				obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+				glm::vec3 target = result.first;
+
+				//we have a target
+				if (target != glm::vec3(0.0f, 0.0f, 0.0f)) {
+					//only start grappling if we have a target 
+					state = PlayerMovementState::GRAPPLE;
+					grappleTimer = result.second / GRAPPLE_SPEED;
+					//get our direction
+					glm::vec3 direction = target - obj->transform.position;
+					glm::vec3 normalizedDirection = glm::normalize(direction);
+					//lock the velocity
+					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+				}
 			}
 		}
+		
 
 		if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
 			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
@@ -359,8 +366,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		}
 
 		//check for attacks
-		printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].rightClickDuration);
-		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
+		printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].leftClickDuration);
+		if (intent.leftClickIntent && phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
 			spawnProjectile(obj, playerStats.activePower, phys);
 			printf("Hit e\n");
 			printf("Physics system size %d\n", int(phys.dynamicObjects.size()));	
