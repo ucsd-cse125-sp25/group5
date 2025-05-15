@@ -43,7 +43,7 @@ void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 }
 
-void UIImg::Update(const OtherPlayerStats& p) {
+void UIImg::Update(const UIData& p) {
 
 }
 
@@ -138,7 +138,7 @@ void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 	glBindVertexArray(0);
 }
 
-void HealthBar::Update(const OtherPlayerStats &p) {
+void HealthBar::Update(const UIData &p) {
 	float leftX = container[0];
 	float rightX = container[7];
 	float width = rightX - leftX;
@@ -252,7 +252,7 @@ void Magic::Init(std::vector<float> startPerc, float p, float r) {
 	glBindVertexArray(0);
 }
 
-void Magic::Update(const OtherPlayerStats& p) {
+void Magic::Update(const UIData& p) {
 	//UPDATE ALL ELEMENTS OF THE UI FROM WINDOWWIDTH/WINDOWHEIGHT
 	UpdateLayout();
 
