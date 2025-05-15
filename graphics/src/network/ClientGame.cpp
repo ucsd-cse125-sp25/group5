@@ -38,20 +38,53 @@ void ClientGame::sendActionPackets(PlayerIntentPacket intent)
 	//printf("client sending action packet to server with the following data: %d %d %d %d\n", intent.mofffffeftIntent, intent.moveRightIntent, intent.moveDownIntent, intent.moveUpIntent);    
     NetworkServices::sendMessage(network->ConnectSocket, packet_data, packet_size);
 }
+char rem[MAX_PACKET_SIZE];
+int remSize = 0;
+PacketTypes type = NONE;
+
+char network_data[MAX_PACKET_SIZE];
+
+void ClientGame::handleGameStatePacket(char* buf) {
+    GameState.deserialize(buf);
+
+    // Update playerModel on receiving GameState
+    for (int j = 0; j < GameState.num_players; j++) {
+        if (GameState.players[j].id == playerId) {
+            playerModel = GameState.players[j].model;
+            break;
+        }
+    }
+}
 
 //receive packets
 void ClientGame::update(PlayerIntentPacket intent)
 {
-    int data_length = network->receivePackets(network_data);
-	//printf("data length: %d\n", data_length);
-    if (data_length <= 0 ) 
-    {
-        //sendActionPackets(intent);
-    }
-    else {
+    int bytes_received = network->receivePackets(network_data);
+
+    if (bytes_received >= 0) {
         int i = 0;
-        while (i < (unsigned int)data_length)
-        {
+
+        // There is partial packet stored in rem
+        if (type != NONE) {
+            int bytes_required = sizeof(GameStatePacket) - remSize;
+
+            // buffer STILL has less bytes than what's needed for processing a full GameState Packet
+            if (bytes_received < bytes_required) {
+                memcpy(&(rem[remSize]), network_data, bytes_received);
+                remSize += bytes_received;
+                type = GAME_STATE;
+                i += bytes_received;
+            }
+            else {
+                memcpy(&(rem[remSize]), network_data, bytes_required);
+                handleGameStatePacket(rem);
+                remSize = 0;
+                type = NONE;
+                i += bytes_required;
+            }
+        }
+
+        while (i < bytes_received) {
             if (network_data[i] == JOIN_RESPONSE) {
                 JoinResponsePacket packet;
                 packet.deserialize(&(network_data[i]));
@@ -63,27 +96,27 @@ void ClientGame::update(PlayerIntentPacket intent)
                 continue;
             }
 
-            GameStatePacket packet;
-            packet.deserialize(&(network_data[i]));
-            memcpy(&GameState, &packet, sizeof(GameStatePacket));
-			i += sizeof(GameStatePacket);
+            // GameState Packet
+            int bytes_required = sizeof(GameStatePacket);
+            int bytes_remaining = bytes_received - i;
 
-            // Update playerModel on receiving GameState
-            for (int j = 0; j < GameState.num_players; j++) {
-                if (GameState.players[j].id == playerId) {
-                    playerModel = GameState.players[j].model;
-                    break;
-                }
+            // buffer has less bytes than what's needed for processing a full GameState Packet
+            if (bytes_remaining < bytes_required) {
+                memcpy(rem, &(network_data[i]), bytes_remaining);
+                remSize = bytes_remaining;
+                type = GAME_STATE;
+                break;
             }
-			//printf("Received num_entities: %d\n", GameState.num_entities);
-			//printf("First entity is of type %d\n", GameState.entities[0].type);
+
+            handleGameStatePacket(&(network_data[i]));
+            i += sizeof(GameStatePacket);
         }
     }
 
-	// throttle the packets
-	currentTime = std::chrono::high_resolution_clock::now();
-	if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.016f) {
-		lastPacketSentTime = currentTime;
-		sendActionPackets(intent);
-	}
+    // throttle the packets
+    currentTime = std::chrono::high_resolution_clock::now();
+    if (std::chrono::duration<float>(currentTime - lastPacketSentTime).count() > 0.016f) {
+        lastPacketSentTime = currentTime;
+        sendActionPackets(intent);
+    }
 }

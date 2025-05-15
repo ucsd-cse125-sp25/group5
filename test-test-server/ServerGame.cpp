@@ -221,7 +221,7 @@ bool ServerGame::receiveFromClients()
 
             //apply the input to our game world
 			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
-      inputManager.updateTracking(PlayerIntent, iter->first);
+            inputManager.updateTracking(physicsSystem.PlayerIntents[iter->first], iter->first);
 			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
 			//print the player intent
 			//PrintPlayerIntent(PlayerIntent);
