@@ -144,7 +144,6 @@ void ServerNetwork::sendToAll(char * packets, int totalSize)
         if (iSendResult == SOCKET_ERROR) 
         {
             printf("send failed with error: %d\n", WSAGetLastError());
-            //closesocket(currentSocket);
         }
     }
 }

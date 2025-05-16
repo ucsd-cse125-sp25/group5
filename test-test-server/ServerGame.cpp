@@ -81,12 +81,6 @@ ServerGame::ServerGame(void)
     flag->isDynamic = true;
 	physicsSystem.addDynamicObject(flag);
     physicsSystem.addMovingObject(flag);
-
-	//printf("ServerGame::ServerGame created %d cubes\n", numCubes);
-
-	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
-	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
- //   physicsSystem.playerObjects[0] = cube;
 }
 
 ServerGame::~ServerGame(void)
@@ -223,11 +217,6 @@ bool ServerGame::receiveFromClients()
 			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
       inputManager.updateTracking(PlayerIntent, iter->first);
 			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
-			//print the player intent
-			//PrintPlayerIntent(PlayerIntent);
-			//printf("ServerGame::receiveFromClients received packet from %d\n", iter->first);
-			//printf("ServerGame::receiveFromClients received packet of type %d\n", PlayerIntent.packet_type);
-			//printf("ServerGame::receiveFromClients received packet of size %d\n", data_length);
 
         }
     }
