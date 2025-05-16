@@ -32,7 +32,7 @@ struct PhysicsComponent {
 	bool grounded = false;
 	bool grappling = false;
 	float grappleTimer = 0.0f;
-	glm::vec3 grappleTarget;
+	glm::vec3 grappleTarget = vec3(0.0f);
 
 	float maxSpeed = 10.0f;
 	float gravityScale = 1.0f;
@@ -42,6 +42,11 @@ struct PhysicsComponent {
 struct ColliderComponent {
 	glm::vec3 halfExtents = glm::vec3(0.5f, 0.9f, 0.5f); // width, height, depth
 	bool isTrigger = false; // no resolution if true
+};
+
+struct MeshComponent {
+	vec3 min, max;	// the min and max of the mesh in world space
+	vec3 center, halfExtents; // the center and half extents of the AABB of the mesh that's computed using the min and max above
 };
 
 struct Ray {
@@ -54,6 +59,7 @@ struct GameObject {
 	Transform transform;
 	PhysicsComponent* physics = nullptr;
 	ColliderComponent* collider = nullptr;
+	MeshComponent* mesh = nullptr;
 	BehaviorComponent* behavior = nullptr; // Pointer to the behavior component
 	EntityType type = EntityType::ENTITY; // Default to ENTITY
 
