@@ -82,6 +82,9 @@ ServerGame::ServerGame(void)
 	physicsSystem.addDynamicObject(flag);
     physicsSystem.addMovingObject(flag);
 
+    //start the game timer
+	ServerGame::gameStartTime = std::chrono::high_resolution_clock::now();
+
 	//printf("ServerGame::ServerGame created %d cubes\n", numCubes);
 
 	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
@@ -139,6 +142,15 @@ void ServerGame::update()
    physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
    //put new information into the game state
    //inputManager.updateTracking(PlayerIntent, client_id);
+
+   std::chrono::time_point<std::chrono::high_resolution_clock> gameNowTime = std::chrono::high_resolution_clock::now();
+   float timeSinceStart = std::chrono::duration<float>(gameNowTime - ServerGame::gameStartTime).count();
+   timeLeft = gameTimeLimit - (int)timeSinceStart;
+
+
+   //time left
+   printf("Time left %d\n", timeLeft);
+
    writeToGameState();
 
    if (sendUpdate) {
@@ -177,6 +189,8 @@ void ServerGame::writeToGameState() {
 	unsigned int numPlayers = physicsSystem.playerObjects.size();
 	GameState.num_players = numPlayers;
 
+	GameState.timeLeft = timeLeft;
+
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
     writeEntities(physicsSystem, physicsSystem.playerObjects, GameState.players, 0, numPlayers);
    
@@ -191,6 +205,20 @@ void ServerGame::writeToGameState() {
         if (playerBehaviors[i] != nullptr) {
             GameState.player_stats[i] = playerBehaviors[i]->playerStats;
         }
+        //check for winners
+
+        //time has run out and we still have no winner
+        if (timeLeft <= 0 && GameState.lockedWinnerId == -1) {
+            //one of the players has the flag
+            if(playerBehaviors[i] != nullptr && playerBehaviors[i]->playerStats.hasFlag) {
+                GameState.lockedWinnerId = i;
+			}
+        }
+	}
+
+    //print winner
+    if(GameState.lockedWinnerId != -1) {
+        printf("ServerGame::writeToGameState player %d has won\n", GameState.lockedWinnerId);
 	}
 }
 
