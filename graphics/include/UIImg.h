@@ -32,18 +32,20 @@ public:
 	void Draw() override;
 	void Update(const UIData& p) override;
 	void SetTexture(GLuint texture);
+	void StartRegrow(int anim);
 
 	std::string name;
 private:
-	glm::vec3 healthColor;
-	glm::vec3 containerColor;
 	std::vector<float> health;
-	std::vector<float> container;
 	GLuint healthTexture;
 	GLuint shaderProgram;
 	glm::mat4 projection;
 
-	GLuint VAO[2], VBO[2], EBO;
+	GLuint VAO, VBO, EBO;
+	float percent = 1.0; //0.0-1.0
+	double animStart;
+	bool animating;
+	float animDuration = 3.0f;
 };
 
 struct MagicElement {

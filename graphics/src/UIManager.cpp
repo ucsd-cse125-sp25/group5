@@ -17,6 +17,7 @@
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}},
+	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GameState::MATCH, 0.0, 0.0, 0.5, 1.0}}
 };
 
 /**
@@ -210,6 +211,11 @@ void UIManager::TriggerAnim(int anim) {
 		if (Magic* ma = dynamic_cast<Magic*>(img)) {
 			if (anim == 0 || anim == 1) {
 				ma->StartRotate(anim);
+			}
+		}
+		else if (HealthBar* hb = dynamic_cast<HealthBar*>(img)) {
+			if (anim == 2) {
+				hb->StartRegrow(anim);
 			}
 		}
 	}

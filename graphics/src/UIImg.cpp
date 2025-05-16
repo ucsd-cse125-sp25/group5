@@ -84,49 +84,27 @@ void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
-	containerColor = { 0.2f, 0.2f, 1.0f };
-	healthColor = { 1.0f, 1.0f, 1.0f };
-
 	float offsetX = WINDOWWIDTH * percent;
 	float offsetY = WINDOWHEIGHT * percent * ratio;
 
 	health = {
 		//Position                                     //UV         //Color
-		startPos[0], startPos[1],                      0.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
-		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
-		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
-		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
+		startPos[0], startPos[1],                      0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
 	};
 
-	container = {
-		//Position                                     //UV        //Color
-		startPos[0], startPos[1],                      0.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
-		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
-		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
-		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
-	};
-
-	glGenVertexArrays(2, VAO);
-	glGenBuffers(2, VBO);
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 
 	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glBindVertexArray(VAO[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, container.size() * sizeof(float), container.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-	glBindVertexArray(VAO[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, health.size() * sizeof(float), health.data(), GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
@@ -139,13 +117,23 @@ void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 }
 
 void HealthBar::Update(const UIData &p) {
-	float leftX = container[0];
-	float rightX = container[7];
-	float width = rightX - leftX;
-	float percentage = float(p.currHP) / float(p.maxHP);
+	double now = glfwGetTime();
+
+	if (animating) {
+		double elapsed = now - animStart;
+		float t = elapsed / animDuration;
+		if (elapsed >= animDuration) {
+			animating = false;
+			percent = 1.0;
+		}
+		else {
+			percent = t;
+		}
+	}
+	//float percentage = float(p.currHP) / float(p.maxHP);
 
 	glUseProgram(shaderProgram);
-	glUniform1f(glGetUniformLocation(shaderProgram, "healthPercent"), percentage);
+	glUniform1f(glGetUniformLocation(shaderProgram, "percentage"), percent);
 }
 
 void HealthBar::SetTexture(GLuint texture) {
@@ -161,18 +149,23 @@ void HealthBar::Draw() {
 
 	glDisable(GL_DEPTH_TEST);
 
-	glUniform1i(glGetUniformLocation(shaderProgram, "health"), false);
-	glBindVertexArray(VAO[0]);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-	glUniform1i(glGetUniformLocation(shaderProgram, "health"), true);
-	glBindVertexArray(VAO[1]);
+	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);
 
 	glEnable(GL_DEPTH_TEST);
 	glBindVertexArray(0);
+}
+
+void HealthBar::StartRegrow(int anim) {
+	if (animating) {
+		return;
+	}
+
+	//Set bool flag
+	animStart = glfwGetTime();
+	animating = true;
 }
 
 void Magic::Init(std::vector<float> startPerc, float p, float r) {
