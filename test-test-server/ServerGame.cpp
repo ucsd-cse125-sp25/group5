@@ -21,7 +21,7 @@ GameStatePacket GameState;
 
 void spawnIslands(PhysicsSystem& physicsSystem) {
 	glm::vec3 islandCoordinates[7] = {
-		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f),
 		glm::vec3(10.0f, 10.0f, 10.0f),
 		glm::vec3(-10.0f, -10.0f, -10.0f),
 		glm::vec3(20.0f, 20.0f, 20.0f),
@@ -102,6 +102,11 @@ void ServerGame::update()
         player->behavior = playerBehavior;
         playerBehaviors[client_id] = playerBehavior;
 		//for player objects, we set a behavior component
+        printf("Metal mana %d\n", playerBehavior->playerStats.mana[0]);
+        printf("Wood mana %d\n", playerBehavior->playerStats.mana[1]);
+        printf("Water mana %d\n", playerBehavior->playerStats.mana[2]);
+        printf("Fire mana %d\n", playerBehavior->playerStats.mana[3]);
+        printf("Earth mana %d\n", playerBehavior->playerStats.mana[4]);
 
 		player->type = PLAYER;
         player->isDynamic = true;
@@ -215,7 +220,7 @@ bool ServerGame::receiveFromClients()
 
             //apply the input to our game world
 			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
-      inputManager.updateTracking(PlayerIntent, iter->first);
+            inputManager.updateTracking(physicsSystem.PlayerIntents[iter->first], iter->first);
 			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
 
         }

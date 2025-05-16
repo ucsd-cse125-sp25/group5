@@ -9,6 +9,9 @@
 unsigned int CountNodes(const aiNode* node);
 
 extern Scene* scene;
+extern double currTime;
+extern double prevTime;
+extern Camera* Cam;
 
 PlayerObject::PlayerObject() {
 	skel = new Skeleton();
@@ -18,6 +21,23 @@ PlayerObject::PlayerObject() {
 	skel->doSkel();
 	skin->doSkinning();
 	animation->doAnimation();
+	particlesystem = nullptr;
+}
+
+PlayerObject::PlayerObject(int systemtype) {
+	skel = new Skeleton();
+	skin = new Skin(skel);
+	animation = new Animation();
+	animplayer = new Player(skel, animation, std::chrono::steady_clock::now());
+	skel->doSkel();
+	skin->doSkinning();
+	animation->doAnimation();
+
+	if (systemtype == 0) {
+		particlesystem = new System();
+		particlesystem->InitColoredTrail(glm::vec3(0, 0, 0), glm::vec3(1, 0.1, 0.1));
+		psflag = false;
+	}
 }
 
 void PlayerObject::LoadAnimation() {
@@ -69,6 +89,9 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 	skel->updateWorldMat(newmodel);
+	if (particlesystem) {
+		particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
+	}
 }
 
 void PlayerObject::Update() {
@@ -77,11 +100,22 @@ void PlayerObject::Update() {
 		animplayer->update();
 	}
 	skin->update();	
+
+	if (currTime != 0 && prevTime != 0 && particlesystem) {
+		double deltaTime = currTime - prevTime;
+		particlesystem->Update(deltaTime);
+
+		if (!psflag) {
+
+			psflag = true;
+		}
+	}
 }
 
 void PlayerObject::Draw(GLuint shader, bool shadow) {
 	//skel->draw(cam->GetViewProjectMtx(), scene->shaders[1]);
 	skin->draw(shader, shadow);
+	
 }
 
 unsigned int CountNodes(const aiNode* node) {

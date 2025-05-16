@@ -10,7 +10,7 @@ class UIImg {
 public:
 	virtual void Init(std::vector<float> startPos, float percent, float ratio);
 	virtual void Draw();
-	virtual void Update(const OtherPlayerStats& p);
+	virtual void Update(const UIData& p);
 	virtual void SetTexture(GLuint tex);
 
 	std::string name;
@@ -30,7 +30,7 @@ class HealthBar : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p) override;
+	void Update(const UIData& p) override;
 	void SetTexture(GLuint texture);
 
 	std::string name;
@@ -60,7 +60,7 @@ class Magic : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
-	void Update(const OtherPlayerStats& p) override;
+	void Update(const UIData& p) override;
 	void UpdateLayout();
 	void SetTexture(GLuint texture);
 	void StartRotate(int anim);

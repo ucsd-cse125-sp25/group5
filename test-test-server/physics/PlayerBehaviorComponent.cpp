@@ -130,7 +130,7 @@ glm::quat getRotationFromAzimuthIncline(float azimuth, float incline) {
 	return yaw * pitch;
 }
 
-void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
+void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 
 	//get the direction that the player is facing, that will be our projectile direction
 	glm::vec3 facingDirection = getDirection(
@@ -145,7 +145,7 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 	);
 
 	//for now, we only spawn wood projectiles 
-	if (type == WOOD) {
+	if (type == WOOD && playerStats.mana[1] >= WOOD_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 
@@ -157,7 +157,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
-	} else if (type == METAL) {
+		//reduce mana
+		playerStats.mana[1] -= WOOD_PROJ_COST;
+	}
+	else if (type == METAL && playerStats.mana[0] >= METAL_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -167,7 +170,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
-	} else if (type == WATER) {
+
+		playerStats.mana[0] -= METAL_PROJ_COST;
+	}
+	else if (type == WATER && playerStats.mana[2] >= WATER_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -177,7 +183,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
-	} else if (type == FIRE) {
+
+		playerStats.mana[2] -= WATER_PROJ_COST;
+	}
+	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -187,7 +196,10 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
-	} else if (type == EARTH) {
+
+		playerStats.mana[3] -= FIRE_PROJ_COST;
+	}
+	else if (type == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
@@ -197,6 +209,8 @@ void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys) {
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
+
+		playerStats.mana[4] -= EARTH_PROJ_COST;
 	}
 }
 
@@ -207,10 +221,53 @@ void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSyste
 //—— integrate — called once per tick
 void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) {	
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
+
+	//when death first happens 
+	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
+		//set state to death, start the death timer, do tags
+		state = PlayerMovementState::DEATH;
+		deathTimer = DEATH_TIME;
+		playerStats.alive = false;
+
+		//drop the flag 
+		if (obj->attached != nullptr && obj->attached->type == FLAG) {
+			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+			behavior->owningPlayer = -1;
+			obj->attached = nullptr;
+		}
+
+		//no collider
+		obj->collider->halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
+	}
 	
 	changePlayerPower(obj, phys, intent);
 	//dash movement
-	if (state == PlayerMovementState::DASH) {
+	if(state == PlayerMovementState::DEATH) {
+		deathTimer -= deltaTime;
+
+		//freeze the player
+		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+		if (deathTimer <= 0.0f) {
+			
+			playerStats.hp = 100.0f;
+			playerStats.alive = true;
+			state = PlayerMovementState::IDLE;
+			deathTimer = 0.0f;
+
+			//half the amount of mana
+			for (int i = 0; i < 5; i++) {
+				playerStats.mana[i] /= 2.0f;
+			}
+
+			//turn collider back on
+			//TODO: set extents to player defaults
+			obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+		return;
+	}
+	else if (state == PlayerMovementState::DASH) {
 		dashTimer -= deltaTime;
 
 		//once we're done, exit dash
@@ -251,31 +308,40 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	//regular movement
 	if (state == PlayerMovementState::IDLE) {
 		//check for movement powers 
-		if (intent.hit4Intent) {
-			state = PlayerMovementState::DASH;
-			dashTimer = DASH_TIME;
+		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
 
-			//fix the velocity to the direction we wish to dash in
-			obj->physics->velocity = getDirection(
-				glm::radians(-intent.azimuthIntent),
-				glm::radians(-intent.inclineIntent)
-			) * DASH_SPEED;
+			printf("Metal mana %d\n", playerStats.mana[0]);
+			printf("Wood mana %d\n", playerStats.mana[1]);
+			printf("Water mana %d\n", playerStats.mana[2]);
+			printf("Fire mana %d\n", playerStats.mana[3]);
+			printf("Earth mana %d\n", playerStats.mana[4]);
+			if (playerStats.activePower == FIRE && playerStats.mana[3] >= FIRE_MOVE_COST) {
+				state = PlayerMovementState::DASH;
+				dashTimer = DASH_TIME;
 
-			return;
-		} else if (intent.hit5Intent) {
-			state = PlayerMovementState::STOMP;
-			stompTimer = STOMP_TIME;
-
-			//fix the velocity
-			obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
+				//fix the velocity to the direction we wish to dash in
+				obj->physics->velocity = getDirection(glm::radians(-intent.azimuthIntent), glm::radians(-intent.inclineIntent)) * DASH_SPEED;
+				playerStats.mana[3] -= FIRE_MOVE_COST;
 
 			return;
-		} else if (intent.hit3Intent) {
+			} else if (playerStats.activePower == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
+				state = PlayerMovementState::STOMP;
+				stompTimer = STOMP_TIME;
+
+				//fix the velocity
+				obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
+
+				playerStats.mana[4] -= EARTH_MOVE_COST;
+
+			return;
+		} else if (playerStats.activePower == WATER && playerStats.mana[2] >= WATER_MOVE_COST) {
 			//high jump
 			obj->physics->velocity += glm::vec3(0.0f, JUMP_FORCE * 2.0f, 0.0f);
+			playerStats.mana[2] -= WATER_MOVE_COST;
 		} else if (intent.hit2Intent) {
 			//our target point, we've also set the target object, this could probably use some restructuring
 			
+
 			//result
 			pair<glm::vec3, float> result = handlePlayerGrapple(obj, phys);
 
@@ -292,16 +358,31 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				//lock the velocity
 				obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
 			}
+
+			playerStats.mana[1] -= WOOD_MOVE_COST;
 		}
 
-		if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
-			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
-			behavior->owningPlayer = -1;
-			obj->attached = nullptr;
+		printf("Metal mana %d\n", playerStats.mana[0]);
+		printf("Wood mana %d\n", playerStats.mana[1]);
+		printf("Water mana %d\n", playerStats.mana[2]);
+		printf("Fire mana %d\n", playerStats.mana[3]);
+		printf("Earth mana %d\n", playerStats.mana[4]);
+	}
+		
+
+	if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
+		FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+		behavior->owningPlayer = -1;
+		obj->attached = nullptr;
+	}
+
+	if (intent.hit2Intent) {
+			//kill self
+			playerStats.hp = 0.0f;
 		}
 
 		//check for attacks
-		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
+		if (intent.leftClickIntent && phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
 			spawnProjectile(obj, playerStats.activePower, phys);
 		}
 		
@@ -327,6 +408,139 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	obj->transform.position += obj->physics->velocity * deltaTime;
 }
+
+if (state == PlayerMovementState::IDLE) {
+		//check for movement powers 
+		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
+
+			printf("Metal mana %d\n", playerStats.mana[0]);
+			printf("Wood mana %d\n", playerStats.mana[1]);
+			printf("Water mana %d\n", playerStats.mana[2]);
+			printf("Fire mana %d\n", playerStats.mana[3]);
+			printf("Earth mana %d\n", playerStats.mana[4]);
+			if (playerStats.activePower == FIRE && playerStats.mana[3] >= FIRE_MOVE_COST) {
+				state = PlayerMovementState::DASH;
+				dashTimer = DASH_TIME;
+
+				//fix the velocity to the direction we wish to dash in
+				obj->physics->velocity = getDirection(
+					glm::radians(-intent.azimuthIntent),
+					glm::radians(-intent.inclineIntent)
+				) * DASH_SPEED;
+
+				playerStats.mana[3] -= FIRE_MOVE_COST;
+
+				return;
+			}
+			else if (playerStats.activePower == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
+				state = PlayerMovementState::STOMP;
+				stompTimer = STOMP_TIME;
+
+				//fix the velocity
+				obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
+
+				playerStats.mana[4] -= EARTH_MOVE_COST;
+
+				return;
+			}
+			else if (playerStats.activePower == WATER && playerStats.mana[2] >= WATER_MOVE_COST) {
+				//high jump
+				obj->physics->velocity += glm::vec3(0.0f, JUMP_FORCE * 2.0f, 0.0f);
+
+				playerStats.mana[2] -= WATER_MOVE_COST;
+
+				return;
+			} else if (playerStats.activePower == WOOD && playerStats.mana[1] >= EARTH_MOVE_COST) {
+				//our target point, we've also set the target object, this could probably use some restructuring
+
+				//result
+				pair<glm::vec3, float> result = handlePlayerGrapple(obj, phys);
+
+				glm::vec3 target = result.first;
+
+				//we have a target
+				if (target != glm::vec3(0.0f, 0.0f, 0.0f)) {
+					//only start grappling if we have a target 
+					state = PlayerMovementState::GRAPPLE;
+					grappleTimer = result.second / GRAPPLE_SPEED;
+					//get our direction
+					glm::vec3 direction = target - obj->transform.position;
+					glm::vec3 normalizedDirection = glm::normalize(direction);
+					//lock the velocity
+					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+				}
+
+				playerStats.mana[1] -= WOOD_MOVE_COST;
+			}
+
+			printf("Metal mana %d\n", playerStats.mana[0]);
+			printf("Wood mana %d\n", playerStats.mana[1]);
+			printf("Water mana %d\n", playerStats.mana[2]);
+			printf("Fire mana %d\n", playerStats.mana[3]);
+			printf("Earth mana %d\n", playerStats.mana[4]);
+		}
+		
+
+		if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
+			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+			behavior->owningPlayer = -1;
+			obj->attached = nullptr;
+		}
+
+		if (intent.hit2Intent) {
+			//kill self
+			playerStats.hp = 0.0f;
+		}
+
+		//check for attacks
+		//printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].leftClickDuration);
+		if (intent.leftClickIntent && phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
+			spawnProjectile(obj, playerStats.activePower, phys);
+			printf("Hit e\n");
+			printf("Physics system size %d\n", int(phys.dynamicObjects.size()));	
+			//debugVar = 1;
+		}
+		//else {
+		//	debugVar = intent.rightClickIntent;
+		//}
+
+		// apply force 
+		obj->physics->velocity += obj->physics->acceleration * deltaTime;
+
+		//apply drag
+		obj->physics->velocity *= (1.0f - obj->physics->drag * deltaTime);
+
+
+
+		//clamp velocity
+		if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
+			obj->physics->velocity = glm::normalize(obj->physics->velocity) * obj->physics->maxSpeed;
+		}
+
+		//detect collision from bottom for jump, and make the player jump
+		if (checkBottom(obj, phys) && physicsSystem.PlayerIntents[obj->id].moveUpIntent) {
+			obj->physics->velocity += glm::vec3(0.0f, 3.0f, 0.0f);
+		}
+
+		//apply player movement
+		obj->transform.position += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * deltaTime;
+
+		
+
+	}
+
+
+
+
+	//only apply the player velocity for movement
+	//obj->physics->velocity += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
+
+	//the important line
+	obj->transform.position += obj->physics->velocity * deltaTime;
+	//
+
+	//remove it after
+	//obj->physics->velocity -= getInputDirect
 
 //—— resolveCollision — called when this object hits another
 void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) {

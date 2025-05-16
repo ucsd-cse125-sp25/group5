@@ -37,9 +37,6 @@ void PhysicsSystem::tick(float dt) {
 }
 
 void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
-    assert(obj != NULL);
-    assert(obj->physics != NULL);
-
     // apply force 
     obj->physics->velocity += obj->physics->acceleration * dt;
 
@@ -64,17 +61,12 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 }
 
 AABB PhysicsSystem::getAABB(GameObject* obj) {
-    assert(obj != NULL);
-    assert(obj->collider != NULL);
-
     glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
     glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
     return { min, max };
 }
 
 void PhysicsSystem::handleCollisions(GameObject* obj) {
-    assert(obj != NULL);
-
     // Check for collisions with static objects
     for (auto sobj : staticObjects) {
         AABB objAABB = getAABB(obj);
@@ -119,8 +111,6 @@ vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVel
 }
 
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status) {
-    assert (go1 != NULL && go2 != NULL);
-
     vec3 normal = glm::normalize(penetration.first);
     float overlap = penetration.second;
 
