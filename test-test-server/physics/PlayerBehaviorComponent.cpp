@@ -399,17 +399,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 		//apply player movement
 		obj->transform.position += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * deltaTime;
-
-		
-
 	}
 
-
-
-
 	//only apply the player velocity for movement
-	//obj->physics->velocity += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+	
 	//the important line
 	obj->transform.position += obj->physics->velocity * deltaTime;
 }

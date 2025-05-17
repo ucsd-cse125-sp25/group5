@@ -49,25 +49,11 @@ ServerGame::ServerGame(void)
     // the current game state TO SEND (not necessarily full game state)
 	GameState = GameStatePacket();
 
-	//the current player intent received
-	//PlayerIntent = PlayerIntentPacket();
-
-    // initialization of the game state
-	// int numCubes = rand() % 30 + 1; // Random number between 1 and 10
     //input management
     inputManager = InputManager();
 
     //initialize the physics system
     physicsSystem = PhysicsSystem();
- 
-    // create a random number of cubes which are static game objects
-    // for (int i = 0; i < numCubes; i++) {
-	// 	GameObject* cube = physicsSystem.makeGameObject();
-	// 	cube->transform.position = glm::vec3(rand() % 10, rand() % 10, rand() % 10);
-	// 	cube->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
-    //     cube->type = CUBE;
-	// 	physicsSystem.addStaticObject(cube);
-    // }
     
     //add islands
 	spawnIslands(physicsSystem);
@@ -84,12 +70,6 @@ ServerGame::ServerGame(void)
 
     //start the game timer
 	ServerGame::gameStartTime = std::chrono::high_resolution_clock::now();
-
-	//printf("ServerGame::ServerGame created %d cubes\n", numCubes);
-
-	//GameState.setModelMatrix(glm::mat4(1.0f)); // Initialize the cube model matrix
-	//GameState.cubeModel = glm::mat4(1.0f); // Initialize the cube model matrix
- //   physicsSystem.playerObjects[0] = cube;
 }
 
 ServerGame::~ServerGame(void)
@@ -119,12 +99,9 @@ void ServerGame::update()
 
 		player->type = PLAYER;
         player->isDynamic = true;
-        //place where player gets added
-        //physicsSystem.playerObjects[client_id] = player;
 		physicsSystem.addPlayerObject(player);
         physicsSystem.addMovingObject(player);
         player->id = client_id;
-        //physicsSystem.addDynamicObject(player);
 
         //fill up the HP and the mana
         JoinResponsePacket packet;
@@ -140,8 +117,6 @@ void ServerGame::update()
    bool sendUpdate = receiveFromClients();
 
    physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
-   //put new information into the game state
-   //inputManager.updateTracking(PlayerIntent, client_id);
 
    std::chrono::time_point<std::chrono::high_resolution_clock> gameNowTime = std::chrono::high_resolution_clock::now();
    float timeSinceStart = std::chrono::duration<float>(gameNowTime - ServerGame::gameStartTime).count();
@@ -242,29 +217,24 @@ bool ServerGame::receiveFromClients()
         receivedChanges = true;
 
         unsigned int i = 0;
-        while (i < (unsigned int)data_length)
-        {
-
+        while (i < (unsigned int)data_length) {
             //copy the network packet data into player intent
-            //PlayerIntent.deserialize(&(network_data[i]));
 			physicsSystem.PlayerIntents[iter->first].deserialize(&(network_data[i]));
 
-      //increment in case we have more 
-      i += sizeof(PlayerIntentPacket);
+            //increment in case we have more 
+            i += sizeof(PlayerIntentPacket);
 
             //apply the input to our game world
 			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
             inputManager.updateTracking(physicsSystem.PlayerIntents[iter->first], iter->first);
 			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
-
         }
     }
 
     return receivedChanges;
 }
 
-void ServerGame::sendGameStatePackets()
-{
+void ServerGame::sendGameStatePackets() {
     // send action packet
     const unsigned int packet_size = sizeof(GameStatePacket);
     char packet_data[packet_size];
@@ -272,5 +242,3 @@ void ServerGame::sendGameStatePackets()
     GameState.serialize(packet_data);
     network->sendToAll(packet_data, packet_size);
 }
-
-
