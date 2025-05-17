@@ -234,6 +234,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
 			behavior->owningPlayer = -1;
 			obj->attached = nullptr;
+			playerStats.hasFlag = false;
 		}
 
 		//no collider
@@ -365,6 +366,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 		if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
 			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+			playerStats.hasFlag = false;
 			behavior->owningPlayer = -1;
 			obj->attached = nullptr;
 		}
@@ -397,8 +399,18 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 		//apply player movement
 		obj->transform.position += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * deltaTime;
+
+		
+
 	}
 
+
+
+
+	//only apply the player velocity for movement
+	//obj->physics->velocity += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
+	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+	//the important line
 	obj->transform.position += obj->physics->velocity * deltaTime;
 }
 

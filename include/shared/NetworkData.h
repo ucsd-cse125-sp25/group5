@@ -116,11 +116,15 @@ struct GameStatePacket {
 
 	struct PlayerStats player_stats[MAX_PLAYERS];
 
+    int timeLeft;
+
     unsigned int num_players;
     struct Entity players[MAX_PLAYERS];
 
     unsigned int num_entities;
     struct Entity entities[MAX_ENTITIES];
+
+	int lockedWinnerId = -1; // -1 means no one has won yet
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));
