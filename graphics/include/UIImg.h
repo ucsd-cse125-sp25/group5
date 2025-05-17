@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include <vector>
 #include <iostream>
+#include <unordered_map>
 
 class UIImg {
 public:
@@ -25,6 +26,19 @@ private:
 	
 };
 
+struct FlowerElement {
+	std::string name;
+	glm::vec2 branchPos;
+	glm::vec2 currPos;
+	glm::vec2 endPos;
+	double startTime;
+	GLuint flowerTex;
+	float decayPerc;
+	float currScale;
+	bool decayed;
+	bool animating;
+	bool blooming;
+};
 
 class HealthBar : public UIImg {
 public:
@@ -34,18 +48,28 @@ public:
 	void SetTexture(GLuint texture);
 	void StartRegrow(int anim);
 
+	std::vector<std::vector<float>> flowerPositions;
+	//std::unordered_map<std::string, GLuint>* texs;
+	std::vector<FlowerElement> flowers;
 	std::string name;
 private:
 	std::vector<float> health;
+	std::vector<float> flower;
+	
+	std::vector<float> flowerStart;
 	GLuint healthTexture;
 	GLuint shaderProgram;
 	glm::mat4 projection;
 
 	GLuint VAO, VBO, EBO;
+	GLuint FlowerVAO, FlowerVBO;
 	float percent = 1.0; //0.0-1.0
+	float flowerWidth;
 	double animStart;
 	bool animating;
-	float animDuration = 3.0f;
+	float animDuration = 2.0f;
+	float decayDuration = 1.3f;
+	float bloomDuration = 0.9f;
 };
 
 struct MagicElement {
