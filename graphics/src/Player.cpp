@@ -5,6 +5,7 @@
 #include <chrono>
 #include "Skeleton.h"
 #include "Joint.h"
+#include <iostream>
 
 Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clock::time_point realStartTime)
     : skeleton(skeleton), animation(animation) {
@@ -13,31 +14,94 @@ Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clo
 }
 
 void Player::update() {
-    if (!skeleton || !animation || !animation->animate) return;
+    if (animation->import) {
+        //std::cout << "doing anim update" << std::endl;
+        if (!skeleton || !animation || !animation->animate) return;
 
-    std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
-    float time = time_clock.count();
-    // Use the first three channels to translate the root node
-    glm::vec3 translation(
-        animation->channels[0].getValue(time, animation->channels[0].keyframes.back().time - animation->channels[0].keyframes.front().time, animation->channels[0].keyframes.back().value - animation->channels[0].keyframes.front().value),
-        animation->channels[1].getValue(time, animation->channels[1].keyframes.back().time - animation->channels[1].keyframes.front().time, animation->channels[1].keyframes.back().value - animation->channels[1].keyframes.front().value),
-        animation->channels[2].getValue(time, animation->channels[2].keyframes.back().time - animation->channels[2].keyframes.front().time, animation->channels[2].keyframes.back().value - animation->channels[2].keyframes.front().value)
-    );
+        std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
+        float time = time_clock.count();
+        time = time * 1000.0f/60.0f;
+        //std::cout << time << std::endl;
+        //75 joints
+        //animation->channels.size();
 
-    //skeleton->root->setTranslation(translation);
-    skeleton->root->setTranslation(glm::vec3(0));
-    // Use the rest of the channels to update the joint rotations
-    for (size_t i = 6; i < animation->channels.size(); i += 3) {
-        size_t jointIndex = (i - 3) / 3;
-        //jointIndex++;
-        if (jointIndex >= skeleton->joints.size()) break;
+        //i = 252 -  i < 253 is the wonky leg but its fine in the standing pose
 
-        glm::vec3 rotation(
-            animation->channels[i].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
-            animation->channels[i + 1].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
-            animation->channels[i + 2].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value)
+        /*
+        for (size_t i = 0; i < animation->channels.size(); ++i) {
+            std::cout << "Bone name: " << animation->names[i] << std::endl;
+            //std::cout << "bone name: " << animation->names[i] << std::endl;
+            auto it = skeleton->JNameMap.find(animation->names[i]);
+            if (it == skeleton->JNameMap.end()) {
+                std::cerr << "Missing joint for: " << animation->names[i] << std::endl;
+                continue;
+            }
+            size_t jointIndex = it->second;
+
+            if (jointIndex >= skeleton->joints.size()) break;
+
+            glm::quat q = animation->channels.at(i).getQuatVal(time);
+            skeleton->joints[jointIndex]->useQuat = true;
+            skeleton->joints[jointIndex]->currQuat = q;
+
+        }
+        */
+        for (size_t i = 0; i < animation->channels.size(); i += 3) {
+            int nameIndex = i / 3;
+            //std::cout << "bone name: " << animation->names[nameIndex] << std::endl;
+            auto it = skeleton->JNameMap.find(animation->names[nameIndex]);
+            if (it == skeleton->JNameMap.end()) {
+                std::cerr << "Missing joint for: " << animation->names[nameIndex] << std::endl;
+                continue;
+            }
+            size_t jointIndex = it->second;
+            //std::cout << "jointindex: " << jointIndex << std::endl;
+
+            //jointIndex++;
+            if (jointIndex >= skeleton->joints.size()) break;
+
+            glm::vec3 rotation(
+                animation->channels[i].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
+                animation->channels[i + 1].getValue(time, animation->channels[i + 1].keyframes.back().time - animation->channels[i + 1].keyframes.front().time, animation->channels[i + 1].keyframes.back().value - animation->channels[i + 1].keyframes.front().value),
+                animation->channels[i + 2].getValue(time, animation->channels[i + 2].keyframes.back().time - animation->channels[i + 2].keyframes.front().time, animation->channels[i + 2].keyframes.back().value - animation->channels[i + 2].keyframes.front().value)
+            );
+            //rotation.x += glm::pi<float>();
+            skeleton->joints[jointIndex]->setRotation(rotation);
+
+            //std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << " + time = " << time << std::endl;
+            
+        }
+
+        //std::cout << "Number of Animation Channels" << animation->channels.size() << std::endl;
+    }
+    else {
+        if (!skeleton || !animation || !animation->animate) return;
+
+        std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
+        float time = time_clock.count();
+        // Use the first three channels to translate the root node
+        glm::vec3 translation(
+            animation->channels[0].getValue(time, animation->channels[0].keyframes.back().time - animation->channels[0].keyframes.front().time, animation->channels[0].keyframes.back().value - animation->channels[0].keyframes.front().value),
+            animation->channels[1].getValue(time, animation->channels[1].keyframes.back().time - animation->channels[1].keyframes.front().time, animation->channels[1].keyframes.back().value - animation->channels[1].keyframes.front().value),
+            animation->channels[2].getValue(time, animation->channels[2].keyframes.back().time - animation->channels[2].keyframes.front().time, animation->channels[2].keyframes.back().value - animation->channels[2].keyframes.front().value)
         );
 
-        skeleton->joints[jointIndex]->setRotation(rotation);
+        //skeleton->root->setTranslation(translation);
+        skeleton->root->setTranslation(glm::vec3(0));
+        // Use the rest of the channels to update the joint rotations
+        for (size_t i = 6; i < animation->channels.size(); i += 3) {
+            size_t jointIndex = (i - 3) / 3;
+            //jointIndex++;
+            if (jointIndex >= skeleton->joints.size()) break;
+
+            glm::vec3 rotation(
+                animation->channels[i].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
+                animation->channels[i + 1].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
+                animation->channels[i + 2].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value)
+            );
+
+            skeleton->joints[jointIndex]->setRotation(rotation);
+        }
     }
+    
 }

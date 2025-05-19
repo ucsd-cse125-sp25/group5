@@ -227,5 +227,26 @@ float Channel::getValueInWindow(float time) const {
             return value;
         }
     }
+
     return 0.0f;
+}
+
+glm::quat Channel::getQuatVal(float time) {
+    for (size_t i = 0; i < quats.size() - 1; ++i) {
+        if (time >= quats[i].time && time <= quats[i + 1].time) {
+            float t = (time - quats[i].time) / (quats[i + 1].time - quats[i].time);
+            if (glm::dot(quats[i].quatern, quats[i + 1].quatern) < 0 ) {
+                return glm::slerp(-quats[i].quatern, quats[i + 1].quatern, time);
+            }
+            else {
+                return glm::slerp(quats[i].quatern, quats[i + 1].quatern, time);
+            }
+            return quats[i].quatern;
+        }
+    }
+    if (!quats.empty()) {
+        if (time < quats.front().time) return quats.front().quatern;
+        return quats.back().quatern;
+    }
+    return glm::quat(1, 0, 0, 0);
 }

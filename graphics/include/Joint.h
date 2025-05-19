@@ -41,6 +41,10 @@ public:
 
     bool draw;
 
+
+    glm::quat currQuat;
+    bool useQuat = false;
+
 private:
     glm::vec3 offset;
     glm::vec3 boxmin;

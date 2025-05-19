@@ -19,7 +19,6 @@ Skin::Skin(Skeleton* skinsskel) {
 	std::vector<glm::mat4> bindMatrices = {};
 	this->skely = skinsskel;
 	this->oneglm = glm::mat4(1.0f);
-	color = glm::vec3(0);
 }
 
 void Skin::Preload(int capacity) {
@@ -54,6 +53,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 	}
 
 	if (mMesh->HasTextureCoords(0)) {
+		std::cout << "FOUND UVS" << std::endl;
 		uvs.reserve(mMesh->mNumVertices);
 		for (int t = 0; t < mMesh->mNumVertices; t++) {
 			float x = mMesh->mTextureCoords[0][t].x;
@@ -62,15 +62,18 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 			uvs.push_back(uv);
 		}
 	}
+	else {
+		std::cout << "DID NOT FIND UVS" << std::endl;
+	}
 
-	this->tri = new Triangle(positions, normals, triangles);
+	this->tri = new Triangle(positions, normals, uvs, triangles);
 	tri->tex = false;
 
 	aiColor4D diffuse;
 	aiGetMaterialColor(mMaterial, AI_MATKEY_COLOR_DIFFUSE, &diffuse);
-	color.x = diffuse.r;
-	color.y = diffuse.g;
-	color.z = diffuse.b;
+	tri->color.x = diffuse.r;
+	tri->color.y = diffuse.g;
+	tri->color.z = diffuse.b;
 
 	aiString texPath;
 	if (mMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS) {
@@ -86,6 +89,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 		source = source + middle + filename;
 
 		int width, height, nrChannels;
+		std::cout << "texture source" << source.c_str() << std::endl;
 		unsigned char* data = stbi_load(source.c_str(), &width, &height, &nrChannels, 0);
 
 		if (data)
@@ -182,7 +186,9 @@ bool Skin::Load(const char* file) {
 	// Finish
 	token.Close();
 
-	this->tri = new Triangle(positions, normals, triangles);
+	std::vector<glm::vec2> uvs;
+
+	this->tri = new Triangle(positions, normals, uvs, triangles);
 	return true;
 }
 
@@ -191,7 +197,7 @@ void Skin::update() {
 	if (!doSkin) return;
 
 	if (!skely->doSkeleton) {
-		tri->update(positions, normals, triangles, glm::mat4(1.0f));
+		tri->update(positions, normals, uvs, triangles, glm::mat4(1.0f));
 		return;
 	}
 	//smooth skin algorithm
@@ -230,7 +236,7 @@ void Skin::update() {
 		transformedNormals.push_back(glm::vec3(newNorm.x, newNorm.y, newNorm.z));
 	}
 	
-	tri->update(transformedPositions, transformedNormals, triangles, oneglm);
+	tri->update(transformedPositions, transformedNormals, uvs, triangles, oneglm);
 
 }// –(traverse tree& compute all joint matrices)
 

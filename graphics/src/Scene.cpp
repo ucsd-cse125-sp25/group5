@@ -52,10 +52,9 @@ void Scene::loadObjects() {
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
-	glm::mat4 mov(0.05f);
-	mov[3] = glm::vec4(2.0f, 0, 0, 1);
-	//test->UpdateMat(mov);
-
+	glm::mat4 mov = glm::mat4(1.0f);
+	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
+	test->UpdateMat(mov);
 	//wasp load-in
 	player->LoadAnimation();
 	for (int i = 1; i < 4; i++) {

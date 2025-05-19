@@ -58,33 +58,46 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 		return;
 	}
 
-	std::cout << "Bones: " << iscene->mMeshes[1]->mNumBones << std::endl;
-	std::cout << "Verts: " << iscene->mMeshes[1]->mBones[0]->mNumWeights << std::endl;
-	std::cout << "Verts: " << iscene->mMeshes[1]->mBones[1]->mNumWeights << std::endl;
-	std::cout << "Verts: " << iscene->mMeshes[1]->mBones[2]->mNumWeights << std::endl;
-	std::cout << "children: " << iscene->mMeshes[1]->mBones[0]->mNode->mNumChildren << std::endl;
-	std::cout << "children: " << iscene->mMeshes[1]->mBones[1]->mNode->mNumChildren << std::endl;
-	std::cout << "children: " << iscene->mMeshes[1]->mBones[2]->mNode->mNumChildren << std::endl;
-	std::cout << "total Verts: " << iscene->mMeshes[1]->mNumVertices << std::endl;
-	std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
+	//std::cout << "Bones: " << iscene->mMeshes[1]->mNumBones << std::endl;
+	//std::cout << "Verts: " << iscene->mMeshes[1]->mBones[0]->mNumWeights << std::endl;
+	//std::cout << "Verts: " << iscene->mMeshes[1]->mBones[1]->mNumWeights << std::endl;
+	//std::cout << "Verts: " << iscene->mMeshes[1]->mBones[2]->mNumWeights << std::endl;
+	//std::cout << "children: " << iscene->mMeshes[1]->mBones[0]->mNode->mNumChildren << std::endl;
+	//std::cout << "children: " << iscene->mMeshes[1]->mBones[1]->mNode->mNumChildren << std::endl;
+	//std::cout << "children: " << iscene->mMeshes[1]->mBones[2]->mNode->mNumChildren << std::endl;
+	//std::cout << "total Verts: " << iscene->mMeshes[1]->mNumVertices << std::endl;
+	//std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
 	//std::cout << "Skeleton 1 " << iscene->mSkeletons[0]->mNumBones << std::endl;
 	//std::cout << "Skeleton 2 " << iscene->mSkeletons[1]->mNumBones << std::endl;
 
 	std::unordered_map<aiNode*, aiBone*> nodeToBone;
+	std::cout << "meshes: " << iscene->mNumMeshes << std::endl;
 	std::cout << "nodes: " << CountNodes(iscene->mRootNode) << std::endl;
 	for (int i = 0; i < iscene->mMeshes[meshindex]->mNumBones; i++) {
-		//std::cout << "bone: " << iscene->mMeshes[meshindex]->mBones[i]->mName.C_Str() << std::endl;
-		//std::cout << "node: " << iscene->mMeshes[meshindex]->mBones[i]->mNode->mName.C_Str() << std::endl;
+		std::cout << "bone: " << iscene->mMeshes[meshindex]->mBones[i]->mName.C_Str() << std::endl;
+		std::cout << "node: " << iscene->mMeshes[meshindex]->mBones[i]->mNode->mName.C_Str() << std::endl;
 
 		nodeToBone[iscene->mMeshes[meshindex]->mBones[i]->mNode] = iscene->mMeshes[meshindex]->mBones[i];
+	}
+	//std::cout << "Printing stuff: " << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0]->mChildren[0]. << std::endl;
+
+	std::cout << "Going to print out the entire bones" << std::endl;
+	for (const auto& pair : nodeToBone) {
+		std::cout << pair.first->mName.C_Str() << " " << pair.second->mName.C_Str() << std::endl;
 	}
 
 	skin->Preload(iscene->mMeshes[meshindex]->mNumVertices);
 	Joint* root = new Joint(skel, nullptr);
 	skel->root = root;
-	root->Load(iscene->mRootNode, &nodeToBone, skin);
+	//iscene->mRootNode->FindNode("b_Root") for fox
+	//iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root") for man
+	root->Load(iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root"), &nodeToBone, skin);
 	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex]);
 
+	//std::cout << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0] << std::endl;
+	//load animations
+	std::cout << "NUMBER OF ANIMATIONS: " << iscene->mNumAnimations << std::endl;
+	animation->Load(iscene, 0);
 }
 
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {
