@@ -23,7 +23,7 @@ public:
     Skeleton* skely;
     void Update(glm::mat4& parent);
     void AddChild(Joint * child);
-    void Draw(const glm::mat4& viewProjMtx, GLuint shader);
+    void Draw(GLuint shader);
     bool Load(Tokenizer& t);
     void Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone, Skin* skin);
     glm::mat4 L;

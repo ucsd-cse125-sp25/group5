@@ -82,10 +82,7 @@ Triangle::~Triangle() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-void Triangle::draw(const glm::mat4& viewProjMtx, GLuint shader) {
-    // actiavte the shader program
-    glUseProgram(shader);
-
+void Triangle::draw(GLuint shader, bool shadow) {
     this->cr = this->cr + 0.0001;
     this->cg = this->cg + 0.0001;
     this->cb = this->cb + 0.0001;
@@ -97,27 +94,26 @@ void Triangle::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
 
     // get the locations and send the uniforms to the shader
-    //glUniformMatrix4fv(glGetUniformLocation(shader, "viewProj"), 1, false, (float*)&viewProjMtx);
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
-    glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
 
-    int istex = tex;
-    glUniform1i(glGetUniformLocation(shader, "istex"), istex);
-    std::cout << "tex rn: " << tex << std::endl;
-
+    if (!shadow) {
+        glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
+        int istex = tex;
+        glUniform1i(glGetUniformLocation(shader, "istex"), istex);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        GLint texLoc = glGetUniformLocation(shader, "tex");
+        glUniform1i(texLoc, 0);
+    }
     // Bind the VAO
     glBindVertexArray(VAO);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    GLint texLoc = glGetUniformLocation(shader, "tex");
-    glUniform1i(texLoc, 0);
-
     // draw the points using triangles, indexed with the EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
     // Unbind the VAO and shader program
     glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    if (!shadow) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 }
 
 void Triangle::update(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs, std::vector<unsigned int> triangles, glm::mat4 new_model) {

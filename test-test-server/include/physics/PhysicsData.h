@@ -1,25 +1,26 @@
 #include <stdafx.h>
-#include "shared/ObjectData.h"
-
+#include "../include/shared/ObjectData.h"
 
 
 #pragma once
+using namespace std;
+
+typedef glm::vec3 vec3;
+
 // Forward declarations for components
 struct PhysicsComponent;
 struct ColliderComponent;
-struct BehaviorComponent;
+class BehaviorComponent;
 
-const float GRAVITY = 9.8f;
+const float GRAVITY = 9.8f * 0.1f;
 
 struct AABB {
-	glm::vec3 min;
-	glm::vec3 max;
+	vec3 min;
+	vec3 max;
 };
 
 struct Transform {
 	glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
-	//glm::vec3 rotation = glm::vec3(0.0f,0.0f,0.0f);
-	//glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Quaternion for rotation
 	glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f);
 };
@@ -43,19 +44,9 @@ struct ColliderComponent {
 	bool isTrigger = false; // no resolution if true
 };
 
-enum class MoveState {
-	Idle,
-	Walking,
-	Dashing,
-	Grappling,
-	InAir
-};
-
-struct BehaviorComponent {
-	MoveState state = MoveState::Idle;
-
-	float dashCooldown = 0.0f;
-	float grappleCooldown = 0.0f;
+struct Ray {
+	glm::vec3 origin;
+	glm::vec3 dir; // *must* be normalized
 };
 
 struct GameObject {
@@ -63,10 +54,12 @@ struct GameObject {
 	Transform transform;
 	PhysicsComponent* physics = nullptr;
 	ColliderComponent* collider = nullptr;
-	BehaviorComponent* behavior = nullptr;
+	BehaviorComponent* behavior = nullptr; // Pointer to the behavior component
 	EntityType type = EntityType::ENTITY; // Default to ENTITY
 
+	GameObject* attached = nullptr; // flag purposes
 
 	bool isDynamic = true; // true if dynamic, false if static
+	bool markDeleted = false; // true if marked for deletion
 };
 

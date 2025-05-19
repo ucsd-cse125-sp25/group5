@@ -11,8 +11,6 @@ ServerNetwork::ServerNetwork(void)
     ListenSocket = INVALID_SOCKET;
     ClientSocket = INVALID_SOCKET;
 
-
-
     // address info for the server to listen to
     struct addrinfo *result = NULL;
     struct addrinfo hints;
@@ -31,7 +29,7 @@ ServerNetwork::ServerNetwork(void)
     hints.ai_protocol = IPPROTO_TCP;    // TCP connection!!!
     hints.ai_flags = AI_PASSIVE;
 
-	    // Resolve the server address and port
+	// Resolve the server address and port
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 
     if ( iResult != 0 ) {
@@ -85,7 +83,6 @@ ServerNetwork::ServerNetwork(void)
         exit(1);
     }
 }
-
 
 ServerNetwork::~ServerNetwork(void)
 {
@@ -152,7 +149,6 @@ void ServerNetwork::sendToAll(char * packets, int totalSize)
     }
 }
 
-// send data to all clients
 void ServerNetwork::sendTo(unsigned int clientId, char* packets, int totalSize)
 {
     if (sessions.find(clientId) == sessions.end()) {

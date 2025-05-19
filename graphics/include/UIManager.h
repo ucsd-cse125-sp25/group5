@@ -9,7 +9,7 @@
 class UIManager {
 public:
 	void Init();
-	void update(const PlayerStats &p);
+	void update(const UIData &p);
 	void draw();
 
 	//Texture Manager
@@ -18,7 +18,8 @@ public:
 	void UIManager::UnloadAllTextures();
 
 	void SetGameState(GameState state);
-
+	void TriggerAnim(int anim);
+	int getPowerup();
 	GameState currState = GameState::MATCH;
 private:
 	//GLuint shaderProgram;

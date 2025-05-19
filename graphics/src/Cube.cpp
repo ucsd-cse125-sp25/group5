@@ -130,6 +130,14 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) {
 	}*/
 }
 
+Cube::Cube() : Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1)) {
+	this->color = glm::vec3(1.0f, 0.95f, 0.1f);
+}
+
+Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::vec3 color) : Cube(cubeMin, cubeMax) {  
+   this->color = color;  
+}
+
 Cube::~Cube() {
     // Delete the VBOs and the VAO.
     glDeleteBuffers(1, &VBO_positions);
@@ -138,7 +146,7 @@ Cube::~Cube() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
+void Cube::draw(GLuint shader, bool shadow) {
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
 	//std::cout << "Model Matrix: " << glm::to_string(model) << std::endl;
     glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);

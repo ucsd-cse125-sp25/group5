@@ -30,10 +30,10 @@ public:
     ~Triangle();
 
     glm::vec3 color;
-
+  
     void create(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<unsigned int> triangles, std::vector<glm::vec2> uvs, glm::mat4 new_model);
-    void draw(const glm::mat4& viewProjMtx, GLuint shader);
+    //void draw(const glm::mat4& viewProjMtx, GLuint shader); //TODO: add bool shadow and remove viewProj
     void update(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs, std::vector<unsigned int> triangles, glm::mat4 new_model);
-
+    void draw(GLuint shader, bool shadow);
     void spin(float deg);
 };

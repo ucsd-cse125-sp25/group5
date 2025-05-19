@@ -241,8 +241,8 @@ void Skin::update() {
 }// –(traverse tree& compute all joint matrices)
 
 
-void Skin::draw(const glm::mat4& viewProjMtx, GLuint shader) {
+void Skin::draw(GLuint shader, bool shadow) {
 	if (!doSkin) return;
 
-	tri->draw(viewProjMtx, shader);
+	tri->draw(shader, shadow);
 }

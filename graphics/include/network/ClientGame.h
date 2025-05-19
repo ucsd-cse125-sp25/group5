@@ -14,7 +14,7 @@ public:
 
 	void sendActionPackets(PlayerIntentPacket intent);
 
-    char network_data[MAX_PACKET_SIZE];
+	void handleGameStatePacket(char* buf);
 
     void update(PlayerIntentPacket intent);
 
