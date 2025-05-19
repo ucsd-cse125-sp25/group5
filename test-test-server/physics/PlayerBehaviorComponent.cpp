@@ -271,6 +271,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		//freeze the player
 		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
+		playerStats.inAir = false;
 
 		if (deathTimer <= 0.0f) {
 			
@@ -335,6 +336,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 	//regular movement
 	if (state == PlayerMovementState::IDLE) {
+		//check for if a player is in the air
+		playerStats.inAir = !checkBottom(obj, phys);
 		//check for movement powers 
 		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
 
@@ -449,7 +452,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		}
 
 		//apply player movement
-		obj->transform.position += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * deltaTime;
+		glm::vec3 inputDirection = getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
+		//set moving flag
+		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
+		//apply transformation
+		obj->transform.position += inputDirection * deltaTime;
 
 		
 
