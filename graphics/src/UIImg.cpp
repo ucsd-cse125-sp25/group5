@@ -77,7 +77,7 @@ void UIImg::SetTexture(GLuint tex) {
 void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 	start = glfwGetTime();
 
-	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
+	shaderProgram = LoadShaders("shaders/clock.vert", "shaders/clock.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
@@ -122,14 +122,25 @@ void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 void Clock::Update(const UIData& p) {
 	//p.seconds = 10 - (glfwGetTime() - start);
-	int seconds = 600 - (glfwGetTime() - start);
+	seconds = timerStart - (glfwGetTime() - start);
+
+	if (seconds < 1 * 60) {
+		digits[0] = (*texs)["0"];
+		digits[1] = (*texs)["0"];
+		digits[2] = (*texs)[":"];
+		digits[3] = (*texs)["0"];
+		digits[4] = (*texs)["0"];
+		return;
+	}
+
 	//int seconds = (int)p.seconds;
 	int tensMin = seconds / (60 * 10);
-	int onesMin = (seconds / 60 ) % 10 ;
+	seconds -= tensMin * (60 * 10);
+	int onesMin = (seconds / 60 ) % 10;
+	seconds -= onesMin * (60);
 	int tensSec = (seconds / 10) % 10;
 	int onesSec = seconds % 10;
 
-	//std::cout << tensMin << onesMin << ":" << tensSec << onesSec;
 
 	digits[0] = (*texs)[std::to_string(tensMin)];
 	digits[1] = (*texs)[std::to_string(onesMin)];
@@ -143,6 +154,11 @@ void Clock::Update(const UIData& p) {
 //}
 
 void Clock::Draw() {
+	seconds = timerStart - (glfwGetTime() - start);
+	if (seconds < 1 * 60) {
+		return;
+	}
+
 	glUseProgram(shaderProgram);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

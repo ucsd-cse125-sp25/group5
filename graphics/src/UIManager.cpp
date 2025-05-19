@@ -36,18 +36,32 @@ static std::unordered_map<std::string, std::tuple<std::string, std::string>> Mag
 
 //0-9 + colon (:)
 static std::unordered_map<std::string, std::string> Numbers = {
-	{"0", PROJECT_SOURCE_DIR + std::string("/assets/0.png")},
-	{"1", PROJECT_SOURCE_DIR + std::string("/assets/1.png")},
-	{"2", PROJECT_SOURCE_DIR + std::string("/assets/2.png")},
-	{"3", PROJECT_SOURCE_DIR + std::string("/assets/3.png")},
-	{"4", PROJECT_SOURCE_DIR + std::string("/assets/4.png")},
-	{"5", PROJECT_SOURCE_DIR + std::string("/assets/5.png")},
-	{"6", PROJECT_SOURCE_DIR + std::string("/assets/6.png")},
-	{"7", PROJECT_SOURCE_DIR + std::string("/assets/7.png")},
-	{"8", PROJECT_SOURCE_DIR + std::string("/assets/8.png")},
-	{"9", PROJECT_SOURCE_DIR + std::string("/assets/9.png")},
-	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
+	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0_-removebg-preview.png")},
+	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1_-removebg-preview.png")},
+	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2_-removebg-preview.png")},
+	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3_-removebg-preview.png")},
+	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4_-removebg-preview.png")},
+	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5_-removebg-preview.png")},
+	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6_-removebg-preview.png")},
+	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7_-removebg-preview.png")},
+	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8_-removebg-preview.png")},
+	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9_-removebg-preview.png")},
+	{":", PROJECT_SOURCE_DIR + std::string("/assets/colom_1_-removebg-preview.png")},
 };
+
+//static std::unordered_map<std::string, std::string> ChatNumbers = {
+//	{"0", PROJECT_SOURCE_DIR + std::string("/assets/digit_0.png")},
+//	{"1", PROJECT_SOURCE_DIR + std::string("/assets/digit_1.png")},
+//	{"2", PROJECT_SOURCE_DIR + std::string("/assets/digit_2.png")},
+//	{"3", PROJECT_SOURCE_DIR + std::string("/assets/digit_3.png")},
+//	{"4", PROJECT_SOURCE_DIR + std::string("/assets/digit_4.png")},
+//	{"5", PROJECT_SOURCE_DIR + std::string("/assets/digit_5.png")},
+//	{"6", PROJECT_SOURCE_DIR + std::string("/assets/digit_6.png")},
+//	{"7", PROJECT_SOURCE_DIR + std::string("/assets/digit_7.png")},
+//	{"8", PROJECT_SOURCE_DIR + std::string("/assets/digit_8.png")},
+//	{"9", PROJECT_SOURCE_DIR + std::string("/assets/digit_9.png")},
+//	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
+//};
 
 static std::vector<std::string> MagicOrder{
 	"water", "fire", "earth", "wood", "metal"

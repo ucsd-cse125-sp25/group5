@@ -69,6 +69,8 @@ private:
 	glm::mat4 projection;
 	std::vector<float> container;
 	double start = 0.0;
+	int seconds;
+	int timerStart = 1000; //seconds in match temporarily
 
 	GLuint VAO, VBO, EBO;
 };
