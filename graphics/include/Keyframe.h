@@ -24,4 +24,11 @@ public:
     void computeCoefficients(float nextValue, float nextTime, float nextTanIn);
 };
 
+class QuatKeyframe {
+public:
+    glm::quat quatern;
+    float time;
+    QuatKeyframe(float t, glm::quat quaternion) : time(t), quatern(quaternion) {}
+};
+
 #endif // KEYFRAME_H

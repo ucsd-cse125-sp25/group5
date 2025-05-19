@@ -30,17 +30,17 @@ void Scene::createGame() {
 }
 
 void Scene::loadObjects() {
-	Object* obj = new Object();
-	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
-	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	objects.push_back(obj);
+	//Object* obj = new Object();
+	//std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
+	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
+	//objects.push_back(obj);
 
 	//wasp load-in
 	player->LoadAnimation();
 	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
-	glm::mat4 mov(0.05f);
-	mov[3] = glm::vec4(2.0f, 0, 0, 1);
+	glm::mat4 mov = glm::mat4(1.0f);
+	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
 	test->UpdateMat(mov);
   
 	for (int i = 1; i < 4; i++) {

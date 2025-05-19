@@ -140,7 +140,7 @@ Cube::~Cube() {
 
 void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
-	std::cout << "Model Matrix: " << glm::to_string(model) << std::endl;
+	//std::cout << "Model Matrix: " << glm::to_string(model) << std::endl;
     glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
 
     // Bind the VAO

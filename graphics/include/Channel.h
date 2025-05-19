@@ -16,6 +16,7 @@ enum ExtrapolationMode {
 class Channel {
 public:
     std::vector<Keyframe> keyframes;
+    std::vector<QuatKeyframe> quats;
     ExtrapolationMode extrapolationIn;
     ExtrapolationMode extrapolationOut;
 
@@ -27,7 +28,13 @@ public:
         keyframes.push_back(keyframe);
     }
 
+    void addQuatKeyframe(const QuatKeyframe& quatframe) {
+        quats.push_back(quatframe);
+    }
+
     float getValue(float time, float duration, float valueChange) const; 
+
+    glm::quat getQuatVal(float time);
 
     bool Load(Tokenizer& tokenizer);
     void precalculate();

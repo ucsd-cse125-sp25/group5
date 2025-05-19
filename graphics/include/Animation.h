@@ -15,6 +15,7 @@ public:
     float stopTime;
     int channelCount;
     std::vector<Channel> channels;
+    std::vector<Channel> positions;
     std::vector<std::string> names;
     bool Load(const char* file);
     bool animate;

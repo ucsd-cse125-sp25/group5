@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <tuple>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 std::tuple<double, double, double> QuaternionToEulerXYZ(double x, double y, double z, double w);
 float unwrapAngle(float prev, float curr);
@@ -62,7 +63,23 @@ void Animation::Load(const aiScene* scene, int animIndex) {
     aiAnimation* anim = scene->mAnimations[animIndex];
     for (int i = 0; i < anim->mNumChannels; i++) {
         names.push_back(anim->mChannels[i]->mNodeName.C_Str());
+        std::cout << "LOADING CHANNEL NAMED: " << anim->mChannels[i]->mNodeName.C_Str() << std::endl;
 
+
+        /*
+        Channel channel;
+        channel.extrapolationIn = static_cast<ExtrapolationMode>(mapa[anim->mChannels[i]->mPreState]);
+        channel.extrapolationOut = static_cast<ExtrapolationMode>(mapa[anim->mChannels[i]->mPostState]);
+        for (int j = 0; j < anim->mChannels[i]->mNumRotationKeys; j++) {
+            float time = anim->mChannels[i]->mRotationKeys[j].mTime;
+            glm::quat quat(anim->mChannels[i]->mRotationKeys[j].mValue.w, anim->mChannels[i]->mRotationKeys[j].mValue.x, anim->mChannels[i]->mRotationKeys[j].mValue.y, anim->mChannels[i]->mRotationKeys[j].mValue.z);
+            //std::cout << "Key: " << j << " Time: " << time << " Quat: " << glm::to_string(quat) << std::endl;
+            QuatKeyframe quatframe(time, quat);
+            channel.addQuatKeyframe(quatframe);
+        }
+        channels.push_back(channel);
+
+        */
         for (int r = 0; r < 3; r++) { //iterating over x, y, z rotation
             Channel channel;
             channel.extrapolationIn = static_cast<ExtrapolationMode>(mapa[anim->mChannels[i]->mPreState]);
@@ -108,8 +125,6 @@ void Animation::Load(const aiScene* scene, int animIndex) {
             channels.push_back(channel);
 
         }
-
-        
     }
 }
 

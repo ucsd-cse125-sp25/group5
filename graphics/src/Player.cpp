@@ -15,15 +15,40 @@ Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clo
 
 void Player::update() {
     if (animation->import) {
-        std::cout << "doing anim update" << std::endl;
+        //std::cout << "doing anim update" << std::endl;
         if (!skeleton || !animation || !animation->animate) return;
 
         std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
         float time = time_clock.count();
         time = time * 1000.0f/60.0f;
+        //std::cout << time << std::endl;
+        //75 joints
+        //animation->channels.size();
 
+        //i = 252 -  i < 253 is the wonky leg but its fine in the standing pose
+
+        /*
+        for (size_t i = 0; i < animation->channels.size(); ++i) {
+            std::cout << "Bone name: " << animation->names[i] << std::endl;
+            //std::cout << "bone name: " << animation->names[i] << std::endl;
+            auto it = skeleton->JNameMap.find(animation->names[i]);
+            if (it == skeleton->JNameMap.end()) {
+                std::cerr << "Missing joint for: " << animation->names[i] << std::endl;
+                continue;
+            }
+            size_t jointIndex = it->second;
+
+            if (jointIndex >= skeleton->joints.size()) break;
+
+            glm::quat q = animation->channels.at(i).getQuatVal(time);
+            skeleton->joints[jointIndex]->useQuat = true;
+            skeleton->joints[jointIndex]->currQuat = q;
+
+        }
+        */
         for (size_t i = 0; i < animation->channels.size(); i += 3) {
             int nameIndex = i / 3;
+            //std::cout << "bone name: " << animation->names[nameIndex] << std::endl;
             auto it = skeleton->JNameMap.find(animation->names[nameIndex]);
             if (it == skeleton->JNameMap.end()) {
                 std::cerr << "Missing joint for: " << animation->names[nameIndex] << std::endl;
@@ -37,16 +62,13 @@ void Player::update() {
 
             glm::vec3 rotation(
                 animation->channels[i].getValue(time, animation->channels[i].keyframes.back().time - animation->channels[i].keyframes.front().time, animation->channels[i].keyframes.back().value - animation->channels[i].keyframes.front().value),
-                animation->channels[i + 1].getValue(time, animation->channels[i+1].keyframes.back().time - animation->channels[i+1].keyframes.front().time, animation->channels[i+1].keyframes.back().value - animation->channels[i+1].keyframes.front().value),
-                animation->channels[i + 2].getValue(time, animation->channels[i+2].keyframes.back().time - animation->channels[i+2].keyframes.front().time, animation->channels[i+2].keyframes.back().value - animation->channels[i+2].keyframes.front().value)
+                animation->channels[i + 1].getValue(time, animation->channels[i + 1].keyframes.back().time - animation->channels[i + 1].keyframes.front().time, animation->channels[i + 1].keyframes.back().value - animation->channels[i + 1].keyframes.front().value),
+                animation->channels[i + 2].getValue(time, animation->channels[i + 2].keyframes.back().time - animation->channels[i + 2].keyframes.front().time, animation->channels[i + 2].keyframes.back().value - animation->channels[i + 2].keyframes.front().value)
             );
-
+            //rotation.x += glm::pi<float>();
             skeleton->joints[jointIndex]->setRotation(rotation);
 
-            if (i < 30) {
-
-                std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << " + time = " << time << std::endl;
-            }
+            //std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << " + time = " << time << std::endl;
             
         }
 
