@@ -108,8 +108,12 @@ public:
 };
 
 class FlagBehaviorComponent : public BehaviorComponent {
+
+	const float TAG_TRANSFER_TIME = 3.0f;
 public:
 	int owningPlayer = -1;
+	float tagTransferTimer = 3.0f;
+	bool inCooldown = false;
 
 	FlagBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
 		: BehaviorComponent(self, physicsSystem)
