@@ -45,6 +45,8 @@ struct PlayerStats {
 	unsigned int hp = MAX_HP;
 	bool alive = true;
 	bool hasFlag = false;
+	bool moving = false;
+	bool inAir = false;
 	unsigned int mana[5] = {100, 100, 100, 100, 100};
 	PowerType activePower = METAL;
 };
