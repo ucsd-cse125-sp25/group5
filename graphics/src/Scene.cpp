@@ -50,7 +50,7 @@ void Scene::loadObjects() {
 	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	//objects.push_back(obj);
 
-	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
 	glm::mat4 mov = glm::mat4(1.0f);
 	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
@@ -72,7 +72,7 @@ void Scene::update(ClientGame* client) {
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
-	//test->Update();
+	test->Update();
 
 	int i;
 	int j;
@@ -253,7 +253,7 @@ void Scene::draw(Camera* cam) {
 		cubes[i]->draw(mainShader, false);
 	}
 
-	//test->Draw(mainShader, false);
+	test->Draw(mainShader, false);
 
 	for (int i = 0; i < 4; i++) {
 		players[i]->Draw(mainShader, false);
