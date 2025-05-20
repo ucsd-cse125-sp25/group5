@@ -29,7 +29,7 @@ void Scene::createGame() {
 	//Necessary for the uimanager, will change once network protocol gets updated
 	dummy.maxHP = 250;
 	dummy.currHP = dummy.maxHP;
-	test = new PlayerObject();
+	//test = new PlayerObject();
 
 	//Cinema
 	player = new PlayerObject(0);
@@ -50,11 +50,13 @@ void Scene::loadObjects() {
 	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	//objects.push_back(obj);
 
-	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
 	glm::mat4 mov = glm::mat4(1.0f);
 	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
-	test->UpdateMat(mov);
+	
+	
+	//test->UpdateMat(mov);
 	//wasp load-in
 	player->LoadAnimation();
 	for (int i = 1; i < 4; i++) {
@@ -72,7 +74,7 @@ void Scene::update(ClientGame* client) {
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
-	test->Update();
+	//test->Update();
 
 	int i;
 	int j;
@@ -137,7 +139,7 @@ void Scene::update(ClientGame* client) {
 			cubes.push_back(cu);
 		}
 		else if (entity.type == FIRE_PROJ) {
-			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
+			Cube* cu = new Cube(fireProjExtents, -fireProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
@@ -253,10 +255,10 @@ void Scene::draw(Camera* cam) {
 		cubes[i]->draw(mainShader, false);
 	}
 
-	test->Draw(mainShader, false);
+	//test->Draw(mainShader, false);
 
 	for (int i = 0; i < 4; i++) {
-		players[i]->Draw(mainShader, false);
+		//players[i]->Draw(mainShader, false);
 	}
 
 	//All particle effects

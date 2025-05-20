@@ -15,6 +15,11 @@ void ProjectileBehaviorComponent::integrate(GameObject* obj,
 	//just keep going, fix the velocity, and update the position
 	obj->physics->velocity = velocity;
 	obj->transform.position += obj->physics->velocity * deltaTime;
+	
+	lifetime -= deltaTime;
+	if (lifetime <= 0) {
+		obj->markDeleted = true;
+	}
 }
 
 //—— resolveCollision — called when this object hits another
