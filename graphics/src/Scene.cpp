@@ -3,8 +3,6 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
-UIData dummy;
-
 PlayerObject* players[4];
 
 std::vector<System*> particlesystems;
@@ -27,8 +25,8 @@ void Scene::createGame() {
 	audiomanager->PlayAudio("matchsong");
 	audiomanager->PlayAudio("firesound");
 	//Necessary for the uimanager, will change once network protocol gets updated
-	dummy.maxHP = 250;
-	dummy.currHP = dummy.maxHP;
+	//dummy.maxHP = 250;
+	//dummy.currHP = dummy.maxHP;
 	test = new PlayerObject();
 
 	//Cinema
@@ -50,12 +48,11 @@ void Scene::loadObjects() {
 	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	//objects.push_back(obj);
 
-	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
-	glm::mat4 mov(0.05f);
-	mov[3] = glm::vec4(2.0f, 0, 0, 1);
-	//test->UpdateMat(mov);
-
+	glm::mat4 mov = glm::mat4(1.0f);
+	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
+	test->UpdateMat(mov);
 	//wasp load-in
 	player->LoadAnimation();
 	for (int i = 1; i < 4; i++) {
@@ -247,7 +244,7 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 	
 	for (int i = 0; i < objects.size(); i++) {
-		objects[i]->draw(mainShader, false);
+		//objects[i]->draw(mainShader, false);
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
@@ -255,6 +252,7 @@ void Scene::draw(Camera* cam) {
 	}
 
 	//test->Draw(mainShader, false);
+
 
 	for (int i = 0; i < 4; i++) {
 		players[i]->Draw(mainShader, false);
@@ -266,7 +264,7 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 
 	for (int i = 0; i < particlesystems.size(); i++) {
-		particlesystems[i]->Draw(particleShader);
+		//particlesystems[i]->Draw(particleShader);
 	}
   
 	glUseProgram(0); //skybox and uimanager use their own shader

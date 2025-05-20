@@ -159,7 +159,6 @@ void Cube::draw(GLuint shader, bool shadow) {
 
     // Unbind the VAO and shader program
     glBindVertexArray(0);
-    //glUseProgram(0);
 }
 
 void Cube::update(glm::vec3 cubeMin, glm::vec3 cubeMax, glm::mat4 new_model) {

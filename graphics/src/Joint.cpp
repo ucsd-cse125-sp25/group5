@@ -13,6 +13,8 @@
 #include "Window.h"
 #include "Skeleton.h"
 #include "Skin.h"
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 glm::mat4 ConvertMatrix(const aiMatrix4x4& from);
 
@@ -30,7 +32,7 @@ Joint::Joint(Skeleton* jointsskel, Joint * parent) {
 	rotzlimit = glm::vec2(-100000, 100000);
 	pose = glm::vec3(0.0f, 0.0f, 0.0f);
 	L = glm::mat4(1.0f);
-	if (!parent) { //questionable
+	if (!parent) { //questionable3
 		this->parent = this;
 	}
 	preL = glm::mat4(1);
@@ -45,18 +47,21 @@ Joint::Joint(Skeleton* jointsskel, Joint * parent) {
 void Joint::Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone, Skin* skin) {
 
 	strcpy(this->name, node->mName.C_Str());
-	std::cout << this->name <<  " loaded!" << std::endl;
+	std::cout << this->name << " loaded!" << std::endl;
+	skely->JNameMap.emplace(std::string(this->name), skely->joints.size() - 1);
 
-	if (std::string(this->name) == "rp_manuel_animated_001_dancing_hip") {
-		xDof->SetValue(1.6f);
-	}
+	//if (std::string(this->name) == "rp_manuel_animated_001_dancing_hip") {
+	//	xDof->SetValue(1.6f);
+	//}
 
-	if (std::string(this->name) == "rp_manuel_animated_001_dancing_spine_01") {
-		xDof->SetValue(-1.6f);
-	}
+	//if (std::string(this->name) == "rp_manuel_animated_001_dancing_spine_01") {
+	//	xDof->SetValue(-1.6f);
+	//}
 
 	preL = ConvertMatrix(node->mTransformation);
+	//std::cout << glm::to_string(preL) << std::endl;
 	if (nodeToBone->count(node) > 0) {
+		//std::cout << "Found node in nodeToBone: " << std::endl;
 		aiBone* bone = (*nodeToBone)[node];
 		invbind = ConvertMatrix(bone->mOffsetMatrix);
 		draw = true;
@@ -66,8 +71,17 @@ void Joint::Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone,
 			skin->sw[bone->mWeights[i].mVertexId]->weights.push_back(bone->mWeights[i].mWeight);
 		}
 	}
-	
+
+
+	/*
+	std::cout << "Printing the children of the node above " << std::endl;
+	std::cout << "Has this many children: " << node->mNumChildren << std::endl;
 	for (int i = 0; i < node->mNumChildren; i++) {
+		std::cout << node->mChildren[i]->mName.C_Str() << std::endl;
+	}
+	*/
+	for (int i = 0; i < node->mNumChildren; i++) {
+		//std::cout << node->mChildren[i]->mName.C_Str() << std::endl;
 		Joint* jnt = new Joint(this->skely, this);
 		jnt->Load(node->mChildren[i], nodeToBone, skin);
 		AddChild(jnt);
@@ -93,25 +107,90 @@ void Joint::setRotation(const glm::vec3& rotation) {
 
 void Joint::Update(glm::mat4& parent) {
 
-
 	// std::cout << "before dof set" << std::endl;
 
 //	this->xDof->SetValue(pose.x);
 //	this->yDof->SetValue(pose.y);
 //	this->zDof->SetValue(pose.z);
+
+	/*
+	if (useQuat) {
+		//glm::mat4 animRot = glm::toMat4(currQuat);
+		//glm::mat4 localTransform = preL * animRot;
+
+		//// Print joint name
+		//std::cout << "Joint: " << this->name << std::endl;
+
+		//// Print preL matrix
+		//std::cout << "preL:\n";
+		//for (int i = 0; i < 4; ++i)
+		//	std::cout << glm::to_string(glm::vec4(preL[0][i], preL[1][i], preL[2][i], preL[3][i])) << std::endl;
+
+		//// Print animRot matrix
+		//std::cout << "animRot:\n";
+		//for (int i = 0; i < 4; ++i)
+		//	std::cout << glm::to_string(glm::vec4(animRot[0][i], animRot[1][i], animRot[2][i], animRot[3][i])) << std::endl;
+
+		//// Print currQuat values
+		//std::cout << "currQuat: ("
+		//	<< currQuat.w << ", "
+		//	<< currQuat.x << ", "
+		//	<< currQuat.y << ", "
+		//	<< currQuat.z << ")\n" << std::endl;
+
+		//W = parent * localTransform;
+
+		glm::vec3 scale, translation, skew;
+		glm::vec4 perspective;
+		glm::quat dummyRot;
+		glm::decompose(preL, scale, dummyRot, translation, skew, perspective);
+		glm::mat4 localTransform = glm::translate(glm::mat4(1.0f), translation) *
+			glm::toMat4(currQuat) *
+			glm::scale(glm::mat4(1.0f), scale);
+		W = parent * localTransform;
+	}
+	else {
+		this->xDof->SetMinMax(rotxlimit.x, rotxlimit.y);
+		this->yDof->SetMinMax(rotylimit.x, rotylimit.y);
+		this->zDof->SetMinMax(rotzlimit.x, rotzlimit.y);
+		L = glm::eulerAngleZYX(this->zDof->GetValue(), this->yDof->GetValue(), this->xDof->GetValue());
+		L[3] = glm::vec4(offset, 1.0f);
+		W = parent * preL * L;
+	}
+	*/
+
 	this->xDof->SetMinMax(rotxlimit.x, rotxlimit.y);
 	this->yDof->SetMinMax(rotylimit.x, rotylimit.y);
 	this->zDof->SetMinMax(rotzlimit.x, rotzlimit.y);
+	L = glm::eulerAngleZYX(this->zDof->GetValue(), this->yDof->GetValue(), this->xDof->GetValue());
+
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+
+	// Decompose preL
+	glm::decompose(preL, scale, rotation, translation, skew, perspective);
+
+	// Now build rotation matrix from your DOF angles
+	glm::mat4 animRot = L;  // L is your rotation matrix from DOFs
+
+	// Build scale matrix
+	glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
+
+	// Build translation matrix
+	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), translation);
+
+	// Compose local transform: T * S * animRot
+	glm::mat4 localTransform = translationMat * scaleMat * animRot;
+
+	// Compose world transform
+	W = parent * localTransform;
 	// std::cout << "after dof set before matrices" << std::endl;
 
 //	this->xDof->SetValue(20.0f);
 //	std::cout << "Inside Joint: xDof for " << this->name << " is " << this->xDof->GetValue() << std::endl;
-
-
-	L = glm::eulerAngleZYX(this->zDof->GetValue(), this->yDof->GetValue(), this->xDof->GetValue());
-	L[3] = glm::vec4(offset, 1.0f);
-	W = parent * preL * L;
-
 	/*for (const auto& child : children) {
 		child->Update(W);
 	}*/

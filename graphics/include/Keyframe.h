@@ -1,10 +1,13 @@
 #ifndef KEYFRAME_H
 #define KEYFRAME_H
+#include <glm/gtc/quaternion.hpp>
 
 class Keyframe {
 public:
     float time;
     float value;
+    bool import;
+    glm::quat quatValue;
     float tangentIn;
     float tangentOut;
     char ruleIn;
@@ -19,6 +22,13 @@ public:
     }
 
     void computeCoefficients(float nextValue, float nextTime, float nextTanIn);
+};
+
+class QuatKeyframe {
+public:
+    glm::quat quatern;
+    float time;
+    QuatKeyframe(float t, glm::quat quaternion) : time(t), quatern(quaternion) {}
 };
 
 #endif // KEYFRAME_H

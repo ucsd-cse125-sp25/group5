@@ -249,8 +249,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//freeze the player
 		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
-		if (deathTimer <= 0.0f) {			
-			playerStats.hp = 100.0f;
+		playerStats.inAir = false;
+
+		if (deathTimer <= 0.0f) {
+			
+			playerStats.hp = 120.0f;
 			playerStats.alive = true;
 			state = PlayerMovementState::IDLE;
 			deathTimer = 0.0f;
@@ -303,6 +306,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	//regular movement
 	if (state == PlayerMovementState::IDLE) {
+		//check for if a player is in the air
+		playerStats.inAir = !checkBottom(obj, phys);
 		//check for movement powers 
 		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
 			printf("Metal mana %d\n", playerStats.mana[0]);
@@ -398,7 +403,14 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		}
 
 		//apply player movement
-		obj->transform.position += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * deltaTime;
+		glm::vec3 inputDirection = getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
+		//set moving flag
+		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
+		//apply transformation
+		obj->transform.position += inputDirection * deltaTime;
+
+		
+
 	}
 
 	//only apply the player velocity for movement

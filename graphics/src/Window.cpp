@@ -229,6 +229,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
     }
    
+
+    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) { scene->TriggerAnim(2); } //trigger repawn anim (branch growing back)
+
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP - 20; }
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP + 20; }
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
