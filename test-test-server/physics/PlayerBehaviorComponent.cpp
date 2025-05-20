@@ -275,7 +275,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 		if (deathTimer <= 0.0f) {
 			
-			playerStats.hp = 100.0f;
+			playerStats.hp = 120.0f;
 			playerStats.alive = true;
 			state = PlayerMovementState::IDLE;
 			deathTimer = 0.0f;

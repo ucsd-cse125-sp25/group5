@@ -27,7 +27,8 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 		glm::vec3(20.0f, 20.0f, 20.0f),
 		glm::vec3(-20.0f, -20.0f, -20.0f),
 		glm::vec3(10.0f, -10.0f, -10.0f),
-		glm::vec3(-10.0f, 10.0f, 10.0f)
+		glm::vec3(-10.0f, 10.0f, 10.0f),
+
 	};
 
 	for (int i = 0; i < 7; i++) {

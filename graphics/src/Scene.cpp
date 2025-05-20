@@ -25,8 +25,8 @@ void Scene::createGame() {
 	audiomanager->PlayAudio("matchsong");
 	audiomanager->PlayAudio("firesound");
 	//Necessary for the uimanager, will change once network protocol gets updated
-	dummy.maxHP = 250;
-	dummy.currHP = dummy.maxHP;
+	//dummy.maxHP = 250;
+	//dummy.currHP = dummy.maxHP;
 	test = new PlayerObject();
 
 	//Cinema
@@ -70,7 +70,7 @@ void Scene::update(ClientGame* client) {
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
-	test->Update();
+	//test->Update();
 
 	int i;
 	int j;
@@ -152,7 +152,7 @@ void Scene::update(ClientGame* client) {
 	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
-	//dummy.currHP = client->GameState.player_stats[client->playerId].hp;
+	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
 
 	uimanager->update(dummy);
 }
@@ -251,7 +251,7 @@ void Scene::draw(Camera* cam) {
 		cubes[i]->draw(mainShader, false);
 	}
 
-	test->Draw(mainShader, false);
+	//test->Draw(mainShader, false);
 
 
 	for (int i = 0; i < 4; i++) {

@@ -148,7 +148,9 @@ void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 void HealthBar::Update(const UIData &p) {
 	float healthP = (float)p.currHP / (float)p.maxHP;
-	std::cout << "Current health percetnage" << healthP <<std::endl;
+	std::cout << (float)p.currHP << std::endl;
+	std::cout << (float)p.maxHP << std::endl;
+	std::cout << "Current health percetnage " << healthP <<std::endl;
 	double now = glfwGetTime();
 
 
@@ -500,7 +502,7 @@ void Magic::Draw() {
 	glUniform1f(glGetUniformLocation(manaProgram, "time"), seconds);
 	glBindVertexArray(elemVAO);
 	for (const auto& p : powers) {
-		std::cout << p.currMana << std::endl;
+		//std::cout << p.currMana << std::endl;
 		float scale = (p.targetIdx == 0) ? 1.2f : 0.8f;
 		//translate, scale then translate by the offset
 		glm::mat4 model = glm::mat4(1.0f);

@@ -3,7 +3,7 @@
 #include "core.h"
 
 
-#define MAX_HP 100;
+#define MAX_HP 120;
 #define MAX_MANA 100;
 
 
