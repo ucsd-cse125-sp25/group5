@@ -102,7 +102,7 @@ void Triangle::draw(GLuint shader, bool shadow) {
         glUniform1i(texLoc, 0);
     }
     // Bind the VAO
-
+    glBindVertexArray(VAO);
     // draw the points using triangles, indexed with the EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     // Unbind the VAO and shader program

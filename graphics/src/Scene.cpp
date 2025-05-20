@@ -257,7 +257,7 @@ void Scene::draw(Camera* cam) {
 
 
 	for (int i = 0; i < 4; i++) {
-		//players[i]->Draw(mainShader, false);
+		players[i]->Draw(mainShader, false);
 	}
 
 	//All particle effects
@@ -266,7 +266,7 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 
 	for (int i = 0; i < particlesystems.size(); i++) {
-		//particlesystems[i]->Draw(particleShader);
+		particlesystems[i]->Draw(particleShader);
 	}
   
 	glUseProgram(0); //skybox and uimanager use their own shader
