@@ -46,4 +46,5 @@ public:
 	void draw(Camera* cam);
 	void TriggerAnim(int anim);
 	int getPowerup();
+	UIData dummy;
 };

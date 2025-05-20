@@ -77,46 +77,49 @@ void UIImg::SetTexture(GLuint tex) {
 * @param percent: Percentage of the window width the UI element should occupy
 * @param ratio: Aspect ratio of the UI element
 **/
-void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
+void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 	shaderProgram = LoadShaders("shaders/healthbar.vert", "shaders/healthbar.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
-	containerColor = { 0.2f, 0.2f, 1.0f };
-	healthColor = { 1.0f, 1.0f, 1.0f };
+	float bWidth = WINDOWWIDTH * percent;
+	float bHeight = WINDOWHEIGHT * percent * (806.0f / 1576.0f);
+	flowerWidth = WINDOWWIDTH * percent * 0.15;
 
-	float offsetX = WINDOWWIDTH * percent;
-	float offsetY = WINDOWHEIGHT * percent * ratio;
+	float bump = (WINDOWHEIGHT * 0.65);
+	std::vector<float> startPos = { WINDOWWIDTH * startPerc[0], WINDOWHEIGHT * startPerc[1] + bump};
 
 	health = {
 		//Position                                     //UV         //Color
-		startPos[0], startPos[1],                      0.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
-		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f,  healthColor[0], healthColor[1], healthColor[2],
-		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
-		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f,  healthColor[0], healthColor[1], healthColor[2],
+		startPos[0], startPos[1],                      0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0] + bWidth, startPos[1],            1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0] + bWidth, startPos[1] + bHeight,  1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		startPos[0], startPos[1] + bHeight,            0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
 	};
 
-	container = {
-		//Position                                     //UV        //Color
-		startPos[0], startPos[1],                      0.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
-		startPos[0] + offsetX, startPos[1],            1.0f, 0.0f, containerColor[0], containerColor[1], containerColor[2],
-		startPos[0] + offsetX, startPos[1] + offsetY,  1.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
-		startPos[0], startPos[1] + offsetY,            0.0f, 1.0f, containerColor[0], containerColor[1], containerColor[2],
+	flowerStart = { 0.0f, 0.0f };
+	flower = {
+		flowerStart[0], flowerStart[1],                                 0.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		flowerStart[0] + flowerWidth, flowerStart[1],                   1.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		flowerStart[0] + flowerWidth, flowerStart[1] + flowerWidth,     1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		flowerStart[0], flowerStart[1] + flowerWidth,                   0.0f, 1.0f,  1.0f, 1.0f, 1.0f,
 	};
 
-	glGenVertexArrays(2, VAO);
-	glGenBuffers(2, VBO);
+	flowerPositions = { {bWidth * 0.15f, bHeight * 0.09f + bump}, {bWidth * 0.35f, bHeight * 0.09f + bump}, {bWidth * 0.55f, bHeight * 0.3f + bump}, {bWidth * 0.7f, bHeight * 0.14f + bump}, {bWidth * 0.8f, bHeight * 0.78f + bump}, {bWidth * 0.92f, bHeight * 0.5f + bump}};
+	
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 
 	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glBindVertexArray(VAO[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, container.size() * sizeof(float), container.data(), GL_STATIC_DRAW);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, health.size() * sizeof(float), health.data(), GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
@@ -124,10 +127,15 @@ void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindVertexArray(0);
 
-	glBindVertexArray(VAO[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, health.size() * sizeof(float), health.data(), GL_DYNAMIC_DRAW);
+	glGenVertexArrays(1, &FlowerVAO);
+	glGenBuffers(1, &FlowerVBO);
+
+
+	glBindVertexArray(FlowerVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, FlowerVBO);
+	glBufferData(GL_ARRAY_BUFFER, flower.size() * sizeof(float), flower.data(), GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
@@ -139,13 +147,87 @@ void HealthBar::Init(std::vector<float> startPos, float percent, float ratio) {
 }
 
 void HealthBar::Update(const UIData &p) {
-	float leftX = container[0];
-	float rightX = container[7];
-	float width = rightX - leftX;
-	float percentage = float(p.currHP) / float(p.maxHP);
+	float healthP = (float)p.currHP / (float)p.maxHP;
+	std::cout << "Current health percetnage" << healthP <<std::endl;
+	double now = glfwGetTime();
+
+
+	if (animating) {
+		double elapsed = now - animStart;
+		float t = elapsed / animDuration;
+		if (elapsed >= animDuration) {
+			animating = false;
+			percent = 1.0;
+			for (int i = 0; i < flowers.size(); i++) {
+				if (flowers[i].decayed) {
+					flowers[i].blooming = true;
+					flowers[i].startTime = glfwGetTime();
+				}
+			}
+		}
+		else {
+			percent = t;
+			for (int i = 0; i < flowers.size(); i++) {
+				if (percent >= flowers[i].decayPerc && flowers[i].decayed && !flowers[i].blooming) {
+					flowers[i].blooming = true;
+					flowers[i].decayed = false;
+					flowers[i].startTime = glfwGetTime();
+				}
+			}
+		}
+	}
+
+
+	//This is to trigger the animation
+	for (int i = 0; i < flowers.size(); i++) {
+		if (!flowers[i].decayed && healthP < flowers[i].decayPerc && !flowers[i].animating && !animating) {
+			//std::cout << "Trigger anim for: " << flowers[i].name << std::endl;
+			flowers[i].startTime = glfwGetTime();
+			flowers[i].animating = true;
+		}
+		else if (flowers[i].decayed && healthP >= flowers[i].decayPerc && !flowers[i].blooming && !animating) {
+			std::cout << "Going to bloom flower: " << i << std::endl;
+			flowers[i].currScale = 0.0;
+			flowers[i].startTime = glfwGetTime();
+			flowers[i].blooming = true;
+		}
+	}
+
+	//This is to play the animation
+	for (int i = 0; i < flowers.size(); i++) {
+		if (flowers[i].animating) {
+			double now = glfwGetTime();
+			double elapsed = now - flowers[i].startTime;
+			float t = elapsed / decayDuration;
+			if (elapsed >= decayDuration) {
+				flowers[i].animating = false;
+				flowers[i].decayed = true;
+				flowers[i].currPos = flowers[i].endPos;
+				flowers[i].currPos = flowers[i].branchPos;
+				flowers[i].currScale = 0.0;
+			}
+			else {
+				flowers[i].currPos.y = glm::mix(flowers[i].branchPos.y, flowers[i].endPos.y, t);
+			}
+		}
+		if (flowers[i].blooming) {
+			double now = glfwGetTime();
+			double elapsed = now - flowers[i].startTime;
+			float t = elapsed / bloomDuration;
+			if (elapsed >= bloomDuration) {
+				flowers[i].blooming = false;
+				flowers[i].decayed = false;
+				flowers[i].currScale = 1.0;
+			}
+			else {
+				flowers[i].currScale = glm::mix(0.0, 1.0, t);
+				std::cout << "current scale of flower: " << i << ": " << flowers[i].currScale << std::endl;
+			}
+		}
+	}
 
 	glUseProgram(shaderProgram);
-	glUniform1f(glGetUniformLocation(shaderProgram, "healthPercent"), percentage);
+	glUniform1f(glGetUniformLocation(shaderProgram, "percentage"), percent);
 }
 
 void HealthBar::SetTexture(GLuint texture) {
@@ -154,6 +236,9 @@ void HealthBar::SetTexture(GLuint texture) {
 
 void HealthBar::Draw() {
 	glUseProgram(shaderProgram);
+	glm::mat4 model = glm::mat4(1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniform1i(glGetUniformLocation(shaderProgram, "isBranch"), 1);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glActiveTexture(GL_TEXTURE0);
@@ -161,18 +246,44 @@ void HealthBar::Draw() {
 
 	glDisable(GL_DEPTH_TEST);
 
-	glUniform1i(glGetUniformLocation(shaderProgram, "health"), false);
-	glBindVertexArray(VAO[0]);
+	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-	glUniform1i(glGetUniformLocation(shaderProgram, "health"), true);
-	glBindVertexArray(VAO[1]);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+	//display each flower
+	glBindVertexArray(FlowerVAO);
+	for (FlowerElement f : flowers) {
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(f.currPos.x, f.currPos.y, 0.0f));
+		model = glm::scale(model, glm::vec3(f.currScale, f.currScale, 1.0f));
+		model = glm::translate(model, glm::vec3(-flowerWidth / 2.0, -flowerWidth / 2.0, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glUniform1i(glGetUniformLocation(shaderProgram, "isBranch"), 0);
+		float len = glm::abs(f.branchPos.y - f.endPos.y);
+		float curr = glm::abs(f.branchPos.y - f.currPos.y);
+		glUniform1f(glGetUniformLocation(shaderProgram, "decay"), curr / len);
+		glBindTexture(GL_TEXTURE_2D, f.flowerTex);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 	glDisable(GL_BLEND);
 
 	glEnable(GL_DEPTH_TEST);
 	glBindVertexArray(0);
+}
+
+void HealthBar::StartRegrow(int anim) {
+	if (animating) {
+		return;
+	}
+
+	//Set bool flag
+	animStart = glfwGetTime();
+	animating = true;
+
+	for (int i = 0; i < flowers.size(); i++) {
+		flowers[i].currScale = 0.0;
+		flowers[i].decayed = true;
+		flowers[i].blooming = false;
+	}
 }
 
 void Magic::Init(std::vector<float> startPerc, float p, float r) {
@@ -379,7 +490,7 @@ void Magic::Draw() {
 	glDisable(GL_DEPTH_TEST);
 
 	glBindVertexArray(backVAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
 	//loop through each struct, send the uniform for mana % then draw

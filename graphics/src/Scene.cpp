@@ -3,8 +3,6 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
-UIData dummy;
-
 PlayerObject* players[4];
 
 std::vector<System*> particlesystems;
@@ -154,7 +152,7 @@ void Scene::update(ClientGame* client) {
 	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
-	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
+	//dummy.currHP = client->GameState.player_stats[client->playerId].hp;
 
 	uimanager->update(dummy);
 }

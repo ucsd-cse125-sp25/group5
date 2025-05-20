@@ -1,6 +1,4 @@
 #version 330 core
-uniform float healthPercent;
-uniform bool health;
 
 in vec2 TexCoord;
 in vec3 FragColor;
@@ -9,12 +7,20 @@ in vec3 FragColor;
 out vec4 fragColor;
 
 uniform sampler2D texture1;
+uniform float percentage;
+uniform bool isBranch;
+uniform float decay;
 
 void main() {
 
-    if (TexCoord.x >= healthPercent && health) {
+    float finalAlpha = 1.0;
+    if (TexCoord.x > percentage && isBranch) {
         discard;
     }
     vec4 texColor = texture(texture1, TexCoord);
-    fragColor = texColor * vec4(FragColor, 1.0);
+
+    if (!isBranch) {
+        finalAlpha = (1.0 - decay) * texColor.a;
+    }
+    fragColor = texColor * vec4(FragColor, finalAlpha);
 }
