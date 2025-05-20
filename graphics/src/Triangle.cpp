@@ -95,8 +95,7 @@ void Triangle::draw(GLuint shader, bool shadow) {
 
     if (!shadow) {
         glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
-        int istex = tex;
-        glUniform1i(glGetUniformLocation(shader, "istex"), istex);
+        glUniform1i(glGetUniformLocation(shader, "istex"), tex);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         GLint texLoc = glGetUniformLocation(shader, "tex");
@@ -107,10 +106,11 @@ void Triangle::draw(GLuint shader, bool shadow) {
     // draw the points using triangles, indexed with the EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     // Unbind the VAO and shader program
-    glBindVertexArray(0);
+
     if (!shadow) {
         glBindTexture(GL_TEXTURE_2D, 0);
-    }
+    }    
+    glBindVertexArray(0);
 }
 
 void Triangle::update(std::vector<glm::vec3> positions, std::vector<glm::vec3> normals, std::vector<glm::vec2> uvs, std::vector<unsigned int> triangles, glm::mat4 new_model) {
