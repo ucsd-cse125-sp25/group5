@@ -232,7 +232,7 @@ void Scene::draw(Camera* cam) {
 
 	//test->Draw(mainShader, false);
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 1; i < 4; i++) {
 		players[i]->Draw(mainShader, false);
 	}
 
