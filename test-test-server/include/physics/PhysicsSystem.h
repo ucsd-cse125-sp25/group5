@@ -218,6 +218,7 @@ public:
      *       its collider, and its transform are not NULL.
      */
     AABB getAABB(GameObject* obj);
+    AABB getMeshAABB(GameObject* obj);
     vec3 getAABBCenter(AABB& a);
     vec3 getAABBDistanceCenters(AABB& a, AABB& b);
 	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
@@ -236,6 +237,8 @@ public:
      *         a zero vector is returned, indicating no impulse is applied.
      */
     vec3 getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution);
+
+    vector<vec3> getAABBVerticesForMesh(const AABB &aabb);
     
     //id
     int getNextId();

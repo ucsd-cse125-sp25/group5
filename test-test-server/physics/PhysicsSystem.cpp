@@ -260,7 +260,7 @@ GameObject* PhysicsSystem::getPlayerObjectById(int id) {
     return nullptr;
 }
 
-vector<vec3> getAABBVertices(const AABB &aabb)
+vector<vec3> PhysicsSystem::getAABBVerticesForMesh(const AABB &aabb)
 {
     vector<vec3> vertices(8);
     vec3 min = aabb.min;
@@ -274,18 +274,45 @@ vector<vec3> getAABBVertices(const AABB &aabb)
     vertices[5] = vec3(max.x, min.y, max.z);
     vertices[6] = vec3(min.x, max.y, max.z);
     vertices[7] = vec3(max.x, max.y, max.z);
-
+    
     return vertices;
 }
 
 vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
-    vector<vec3> vertices = getAABBVertices(aabb);
+    vector<vec3> vertices = PhysicsSystem::getAABBVerticesForMesh(aabb);
     vector<vec4> worldSpaceVertices(vertices.size());
 
     for (size_t i = 0; i < vertices.size(); ++i) {
-        vec4 vertex = glm::vec4(vertices[i], 1.0f);
-        worldSpaceVertices[i] = rotation * vertex + vec4(position, 0.0f);
+        vec4 vertex = vec4(vertices[i], 1.0f); // Convert to vec4
+        vertex = rotation * vertex; // Rotate the vertex
+        vertex += vec4(position, 0.0f); // Translate the vertex
+        worldSpaceVertices[i] = vertex;
     }
 
     return worldSpaceVertices;
 }
+
+AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj) {
+    if (positions.empty()) {
+        return { vec3(0.0f), vec3(0.0f) }; // Return an empty AABB if no positions are provided
+    }
+    return { vec3(getMeshMinOrMaxCoord(positions, 0, true), getMeshMinOrMaxCoord(positions, 1, true), getMeshMinOrMaxCoord(positions, 2, true)),
+             vec3(getMeshMinOrMaxCoord(positions, 0, false), getMeshMinOrMaxCoord(positions, 1, false), getMeshMinOrMaxCoord(positions, 2, false)) };
+}
+
+
+float getMeshMinOrMaxCoord(const vector<vec3>& positions, int coord, bool isMin) {
+    assert(positions.size() > 0);
+    assert(coord >= 0 && coord < 3);
+    
+    float result = positions[0][coord];
+    for (const auto& pos : positions) {
+        if (isMin) {
+            result = std::min(result, pos[coord]);
+        } else {
+            result = std::max(result, pos[coord]);
+        }
+    }
+    return result;
+}
+
