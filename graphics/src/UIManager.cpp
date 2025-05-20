@@ -17,6 +17,7 @@
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}},
+	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GameState::MATCH, 0.0, 0.0, 0.5, 0.5}}
 };
 
 /**
@@ -33,8 +34,21 @@ static std::unordered_map<std::string, std::tuple<std::string, std::string>> Mag
 	{"metal", {PROJECT_SOURCE_DIR + std::string("/assets/metal_bar.png"), PROJECT_SOURCE_DIR + std::string("/assets/metal_outline.png")}}
 };
 
+static std::unordered_map<std::string, std::string> HealthUI = {
+	{"b0", PROJECT_SOURCE_DIR + std::string("/assets/b0.png")},
+	{"b1", PROJECT_SOURCE_DIR + std::string("/assets/b1.png")},
+	{"b2", PROJECT_SOURCE_DIR + std::string("/assets/b2.png")},
+	{"b3", PROJECT_SOURCE_DIR + std::string("/assets/b3.png")},
+	{"b4", PROJECT_SOURCE_DIR + std::string("/assets/b4.png")},
+	{"b5", PROJECT_SOURCE_DIR + std::string("/assets/b5.png")}
+};
+
 static std::vector<std::string> MagicOrder{
 	"metal", "wood", "water", "fire", "earth"
+};
+
+static std::vector<std::string> FlowerOrder{
+	"b0", "b1", "b2", "b3", "b4", "b5"
 };
 
 //Loads textures and creates UI elements
@@ -101,6 +115,27 @@ void UIManager::Init() {
 				ma->baseAngles.push_back(angle);
 			}
 
+		}
+		else if (name == "healthbar") {
+			HealthBar* hb = dynamic_cast<HealthBar*>(img);
+			int count = 0;
+			for (const auto& key : FlowerOrder) {
+				const std::string path = HealthUI[key];
+				LoadTexture(key, path);
+				FlowerElement f;
+				f.name = key;
+				f.flowerTex = GetTexture(key);
+				f.decayed = false;
+				f.animating = false;
+				f.branchPos = { hb->flowerPositions[count].at(0), hb->flowerPositions[count].at(1) };
+				f.currPos = f.branchPos;
+				f.endPos = f.branchPos;
+				f.endPos.y = f.endPos.y - 200.0f;
+				f.decayPerc = (float)((count + 1) * 20) / (float)120;
+				f.currScale = 1.0f;
+				hb->flowers.push_back(f);
+				count++;
+			}
 		}
 
 
@@ -210,6 +245,11 @@ void UIManager::TriggerAnim(int anim) {
 		if (Magic* ma = dynamic_cast<Magic*>(img)) {
 			if (anim == 0 || anim == 1) {
 				ma->StartRotate(anim);
+			}
+		}
+		else if (HealthBar* hb = dynamic_cast<HealthBar*>(img)) {
+			if (anim == 2) {
+				hb->StartRegrow(anim);
 			}
 		}
 	}

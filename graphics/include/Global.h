@@ -15,7 +15,7 @@ enum class GameState {
 
 struct UIData {
     //damage from powerups will be whole numbers
-    int maxHP = 100, currHP = 100;
+    int maxHP = 120, currHP = 120;
     int maxWater = 100, currWater = 50;
     int maxFire = 100, currFire = 50;
     int maxEarth = 100, currEarth = 50;

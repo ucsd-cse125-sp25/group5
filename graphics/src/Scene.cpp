@@ -3,8 +3,6 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
-UIData dummy;
-
 PlayerObject* players[4];
 
 std::vector<System*> particlesystems;
@@ -27,9 +25,9 @@ void Scene::createGame() {
 	audiomanager->PlayAudio("matchsong");
 	audiomanager->PlayAudio("firesound");
 	//Necessary for the uimanager, will change once network protocol gets updated
-	dummy.maxHP = 250;
-	dummy.currHP = dummy.maxHP;
-	//test = new PlayerObject();
+	//dummy.maxHP = 250;
+	//dummy.currHP = dummy.maxHP;
+	test = new PlayerObject();
 
 	//Cinema
 	player = new PlayerObject(0);
@@ -248,7 +246,7 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 	
 	for (int i = 0; i < objects.size(); i++) {
-		objects[i]->draw(mainShader, false);
+		//objects[i]->draw(mainShader, false);
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
@@ -256,6 +254,7 @@ void Scene::draw(Camera* cam) {
 	}
 
 	//test->Draw(mainShader, false);
+
 
 	for (int i = 0; i < 4; i++) {
 		//players[i]->Draw(mainShader, false);
@@ -267,7 +266,7 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 
 	for (int i = 0; i < particlesystems.size(); i++) {
-		particlesystems[i]->Draw(particleShader);
+		//particlesystems[i]->Draw(particleShader);
 	}
   
 	glUseProgram(0); //skybox and uimanager use their own shader
