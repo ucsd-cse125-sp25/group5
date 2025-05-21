@@ -7,6 +7,7 @@
 #include "InputManager.h"
 
 typedef glm::vec3 vec3;
+typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 typedef glm::quat quat;
 
@@ -218,7 +219,7 @@ public:
      *       its collider, and its transform are not NULL.
      */
     AABB getAABB(GameObject* obj);
-    AABB getMeshAABB(GameObject* obj);
+    AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj);
     vec3 getAABBCenter(AABB& a);
     vec3 getAABBDistanceCenters(AABB& a, AABB& b);
 	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
@@ -239,6 +240,8 @@ public:
     vec3 getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution);
 
     vector<vec3> getAABBVerticesForMesh(const AABB &aabb);
+    vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation);
+    void PhysicsSystem::generateGameObjectsForWholeThing(const vec3& position, const vec3& halfExtents, int numObjects, const int directionOfSlice, const quat& rotation);
     
     //id
     int getNextId();

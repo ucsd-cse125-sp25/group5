@@ -278,8 +278,8 @@ vector<vec3> PhysicsSystem::getAABBVerticesForMesh(const AABB &aabb)
     return vertices;
 }
 
-vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
-    vector<vec3> vertices = PhysicsSystem::getAABBVerticesForMesh(aabb);
+vector<vec4> PhysicsSystem::convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
+    vector<vec3> vertices = getAABBVerticesForMesh(aabb);
     vector<vec4> worldSpaceVertices(vertices.size());
 
     for (size_t i = 0; i < vertices.size(); ++i) {
@@ -316,3 +316,24 @@ float getMeshMinOrMaxCoord(const vector<vec3>& positions, int coord, bool isMin)
     return result;
 }
 
+vec3 getPosition(const vec3& start, const float width, const int directionOfSlice) {
+    vec3 change = vec3(0.0f);
+	change[directionOfSlice] = width/2.0f;
+	return start + change; 
+}
+
+vec3 getHalfExtents(const vec3& halfExtents, const int directionOfSlice, const float width) {
+	vec3 halfExs = halfExtents;
+	halfExs[directionOfSlice] = width * 0.5f;
+	return halfExs;
+}
+
+void PhysicsSystem::generateGameObjectsForWholeThing(const vec3& position, const vec3& halfExtents, int numObjects, const int directionOfSlice, const quat& rotation) {
+	float sliceWidth = halfExtents[directionOfSlice] * 2.0f / numObjects;
+	vec3 startPoint = position - halfExtents;
+	vec3 currPoint = startPoint;
+    for (int i = 0; i < numObjects; i++) {
+		makeGameObject(getPosition(currPoint, sliceWidth, directionOfSlice), rotation, getHalfExtents(halfExtents, directionOfSlice, sliceWidth));
+		currPoint[directionOfSlice] += sliceWidth;
+    }
+}
