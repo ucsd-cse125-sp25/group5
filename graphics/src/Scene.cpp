@@ -1,4 +1,5 @@
 #include <Scene.h>
+#include <Water.h>
 
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
@@ -6,6 +7,9 @@ int WINDOWHEIGHT = 900;
 PlayerObject* players[4];
 
 std::vector<System*> particlesystems;
+
+extern double currTime;
+extern double startTime;
 
 void Scene::createGame() {
 	//setup lights
@@ -36,6 +40,12 @@ void Scene::createGame() {
 	for (int i = 1; i < 4; i++) {
 		players[i] = new PlayerObject();
 	}
+
+	water = new Water();
+	water->create(301, 301, 0.5f, -2.0f);
+	glm::mat4 watermat(1);
+	watermat[3] = glm::vec4(-25.0, 0, -25.0, 1);
+	water->update(watermat);
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -161,7 +171,7 @@ void Scene::update(ClientGame* client) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader"};
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -259,6 +269,30 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < 4; i++) {
 		players[i]->Draw(mainShader, false);
 	}
+
+	//water shading and drawing
+	GLuint waterShader = shaders[4];
+	glUseProgram(waterShader);
+
+	glUniformMatrix4fv(glGetUniformLocation(waterShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(waterShader, "viewPos"), 1, &camPos[0]);
+
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightDir"), 1, &dirLight.direction[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightColor"), 1, &dirLight.color[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightSpec"), 1, &dirLight.specular[0]);
+	glUniform1i(glGetUniformLocation(waterShader, "numLights"), lightmanager->numLights());
+	glUniformMatrix4fv(glGetUniformLocation(waterShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glUniform1i(glGetUniformLocation(waterShader, "shadowMap"), 1);
+	glUniform1i(glGetUniformLocation(waterShader, "useShadow"), doShadow ? true : false);
+
+	glUniform1f(glGetUniformLocation(waterShader, "time"), (currTime - startTime)/1000.0f);
+
+	lightmanager->bind();
+
+	water->draw(waterShader, false);
 
 	//All particle effects
 	GLuint particleShader = shaders[3];
