@@ -32,7 +32,7 @@ vec4 FBM(vec3 pos){ //Returns float4 of height and normal
     float dx = 0;
     float dz = 0;
 
-    float amp = 0.16;
+    float amp = 0.2;
     float freq = 0.4;
 
     float pc = 1.6;
