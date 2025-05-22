@@ -34,6 +34,9 @@ void PhysicsSystem::tick(float dt) {
 
     //delete all objects marked for deletion
 	deleteMarkedDynamicObjects();
+
+    //add time to the killfeed 
+    tickKillfeed(dt);
 }
 
 void PhysicsSystem::defaultIntegrate(GameObject* obj, float dt) {
