@@ -56,7 +56,7 @@ const float WOOD_PROJ_COST = 5.0f;
 const float WOOD_MOVE_COST = 20.0f;
 const float WATER_PROJ_COST = 5.0f;
 const float WATER_MOVE_COST = 25.0f;
-const float FIRE_PROJ_COST = 5.0f;
+const float FIRE_PROJ_COST = 1.0f;
 const float FIRE_MOVE_COST = 10.0f;
 const float EARTH_PROJ_COST = 5.0f;
 const float EARTH_MOVE_COST = 10.0f;
@@ -94,9 +94,18 @@ public:
    float damage;
    static const float WOOD_PROJ_SPEED;
    int originalPlayer;
+   float lifetime = 10.0f;
 
    ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage, int originalPlayer)
 	   : BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage), originalPlayer(originalPlayer)
+   {
+	   this->self = self;
+	   this->physicsSystem = physicsSystem;
+	   this->velocity = velocity;
+   }
+
+   ProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage, int originalPlayer, float lifetime)
+	   : BehaviorComponent(self, physicsSystem), velocity(velocity), damage(damage), originalPlayer(originalPlayer), lifetime(lifetime)
    {
 	   this->self = self;
 	   this->physicsSystem = physicsSystem;

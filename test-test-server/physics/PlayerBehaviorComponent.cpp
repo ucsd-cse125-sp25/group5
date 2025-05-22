@@ -144,7 +144,6 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
 	);
 
-	//for now, we only spawn wood projectiles 
 	if (type == WOOD && playerStats.mana[1] >= WOOD_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
@@ -188,9 +187,9 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, fireProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 10.0f, player->id, 1.0f);
 		obj->type = FIRE_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -369,23 +368,36 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		}
 		
 
-		if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
-			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
-			playerStats.hasFlag = false;
-			behavior->owningPlayer = -1;
-			obj->attached = nullptr;
-		}
+		//if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
+		//	FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+		//	playerStats.hasFlag = false;
+		//	behavior->owningPlayer = -1;
+		//	obj->attached = nullptr;
+		//}
 
-		if (intent.hit2Intent) {
-			//kill self
-			playerStats.hp = 0.0f;
-		}
+		//if (intent.hit2Intent) {
+		//	//kill self
+		//	playerStats.hp = 0.0f;
+		//}
 
 		//check for attacks
-		if (intent.leftClickIntent && phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
-			spawnProjectile(obj, playerStats.activePower, phys);
+		//printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].leftClickDuration);
+		if (intent.leftClickIntent) {
+			if (playerStats.activePower == FIRE && phys.PlayerTrackings[obj->id].leftClickDuration >= 1) {
+				spawnProjectile(obj, playerStats.activePower, phys);
+			}
+			else if (phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
+				spawnProjectile(obj, playerStats.activePower, phys);
+				printf("Hit e\n");
+				printf("Physics system size %d\n", int(phys.dynamicObjects.size()));
+			}
+			
 		}
-		
+
+
+
+
+
 		// apply force 
 		obj->physics->velocity += obj->physics->acceleration * deltaTime;
 

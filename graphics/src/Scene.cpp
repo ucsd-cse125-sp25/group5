@@ -48,11 +48,13 @@ void Scene::loadObjects() {
 	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	//objects.push_back(obj);
 
-	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
 	glm::mat4 mov = glm::mat4(1.0f);
 	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
-	test->UpdateMat(mov);
+	
+	
+	//test->UpdateMat(mov);
 	//wasp load-in
 	player->LoadAnimation();
 	for (int i = 1; i < 4; i++) {
@@ -135,7 +137,7 @@ void Scene::update(ClientGame* client) {
 			cubes.push_back(cu);
 		}
 		else if (entity.type == FIRE_PROJ) {
-			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
+			Cube* cu = new Cube(fireProjExtents, -fireProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
@@ -264,7 +266,7 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 
 	for (int i = 0; i < particlesystems.size(); i++) {
-		//particlesystems[i]->Draw(particleShader);
+		particlesystems[i]->Draw(particleShader);
 	}
   
 	glUseProgram(0); //skybox and uimanager use their own shader
