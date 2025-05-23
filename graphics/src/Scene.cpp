@@ -43,10 +43,10 @@ void Scene::createGame() {
 }
 
 void Scene::loadObjects() {
-	//Object* obj = new Object();
-	//std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
-	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	//objects.push_back(obj);
+	Object* obj = new Object();
+	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
+	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
+	objects.push_back(obj);
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
@@ -246,7 +246,7 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 	
 	for (int i = 0; i < objects.size(); i++) {
-		//objects[i]->draw(mainShader, false);
+		objects[i]->draw(mainShader, false);
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
@@ -272,7 +272,7 @@ void Scene::draw(Camera* cam) {
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
-	skybox->draw(cam);
+	//skybox->draw(cam);
 	uimanager->draw();
 }
 
