@@ -1,6 +1,22 @@
 #include "Skybox.h"
 #include "stb_image.h"
 
+extern double currTime;
+extern double startTime;
+
+extern float waterLevel;
+extern float fogConstant;
+extern float fogConstantW;
+extern glm::vec3 fogColor;
+extern glm::vec3 fogColorW;
+
+glm::vec3 getViewDir(float azimuth, float incline) {
+    float x = cos(incline) * sin(azimuth);
+    float y = sin(incline);
+    float z = cos(incline) * cos(azimuth);
+    return glm::normalize(glm::vec3(x, y, z));
+}
+
 // Will populate the VAO, VBOs, and textures
 void Skybox::initSkybox() {
     float skyVertices[] = {
@@ -107,6 +123,14 @@ void Skybox::draw(Camera* cam) {
     glm::mat4 view = glm::mat4(glm::mat3(cam->GetViewMtx())); //remove translation from the matrix
     glm::mat4 viewProj = projection * view;
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewProj"), 1, GL_FALSE, &viewProj[0][0]);
+    glUniform1f(glGetUniformLocation(shaderProgram, "time"), (currTime - startTime) / 1000.0f);
+    glUniform1f(glGetUniformLocation(shaderProgram, "waterLevel"), waterLevel);
+    glUniform1f(glGetUniformLocation(shaderProgram, "fogConstant"), 0.05f);
+    glUniform1f(glGetUniformLocation(shaderProgram, "fogConstantW"), 0.2f);
+    glUniform3fv(glGetUniformLocation(shaderProgram, "fogColor"), 1, &fogColor[0]);
+    glUniform3fv(glGetUniformLocation(shaderProgram, "fogColorW"), 1, &fogColorW[0]);
+    glm::vec3 camPos = cam->GetPosition();
+    glUniform3fv(glGetUniformLocation(shaderProgram, "viewPos"), 1, &camPos[0]);
    
     glBindVertexArray(skyboxVAO);
     glActiveTexture(GL_TEXTURE0);

@@ -39,8 +39,6 @@ layout(std430, binding = 0) buffer LightBuffer {
 	Light lights[];
 };
 
-float bias = 0.005;
-
 // Simplex 2D noise
 //
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -82,6 +80,39 @@ float f(float inpt){
     return exp(sin(inpt) - 1) - 0.5;
 }
 
+vec3 FBM(vec3 pos){ //Returns float3 of normal
+    float y = 0;
+    float dx = 0;
+    float dz = 0;
+
+    float amp = 0.03;
+    float freq = 1.5;
+
+    float pc = 1.6;
+
+    for(int i = 0; i < 10; i++){
+        float angle = 2.0 * 3.1415 * random(vec2(i, 25.0));
+        vec2 dir = vec2(cos(angle), sin(angle));
+        float v = dot(dir, vec2(pos.x, pos.z));
+        float phase = random(vec2(i, 99.99)) * 6.2831;
+        float inpt = v * freq + time * freq * pc + phase;
+        float height = amp * f(inpt);
+        y += height;
+
+        //partial derivative
+        float d = amp * freq * exp(sin(inpt) - 1.0) * cos(inpt);
+        dx += dir.x * d;
+        dz += dir.y * d;
+
+        freq *= 1.07;
+        amp *= 0.95;
+    }
+
+    vec3 normal = normalize(vec3(-dx, 1.0, -dz));
+    return normal;
+
+}
+
 float FBMVertex(vec3 pos){ //return y pos of water at this x and z coord
     float y = 0;
     float dx = 0;
@@ -108,6 +139,8 @@ float FBMVertex(vec3 pos){ //return y pos of water at this x and z coord
     return y;
 
 }
+
+float bias = 0.005;
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
@@ -161,15 +194,17 @@ vec3 DirLightCalc(vec3 norm, vec3 viewDir, vec3 texColor, float shadow) {
 
     //Specular shading for directional light
     vec3 reflectDir = reflect(-dirLightDirNorm, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 200.0);
 
     //Combine results for directional light (with shadow applied)
     return (1.0 - shadow) * (dirLightFinal * diff + dirLightSpec * spec);
 }
 
+
+
 void main() 
 {
-    vec3 norm = normalize(FragNormal);
+    vec3 norm = mix(normalize(FragNormal), FBM(FragPos), 0.6);
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 ambient = AmbientColor;
     vec3 texColor = istex == 1 ? vec3(texture(tex, TexCoord)) : DiffuseColor;
@@ -177,16 +212,35 @@ void main()
     float fogWeightW = (1.0/exp(fogConstantW*length(viewPos - FragPos)));
     float fogWeight = (1.0/exp(fogConstant*length(viewPos - FragPos)));
 
+    vec3 color1 = vec3(0.13, 0.4, 0.78);
+    vec3 color2 = vec3(0.18, 0.57, 0.75);
+
+    float rand = 0.5*sin(time + snoise(FragPos.xz/20.0) * 6.28) + 0.5;
+    rand = (rand < 0.5) ? -(pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5 : (pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5; 
+    float randv2 = (floor(rand * 5.99 + 0.3))/6.0;
+    texColor = randv2 >= 1 ? vec3(0.85, 0.85, 0.85) : mix(color1, color2, randv2);
+
+    // float rand = 0.5*sin(time + snoise(FragPos.xz/20.0) * 6.28) + 0.5;
+    // rand = (rand < 0.5) ? -(pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5 : (pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5; 
+    // float randv2 = (floor(rand * 8.99))/8.0;
+    // if(randv2 >= 0.49 && randv2 <= 0.51){
+    //     texColor = vec3(0.85, 0.85, 0.85);
+    // }
+    // else{
+    //     texColor = randv2 > 0.5 ? mix(color2, color1, 2.0 * (randv2 - 0.5)) : mix(color1, color2, randv2 * 2.0);
+    // }
+    
+
     vec3 result = ambient * texColor;
     float shadow = useShadow ? ShadowCalculation(FragPosLightSpace) : 0.0;
 
-    //result += DirLightCalc(norm, viewDir, texColor, shadow);
+    result += DirLightCalc(norm, viewDir, texColor, shadow);
 
     //loop through all the point lights
-    for (int i = 0; i < numLights; i++) {
-        Light light = lights[i];
-        result += PointLightCalc(light, norm, FragPos, texColor, viewDir, shadow);
-    }
+    // for (int i = 0; i < numLights; i++) {
+    //     Light light = lights[i];
+    //     result += PointLightCalc(light, norm, FragPos, texColor, viewDir, shadow);
+    // }
 
     float height = FBMVertex(viewPos) + waterLevel;
     if(viewPos.y < height){
