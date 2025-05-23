@@ -18,6 +18,11 @@ uniform vec3 dirLightDir;
 uniform vec3 dirLightColor;
 uniform vec3 dirLightSpec;
 uniform float time;
+uniform float waterLevel;
+uniform float fogConstant;
+uniform float fogConstantW;
+uniform vec3 fogColor;
+uniform vec3 fogColorW;
 
 struct Light {
     vec4 position;
@@ -75,7 +80,7 @@ float f(float inpt){
     return exp(sin(inpt) - 1) - 0.5;
 }
 
-vec3 FBM(vec3 pos){ //Returns float4 of height and normal
+vec3 FBM(vec3 pos){ //Returns float3 of normal
     float y = 0;
     float dx = 0;
     float dz = 0;
@@ -105,6 +110,33 @@ vec3 FBM(vec3 pos){ //Returns float4 of height and normal
 
     vec3 normal = normalize(vec3(-dx, 1.0, -dz));
     return normal;
+
+}
+
+float FBMVertex(vec3 pos){ //return y pos of water at this x and z coord
+    float y = 0;
+    float dx = 0;
+    float dz = 0;
+
+    float amp = 0.2;
+    float freq = 0.4;
+
+    float pc = 1.6;
+
+    for(int i = 0; i < 15; i++){
+        float angle = 2.0 * 3.1415 * random(vec2(i, 25.0));
+        vec2 dir = vec2(cos(angle), sin(angle));
+        float v = dot(dir, vec2(pos.x, pos.z));
+        float phase = random(vec2(i, 99.99)) * 6.2831;
+        float inpt = v * freq + time * freq * pc + phase;
+        float height = amp * f(inpt);
+        y += height;
+
+        freq *= 1.07;
+        amp *= 0.95;
+    }
+
+    return y;
 
 }
 
@@ -177,6 +209,9 @@ void main()
     vec3 ambient = AmbientColor;
     vec3 texColor = istex == 1 ? vec3(texture(tex, TexCoord)) : DiffuseColor;
 
+    float fogWeightW = (1.0/exp(fogConstantW*length(viewPos - FragPos)));
+    float fogWeight = (1.0/exp(fogConstant*length(viewPos - FragPos)));
+
     vec3 color1 = vec3(0.13, 0.4, 0.78);
     vec3 color2 = vec3(0.18, 0.57, 0.75);
 
@@ -184,6 +219,17 @@ void main()
     rand = (rand < 0.5) ? -(pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5 : (pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5; 
     float randv2 = (floor(rand * 5.99 + 0.3))/6.0;
     texColor = randv2 >= 1 ? vec3(0.85, 0.85, 0.85) : mix(color1, color2, randv2);
+
+    // float rand = 0.5*sin(time + snoise(FragPos.xz/20.0) * 6.28) + 0.5;
+    // rand = (rand < 0.5) ? -(pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5 : (pow(abs(0.5 - rand) * 2.0, 2.0)/2.0) + 0.5; 
+    // float randv2 = (floor(rand * 8.99))/8.0;
+    // if(randv2 >= 0.49 && randv2 <= 0.51){
+    //     texColor = vec3(0.85, 0.85, 0.85);
+    // }
+    // else{
+    //     texColor = randv2 > 0.5 ? mix(color2, color1, 2.0 * (randv2 - 0.5)) : mix(color1, color2, randv2 * 2.0);
+    // }
+    
 
     vec3 result = ambient * texColor;
     float shadow = useShadow ? ShadowCalculation(FragPosLightSpace) : 0.0;
@@ -195,6 +241,14 @@ void main()
     //     Light light = lights[i];
     //     result += PointLightCalc(light, norm, FragPos, texColor, viewDir, shadow);
     // }
+
+    float height = FBMVertex(viewPos) + waterLevel;
+    if(viewPos.y < height){
+        result = mix(fogColorW, result, clamp(fogWeightW - 0.05, 0, 1));
+    }
+    else{
+        result = mix(fogColor, result, clamp(fogWeight - 0.02, 0, 1));
+    }
 
     fragColor = vec4(result, 1.0);
 }
