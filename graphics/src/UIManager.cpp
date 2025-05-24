@@ -16,8 +16,12 @@
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
+<<<<<<< HEAD
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}},
 	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GameState::MATCH, 0.0, 0.0, 0.5, 0.5}}
+=======
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}}
+>>>>>>> TEXTANDUI
 };
 
 /**
@@ -43,6 +47,23 @@ static std::unordered_map<std::string, std::string> HealthUI = {
 	{"b5", PROJECT_SOURCE_DIR + std::string("/assets/b5.png")}
 };
 
+
+//0-9 + colon (:)
+static std::unordered_map<std::string, std::string> Numbers = {
+	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0_-removebg-preview.png")},
+	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1_-removebg-preview.png")},
+	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2_-removebg-preview.png")},
+	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3_-removebg-preview.png")},
+	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4_-removebg-preview.png")},
+	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5_-removebg-preview.png")},
+	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6_-removebg-preview.png")},
+	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7_-removebg-preview.png")},
+	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8_-removebg-preview.png")},
+	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9_-removebg-preview.png")},
+	{":", PROJECT_SOURCE_DIR + std::string("/assets/colom_1_-removebg-preview.png")},
+};
+
+
 static std::vector<std::string> MagicOrder{
 	"metal", "wood", "water", "fire", "earth"
 };
@@ -53,6 +74,23 @@ static std::vector<std::string> FlowerOrder{
 
 //Loads textures and creates UI elements
 void UIManager::Init() {
+
+	//load in number textures to use
+	for (const auto& pair : Numbers) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+	//add a clock to match elements
+	//UIImg* clock = new Clock();
+	UIImg* clock = new Clock();
+	std::vector<float> startPerc = { 0.3, 0.9 };
+	clock->Init(startPerc, 0.05, 1.0);
+	matchElements.push_back(clock);
+	Clock* c = dynamic_cast<Clock*>(clock);
+	c->texs = &textures; //Mickey mouse
+	
+
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
@@ -154,7 +192,7 @@ void UIManager::Init() {
 void UIManager::update(const UIData& p) {
 	switch (currState) {
 	case GameState::LOBBY:
-		for (auto* img : matchElements) {
+		for (auto* img : lobbyElements) {
 			img->Update(p);
 		}
 		break;
@@ -169,7 +207,7 @@ void UIManager::update(const UIData& p) {
 void UIManager::draw() {
 	switch (currState) {
 	case GameState::LOBBY:
-		for (auto* img : matchElements) {
+		for (auto* img : lobbyElements) {
 			img->Draw();
 		}
 		break;

@@ -4,6 +4,11 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
+<<<<<<< HEAD
+=======
+UIData dummy;
+
+>>>>>>> TEXTANDUI
 PlayerObject* players[4];
 
 std::vector<System*> particlesystems;
@@ -90,6 +95,15 @@ void Scene::update(ClientGame* client) {
 	player->UpdateMat(client->playerModel);
 	player->Update();
 	//test->Update();
+
+	//get information from client state
+	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
+	dummy.currMetal = client->GameState.player_stats[client->playerId].mana[0];
+	dummy.currWood = client->GameState.player_stats[client->playerId].mana[1];
+	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
+	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
+	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
+	//dummy.seconds = client->GameState.seconds;
 
 	int i;
 	int j;
@@ -279,8 +293,12 @@ void Scene::draw(Camera* cam) {
 
 	//test->Draw(mainShader, false);
 
+<<<<<<< HEAD
 
 	for (int i = 0; i < 4; i++) {
+=======
+	for (int i = 1; i < 4; i++) {
+>>>>>>> TEXTANDUI
 		players[i]->Draw(mainShader, false);
 	}
 

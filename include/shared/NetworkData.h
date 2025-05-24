@@ -126,9 +126,13 @@ struct GameStatePacket {
     unsigned int num_entities;
     struct Entity entities[MAX_ENTITIES];
 
+
     struct KillfeedItem killfeed[KILLFEED_LENGTH];
 
 	int lockedWinnerId = -1; // -1 means no one has won yet
+
+    float seconds;
+
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));

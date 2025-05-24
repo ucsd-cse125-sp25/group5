@@ -3,6 +3,7 @@
 #include "core.h"
 #include "Global.h"
 #include "Shader.h"
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -80,6 +81,25 @@ struct MagicElement {
 	float currMana;
 	GLuint borderTexture;
 	GLuint manaTexture;
+};
+
+class Clock : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+private:
+	GLuint digits[5];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	double start = 0.0;
+	int seconds;
+	int timerStart = 1000; //seconds in match temporarily
+
+	GLuint VAO, VBO, EBO;
 };
 
 class Magic : public UIImg {
