@@ -9,7 +9,11 @@
 #include "../include/shared/ObjectData.h"
 #include "../include/shared/NetworkData.h"
 #include <algorithm>
-
+#include <windows.h>
+#include <iostream>
+#include <string>
+#include <locale>
+#include <codecvt> 
 
 #define TICKS_PER_SECOND 100
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
@@ -20,6 +24,100 @@ std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
 GameStatePacket GameState;
+
+#include <filesystem>
+
+void ServerGame::loadComposites() {  
+   // // Path to the composites directory  
+   // const std::wstring path = L"..\\include\\shared\\composites\\*.*";  
+
+   // WIN32_FIND_DATAW findFileData;  
+   // HANDLE hFind = FindFirstFileW(path.c_str(), &findFileData);  
+
+   // if (hFind == INVALID_HANDLE_VALUE) {  
+   //     std::wcerr << L"FindFirstFile failed\n";  
+   //     return;  
+   // }  
+
+   // do {  
+   //     if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {  
+   //         std::wcout << L"Found file: " << findFileData.cFileName << L"\n";
+
+   //         //Load the composite here
+   //         // Build full path
+   //         wchar_t fullPath[MAX_PATH];
+   //         swprintf(fullPath, MAX_PATH, L"..\\include\\shared\\composites\\%s", findFileData.cFileName);
+
+   //         // Open the file
+   //         FILE* file = _wfopen(fullPath, L"r");
+   //         if (!file) {
+   //             wprintf(L"Failed to open file: %s\n", fullPath);
+   //             continue;
+   //         }
+
+			////remove file extension
+			//std::wstring fileName = findFileData.cFileName;
+			//std::wstring fileNameWithoutExt = fileName.substr(0, fileName.find_last_of(L'.'));
+
+   //         std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+   //         //create a new element for composites
+   //         //std::map<std::string, std::vector<std::pair<glm::vec3, glm::vec3>>> composites;
+   //         std::string s = conv.to_bytes(fileNameWithoutExt);
+			//composites[s] = std::vector<std::pair<glm::vec3, glm::vec3>>();
+
+   //         wchar_t line[512];
+   //         while (fgetws(line, sizeof(line) / sizeof(wchar_t), file)) {
+   //             float values[6];
+   //             int i = 0;
+
+   //             wchar_t* context = NULL;
+   //             wchar_t* token = wcstok(line, L",\n\r", &context);
+   //             while (token != NULL && i < 6) {
+   //                 values[i++] = (float)_wtof(token);
+   //                 token = wcstok(NULL, L",\n\r", &context);
+   //             }
+
+   //             if (i == 6) {
+   //                 wprintf(L"Parsed floats: %f %f %f %f %f %f\n",
+   //                     values[0], values[1], values[2],
+   //                     values[3], values[4], values[5]);
+			//		// Store the values in the composites map
+			//		glm::vec3 pos = glm::vec3(values[0], values[1], values[2]);
+			//		glm::vec3 ext = glm::vec3(values[3], values[4], values[5]);
+
+   //                 composites[s].push_back(std::make_pair(pos, ext));
+   //             }
+   //             else {
+			//		wprintf(L"Failed to parse line: %s\n", line);
+   //             }
+   //         }
+
+   //         fclose(file);
+   //     }
+   // } while (FindNextFileW(hFind, &findFileData) != 0);  
+
+   // FindClose(hFind);
+   // 
+	composites["Floating Island"] = std::vector<std::pair<glm::vec3, glm::vec3>>();
+    double values[18] = { 0, 0.38, 0, 5.01, 2.64, 4.315,
+0, -4.42, 0, 3.43, 2.46, 2.845,
+-0.49, -7.66, 0, 1.96, 0.8050001, 1.73 };
+
+    for (int i = 0; i < 3; i++) {
+        glm::vec3 pos = glm::vec3(values[i * 6], values[i * 6 + 1], values[i * 6 + 2]);
+        glm::vec3 ext = glm::vec3(values[i * 6 + 3], values[i * 6 + 4], values[i * 6 + 5]);
+		composites["Floating Island"].push_back(std::make_pair(pos, ext));
+    }
+
+    for (int i = 0; i < composites["Floating Island"].size(); i++) {
+        glm::vec3 pos = composites["Floating Island"][i].first;
+        glm::vec3 ext = composites["Floating Island"][i].second;
+        GameObject * col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
+        col->type = COLLIDER;
+        physicsSystem.addStaticObject(col);
+    }
+}
+
 
 void spawnIslands(PhysicsSystem& physicsSystem) {
 	glm::vec3 islandCoordinates[7] = {
@@ -38,6 +136,8 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 		island->type = ISLAND;
 		physicsSystem.addStaticObject(island);
 	}
+
+    
 }
 
 
@@ -71,7 +171,7 @@ ServerGame::ServerGame(void)
     //     cube->type = CUBE;
 	// 	physicsSystem.addStaticObject(cube);
     // }
-    
+	loadComposites();
     //add islands
 	spawnIslands(physicsSystem);
 
@@ -178,7 +278,7 @@ void writeEntities(PhysicsSystem & physicsSystem, std::vector<GameObject*>& obje
 
     for (unsigned int i = startIndex; i < endIndex; i++) {
         glm::mat4 modelMatrix = physicsSystem.toMatrix(objects[j]->transform.position, objects[j]->transform.rotation);
-        lst[i] = Entity{ (unsigned int)objects[j]->id, objects[j]->type, modelMatrix };
+        lst[i] = Entity{ (unsigned int)objects[j]->id, objects[j]->type, modelMatrix, objects[j]->collider->halfExtents};
         j++;
     }
 }

@@ -61,7 +61,6 @@ void Scene::createGame() {
 void Scene::loadObjects() {
 	Object* obj = new Object();
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
-	std::cout << "island file str: " << importstr << std::endl;
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 
@@ -129,9 +128,9 @@ void Scene::update(ClientGame* client) {
 			//printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
 			//printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
 			
-			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
+			/*Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
 			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			cubes.push_back(cu);*/
 		}
 		else if (entity.type == FLAG) {
 			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
@@ -160,6 +159,13 @@ void Scene::update(ClientGame* client) {
 		}
 		else if (entity.type == EARTH_PROJ) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.4f, 0.3f, 0.1f)); // Brown/soil tone
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == COLLIDER) {
+			//generate a random color
+
+			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
@@ -327,7 +333,7 @@ void Scene::draw(Camera* cam) {
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
-	skybox->draw(cam);
+	//skybox->draw(cam);
 	uimanager->draw();
 }
 
