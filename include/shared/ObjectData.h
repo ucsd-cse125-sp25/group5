@@ -37,10 +37,18 @@ enum PowerType {
 	EARTH
 };
 
+enum KillfeedType {
+	KILL,
+	FLAGSTEAL,
+	FLAGDROP,
+	FLAGPICKUP
+};
+
 struct Entity {
 	unsigned int id;
 	EntityType type;
 	glm::mat4 model;
+	
 };
 
 struct PlayerStats {
@@ -51,4 +59,11 @@ struct PlayerStats {
 	bool inAir = false;
 	unsigned int mana[5] = {100, 100, 100, 100, 100};
 	PowerType activePower = METAL;
+};
+
+struct KillfeedItem {
+	int victim;
+	int attacker;
+	KillfeedType type;
+	float lifetime;
 };

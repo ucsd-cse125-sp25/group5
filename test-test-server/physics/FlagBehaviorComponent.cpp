@@ -3,6 +3,7 @@
 #include "physics/PhysicsSystem.h"      // for any phys.integrate calls
 #include "physics/PhysicsData.h"        // for GameObject
 #include "ServerGame.h"
+#include "../include/shared/ObjectData.h"
 
 void FlagBehaviorComponent::integrate(GameObject* obj,
 	float deltaTime,
@@ -48,6 +49,10 @@ void FlagBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other,
 			owningPlayer = other->id;
 			other->attached = obj;
 			printf("Flag transferred to player %d\n", other->id);
+
+			//killfeed for flag being picked up
+			struct KillfeedItem item = { -1, other->id, FLAGPICKUP, 0.0f };
+			physicsSystem.addKillfeedItem(item);
 		}
 		//someone tried to capture the flag while it is owned
 		else if (owningPlayer != -1) {
@@ -57,6 +62,7 @@ void FlagBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other,
 			else if (!inCooldown) {
 				//this is a different player, so drop the flag
 
+				int originalOwningPlayer = owningPlayer;
 				//rely on the fact that playerID is its object id
 				owningPlayer = other->id;
 				//attach the flag to this player
@@ -67,6 +73,10 @@ void FlagBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other,
 				inCooldown = true;
 
 				printf("Flag transferred to player %d\n", other->id);
+
+				//killfeed for flag being stolen from one player to another
+				struct KillfeedItem item = { originalOwningPlayer, other->id, FLAGSTEAL, 0.0f };
+				physicsSystem.addKillfeedItem(item);
 			}
 		}
 	}

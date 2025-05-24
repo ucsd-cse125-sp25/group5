@@ -8,6 +8,8 @@
 #include "physics/BehaviorComponent.h"
 #include "../include/shared/ObjectData.h"
 #include "../include/shared/NetworkData.h"
+#include <algorithm>
+
 
 #define TICKS_PER_SECOND 100
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
@@ -156,6 +158,12 @@ void writeEntities(PhysicsSystem & physicsSystem, std::vector<GameObject*>& obje
     }
 }
 
+void writeKillfeed(PhysicsSystem& phys, std::vector<KillfeedItem> killfeed_queue, GameStatePacket& gameState) {
+    for (int i = 0; i < (((killfeed_queue.size()) < (KILLFEED_LENGTH)) ? (killfeed_queue.size()) : (KILLFEED_LENGTH)); i++) {
+        gameState.killfeed[i] = killfeed_queue[i];
+    }
+}
+
 void ServerGame::writeToGameState() {
     GameState.packet_type = GAME_STATE;
 
@@ -175,6 +183,9 @@ void ServerGame::writeToGameState() {
 
     //send all the static objects
     writeEntities(physicsSystem, physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
+
+    //send the killfeed
+    writeKillfeed(physicsSystem, physicsSystem.killfeed_queue, GameState);
 
     for (int i = 0; i < 4; i++)
 	{

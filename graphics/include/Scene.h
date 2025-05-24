@@ -13,6 +13,7 @@
 #include "Animation.h"
 #include "PlayerObject.h"
 #include "Audio.h"
+#include "Water.h"
 
 const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
@@ -24,6 +25,7 @@ private:
 	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
 	PlayerObject* test;
+	Water* water;
 	Skybox* skybox; //each player holds a copy of the skybox
 	UIManager* uimanager;
 	Cube* cube;

@@ -17,6 +17,7 @@
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "Model Environment";
+double startTime = 0;
 double prevTime = 0;
 double currTime = 0;
 bool flag = false;
@@ -123,6 +124,11 @@ void Window::idleCallback() {
 
     prevTime = currTime;
     currTime = time;
+
+    if (!flag) {
+        startTime = time;
+        flag = true;
+    }
   
     client->update(PlayerIntent);
     Cam->Update(client);

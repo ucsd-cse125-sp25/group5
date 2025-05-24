@@ -5,7 +5,8 @@
 #include "physics/PhysicsData.h"        // for GameObject
 #include "ServerGame.h"
 #include <limits>
-#include <cstdio>
+#include "../include/shared/ObjectData.h"
+
 
 glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
 	//process player input
@@ -234,6 +235,10 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			behavior->owningPlayer = -1;
 			obj->attached = nullptr;
 			playerStats.hasFlag = false;
+
+			//killfeed item for dropping the flag
+			struct KillfeedItem item = { -1, obj->id, FLAGDROP, 0.0f };
+			physicsSystem.addKillfeedItem(item);
 		}
 
 		//no collider
@@ -446,6 +451,12 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			//make sure we didn't fire it
 			if (pb != nullptr && pb->originalPlayer != obj->id) {
 				playerStats.hp -= pb->damage;
+			}
+			
+			//if we get killed, update the killfeed
+			if (playerStats.hp <= 0) {
+				KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
+				physicsSystem.addKillfeedItem(item);
 			}
 		}
 	}

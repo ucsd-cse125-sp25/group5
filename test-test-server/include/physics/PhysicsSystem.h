@@ -48,6 +48,8 @@ public:
 	PlayerIntentPacket PlayerIntents[4];
 	PlayerIntentTracking PlayerTrackings[4];
 
+    //killfeed
+    std::vector<KillfeedItem> killfeed_queue;
 
     /**
      * @brief Updates the physics system by advancing the simulation for all dynamic objects.
@@ -259,6 +261,20 @@ public:
 	}
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
+    }
+
+    void addKillfeedItem(KillfeedItem item) {
+        killfeed_queue.push_back(item);
+        //if length of queue exceeds maximum, pop an item
+        if (killfeed_queue.size() > KILLFEED_LENGTH) {
+            killfeed_queue.erase(killfeed_queue.begin());
+        }
+    }
+
+    void tickKillfeed(float deltaTime) {
+        for (int i = 0; i < killfeed_queue.size(); i++) {
+            killfeed_queue[i].lifetime += deltaTime;
+        }
     }
 
 	//delete all objects that are marked for deletion
