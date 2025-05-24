@@ -59,10 +59,11 @@ void Scene::createGame() {
 }
 
 void Scene::loadObjects() {
-	//Object* obj = new Object();
-	//std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
-	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	//objects.push_back(obj);
+	Object* obj = new Object();
+	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
+	std::cout << "island file str: " << importstr << std::endl;
+	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
+	objects.push_back(obj);
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
@@ -229,7 +230,7 @@ void Scene::draw(Camera* cam) {
 		glUniformMatrix4fv(glGetUniformLocation(shadowShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 
 		for (int i = 0; i < objects.size(); i++) {
-			//objects[i]->draw(shadowShader, doShadow);
+			objects[i]->draw(shadowShader, doShadow);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -269,7 +270,7 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 	
 	for (int i = 0; i < objects.size(); i++) {
-		//objects[i]->draw(mainShader, false);
+		objects[i]->draw(mainShader, false);
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
