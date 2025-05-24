@@ -4,6 +4,8 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
+UIData dummy;
+
 PlayerObject* players[4];
 
 std::vector<System*> particlesystems;
@@ -59,10 +61,10 @@ void Scene::createGame() {
 }
 
 void Scene::loadObjects() {
-	//Object* obj = new Object();
-	//std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/pagoda.obj");
-	//obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	//objects.push_back(obj);
+	Object* obj = new Object();
+	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
+	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
+	objects.push_back(obj);
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 
@@ -89,6 +91,15 @@ void Scene::update(ClientGame* client) {
 	player->UpdateMat(client->playerModel);
 	player->Update();
 	//test->Update();
+
+	//get information from client state
+	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
+	dummy.currMetal = client->GameState.player_stats[client->playerId].mana[0];
+	dummy.currWood = client->GameState.player_stats[client->playerId].mana[1];
+	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
+	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
+	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
+	//dummy.seconds = client->GameState.seconds;
 
 	int i;
 	int j;
@@ -162,6 +173,13 @@ void Scene::update(ClientGame* client) {
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
+		else if (entity.type == COLLIDER) {
+			//generate a random color
+
+			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
 	}
 
 
@@ -229,7 +247,7 @@ void Scene::draw(Camera* cam) {
 		glUniformMatrix4fv(glGetUniformLocation(shadowShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 
 		for (int i = 0; i < objects.size(); i++) {
-			//objects[i]->draw(shadowShader, doShadow);
+			objects[i]->draw(shadowShader, doShadow);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -269,7 +287,7 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 	
 	for (int i = 0; i < objects.size(); i++) {
-		//objects[i]->draw(mainShader, false);
+		objects[i]->draw(mainShader, false);
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
@@ -278,8 +296,8 @@ void Scene::draw(Camera* cam) {
 
 	//test->Draw(mainShader, false);
 
+	for (int i = 1; i < 4; i++) {
 
-	for (int i = 0; i < 4; i++) {
 		players[i]->Draw(mainShader, false);
 	}
 

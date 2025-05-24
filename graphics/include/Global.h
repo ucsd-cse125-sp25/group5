@@ -21,7 +21,9 @@ struct UIData {
     int maxEarth = 100, currEarth = 50;
     int maxWood = 100, currWood = 50;
     int maxMetal = 100, currMetal = 50;
-    ElementType currElem = ElementType::METAL;
+
+    ElementType currElem = ElementType::WATER;
+    float seconds = 10;
     //unsigned int ID : 4;
 };
 
