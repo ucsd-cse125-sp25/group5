@@ -66,7 +66,6 @@ void Scene::createGame() {
 void Scene::loadObjects() {
 	Object* obj = new Object();
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
-	std::cout << "island file str: " << importstr << std::endl;
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 
@@ -174,6 +173,13 @@ void Scene::update(ClientGame* client) {
 		}
 		else if (entity.type == EARTH_PROJ) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.4f, 0.3f, 0.1f)); // Brown/soil tone
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == COLLIDER) {
+			//generate a random color
+
+			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}

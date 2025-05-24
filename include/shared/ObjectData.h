@@ -26,7 +26,8 @@ enum EntityType {
 	WOOD_PROJ,
 	WATER_PROJ,
 	FIRE_PROJ,
-	EARTH_PROJ
+	EARTH_PROJ,
+	COLLIDER
 };
 
 enum PowerType {
@@ -48,7 +49,7 @@ struct Entity {
 	unsigned int id;
 	EntityType type;
 	glm::mat4 model;
-	
+	glm::vec3 ext;
 };
 
 struct PlayerStats {
