@@ -299,12 +299,8 @@ void Scene::draw(Camera* cam) {
 
 	//test->Draw(mainShader, false);
 
-<<<<<<< HEAD
-
 	for (int i = 0; i < 4; i++) {
-=======
-	for (int i = 1; i < 4; i++) {
->>>>>>> TEXTANDUI
+
 		players[i]->Draw(mainShader, false);
 	}
 

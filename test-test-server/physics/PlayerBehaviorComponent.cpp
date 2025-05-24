@@ -505,12 +505,13 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 				playerStats.hp -= pb->damage;
 				printf("Player %d took %f damage from projectile %d\n", obj->id, pb->damage, other->id);
 			}
-		}
-
-		//if we get killed, update the killfeed
+			//if we get killed, update the killfeed
 			if (playerStats.hp <= 0) {
 				KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
 				physicsSystem.addKillfeedItem(item);
 			}
+		}
+
+		
 	}
 }
