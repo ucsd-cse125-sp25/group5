@@ -27,7 +27,6 @@ private:
 	PlayerObject* test;
 	Water* water;
 	Skybox* skybox; //each player holds a copy of the skybox
-	UIManager* uimanager;
 	Cube* cube;
 	Lights* lightmanager;
 	Cube* testCube;
@@ -50,4 +49,5 @@ public:
 	void TriggerAnim(int anim);
 	int getPowerup();
 	UIData dummy;
+	UIManager* uimanager;
 };

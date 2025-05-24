@@ -131,8 +131,6 @@ struct GameStatePacket {
 
 	int lockedWinnerId = -1; // -1 means no one has won yet
 
-    float seconds;
-
 
     void serialize(char* data) {
         memcpy(data, this, sizeof(GameStatePacket));

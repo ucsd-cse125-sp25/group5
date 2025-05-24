@@ -14,11 +14,16 @@
 * - The width as a percentage of screen width (float)
 * - The aspect ratio of the texture (float)
 **/
-static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}},
-	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GameState::MATCH, 0.0, 0.0, 0.5, 0.5}},
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}}
+static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float, float, float, float>> UIStorage = {
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::MATCH, 0.7, 0.0, 0.3, 1.0} },
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::MATCH, 0.5, 0.5, 0.05, 1.0}},
+	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::MATCH, 0.0, 0.0, 0.5, 0.5}},
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::MATCH, 0.5, 0.5, 0.05, 1.0}},
+	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adopt-me-logo_2.png"), GamePhase::LOBBY, 0.5, 0.9, 0.25, 0.5}},
+	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.2, 0.2, 0.1, 1.0}},
+	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.4, 0.2, 0.1, 1.0}},
+	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.6, 0.2, 0.1, 1.0}},
+	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.8, 0.2, 0.1, 1.0}},
 };
 
 /**
@@ -44,6 +49,13 @@ static std::unordered_map<std::string, std::string> HealthUI = {
 	{"b5", PROJECT_SOURCE_DIR + std::string("/assets/b5.png")}
 };
 
+
+static std::unordered_map<std::string, std::string> LobbyCharacters = {
+	{ "character1", PROJECT_SOURCE_DIR + std::string("/assets/character1.png")},
+	{ "character2", PROJECT_SOURCE_DIR + std::string("/assets/character2.png")},
+	{ "character3", PROJECT_SOURCE_DIR + std::string("/assets/character3.png")} ,
+	{ "character4", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")}
+};
 
 //0-9 + colon (:)
 static std::unordered_map<std::string, std::string> Numbers = {
@@ -84,14 +96,28 @@ void UIManager::Init() {
 	std::vector<float> startPerc = { 0.3, 0.9 };
 	clock->Init(startPerc, 0.05, 1.0);
 	matchElements.push_back(clock);
-	Clock* c = dynamic_cast<Clock*>(clock);
-	c->texs = &textures; //Mickey mouse
+	Clock* cl = dynamic_cast<Clock*>(clock);
+	cl->texs = &textures; //Mickey mouse
 	
+	for (const auto& pair : LobbyCharacters) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+	UIImg* characters = new Characters();
+	std::vector<float> startPercchar = { 0.2, 0.2 };
+	
+	Characters* ch = dynamic_cast<Characters*>(characters);
+	ch->texs = &textures; //Mickey mouse
+	characters->Init(startPercchar, 0.12, 1.0);
+
+
+
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
-		GameState state = std::get<1>(pair.second);
+		GamePhase state = std::get<1>(pair.second);
 		float percX = std::get<2>(pair.second);
 		float percY = std::get<3>(pair.second);
 		float percent = std::get<4>(pair.second);
@@ -175,25 +201,27 @@ void UIManager::Init() {
 
 
 		switch (state) {
-		case GameState::LOBBY:
+		case GamePhase::LOBBY:
 			lobbyElements.push_back(img);
 			break;
-		case GameState::MATCH:
+		case GamePhase::MATCH:
 			matchElements.push_back(img);
 			break;
 		}
 		
 	}
+
+	lobbyElements.push_back(characters);
 }
 
 void UIManager::update(const UIData& p) {
 	switch (currState) {
-	case GameState::LOBBY:
+	case GamePhase::LOBBY:
 		for (auto* img : lobbyElements) {
 			img->Update(p);
 		}
 		break;
-	case GameState::MATCH:
+	case GamePhase::MATCH:
 		for (auto* img : matchElements) {
 			img->Update(p);
 		}
@@ -203,12 +231,12 @@ void UIManager::update(const UIData& p) {
 
 void UIManager::draw() {
 	switch (currState) {
-	case GameState::LOBBY:
+	case GamePhase::LOBBY:
 		for (auto* img : lobbyElements) {
 			img->Draw();
 		}
 		break;
-	case GameState::MATCH:
+	case GamePhase::MATCH:
 		for (auto* img : matchElements) {
 			img->Draw();
 		}
@@ -230,10 +258,9 @@ void UIManager::LoadTexture(const std::string &name, const std::string &path) {
 
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 4);
 	if (data) {
-		GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		stbi_image_free(data);
 	}
@@ -270,11 +297,17 @@ void UIManager::UnloadAllTextures() {
 	textures.clear();
 }
 
-void UIManager::SetGameState(GameState newState) {
-	if (currState == newState) return;
-	currState = newState;
+void UIManager::NextGamePhase() {
+	if (currState == GamePhase::MATCH) {
+		currState = GamePhase::LOBBY; // Wrap around to the first value
+		return;
+	}
+	currState = static_cast<GamePhase>(static_cast<int>(currState) + 1);
 }
 
+GamePhase UIManager::GetGamePhase() {
+	return currState;
+}
 void UIManager::TriggerAnim(int anim) {
 	for (auto* img : matchElements) {
 		if (Magic* ma = dynamic_cast<Magic*>(img)) {

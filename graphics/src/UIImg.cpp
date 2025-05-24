@@ -1,4 +1,5 @@
 #include "UIImg.h"
+#include "Global.h"
 //#include "UIManager.h"
 
 void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
@@ -126,24 +127,26 @@ void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 void Clock::Update(const UIData& p) {
 	//p.seconds = 10 - (glfwGetTime() - start);
-	seconds = timerStart - (glfwGetTime() - start);
+	//seconds = timerStart - (glfwGetTime() - start);
+	seconds = p.seconds;
 
-	if (seconds < 1 * 60) {
-		digits[0] = (*texs)["0"];
-		digits[1] = (*texs)["0"];
-		digits[2] = (*texs)[":"];
-		digits[3] = (*texs)["0"];
-		digits[4] = (*texs)["0"];
-		return;
-	}
+	int tempSeconds = seconds;
+	//if (tempSeconds < 1 * 60) {
+	//	digits[0] = (*texs)["0"];
+	//	digits[1] = (*texs)["0"];
+	//	digits[2] = (*texs)[":"];
+	//	digits[3] = (*texs)["0"];
+	//	digits[4] = (*texs)["0"];
+	//	return;
+	//}
 
 	//int seconds = (int)p.seconds;
-	int tensMin = seconds / (60 * 10);
-	seconds -= tensMin * (60 * 10);
-	int onesMin = (seconds / 60 ) % 10;
-	seconds -= onesMin * (60);
-	int tensSec = (seconds / 10) % 10;
-	int onesSec = seconds % 10;
+	int tensMin = tempSeconds / (60 * 10);
+	tempSeconds -= tensMin * (60 * 10);
+	int onesMin = (tempSeconds / 60 ) % 10;
+	tempSeconds -= onesMin * (60);
+	int tensSec = (tempSeconds / 10) % 10;
+	int onesSec = tempSeconds % 10;
 
 
 	digits[0] = (*texs)[std::to_string(tensMin)];
@@ -153,13 +156,9 @@ void Clock::Update(const UIData& p) {
 	digits[4] = (*texs)[std::to_string(onesSec)];
 }
 
-//void Clock::SetTexture(GLuint texture) {
-//	healthTexture = texture;
-//}
-
 void Clock::Draw() {
-	seconds = timerStart - (glfwGetTime() - start);
-	if (seconds < 1 * 60) {
+	//seconds = timerStart - (glfwGetTime() - start);
+	if (seconds < 1 * 30) {
 		return;
 	}
 
@@ -176,9 +175,90 @@ void Clock::Draw() {
 	glm::mat4 model = glm::mat4(1.0f);
 	for (GLuint num : digits) {
 		//translate, scale then translate by the offset
-		model = glm::translate(model, glm::vec3(65.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH*0.07, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glBindTexture(GL_TEXTURE_2D, num);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
+
+void Characters::Init(std::vector<float> startPerc, float percent, float ratio) {
+	start = glfwGetTime();
+
+
+	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	float uiWidth = WINDOWWIDTH * percent;
+	float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float startX = WINDOWWIDTH * startPerc[0];
+	float startY = WINDOWHEIGHT * startPerc[1];
+	std::vector<float> startPos = { startX, startY };
+
+	container = {
+		//Position												   //UV         //Color
+		startPos[0] - (uiWidth / 2), startPos[1] - (uiHeight / 2), 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2), 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, container.size() * sizeof(float), container.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+
+	sprites[0] = (*texs)["character1"];
+	sprites[1] = (*texs)["character2"];
+	sprites[2] = (*texs)["character3"];
+	sprites[3] = (*texs)["character4"];
+}
+
+void Characters::Update(const UIData& p) {
+	this->players = 4;
+}
+
+void Characters::Draw() {
+	//seconds = timerStart - (glfwGetTime() - start);
+
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, healthTexture);
+
+	glDisable(GL_DEPTH_TEST);
+
+
+	glBindVertexArray(VAO);
+	glm::mat4 model = glm::mat4(1.0f);
+	for (int i = 0; i < players; i++) {
+		//translate, scale then translate by the offset
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.2, 0.0f, 0.0f));
+		glBindTexture(GL_TEXTURE_2D, sprites[i]);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 	glDisable(GL_BLEND);
@@ -267,9 +347,9 @@ void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 void HealthBar::Update(const UIData &p) {
 
 	float healthP = (float)p.currHP / (float)p.maxHP;
-	std::cout << (float)p.currHP << std::endl;
-	std::cout << (float)p.maxHP << std::endl;
-	std::cout << "Current health percetnage " << healthP <<std::endl;
+	//std::cout << (float)p.currHP << std::endl;
+	//std::cout << (float)p.maxHP << std::endl;
+	//std::cout << "Current health percetnage " << healthP <<std::endl;
 	double now = glfwGetTime();
 
 
@@ -342,7 +422,7 @@ void HealthBar::Update(const UIData &p) {
 			}
 			else {
 				flowers[i].currScale = glm::mix(0.0, 1.0, t);
-				std::cout << "current scale of flower: " << i << ": " << flowers[i].currScale << std::endl;
+				//std::cout << "current scale of flower: " << i << ": " << flowers[i].currScale << std::endl;
 			}
 		}
 	}

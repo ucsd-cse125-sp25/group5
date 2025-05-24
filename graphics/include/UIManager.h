@@ -19,10 +19,11 @@ public:
 	GLuint GetTexture(const std::string& name);
 	void UIManager::UnloadAllTextures();
 
-	void SetGameState(GameState state);
+	void NextGamePhase();
+	GamePhase GetGamePhase();
 	void TriggerAnim(int anim);
 	int getPowerup();
-	GameState currState = GameState::MATCH;
+	GamePhase currState = GamePhase::LOBBY;
 private:
 	//GLuint shaderProgram;
 	glm::mat4 projection;

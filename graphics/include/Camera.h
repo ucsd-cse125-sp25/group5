@@ -7,6 +7,7 @@
 #include "core.h"
 #include "glm/gtx/euler_angles.hpp"
 #include "network/ClientGame.h"
+#include "Global.h"
 
 // The Camera class provides a simple means to controlling the 3D camera. It could
 // be extended to support more interactive controls. Ultimately. the camera sets the
@@ -16,7 +17,7 @@ class Camera {
 public:
     Camera();
 
-    void Update(ClientGame * client);
+    void Update(ClientGame * client, GamePhase phase);
     void Reset();
 
     // Access functions
@@ -49,6 +50,7 @@ private:
     float Azimuth;   // Rotation of the camera eye position around the Y axis (degrees)
     float Incline;   // Angle of the camera eye position over the XZ plane (degrees)
     glm::vec3 Pos;   // Position of Camera Center in 3D space
+    glm::mat4 Rot;   //Rotation for LOBBY
 
     // Computed data
     glm::mat4 ViewProjectMtx;

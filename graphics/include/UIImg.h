@@ -97,7 +97,23 @@ private:
 	std::vector<float> container;
 	double start = 0.0;
 	int seconds;
-	int timerStart = 1000; //seconds in match temporarily
+
+	GLuint VAO, VBO, EBO;
+};
+class Characters : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+private:
+	GLuint sprites[4];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	double start = 0.0;
+	int players;
 
 	GLuint VAO, VBO, EBO;
 };

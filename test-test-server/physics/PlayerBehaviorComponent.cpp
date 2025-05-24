@@ -491,7 +491,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 	}
 	else if (status == 1) {
 		//this is fucking terrible 
-		printf("Detected a collision between %d and %d\n", obj->id, other->id);
+		//printf("Detected a collision between %d and %d\n", obj->id, other->id);
 
 		//make sure its a projectile
 		if (other->type >= 5 && other->type <= 9) {

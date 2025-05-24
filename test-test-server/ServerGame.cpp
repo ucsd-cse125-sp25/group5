@@ -252,7 +252,7 @@ void ServerGame::update()
 
 
    //time left
-   printf("Time left %d\n", timeLeft);
+   //printf("Time left %d\n", timeLeft);
 
    writeToGameState();
 

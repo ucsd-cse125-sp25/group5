@@ -1,9 +1,6 @@
 #include <Scene.h>
 #include <Water.h>
 
-int WINDOWWIDTH = 1200;
-int WINDOWHEIGHT = 900;
-
 UIData dummy;
 
 PlayerObject* players[4];
@@ -12,6 +9,10 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
+int WINDOWHEIGHT = 1440;
+int WINDOWWIDTH = 2560;
+//2560
+//1440
 
 float waterLevel = -2.0f;
 float fogConstant = 0.01f;
@@ -99,7 +100,7 @@ void Scene::update(ClientGame* client) {
 	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
-	//dummy.seconds = client->GameState.seconds;
+	dummy.seconds = client->GameState.timeLeft;
 
 	int i;
 	int j;

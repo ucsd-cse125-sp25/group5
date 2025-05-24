@@ -58,12 +58,22 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
         return NULL;
     }
 
+    width = WINDOWWIDTH;
+    height = WINDOWHEIGHT;
+
     // 4x antialiasing.
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     // Create the GLFW window.
-    GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
 
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(primary);
+
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, windowTitle, NULL, NULL);
+    glfwSetWindowPos(window, 0, 0);
+    //int WINDOWHEIGHT = mode->height;
+    //int WINDOWWIDTH = mode->width;
     // Check if the window could not be created.
     if (!window) {
         std::cerr << "Failed to open GLFW window." << std::endl;
@@ -109,6 +119,8 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height) {
     Window::height = height;
     WINDOWWIDTH = width;
     WINDOWHEIGHT = height;
+    std::cout << WINDOWHEIGHT << std::endl;
+    std::cout << WINDOWWIDTH << std::endl;
     // Set the viewport size.
     glViewport(0, 0, width, height);
 
@@ -131,7 +143,7 @@ void Window::idleCallback() {
     }
   
     client->update(PlayerIntent);
-    Cam->Update(client);
+    Cam->Update(client, scene->uimanager->GetGamePhase());
     scene->update(client);
 
     //if (PlayerIntent.scrollIntentTriggered) {
@@ -240,6 +252,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP - 20; }
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP + 20; }
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) { scene->uimanager->NextGamePhase(); }
     PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
     PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
     PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;

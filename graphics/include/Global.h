@@ -8,7 +8,7 @@ enum class ElementType {
     EARTH
 };
 
-enum class GameState {
+enum class GamePhase {
     LOBBY,
     MATCH
 };
