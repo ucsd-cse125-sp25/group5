@@ -256,6 +256,10 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			behavior->owningPlayer = -1;
 			obj->attached = nullptr;
 			playerStats.hasFlag = false;
+
+			//killfeed item for dropping the flag
+			struct KillfeedItem item = { -1, obj->id, FLAGDROP, 0.0f };
+			physicsSystem.addKillfeedItem(item);
 		}
 
 		//no collider
@@ -502,5 +506,11 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 				printf("Player %d took %f damage from projectile %d\n", obj->id, pb->damage, other->id);
 			}
 		}
+
+		//if we get killed, update the killfeed
+			if (playerStats.hp <= 0) {
+				KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
+				physicsSystem.addKillfeedItem(item);
+			}
 	}
 }
