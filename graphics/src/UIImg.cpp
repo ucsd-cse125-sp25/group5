@@ -19,11 +19,6 @@ void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 	float offsetX = WINDOWWIDTH * percent;
 	float offsetY = WINDOWHEIGHT * percent * ratio;
-	float uiWidth = offsetX;
-	float uiHeight = offsetY;
-
-
-	std::vector<float> startPos = {percX * WINDOWWIDTH, percY * WINDOWHEIGHT};
 
 	uiData = {
 		//Position                                     //UV         //Color
@@ -351,11 +346,6 @@ void HealthBar::Update(const UIData &p) {
 			}
 		}
 	}
-
-	float leftX = container[0];
-	float rightX = container[7];
-	float width = rightX - leftX;
-	float percentage = float(p.currHP) / float(p.maxHP);
 
 
 	glUseProgram(shaderProgram);

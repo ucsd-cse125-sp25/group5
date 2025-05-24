@@ -4,11 +4,8 @@
 int WINDOWWIDTH = 1200;
 int WINDOWHEIGHT = 900;
 
-<<<<<<< HEAD
-=======
 UIData dummy;
 
->>>>>>> TEXTANDUI
 PlayerObject* players[4];
 
 std::vector<System*> particlesystems;

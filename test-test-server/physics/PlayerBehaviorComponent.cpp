@@ -439,9 +439,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		}
 
 
-
-
-
 		// apply force 
 		obj->physics->velocity += obj->physics->acceleration * deltaTime;
 
