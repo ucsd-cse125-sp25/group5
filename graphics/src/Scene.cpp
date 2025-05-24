@@ -74,6 +74,8 @@ void Scene::update(ClientGame* client) {
 	player->Update();
 	//test->Update();
 
+	//client->GameState.player_stats[client->playerId].hasFlag;
+
 	int i;
 	int j;
 	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
