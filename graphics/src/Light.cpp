@@ -41,6 +41,10 @@ void Lights::init() {
     light3.linear = 0.09f;
     light3.quadratic = 0.032f;
     addLight(light3);
+
+    dirLight.color = glm::vec3(0.7, 0.75, 0.68)/3.0f;
+    dirLight.direction = glm::normalize(glm::vec3(1.0, 0.4, 1.0));
+    dirLight.specular = glm::vec3(0.7, 0.75, 0.68)/2.0f;
 }
 
 

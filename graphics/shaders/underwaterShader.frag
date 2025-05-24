@@ -17,12 +17,6 @@ uniform bool useShadow;
 uniform vec3 dirLightDir;
 uniform vec3 dirLightColor;
 uniform vec3 dirLightSpec;
-uniform float time;
-uniform float waterLevel;
-uniform float fogConstant;
-uniform float fogConstantW;
-uniform vec3 fogColor;
-uniform vec3 fogColorW;
 
 struct Light {
     vec4 position;
@@ -40,74 +34,6 @@ layout(std430, binding = 0) buffer LightBuffer {
 };
 
 float bias = 0.005;
-
-// Simplex 2D noise
-//
-vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-
-float snoise(vec2 v){
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-           -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod(i, 289.0);
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-  + i.x + vec3(0.0, i1.x, 1.0 ));
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
-    dot(x12.zw,x12.zw)), 0.0);
-  m = m*m ;
-  m = m*m ;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
-}
-
-float random (vec2 st) {
-    return fract(sin(dot(st.xy,
-                         vec2(12.9898,78.233)))*
-        43758.5453123);
-}
-
-float f(float inpt){
-    return exp(sin(inpt) - 1) - 0.5;
-}
-
-float FBMVertex(vec3 pos){ //return y pos of water at this x and z coord
-    float y = 0;
-    float dx = 0;
-    float dz = 0;
-
-    float amp = 0.2;
-    float freq = 0.4;
-
-    float pc = 1.6;
-
-    for(int i = 0; i < 15; i++){
-        float angle = 2.0 * 3.1415 * random(vec2(i, 25.0));
-        vec2 dir = vec2(cos(angle), sin(angle));
-        float v = dot(dir, vec2(pos.x, pos.z));
-        float phase = random(vec2(i, 99.99)) * 6.2831;
-        float inpt = v * freq + time * freq * pc + phase;
-        float height = amp * f(inpt);
-        y += height;
-
-        freq *= 1.07;
-        amp *= 0.95;
-    }
-
-    return y;
-
-}
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
@@ -174,9 +100,6 @@ void main()
     vec3 ambient = AmbientColor;
     vec3 texColor = istex == 1 ? vec3(texture(tex, TexCoord)) : DiffuseColor;
 
-    float fogWeightW = (1.0/exp(fogConstantW*length(viewPos - FragPos)));
-    float fogWeight = (1.0/exp(fogConstant*length(viewPos - FragPos)));
-
     vec3 result = ambient * texColor;
     float shadow = useShadow ? ShadowCalculation(FragPosLightSpace) : 0.0;
 
@@ -186,14 +109,6 @@ void main()
     for (int i = 0; i < numLights; i++) {
         Light light = lights[i];
         result += PointLightCalc(light, norm, FragPos, texColor, viewDir, shadow);
-    }
-
-    float height = FBMVertex(viewPos) + waterLevel;
-    if(viewPos.y < height){
-        result = mix(fogColorW, result, clamp(fogWeightW - 0.05, 0, 1));
-    }
-    else{
-        result = mix(fogColor, result, clamp(fogWeight - 0.02, 0, 1));
     }
 
     fragColor = vec4(result, 1.0);
