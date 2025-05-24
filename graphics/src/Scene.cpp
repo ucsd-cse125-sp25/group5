@@ -101,6 +101,9 @@ void Scene::update(ClientGame* client) {
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.seconds = client->GameState.timeLeft;
+	for (int i = 0; i < KILLFEED_LENGTH; i++) {
+		dummy.killfeed[i] = client->GameState.killfeed[i];
+	}
 
 	int i;
 	int j;

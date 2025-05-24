@@ -1,5 +1,7 @@
 #include "UIImg.h"
 #include "Global.h"
+//#include "Scene.h"
+//#include "network/ClientGame.h"
 //#include "UIManager.h"
 
 void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
@@ -267,6 +269,111 @@ void Characters::Draw() {
 	glBindVertexArray(0);
 }
 
+void Killfeed::Init(std::vector<float> startPerc, float percent, float ratio) {
+
+
+	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	float uiWidth = WINDOWWIDTH * percent;
+	float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float startX = WINDOWWIDTH * startPerc[0];
+	float startY = WINDOWHEIGHT * startPerc[1];
+	std::vector<float> startPos = { startX, startY };
+
+	container = {
+		//Position												   //UV         //Color
+		startPos[0] - (uiWidth / 2), startPos[1] - (uiHeight / 2), 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2), 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, container.size() * sizeof(float), container.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+
+	players[0] = (*texs)["character1"];
+	players[1] = (*texs)["character2"];
+	players[2] = (*texs)["character3"];
+	players[3] = (*texs)["character4"];
+
+	action[0] = (*texs)["character1"];
+}
+
+void Killfeed::Update(const UIData& p) {
+	this->uidata = p;
+}
+
+void Killfeed::Draw() {
+	//seconds = timerStart - (glfwGetTime() - start);
+
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, healthTexture);
+
+	glDisable(GL_DEPTH_TEST);
+
+
+	glBindVertexArray(VAO);
+	glm::mat4 baseModel = glm::mat4(1.0f);
+	glm::mat4 model = baseModel;
+	for (int i = 0; i < KILLFEED_LENGTH; i++) {
+		printf("UIData at %d = %d %d %d %f\n",i, uidata.killfeed[i].attacker, uidata.killfeed[i].victim, uidata.killfeed[i].type, uidata.killfeed[i].lifetime);
+		if (uidata.killfeed[i].attacker == uidata.killfeed[i].victim) {
+			continue;
+		}
+
+		GLuint sprite = (*texs)["player" + std::to_string(uidata.killfeed[i].attacker)];
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glBindTexture(GL_TEXTURE_2D, sprite);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.15f, 0.0f, 0.0f));
+		//action draw
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glBindTexture(GL_TEXTURE_2D, (*texs)["action" + std::to_string(uidata.killfeed[i].type)]);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.15f, 0.0f, 0.0f));
+		if (uidata.killfeed[i].victim != -1) {
+
+			//victim draw
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+			glBindTexture(GL_TEXTURE_2D, (*texs)["player" + std::to_string(uidata.killfeed[i].victim)]);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+
+		//newline of sprites
+		model = glm::translate(baseModel, glm::vec3(0.0f, -WINDOWHEIGHT * 0.1f * (i+1), 0.0f));
+		
+	}
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
 /**
 * @brief Initalizes the quads of both the health and container bars.
 * Using pixel coordinates: (0,0) will be bottom left of the screen

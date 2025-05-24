@@ -57,6 +57,17 @@ static std::unordered_map<std::string, std::string> LobbyCharacters = {
 	{ "character4", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")}
 };
 
+static std::unordered_map<std::string, std::string> KillfeedSprites = {
+	{ "player0", PROJECT_SOURCE_DIR + std::string("/assets/character1.png")},
+	{ "player1", PROJECT_SOURCE_DIR + std::string("/assets/character2.png")},
+	{ "player2", PROJECT_SOURCE_DIR + std::string("/assets/character3.png")} ,
+	{ "player3", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")},
+	{ "action0", PROJECT_SOURCE_DIR + std::string("/assets/action1.png")},
+	{ "action1", PROJECT_SOURCE_DIR + std::string("/assets/character2.png")},
+	{ "action2", PROJECT_SOURCE_DIR + std::string("/assets/character3.png")} ,
+	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")}
+};
+
 //0-9 + colon (:)
 static std::unordered_map<std::string, std::string> Numbers = {
 	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0_-removebg-preview.png")},
@@ -110,6 +121,20 @@ void UIManager::Init() {
 	Characters* ch = dynamic_cast<Characters*>(characters);
 	ch->texs = &textures; //Mickey mouse
 	characters->Init(startPercchar, 0.12, 1.0);
+
+
+	for (const auto& pair : KillfeedSprites) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+	UIImg* killfeed = new Killfeed();
+	std::vector<float> startPercKill = { 0.7, 0.7 };
+
+	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
+	kf->texs = &textures; //Mickey mouse
+	killfeed->Init(startPercKill, 0.12, 1.0);
+
 
 
 
@@ -212,6 +237,7 @@ void UIManager::Init() {
 	}
 
 	lobbyElements.push_back(characters);
+	matchElements.push_back(killfeed);
 }
 
 void UIManager::update(const UIData& p) {

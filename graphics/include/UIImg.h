@@ -118,6 +118,25 @@ private:
 	GLuint VAO, VBO, EBO;
 };
 
+class Killfeed : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+private:
+	GLuint players[4];
+	GLuint action[4];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	double start = 0.0;
+	UIData uidata;
+
+	GLuint VAO, VBO, EBO;
+};
+
 class Magic : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;

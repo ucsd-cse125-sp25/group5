@@ -1,4 +1,7 @@
 #pragma once
+#include "../../group5/include/shared/ObjectData.h"
+//#include "Scene.h"
+#include "network/ClientGame.h"
 
 enum class ElementType {
     METAL,
@@ -24,6 +27,7 @@ struct UIData {
 
     ElementType currElem = ElementType::WATER;
     float seconds = 10;
+    KillfeedItem killfeed[KILLFEED_LENGTH];
     //unsigned int ID : 4;
 };
 
