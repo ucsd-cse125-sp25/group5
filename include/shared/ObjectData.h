@@ -14,6 +14,8 @@ static glm::vec3 fireProjExtents = glm::vec3(0.5f, 0.5f, 0.5f);
 static float woodProjSpeed = 25.0f;
 static float fireProjSpeed = 12.0f;
 
+static int particleTimeLimit = 20; // 20 ticks
+
 static int projDamage[5] = { 10, 20, 30, 40, 50 };
 
 enum EntityType {
@@ -45,6 +47,14 @@ enum KillfeedType {
 	FLAGPICKUP
 };
 
+enum MoonPhase {
+	NEW_MOON,
+	WAXING_CRESCENT,
+	FIRST_QUARTER,
+	WAXING_GIBBOUS,
+	FULL_MOON
+};
+
 struct Entity {
 	unsigned int id;
 	EntityType type;
@@ -58,8 +68,11 @@ struct PlayerStats {
 	bool hasFlag = false;
 	bool moving = false;
 	bool inAir = false;
-	unsigned int mana[5] = {100, 100, 100, 100, 100};
+	unsigned int mana[5] = { 100, 100, 100, 100, 100 };
 	PowerType activePower = METAL;
+
+	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};
+	int attackPowerupFlag[5] = { 0, 0, 0, 0, 0 };
 };
 
 struct KillfeedItem {

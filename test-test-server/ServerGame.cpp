@@ -10,7 +10,7 @@
 #include "../include/shared/NetworkData.h"
 #include <algorithm>
 #include <windows.h>
-#include <iostream>
+#include <iostream>z
 #include <string>
 #include <locale>
 #include <codecvt> 
@@ -290,6 +290,9 @@ void writeKillfeed(PhysicsSystem& phys, std::vector<KillfeedItem> killfeed_queue
 }
 
 void ServerGame::writeToGameState() {
+    
+
+
     GameState.packet_type = GAME_STATE;
 
     // Update all other objects in the GameState
@@ -299,6 +302,8 @@ void ServerGame::writeToGameState() {
 	GameState.num_players = numPlayers;
 
 	GameState.timeLeft = timeLeft;
+
+    GameState.moonPhase = static_cast<MoonPhase>(timeLeft / gameTimeLimit * 5); // Assuming 4 phases of the moon, this will cycle through them based on time left
 
     //send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
     writeEntities(physicsSystem, physicsSystem.playerObjects, GameState.players, 0, numPlayers);

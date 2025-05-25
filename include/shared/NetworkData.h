@@ -120,6 +120,11 @@ struct GameStatePacket {
 
     int timeLeft;
 
+    //flag for moon
+	MoonPhase moonPhase;
+
+    
+
     unsigned int num_players;
     struct Entity players[MAX_PLAYERS];
 

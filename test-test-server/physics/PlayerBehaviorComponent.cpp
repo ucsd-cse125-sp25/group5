@@ -233,6 +233,32 @@ void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSyste
 	playerStats.activePower = PowerType(phys.PlayerIntents[player->id].changeToPower);
 }
 
+void PlayerBehaviorComponent::updateParticleFlags() {
+
+	for (int i = 0; i < 5; i++) {
+		//tick for attacks
+		if (playerStats.attackPowerupFlag[i] > particleTimeLimit) {
+			playerStats.attackPowerupFlag[i] = 0;
+		}
+		if (playerStats.attackPowerupFlag[i] > 0) {
+			playerStats.attackPowerupFlag[i]++;
+		}
+
+
+		//tick for movement
+		if (playerStats.movementPowerupFlag[i] > particleTimeLimit) {
+			playerStats.movementPowerupFlag[i] = 0;
+		}
+		if (playerStats.movementPowerupFlag[i] > 0) {
+			playerStats.movementPowerupFlag[i]++;
+		}
+
+		
+	}
+
+
+}
+
 //—— integrate — called once per tick
 void PlayerBehaviorComponent::integrate(GameObject* obj,
     float deltaTime,
@@ -267,7 +293,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	}
 	
 	changePlayerPower(obj, phys, intent);
-	//dash movement
+
+	//movement states
 	if(state == PlayerMovementState::DEATH) {
 		deathTimer -= deltaTime;
 
@@ -360,6 +387,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 				) * DASH_SPEED;
 
 				playerStats.mana[3] -= FIRE_MOVE_COST;
+				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 
 				return;
 			}
@@ -371,6 +399,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 				obj->physics->velocity = glm::vec3(0.0f, -STOMP_SPEED, 0.0f);
 
 				playerStats.mana[4] -= EARTH_MOVE_COST;
+				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 
 				return;
 			}
@@ -379,6 +408,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 				obj->physics->velocity += glm::vec3(0.0f, JUMP_FORCE * 2.0f, 0.0f);
 
 				playerStats.mana[2] -= WATER_MOVE_COST;
+				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 			}
 			else if (playerStats.activePower == WOOD && playerStats.mana[1] >= EARTH_MOVE_COST) {
 				//our target point, we've also set the target object, this could probably use some restructuring
@@ -402,6 +432,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 				}
 
 				playerStats.mana[1] -= WOOD_MOVE_COST;
+				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 			}
 
 			printf("Metal mana %d\n", playerStats.mana[0]);
@@ -429,9 +460,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		if (intent.leftClickIntent) {
 			if (playerStats.activePower == FIRE && phys.PlayerTrackings[obj->id].leftClickDuration >= 1) {
 				spawnProjectile(obj, playerStats.activePower, phys);
+				playerStats.attackPowerupFlag[FIRE] = 1;
 			}
 			else if (phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
 				spawnProjectile(obj, playerStats.activePower, phys);
+				playerStats.attackPowerupFlag[playerStats.activePower] = 1;
 				printf("Hit e\n");
 				printf("Physics system size %d\n", int(phys.dynamicObjects.size()));
 			}
@@ -470,12 +503,14 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 
 
-
+	updateParticleFlags();
 	//only apply the player velocity for movement
 	//obj->physics->velocity += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	//the important line
 	obj->transform.position += obj->physics->velocity * deltaTime;
+
+	
 	//
 
 	//remove it after

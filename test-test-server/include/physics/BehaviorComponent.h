@@ -80,6 +80,7 @@ public:
 
 	void changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent);
 	void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys);
+	void updateParticleFlags();
 
     // override the abstract methods
     void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;

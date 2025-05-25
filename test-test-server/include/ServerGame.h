@@ -11,7 +11,7 @@
 #include <string> 
 
 
-const int gameTimeLimit = 60; // Game time limit in seconds
+const int gameTimeLimit = 120; // Game time limit in seconds
 //const std::string COMPOSITES_FILE_PATH = "../include/shared/composites/";
 
 class ServerGame  
