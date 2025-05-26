@@ -24,6 +24,7 @@ public:
 	void TriggerAnim(int anim);
 	int getPowerup();
 	GamePhase currState = GamePhase::LOBBY;
+	//GamePhase currState = GamePhase::LOBBY;
 private:
 	//GLuint shaderProgram;
 	glm::mat4 projection;
