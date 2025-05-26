@@ -85,54 +85,56 @@ void Octree::subdivide(Node* node) {
 			// Check if the object is fully contained in the child node's bounding box
 			Node* childNode = node->getChild(i);
             if (childNode->contains(obj->transform.aabb)) {
-                childNode->insert(obj, this);
+                insert(obj, childNode);
                 break;
             } else if (childNode->partiallyEmbedded(obj->transform.aabb)) {
                 // If the object intersects with the child node, insert it
-                childNode->insert(obj, this);
+                insert(obj, childNode);
             }
         }
     }
 }
 
-void Node::insert(GameObject* obj, Octree& octree) {
-    if (isLeafNode()) {
-        if (octree.shouldSubdivide(this)) {
-            octree->subdivide(this);
-            insert(obj, octree);
+void Octree::insert(GameObject* obj, const Node* node) {
+    if (!node) return;
+
+    if (node->isLeafNode()) {
+        if (shouldSubdivide(node)) {
+            subdivide(node);
+            insert(obj, node);
         } else {
-            if (this->objects.size() < octree.maxObjectsPerNode) {
-                this->objects.push_back(obj);
+            if (node->getObjects().size() < maxObjectsPerNode) {
+                node->addObject(obj);
             } else {
-                if (octree.toggle == 0) {
-                    octree.toggle = 1;
-                    octree.maxDepth++;
+                if (toggle == 0) {
+                    toggle = 1;
+                    maxDepth++;
                 } else {
-                    octree.toggle = 0;
-                    octree.maxObjectsPerNode++;
+                    toggle = 0;
+                    maxObjectsPerNode++;
                 }
-                octree.reconstructTree();
-                insert(obj, octree);
+                reconstructTree();
+                insert(obj, node);
             }
         }
     } else {
         for (int i = 0; i < 8; i++) {
-            if (this->children[i]->contains(obj->transform.aabb)) {
-                this->children[i]->insert(obj, octree);
+            Node* childNode = node->getChild(i);
+            if (childNode->contains(obj->transform.aabb)) {
+                insert(obj, childNode);
                 return;
-            } else if (this->children[i]->partiallyEmbedded(obj->transform.aabb)) {
-                this->children[i]->insert(obj, octree);
+            } else if (childNode->partiallyEmbedded(obj->transform.aabb)) {
+                insert(obj, childNode);
             }
         }
     }
 }
 
-void Node::remove(GameObject* obj) {
+void Node::removeObject(GameObject* obj) {
     auto it = std::find(objects.begin(), objects.end(), obj);
     if (it != objects.end()) {
         objects.erase(it);
-    }
-    if !this->isLeaf {
+    } else if (!this->isLeaf) {
         for (int i = 0; i < 8; i++) {
             this->children[i]->remove(obj);
         }

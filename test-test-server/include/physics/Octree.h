@@ -18,7 +18,6 @@ class Node {
         Node(const AABB& boundingBox, Node* parent = nullptr, int depthLevel = 0);
         ~Node();
 
-        void insert(GameObject* obj, Octree& octree);
         bool contains(const AABB& box);
         bool partiallyEmbedded(const AABB& box);
         
@@ -35,6 +34,12 @@ class Node {
 		// Setters
 		void setChild(int index, Node* child) { children[index] = child; }
 		void setLeaf(bool leaf) { isLeaf = leaf; }
+
+        // Methods
+        void addObject(GameObject* obj) {
+            objects.push_back(obj);
+        }
+        void removeObject(GameObject* obj);
 };
 
 class Octree {
@@ -51,8 +56,10 @@ class Octree {
 
         bool shouldSubdivide(const Node* node);
         void subdivide(Node* node);
+
         void reconstructTree(const vector<GameObject*>& objects);
-        void remove(GameObject* obj);
+        void insert(GameObject* obj, const Node* node);
+        void remove(GameObject* obj, const Node* node);
         void update(GameObject* obj);
 
 		int getMaxDepth() const { return maxDepth; }
