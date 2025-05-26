@@ -58,29 +58,29 @@ static std::unordered_map<std::string, std::string> LobbyCharacters = {
 };
 
 static std::unordered_map<std::string, std::string> KillfeedSprites = {
-	{ "player0", PROJECT_SOURCE_DIR + std::string("/assets/character1.png")},
-	{ "player1", PROJECT_SOURCE_DIR + std::string("/assets/character2.png")},
-	{ "player2", PROJECT_SOURCE_DIR + std::string("/assets/character3.png")} ,
-	{ "player3", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")},
+	{ "player0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1.png")},
+	{ "player1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2.png")},
+	{ "player2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3.png")} ,
+	{ "player3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4.png")},
 	{ "action0", PROJECT_SOURCE_DIR + std::string("/assets/action1.png")},
-	{ "action1", PROJECT_SOURCE_DIR + std::string("/assets/character2.png")},
-	{ "action2", PROJECT_SOURCE_DIR + std::string("/assets/character3.png")} ,
-	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")}
+	{ "action1", PROJECT_SOURCE_DIR + std::string("/assets/action2.png")},
+	{ "action2", PROJECT_SOURCE_DIR + std::string("/assets/action3.png")} ,
+	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/action4.png")}
 };
 
 //0-9 + colon (:)
 static std::unordered_map<std::string, std::string> Numbers = {
-	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0_-removebg-preview.png")},
-	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1_-removebg-preview.png")},
-	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2_-removebg-preview.png")},
-	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3_-removebg-preview.png")},
-	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4_-removebg-preview.png")},
-	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5_-removebg-preview.png")},
-	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6_-removebg-preview.png")},
-	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7_-removebg-preview.png")},
-	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8_-removebg-preview.png")},
-	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9_-removebg-preview.png")},
-	{":", PROJECT_SOURCE_DIR + std::string("/assets/colom_1_-removebg-preview.png")},
+	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0.png")},
+	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1.png")},
+	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2.png")},
+	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3.png")},
+	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4.png")},
+	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5.png")},
+	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6.png")},
+	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7.png")},
+	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8.png")},
+	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9.png")},
+	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
 };
 
 
@@ -104,8 +104,8 @@ void UIManager::Init() {
 	//add a clock to match elements
 	//UIImg* clock = new Clock();
 	UIImg* clock = new Clock();
-	std::vector<float> startPerc = { 0.3, 0.9 };
-	clock->Init(startPerc, 0.05, 1.0);
+	std::vector<float> startPerc = { 0.0, 0.9 };
+	clock->Init(startPerc, 0.07, 1.0);
 	matchElements.push_back(clock);
 	Clock* cl = dynamic_cast<Clock*>(clock);
 	cl->texs = &textures; //Mickey mouse
@@ -129,11 +129,11 @@ void UIManager::Init() {
 		LoadTexture(name, path);
 	}
 	UIImg* killfeed = new Killfeed();
-	std::vector<float> startPercKill = { 0.7, 0.7 };
+	std::vector<float> startPercKill = { 0.75, 0.94 };
 
 	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
 	kf->texs = &textures; //Mickey mouse
-	killfeed->Init(startPercKill, 0.12, 1.0);
+	killfeed->Init(startPercKill, 0.09, 1.0);
 
 
 

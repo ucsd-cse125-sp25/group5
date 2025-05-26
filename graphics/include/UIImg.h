@@ -97,6 +97,7 @@ private:
 	std::vector<float> container;
 	double start = 0.0;
 	int seconds;
+	float widthPercSpacing = 0.07;
 
 	GLuint VAO, VBO, EBO;
 };
