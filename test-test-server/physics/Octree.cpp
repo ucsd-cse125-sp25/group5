@@ -34,7 +34,7 @@ bool Node::partiallyEmbedded(const AABB& box) {
 }
 
 bool Octree::shouldSubdivide(const Node* node) {
-    return node->objects.size() > this.maxObjectsPerNode && node->depthLevel < this.maxDepth;
+    return node->getObjects().size() > this->getMaxObjectsPerNode() && node->getDepthLevel() < this->getMaxDepth();
 }
 
 AABB getBoundingBox(const vec3& center, const vec3& halfExtents, int i) {
@@ -66,7 +66,7 @@ AABB getBoundingBox(const vec3& center, const vec3& halfExtents, int i) {
 }
 
 void Octree::subdivide(Node* node) {
-    if (!node->isLeaf) return;
+    if (!node->isLeafNode()) return;
 
     vec3 halfExtents = node->getHalfExtents();
     vec3 center = node->getCenter();
@@ -74,28 +74,30 @@ void Octree::subdivide(Node* node) {
     // Create 8 children nodes
     for (int i = 0; i < 8; i++) {
         AABB childBox = getBoundingBox(center, halfExtents, i);
-        node->children[i] = new Node(childBox, node, node->depthLevel + 1);
+		node->setChild(i, new Node(childBox, node, node->getDepthLevel() + 1));
     }
     
-    node->isLeaf = false;
+	node->setLeaf(false);
 
-    for (GameObject* obj : node->objects) {
-        // Insert each object into the appropriate child node
+	vector<GameObject*> objects = node->getObjects();
+    for (GameObject* obj : objects) {
         for (int i = 0; i < 8; i++) {
-            if (node->children[i]->contains(obj->transform.aabb)) {
-                node->children[i].insert(obj);
+			// Check if the object is fully contained in the child node's bounding box
+			Node* childNode = node->getChild(i);
+            if (childNode->contains(obj->transform.aabb)) {
+                childNode->insert(obj, this);
                 break;
-            } else if (node->children[i]->partiallyEmbedded(obj->transform.aabb)) {
+            } else if (childNode->partiallyEmbedded(obj->transform.aabb)) {
                 // If the object intersects with the child node, insert it
-                node->children[i].insert(obj);
+                childNode->insert(obj, this);
             }
         }
     }
 }
 
-void Node::insert(GameObject* obj, const Octree& octree) {
-    if (this->isLeaf) {
-        if octree.shouldSubdivide(this) {
+void Node::insert(GameObject* obj, Octree& octree) {
+    if (isLeafNode()) {
+        if (octree.shouldSubdivide(this)) {
             octree->subdivide(this);
             insert(obj, octree);
         } else {

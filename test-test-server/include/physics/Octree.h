@@ -18,7 +18,7 @@ class Node {
         Node(const AABB& boundingBox, Node* parent = nullptr, int depthLevel = 0);
         ~Node();
 
-        void insert(GameObject* obj, const Octree& octree);
+        void insert(GameObject* obj, Octree& octree);
         bool contains(const AABB& box);
         bool partiallyEmbedded(const AABB& box);
         
@@ -31,6 +31,10 @@ class Node {
         Node* getChild(int index) const { return children[index]; }
         const vec3& getCenter() const { return center; }
         const vec3& getHalfExtents() const { return halfExtents; }
+
+		// Setters
+		void setChild(int index, Node* child) { children[index] = child; }
+		void setLeaf(bool leaf) { isLeaf = leaf; }
 };
 
 class Octree {
@@ -39,16 +43,19 @@ class Octree {
         int maxDepth;
         int maxObjectsPerNode;
         int toggle = 0;
-        AABB boundingBox;
-
-        void shouldSubdivide(const Node* node);
-        void subdivide(Node* node);       
+        AABB boundingBox;       
 
     public:
         Octree(const AABB& boundingBox, int maxDepth = 5, int maxObjectsPerNode = 10);
         ~Octree();
 
+        bool shouldSubdivide(const Node* node);
+        void subdivide(Node* node);
         void reconstructTree(const vector<GameObject*>& objects);
         void remove(GameObject* obj);
         void update(GameObject* obj);
+
+		int getMaxDepth() const { return maxDepth; }
+        int getMaxObjectsPerNode() const { return maxObjectsPerNode; }
+        Node* getRoot() const { return root; }
 };
