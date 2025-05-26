@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <glm/glm.hpp>
 #include "PhysicsSystem.h"
@@ -52,7 +54,7 @@ class Octree {
 		vector<GameObject*>& objectsInTree;
 
     public:
-        Octree(const AABB& boundingBox, vector<GameObject*> objectsInTree, int maxDepth, int maxObjectsPerNode);
+        Octree(const AABB& boundingBox, vector<GameObject*>& objectsInTree, int maxDepth, int maxObjectsPerNode);
         ~Octree();
 
         bool shouldSubdivide(const Node* node);

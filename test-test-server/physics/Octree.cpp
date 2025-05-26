@@ -1,4 +1,4 @@
-#include "Octree.h"
+#include "../include/physics/Octree.h"
 
 Node::Node(const AABB& boundingBox, Node* parent, int depthLevel)
     : boundingBox(boundingBox), parent(parent), depthLevel(depthLevel), isLeaf(true) {
@@ -156,7 +156,7 @@ void Octree::constructTree(const vector<GameObject*>& objects) {
     }
 }
 
-Octree::Octree(const AABB& boundingBox, vector<GameObject*> objectsInTree, int maxDepth, int maxObjectsPerNode)
+Octree::Octree(const AABB& boundingBox, vector<GameObject*>& objectsInTree, int maxDepth, int maxObjectsPerNode)
     : boundingBox(boundingBox), objectsInTree(objectsInTree), maxDepth(maxDepth), maxObjectsPerNode(maxObjectsPerNode) {
     root = new Node(boundingBox);
 }

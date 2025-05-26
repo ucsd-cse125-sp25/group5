@@ -5,7 +5,7 @@
 #include "physics/PhysicsData.h"
 #include "../include/shared/NetworkData.h"
 #include "InputManager.h"
-#include "Octree.h"
+// #include "Octree.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -13,6 +13,8 @@ typedef glm::mat4 mat4;
 typedef glm::quat quat;
 
 using namespace std;
+
+class Octree;
 
 class PhysicsSystem {
 
@@ -38,14 +40,14 @@ public:
     vector<float> AABBdistances;
 
     //container stuff
-    std::vector<GameObject*> movingObjects;
-	std::vector<GameObject*> playerObjects;
-    std::vector<GameObject*> dynamicObjects;
-    std::vector<GameObject*> staticObjects;
+    vector<GameObject*> movingObjects;
+	vector<GameObject*> playerObjects;
+    vector<GameObject*> dynamicObjects;
+    vector<GameObject*> staticObjects;
 
     // Broadphase
-    Octree* octreeMovingObjects;
-    Octree* octreeStaticObjects;
+    Octree *octreeMovingObjects;
+    Octree *octreeStaticObjects;
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
@@ -228,6 +230,8 @@ public:
     vec3 getAABBCenter(AABB& a);
     vec3 getAABBDistanceCenters(AABB& a, AABB& b);
 	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
+	void updateGameObjectAABB(GameObject* obj);
+    void updateGameObjectsAABB(vector<GameObject*>& objects);
 
     /**
      * @brief Calculates the impulse vector for a collision based on the normal, 
@@ -253,7 +257,7 @@ public:
     GameObject* getPlayerObjectById(int id);
 
     // broadphase
-    void initOctree(vector<GameObject*>& objects, Octree*& octree);
+    void initOctree(vector<GameObject*> objects, Octree* octree);
     void broadphaseInit();
     
     //adding objects

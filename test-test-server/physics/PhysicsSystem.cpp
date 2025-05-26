@@ -4,6 +4,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include "physics/BehaviorComponent.h"
+#include "physics/Octree.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -340,29 +341,29 @@ AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj) 
              vec3(getMeshMinOrMaxCoord(positions, 0, false), getMeshMinOrMaxCoord(positions, 1, false), getMeshMinOrMaxCoord(positions, 2, false)) };
 }
 
-void updateGameObjectAABB(GameObject* obj) {
+void PhysicsSystem::updateGameObjectAABB(GameObject* obj) {
     if (obj == nullptr || obj->collider == nullptr) {
         return; // Ensure the object and its collider are valid
     }
     obj->transform.aabb = getAABB(obj);
-    obj->collider->halfExtents = (aabb.max - aabb.min) * 0.5f; // Update half extents based on the new AABB
+    obj->collider->halfExtents = (obj->transform.aabb.max - obj->transform.aabb.min) * 0.5f; // Update half extents based on the new AABB
 }
 
-void updateGameObjectsAABB(vector<GameObject*>& objects) {
+void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
     for (auto obj : objects) {
         updateGameObjectAABB(obj);
     }   
 }
 
-void PhysicsSystem::initOctree(vector<GameObject*>& objects, Octree*& octree) {
-    Octree *octree = new Octree({glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f)}, 8, 8);
+void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree* octree) {
+    octree = new Octree({glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f)}, objects, 8, 8);
     updateGameObjectsAABB(objects);
     octree->constructTree(objects);
-    return octree;
 }
 
 void PhysicsSystem::broadphaseInit() {
-    Octree *octreeMovingObjects, *octreeStaticObjects;
+    Octree* octreeMovingObjects;
+	Octree* octreeStaticObjects;
     initOctree(movingObjects, octreeMovingObjects);
     initOctree(staticObjects, octreeStaticObjects);
 }
