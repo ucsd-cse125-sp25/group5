@@ -295,14 +295,6 @@ vector<vec4> PhysicsSystem::convertToWorldSpaceAABB(const AABB& aabb, const glm:
     return worldSpaceVertices;
 }
 
-AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj) {
-    if (positions.empty()) {
-        return { vec3(0.0f), vec3(0.0f) }; // Return an empty AABB if no positions are provided
-    }
-    return { vec3(getMeshMinOrMaxCoord(positions, 0, true), getMeshMinOrMaxCoord(positions, 1, true), getMeshMinOrMaxCoord(positions, 2, true)),
-             vec3(getMeshMinOrMaxCoord(positions, 0, false), getMeshMinOrMaxCoord(positions, 1, false), getMeshMinOrMaxCoord(positions, 2, false)) };
-}
-
 
 float getMeshMinOrMaxCoord(const vector<vec3>& positions, int coord, bool isMin) {
     assert(positions.size() > 0);
@@ -339,4 +331,12 @@ void PhysicsSystem::generateGameObjectsForWholeThing(const vec3& position, const
 		makeGameObject(getPosition(currPoint, sliceWidth, directionOfSlice), rotation, getHalfExtents(halfExtents, directionOfSlice, sliceWidth));
 		currPoint[directionOfSlice] += sliceWidth;
     }
+}
+
+AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj) {
+    if (positions.empty()) {
+        return { vec3(0.0f), vec3(0.0f) }; // Return an empty AABB if no positions are provided
+    }
+    return { vec3(getMeshMinOrMaxCoord(positions, 0, true), getMeshMinOrMaxCoord(positions, 1, true), getMeshMinOrMaxCoord(positions, 2, true)),
+             vec3(getMeshMinOrMaxCoord(positions, 0, false), getMeshMinOrMaxCoord(positions, 1, false), getMeshMinOrMaxCoord(positions, 2, false)) };
 }

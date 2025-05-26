@@ -48,17 +48,18 @@ class Octree {
         int maxDepth;
         int maxObjectsPerNode;
         int toggle = 0;
-        AABB boundingBox;       
+        AABB boundingBox;
+		vector<GameObject*>& objectsInTree;
 
     public:
-        Octree(const AABB& boundingBox, int maxDepth = 5, int maxObjectsPerNode = 10);
+        Octree(const AABB& boundingBox, vector<GameObject*> objectsInTree, int maxDepth, int maxObjectsPerNode);
         ~Octree();
 
         bool shouldSubdivide(const Node* node);
         void subdivide(Node* node);
 
         void reconstructTree(const vector<GameObject*>& objects);
-        void insert(GameObject* obj, const Node* node);
+        void insert(GameObject* obj, Node* node);
         void remove(GameObject* obj, const Node* node);
         void update(GameObject* obj);
 

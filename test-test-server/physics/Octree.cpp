@@ -95,7 +95,7 @@ void Octree::subdivide(Node* node) {
     }
 }
 
-void Octree::insert(GameObject* obj, const Node* node) {
+void Octree::insert(GameObject* obj, Node* node) {
     if (!node) return;
 
     if (node->isLeafNode()) {
@@ -113,7 +113,7 @@ void Octree::insert(GameObject* obj, const Node* node) {
                     toggle = 0;
                     maxObjectsPerNode++;
                 }
-                reconstructTree();
+                reconstructTree(objectsInTree);
                 insert(obj, node);
             }
         }
@@ -136,7 +136,7 @@ void Node::removeObject(GameObject* obj) {
         objects.erase(it);
     } else if (!this->isLeaf) {
         for (int i = 0; i < 8; i++) {
-            this->children[i]->remove(obj);
+            this->children[i]->removeObject(obj);
         }
     }
 }
@@ -147,15 +147,15 @@ void Octree::reconstructTree(const vector<GameObject*>& objects) {
         root = nullptr;
     }
 
-    root = new Node();
+    root = new Node(boundingBox);
 
     for (GameObject* obj : objects) {
-        root->insert(obj, *this);
+        insert(obj, root);
     }
 }
 
-Octree::Octree(const AABB& boundingBox, int maxDepth, int maxObjectsPerNode)
-    : boundingBox(boundingBox), maxDepth(maxDepth), maxObjectsPerNode(maxObjectsPerNode) {
+Octree::Octree(const AABB& boundingBox, vector<GameObject*> objectsInTree, int maxDepth, int maxObjectsPerNode)
+    : boundingBox(boundingBox), objectsInTree(objectsInTree), maxDepth(maxDepth), maxObjectsPerNode(maxObjectsPerNode) {
     root = new Node(boundingBox);
 }
 
