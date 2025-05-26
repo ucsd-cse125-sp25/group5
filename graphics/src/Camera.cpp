@@ -23,9 +23,9 @@ void Camera::Update(ClientGame* client) {
     translate[3][2] = Pos.z;
 
     glm::mat4 translateAugment(1);
-    translateAugment[3][0] =  0.0f;
-    translateAugment[3][1] =  1.5f;
-    translateAugment[3][2] =  2.0f;
+    ////translateAugment[3][0] =  0.0f;
+    ////translateAugment[3][1] =  1.5f;
+    ////translateAugment[3][2] =  2.0f;
 
     world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment *  glm::eulerAngleX(glm::radians(-Incline)) * world;
 

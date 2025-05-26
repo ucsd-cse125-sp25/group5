@@ -75,15 +75,20 @@ void Mesh::create(aiMesh* mMesh, aiMaterial* mMaterial, glm::mat4 model) {
 
     }
 
-
-     // Generate a vertex array (VAO) and two vertex buffer objects (VBO).
+    // Generate a vertex array (VAO) and two vertex buffer objects (VBO).
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO_positions);
     glGenBuffers(1, &VBO_normals);
-    glGenBuffers(1, &VBO_UVs);
-
+    if (tex) {
+        glGenBuffers(1, &VBO_UVs);
+    }
+    glGenBuffers(1, &EBO);
     // Bind to the VAO.
+
     glBindVertexArray(VAO);
+    // Generate EBO, bind the EBO to the bound VAO and send the data
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
     // Bind to the first VBO - We will use it to store the vertices
     glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
@@ -97,17 +102,13 @@ void Mesh::create(aiMesh* mMesh, aiMaterial* mMaterial, glm::mat4 model) {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
-    // Bind to the third VBO - We will use it to store the UVs
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_UVs);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * uvs.size(), uvs.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
-
-    // Generate EBO, bind the EBO to the bound VAO and send the data
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
-
+    if (tex) {
+        // Bind to the third VBO - We will use it to store the UVs
+        glBindBuffer(GL_ARRAY_BUFFER, VBO_UVs);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * uvs.size(), uvs.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+    }
     // Unbind the VBOs.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -120,23 +121,22 @@ void Mesh::draw(GLuint shader, bool shadow) {
 
     if (!shadow) {
         glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
-        int istex = tex;
-        glUniform1i(glGetUniformLocation(shader, "istex"), istex);
+        glUniform1i(glGetUniformLocation(shader, "istex"), tex);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glUniform1i(glGetUniformLocation(shader, "tex"), 0);
+        GLint texLoc = glGetUniformLocation(shader, "tex");
+        glUniform1i(texLoc, 0);
     }
-
     // Bind the VAO
     glBindVertexArray(VAO);
     // draw the points using triangles, indexed with the EBO
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     // Unbind the VAO and shader program
-    glBindVertexArray(0);
+
     if (!shadow) {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-    
+    glBindVertexArray(0);
 }
 
 void Mesh::update(glm::mat4 newModel) {
