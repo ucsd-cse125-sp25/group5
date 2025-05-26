@@ -33,8 +33,8 @@ bool Node::partiallyEmbedded(const AABB& box) {
            
 }
 
-bool Octree::shouldSubdivide(const Node* node, const Octree& octree) {
-    return node->objects.size() > octree.maxObjectsPerNode && node->depthLevel < octree.maxDepth;
+bool Octree::shouldSubdivide(const Node* node) {
+    return node->objects.size() > this.maxObjectsPerNode && node->depthLevel < this.maxDepth;
 }
 
 AABB getBoundingBox(const vec3& center, const vec3& halfExtents, int i) {
@@ -95,13 +95,20 @@ void Octree::subdivide(Node* node) {
 
 void Node::insert(GameObject* obj, const Octree& octree) {
     if (this->isLeaf) {
-        if octree.shouldSubdivide(&this) {
-            octree->subdivide(&this);
+        if octree.shouldSubdivide(this) {
+            octree->subdivide(this);
             insert(obj, octree);
         } else {
             if (this->objects.size() < octree.maxObjectsPerNode) {
                 this->objects.push_back(obj);
             } else {
+                if (octree.toggle == 0) {
+                    octree.toggle = 1;
+                    octree.maxDepth++;
+                } else {
+                    octree.toggle = 0;
+                    octree.maxObjectsPerNode++;
+                }
                 octree.reconstructTree();
                 insert(obj, octree);
             }
@@ -130,14 +137,21 @@ void Node::remove(GameObject* obj) {
     }
 }
 
-vector<
+void Octree::reconstructTree(const vector<GameObject*>& objects) {
+    if (root) {
+        delete root;
+        root = nullptr;
+    }
 
-void Octree::reconstructTree() {
-    
+    root = new Node();
+
+    for (GameObject* obj : objects) {
+        root->insert(obj, *this);
+    }
 }
 
 Octree::Octree(const AABB& boundingBox, int maxDepth, int maxObjectsPerNode)
-    : maxDepth(maxDepth), maxObjectsPerNode(maxObjectsPerNode) {
+    : boundingBox(boundingBox), maxDepth(maxDepth), maxObjectsPerNode(maxObjectsPerNode) {
     root = new Node(boundingBox);
 }
 
