@@ -1,0 +1,53 @@
+#include <vector>
+#include <glm/glm.hpp>
+#include "PhysicsSystem.h"
+#include "PhysicsData.h"
+
+class Node {
+    private:
+        AABB boundingBox;
+        vec3 halfExtents = (boundingBox.max - boundingBox.min) * 0.5f;
+        vec3 center = boundingBox.min + halfExtents;
+        Node* children[8];
+        Node* parent;
+        vector<GameObject*> objects;
+        bool isLeaf;
+        int depthLevel;
+    
+    public:
+        Node(const AABB& boundingBox, Node* parent = nullptr, int depthLevel = 0);
+        ~Node();
+
+        void insert(GameObject* obj, const Octree& octree);
+        bool contains(const AABB& box);
+        bool partiallyEmbedded(const AABB& box);
+        
+        // Getters
+        const AABB& getBoundingBox() const { return boundingBox; }
+        const vector<GameObject*>& getObjects() const { return objects; }
+        bool isLeafNode() const { return isLeaf; }
+        int getDepthLevel() const { return depthLevel; }
+        Node* getParent() const { return parent; }
+        Node* getChild(int index) const { return children[index]; }
+        const vec3& getCenter() const { return center; }
+        const vec3& getHalfExtents() const { return halfExtents; }
+};
+
+class Octree {
+    private:
+        Node* root;
+        int maxDepth;
+        int maxObjectsPerNode;
+        int toggle = 0;
+
+        void shouldSubdivide(const Node* node, const Octree& octree);
+        void subdivide(Node* node);       
+
+    public:
+        Octree(const AABB& boundingBox = new AABB(vec3(0.0f), vec3(0.0f)), int maxDepth = 5, int maxObjectsPerNode = 10);
+        ~Octree();
+
+        void reconstructTree();
+        void remove(GameObject* obj);
+        void update(GameObject* obj);
+};
