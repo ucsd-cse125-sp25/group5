@@ -34,9 +34,7 @@ private:
 public:
 
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
-    map<vec3, vector<GameObject*>> worldGrid;
     vector<float> AABBdistances;
-    float cellSize;
 
     //container stuff
     std::vector<GameObject*> movingObjects;
