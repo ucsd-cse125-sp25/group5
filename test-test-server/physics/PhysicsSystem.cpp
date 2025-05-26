@@ -82,7 +82,6 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 			} else {
                 resolveCollision(obj, sobj, penetration, 0);
             }
-            
         }  
     }
 	
@@ -340,3 +339,31 @@ AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj) 
     return { vec3(getMeshMinOrMaxCoord(positions, 0, true), getMeshMinOrMaxCoord(positions, 1, true), getMeshMinOrMaxCoord(positions, 2, true)),
              vec3(getMeshMinOrMaxCoord(positions, 0, false), getMeshMinOrMaxCoord(positions, 1, false), getMeshMinOrMaxCoord(positions, 2, false)) };
 }
+
+void updateGameObjectAABB(GameObject* obj) {
+    if (obj == nullptr || obj->collider == nullptr) {
+        return; // Ensure the object and its collider are valid
+    }
+    obj->transform.aabb = getAABB(obj);
+    obj->collider->halfExtents = (aabb.max - aabb.min) * 0.5f; // Update half extents based on the new AABB
+}
+
+void updateGameObjectsAABB(vector<GameObject*>& objects) {
+    for (auto obj : objects) {
+        updateGameObjectAABB(obj);
+    }   
+}
+
+void PhysicsSystem::initOctree(vector<GameObject*>& objects, Octree*& octree) {
+    Octree *octree = new Octree({glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f)}, 8, 8);
+    updateGameObjectsAABB(objects);
+    octree->constructTree(objects);
+    return octree;
+}
+
+void PhysicsSystem::broadphaseInit() {
+    Octree *octreeMovingObjects, *octreeStaticObjects;
+    initOctree(movingObjects, octreeMovingObjects);
+    initOctree(staticObjects, octreeStaticObjects);
+}
+

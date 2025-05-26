@@ -108,12 +108,12 @@ void Octree::insert(GameObject* obj, Node* node) {
             } else {
                 if (toggle == 0) {
                     toggle = 1;
-                    maxDepth++;
+                    maxDepth *= 2;
                 } else {
                     toggle = 0;
-                    maxObjectsPerNode++;
+                    maxObjectsPerNode *= 2;
                 }
-                reconstructTree(objectsInTree);
+                constructTree(objectsInTree);
                 insert(obj, node);
             }
         }
@@ -144,9 +144,11 @@ void Node::removeObject(GameObject* obj) {
 void Octree::reconstructTree(const vector<GameObject*>& objects) {
     if (root) {
         delete root;
-        root = nullptr;
     }
+    constructTree(objects);
+}
 
+void Octree::constructTree(const vector<GameObject*>& objects) {
     root = new Node(boundingBox);
 
     for (GameObject* obj : objects) {

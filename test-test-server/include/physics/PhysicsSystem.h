@@ -5,6 +5,7 @@
 #include "physics/PhysicsData.h"
 #include "../include/shared/NetworkData.h"
 #include "InputManager.h"
+#include "Octree.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -41,6 +42,10 @@ public:
 	std::vector<GameObject*> playerObjects;
     std::vector<GameObject*> dynamicObjects;
     std::vector<GameObject*> staticObjects;
+
+    // Broadphase
+    Octree* octreeMovingObjects;
+    Octree* octreeStaticObjects;
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
@@ -246,6 +251,10 @@ public:
     //id
     int getNextId();
     GameObject* getPlayerObjectById(int id);
+
+    // broadphase
+    void initOctree(vector<GameObject*>& objects, Octree*& octree);
+    void broadphaseInit();
     
     //adding objects
 	void addDynamicObject(GameObject* obj) {

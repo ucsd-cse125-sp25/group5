@@ -58,10 +58,9 @@ class Octree {
         bool shouldSubdivide(const Node* node);
         void subdivide(Node* node);
 
+        void constructTree(const vector<GameObject*>& objects);
         void reconstructTree(const vector<GameObject*>& objects);
         void insert(GameObject* obj, Node* node);
-        void remove(GameObject* obj, const Node* node);
-        void update(GameObject* obj);
 
 		int getMaxDepth() const { return maxDepth; }
         int getMaxObjectsPerNode() const { return maxObjectsPerNode; }
