@@ -24,6 +24,7 @@ static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float,
 	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.4, 0.2, 0.1, 1.0}},
 	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.6, 0.2, 0.1, 1.0}},
 	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.8, 0.2, 0.1, 1.0}},
+	{"vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::MATCH, 0.0, 0.0, 1.0, 1.0}},
 };
 
 /**
@@ -130,6 +131,9 @@ void UIManager::Init() {
 		}
 		else if (name == "magicback") {
 			img = new Magic();
+		}
+		else if (name == "vignette") {
+			img = new Vignette();
 		}
 		else {
 			img = new UIImg();

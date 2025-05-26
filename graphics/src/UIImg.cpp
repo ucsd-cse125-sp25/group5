@@ -750,3 +750,81 @@ void Magic::StartRotate(int anim) {
 	animating = true;
 	
 }
+
+void Vignette::Init(std::vector<float> startPos, float percent, float ratio) {
+	shaderProgram = LoadShaders("shaders/vignette.vert", "shaders/vignette.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	uiData = {
+		//Position												   //UV         //Color
+		startPos[0], startPos[1], 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + WINDOWWIDTH, startPos[1], 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + WINDOWWIDTH, startPos[1] + WINDOWHEIGHT, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0], startPos[1] + WINDOWHEIGHT, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, uiData.size() * sizeof(float), uiData.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+}
+
+void Vignette::Update(const UIData& p) {
+	lastHealth = p.currHP;
+	if (lastHealth <= 0) {
+		isAlive = false;
+		isLow = false;
+	}
+	else if (lastHealth <= 20) {
+		isLow = true;
+		isAlive = true;
+	}
+	else {
+		isLow = false;
+		isAlive = true;
+	}
+
+}
+
+void Vignette::Draw() {
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	glBindVertexArray(VAO);
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniform1i(glGetUniformLocation(shaderProgram, "isAlive"), isAlive);
+	glUniform1i(glGetUniformLocation(shaderProgram, "isLow"), isLow);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
+
+void Vignette::SetTexture(GLuint tex) {
+	texture = tex;
+}
