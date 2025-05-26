@@ -47,7 +47,7 @@ public:
 	void Draw() override;
 	void Update(const UIData& p) override;
 	void SetTexture(GLuint texture);
-	void StartRegrow(int anim);
+	void StartRegrow();
 
 	std::vector<std::vector<float>> flowerPositions;
 	//std::unordered_map<std::string, GLuint>* texs;
@@ -65,6 +65,8 @@ private:
 	GLuint VAO, VBO, EBO;
 	GLuint FlowerVAO, FlowerVBO;
 	float percent = 1.0; //0.0-1.0
+	int lastHealth = 120;
+	bool isAlive = true;
 	float flowerWidth;
 	double animStart;
 	bool animating;

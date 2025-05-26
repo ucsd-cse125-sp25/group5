@@ -286,7 +286,7 @@ void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 	float bHeight = WINDOWHEIGHT * percent * (806.0f / 1576.0f);
 	flowerWidth = WINDOWWIDTH * percent * 0.15;
 
-	float bump = (WINDOWHEIGHT * 0.65);
+	float bump = (WINDOWHEIGHT * 0.85);
 	std::vector<float> startPos = { WINDOWWIDTH * startPerc[0], WINDOWHEIGHT * startPerc[1] + bump};
 
 	health = {
@@ -347,10 +347,13 @@ void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 void HealthBar::Update(const UIData &p) {
 
 	float healthP = (float)p.currHP / (float)p.maxHP;
-	//std::cout << (float)p.currHP << std::endl;
-	//std::cout << (float)p.maxHP << std::endl;
-	//std::cout << "Current health percetnage " << healthP <<std::endl;
+
 	double now = glfwGetTime();
+	if (lastHealth <= 0 && p.currHP > lastHealth) {
+		this->StartRegrow();
+	}
+	lastHealth = p.currHP;
+	(lastHealth <= 0) ? isAlive = false : isAlive = true;
 
 
 	if (animating) {
@@ -449,7 +452,9 @@ void HealthBar::Draw() {
 	glDisable(GL_DEPTH_TEST);
 
 	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	if (isAlive) {
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 
 	//display each flower
 	glBindVertexArray(FlowerVAO);
@@ -472,7 +477,7 @@ void HealthBar::Draw() {
 	glBindVertexArray(0);
 }
 
-void HealthBar::StartRegrow(int anim) {
+void HealthBar::StartRegrow() {
 	if (animating) {
 		return;
 	}
@@ -497,7 +502,7 @@ void Magic::Init(std::vector<float> startPerc, float p, float r) {
 	percY = startPerc[1];
 	position = { percX * WINDOWWIDTH, percY * WINDOWHEIGHT };
 	uiWidth = WINDOWWIDTH * percent;
-	uiHeight = WINDOWHEIGHT * percent * ratio;
+	uiHeight = WINDOWHEIGHT * percent * 1.3 * ratio;
 	centerX = position[0] + (uiWidth / 2.0f) + 15;
 	centerY = position[1] + (uiHeight / 2.0f) - 15;
 
@@ -812,6 +817,8 @@ void Vignette::Draw() {
 	glBindVertexArray(VAO);
 
 	glm::mat4 model = glm::mat4(1.0f);
+	float seconds = glfwGetTime();
+	glUniform1f(glGetUniformLocation(shaderProgram, "time"), seconds);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniform1i(glGetUniformLocation(shaderProgram, "isAlive"), isAlive);
 	glUniform1i(glGetUniformLocation(shaderProgram, "isLow"), isLow);
