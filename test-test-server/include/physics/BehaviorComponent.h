@@ -10,7 +10,8 @@ enum class PlayerMovementState {
 	STOMP,
     DASH,
     GRAPPLE,
-	DEATH
+	DEATH,
+	MAGNET
 };
 
 class BehaviorComponent {  
@@ -41,10 +42,12 @@ class PlayerBehaviorComponent : public BehaviorComponent {
 const float JUMP_FORCE = 10.0f;
 const float DASH_TIME = 0.5f;
 const float DASH_SPEED = 20.0f;
-const float STOMP_TIME = 3.0f;
+const float STOMP_TIME = 5.0f;
 const float STOMP_SPEED = 30.0f;
 const float GRAPPLE_SPEED = 15.0f;
 const float GRAPPLE_TIME = 10.0f;
+const float MAGNET_TIME = 5.0f;
+const float MAGNET_SPEEED = 15.0f;
 const float WOOD_PROJ_SPEED = 25.0f;
 
 const float DEATH_TIME = 10.0f;
@@ -65,6 +68,7 @@ public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
     float dashTimer = 0.0f;
 	float stompTimer = 0.0f;
+	float magnetTimer = 0.0f;
     float grappleTimer = 0.0f;
 	float deathTimer = 0.0f;
 	GameObject* grappleTarget = nullptr;
@@ -115,6 +119,18 @@ public:
 
    void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
    void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
+};
+
+class MetalProjectileBehaviorComponent : public ProjectileBehaviorComponent {
+public:
+	MetalProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage, int originalPlayer)
+		: ProjectileBehaviorComponent(self, physicsSystem, velocity, damage, originalPlayer)
+	{
+		this->self = self;
+		this->physicsSystem = physicsSystem;
+	}
+	void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
+	void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
 };
 
 class FlagBehaviorComponent : public BehaviorComponent {

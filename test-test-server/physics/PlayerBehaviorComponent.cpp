@@ -178,7 +178,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
 		obj->type = METAL_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -362,6 +362,20 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			grappleTarget = nullptr;
 		}
 	}
+	else if (state == PlayerMovementState::MAGNET) {
+		glm::vec3 direction = phys.getClosestPlayerObject(obj->transform.position, obj->id)->transform.position - obj->transform.position;
+		direction = glm::normalize(direction);
+		obj->physics->velocity = direction * MAGNET_SPEEED;
+
+		magnetTimer -= deltaTime;
+		//if we've run out of time, release the magnet
+		if (magnetTimer <= 0.0f) {
+			obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+			state = PlayerMovementState::IDLE;
+			magnetTimer = 0.0f;
+		}
+
+	}
 	
 
 	//regular movement
@@ -433,6 +447,19 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 				playerStats.mana[1] -= WOOD_MOVE_COST;
 				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
+
+				return;
+			}
+			else if (playerStats.activePower == METAL && playerStats.mana[0] >= METAL_MOVE_COST) {
+				//get the direction of the closest player object that is not myself 
+
+				playerStats.mana[0] -= METAL_MOVE_COST;
+				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
+
+				magnetTimer = MAGNET_TIME;
+				state = PlayerMovementState::MAGNET;
+
+
 			}
 
 			printf("Metal mana %d\n", playerStats.mana[0]);
