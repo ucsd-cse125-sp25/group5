@@ -17,7 +17,7 @@ class Camera {
 public:
     Camera();
 
-    void Update(ClientGame * client, GamePhase phase);
+    void Update(ClientGame * client);
     void Reset();
 
     // Access functions

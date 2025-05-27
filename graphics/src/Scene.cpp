@@ -20,7 +20,9 @@ float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
-void Scene::createGame() {
+void Scene::createGame(ClientGame *client) {
+	this->client = client;
+
 	//setup lights
 	lightmanager = new Lights();
 	lightmanager->init();
@@ -31,7 +33,7 @@ void Scene::createGame() {
 	skybox->initSkybox();
 
 	uimanager = new UIManager;
-	uimanager->Init();
+	uimanager->Init(client);
 
 	audiomanager = new Audio;
 	audiomanager->Init();
@@ -81,7 +83,7 @@ void Scene::loadObjects() {
 	}
 }
 
-void Scene::update(ClientGame* client) {
+void Scene::update() {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
@@ -100,7 +102,8 @@ void Scene::update(ClientGame* client) {
 	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
-	dummy.seconds = client->GameState.timeLeft;
+	dummy.seconds = client->GameState.time;
+
 	for (int i = 0; i < KILLFEED_LENGTH; i++) {
 		dummy.killfeed[i] = client->GameState.killfeed[i];
 	}

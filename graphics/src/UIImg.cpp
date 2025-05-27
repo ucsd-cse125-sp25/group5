@@ -146,9 +146,9 @@ void Clock::Update(const UIData& p) {
 
 void Clock::Draw() {
 	//seconds = timerStart - (glfwGetTime() - start);
-	if (seconds < 1 * 30) {
+	/*if (seconds < 1 * 30) {
 		return;
-	}
+	}*/
 
 	glUseProgram(shaderProgram);
 	glEnable(GL_BLEND);

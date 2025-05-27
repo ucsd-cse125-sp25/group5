@@ -69,7 +69,7 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     GLFWmonitor* primary = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(primary);
 
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    // glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, windowTitle, NULL, NULL);
     glfwSetWindowPos(window, 0, 0);
     //int WINDOWHEIGHT = mode->height;
@@ -143,8 +143,8 @@ void Window::idleCallback() {
     }
   
     client->update(PlayerIntent);
-    Cam->Update(client, scene->uimanager->GetGamePhase());
-    scene->update(client);
+    Cam->Update(client);
+    scene->update();
 
     //if (PlayerIntent.scrollIntentTriggered) {
     //    PlayerIntent.scrollIntentTriggered = false;

@@ -8,7 +8,7 @@
 
 class UIManager {
 public:
-	void Init();
+	void Init(ClientGame* client);
 
 	void update(const UIData &p);
 
@@ -23,9 +23,8 @@ public:
 	GamePhase GetGamePhase();
 	void TriggerAnim(int anim);
 	int getPowerup();
-	GamePhase currState = GamePhase::LOBBY;
-	//GamePhase currState = GamePhase::LOBBY;
 private:
+	ClientGame* client;
 	//GLuint shaderProgram;
 	glm::mat4 projection;
 

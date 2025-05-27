@@ -11,11 +11,6 @@ enum class ElementType {
     EARTH
 };
 
-enum class GamePhase {
-    LOBBY,
-    MATCH
-};
-
 struct UIData {
     //damage from powerups will be whole numbers
     int maxHP = 120, currHP = 120;

@@ -251,22 +251,12 @@ void PlayerBehaviorComponent::updateParticleFlags() {
 		}
 		if (playerStats.movementPowerupFlag[i] > 0) {
 			playerStats.movementPowerupFlag[i]++;
-		}
-
-		
+		}	
 	}
-
-
 }
 
 //—— integrate — called once per tick
-void PlayerBehaviorComponent::integrate(GameObject* obj,
-    float deltaTime,
-    PhysicsSystem& phys)
-{	
-
-
-
+void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) {
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
@@ -434,6 +424,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
 				}
 
+
 				playerStats.mana[1] -= WOOD_MOVE_COST;
 				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 			}
@@ -444,22 +435,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			printf("Fire mana %d\n", playerStats.mana[3]);
 			printf("Earth mana %d\n", playerStats.mana[4]);
 		}
-		
 
-		//if (intent.hit1Intent && obj->attached != nullptr && obj->attached->type == FLAG) {
-		//	FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
-		//	playerStats.hasFlag = false;
-		//	behavior->owningPlayer = -1;
-		//	obj->attached = nullptr;
-		//}
-
-		//if (intent.hit2Intent) {
-		//	//kill self
-		//	playerStats.hp = 0.0f;
-		//}
-
-		//check for attacks
-		//printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].leftClickDuration);
 		if (intent.leftClickIntent) {
 			if (playerStats.activePower == FIRE && phys.PlayerTrackings[obj->id].leftClickDuration >= 1) {
 				spawnProjectile(obj, playerStats.activePower, phys);
@@ -474,14 +450,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 			
 		}
 
-
 		// apply force 
 		obj->physics->velocity += obj->physics->acceleration * deltaTime;
 
 		//apply drag
 		obj->physics->velocity *= (1.0f - obj->physics->drag * deltaTime);
-
-
 
 		//clamp velocity
 		if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
@@ -499,12 +472,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
 		//apply transformation
 		obj->transform.position += inputDirection * deltaTime;
-
-		
-
 	}
-
-
 
 	updateParticleFlags();
 	//only apply the player velocity for movement
@@ -512,13 +480,10 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	//the important line
 	obj->transform.position += obj->physics->velocity * deltaTime;
-
 	
-	//
-
 	//remove it after
 	//obj->physics->velocity -= getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
-    
+	
 }
 
 //—— resolveCollision — called when this object hits another

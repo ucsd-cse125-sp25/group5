@@ -47,6 +47,13 @@ enum KillfeedType {
 	FLAGPICKUP
 };
 
+enum GamePhase {
+	WAITING,
+	PRE_GAME,
+	IN_GAME,
+	POST_GAME
+};
+
 enum MoonPhase {
 	NEW_MOON,
 	WAXING_CRESCENT,
