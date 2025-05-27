@@ -165,3 +165,33 @@ Octree::~Octree() {
     delete root;
     root = nullptr;
 }
+
+bool overlap(const AABB& box1, const AABB& box2) {
+    return (box1.min.x <= box2.max.x && box1.max.x >= box2.min.x) &&
+           (box1.min.y <= box2.max.y && box1.max.y >= box2.min.y) &&
+           (box1.min.z <= box2.max.z && box1.max.z >= box2.min.z);
+}
+
+void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const {
+    if (!root) return;
+
+    vector<Node*> nodesToCheck;
+    nodesToCheck.push_back(root);
+
+    while (!nodesToCheck.empty()) {
+        Node* currentNode = nodesToCheck.back();
+        nodesToCheck.pop_back();
+
+        if (overlap(currentNode->getBoundingBox(), box)) {
+            if (currentNode->isLeafNode()) {
+                for (GameObject* obj : currentNode->getObjects()) {
+                    potentialCollisions.push_back(obj);
+                }
+            } else {
+                for (int i = 0; i < 8; i++) {
+                    nodesToCheck.push_back(currentNode->getChild(i));
+                }
+            }
+        }
+    }
+}

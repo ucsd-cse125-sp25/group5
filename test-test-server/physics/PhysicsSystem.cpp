@@ -27,11 +27,14 @@ void PhysicsSystem::tick(float dt) {
     }
 
     // After integration is complete for all objects, start handling collision
-    for (size_t i = 0; i < movingObjects.size(); ++i) {
-        GameObject* obj = movingObjects[i];
-        handleCollisions(obj);
-        obj->physics->acceleration = glm::vec3(0);
-    }
+    // for (size_t i = 0; i < movingObjects.size(); ++i) {
+    //     GameObject* obj = movingObjects[i];
+    //     handleCollisions(obj);
+    //     obj->physics->acceleration = glm::vec3(0);
+    // }
+
+    broadphaseInit();
+    checkCollisionDynamicAll();
 
     //delete all objects marked for deletion
 	deleteMarkedDynamicObjects();
@@ -129,6 +132,10 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     // Positional correction: push both objects out of each other
     go1->transform.position += normal * (overlap * overlapFraction);
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
+
+    // update acceleration to zero after collision
+    go1->physics->acceleration = glm::vec3(0.0f);
+    go2->physics->acceleration = glm::vec3(0.0f);
 }
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
@@ -366,5 +373,32 @@ void PhysicsSystem::broadphaseInit() {
 	Octree* octreeStaticObjects;
     initOctree(movingObjects, octreeMovingObjects);
     initOctree(staticObjects, octreeStaticObjects);
+}
+
+void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {
+    if (octree == nullptr || obj == nullptr) return;
+    
+    vector<GameObject*> potentialCollisions;
+    octree->getPotentialCollisionPairs(getAABB(obj), potentialCollisions);
+
+    for (auto& otherObj : potentialCollisions) {
+        if (otherObj != obj) {
+            pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherAABB->transform.aabb);
+            if (penetration.second > 0.0f) {
+                resolveCollision(obj, otherObj, penetration, status);
+            }
+        }
+    }
+}
+
+void PhysicsSystem::checkCollisionDynamicOne(GameObject* dynamicObj) {
+    checkCollisionOne(octreeMovingObjects, movingObjects, dynamicObj, 1);
+    checkCollisionOne(octreeStaticObjects, staticObjects, dynamicObj, 0);
+}
+
+void PhysicsSystem::checkCollisionDynamicAll() {
+    for (auto& obj : movingObjects) {
+        checkCollisionDynamicOne(obj);
+    }
 }
 

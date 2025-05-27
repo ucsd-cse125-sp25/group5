@@ -64,6 +64,9 @@ class Octree {
         void reconstructTree(const vector<GameObject*>& objects);
         void insert(GameObject* obj, Node* node);
 
+        void getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const;
+        
+        // getters
 		int getMaxDepth() const { return maxDepth; }
         int getMaxObjectsPerNode() const { return maxObjectsPerNode; }
         Node* getRoot() const { return root; }
