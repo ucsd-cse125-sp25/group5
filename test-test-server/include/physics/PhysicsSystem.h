@@ -242,6 +242,8 @@ public:
     //id
     int getNextId();
     GameObject* getPlayerObjectById(int id);
+
+    GameObject* getClosestPlayerObject(glm::vec3 pos, int exclude);
     
     //adding objects
 	void addDynamicObject(GameObject* obj) {
@@ -256,6 +258,8 @@ public:
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
     }
+
+
 
     void addKillfeedItem(KillfeedItem item) {
         killfeed_queue.push_back(item);

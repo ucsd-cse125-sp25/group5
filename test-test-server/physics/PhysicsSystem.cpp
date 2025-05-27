@@ -104,6 +104,28 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
     return;
 }
 
+
+GameObject* PhysicsSystem::getClosestPlayerObject(glm::vec3 pos, int exclude) {
+	float closest = 1000000.0f; // Initialize with a large value
+	GameObject* toRet = nullptr;
+	for (auto obj : playerObjects) {
+		if (glm::distance(obj->transform.position, pos) < closest && obj->id != exclude) {
+			closest = glm::distance(obj->transform.position, pos);
+			toRet = obj;
+		}
+	}
+
+    if (toRet == nullptr) {
+		//return a dummy GameObject if no player is found
+		toRet = makeGameObject();
+		toRet->transform.position = pos; // Set position to the input position
+		toRet->id = exclude; // Set ID to the excluded player ID
+		toRet->isDynamic = false; // Mark as static
+		toRet->collider->halfExtents = glm::vec3(0.1f); // Small collider for dummy object
+    }
+    return toRet;
+}
+
 vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution) {
     float velAlongNormal = glm::dot(relativeVelocity, normal);
     if (velAlongNormal < 0.0f) {
