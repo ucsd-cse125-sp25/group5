@@ -91,7 +91,7 @@ GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
     glfwSwapInterval(0);
 
     // set up the camera
-    Cam = new Camera();
+    Cam = new Camera(_client);
     Cam->SetAspect(float(width) / float(height));
 
     // initialize the interaction variables
@@ -143,7 +143,7 @@ void Window::idleCallback() {
     }
   
     client->update(PlayerIntent);
-    Cam->Update(client);
+    Cam->Update();
     scene->update();
 
     //if (PlayerIntent.scrollIntentTriggered) {

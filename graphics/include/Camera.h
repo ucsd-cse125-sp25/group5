@@ -15,9 +15,9 @@
 
 class Camera {
 public:
-    Camera();
+    Camera(ClientGame* client);
 
-    void Update(ClientGame * client);
+    void Update();
     void Reset();
 
     // Access functions
@@ -39,6 +39,8 @@ public:
     float sensitivity;
 
 private:
+    ClientGame* client;
+
     // Perspective controls
     float FOV;       // Field of View Angle (degrees)
     float Aspect;    // Aspect Ratio

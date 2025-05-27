@@ -293,6 +293,7 @@ void ServerGame::writeToGameState() {
 			break;
 		case IN_GAME:
 			GameState.time = IN_GAME_DURATION - timeSinceStart;
+			break;
 		default:
 			GameState.time = timeSinceStart;
 	}
@@ -322,6 +323,7 @@ void ServerGame::writeToGameState() {
 		if (phase == IN_GAME && GameState.time <= 0 && GameState.lockedWinnerId == -1) {
 			//one of the players has the flag
 			if (playerBehaviors[i] != nullptr && playerBehaviors[i]->playerStats.hasFlag) {
+				setPhase(POST_GAME);
 				GameState.lockedWinnerId = i;
 				printf("Player %d has won\n", GameState.lockedWinnerId);
 			}

@@ -7,13 +7,14 @@
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 
-Camera::Camera() {
+Camera::Camera(ClientGame* client) {
+    this->client = client;
     Reset();
     Rot = glm::mat4(1.0f);
 }
 
-void Camera::Update(ClientGame* client) {
-    if (client->GameState.phase == WAITING || client->GameState.phase == PRE_GAME) {
+void Camera::Update() {
+    if (client->GameState.phase != GamePhase::IN_GAME) {
         glm::mat4 world(1);
         glm::mat4 translate(1);
         Rot = glm::rotate(Rot, 0.0008f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -40,8 +41,7 @@ void Camera::Update(ClientGame* client) {
         ProjMtx = project;
 
         //std::cout << "CAM POSITION" << glm::to_string(GetPosition()) << std::endl;
-    }
-    else if (client->GameState.phase == GamePhase::IN_GAME) {
+    } else {
         // Compute camera world matrix
         glm::mat4 world(1);
         glm::mat4 translate(1);
@@ -77,7 +77,7 @@ void Camera::Update(ClientGame* client) {
     }
 }
 void Camera::Reset() {
-    FOV = 80.0f;
+    FOV = 70.0f;
     Aspect = 1.33f;
     NearClip = 0.1f;
     FarClip = 100.0f;
