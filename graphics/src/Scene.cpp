@@ -20,6 +20,14 @@ float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
+
+float soundcooldown = 0.5f;
+const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
+const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
+static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
+static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
+static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
+static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 void Scene::createGame() {
 	//setup lights
 	lightmanager = new Lights();
@@ -53,6 +61,13 @@ void Scene::createGame() {
 	watermat[3] = glm::vec4(-25.0, 0, -25.0, 1);
 	water->update(watermat);
 
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		for (int j = 0; j < 5; j++) {
+			lastUsedAttack[i][j] = glfwGetTime();
+			lastUsedMovement[i][j] = glfwGetTime();
+		}
+	}
+
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
@@ -76,11 +91,6 @@ void Scene::loadObjects() {
 		players[i]->LoadAnimation();
 	}
 }
-
-const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
-const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
-static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
-static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 
 void Scene::update(ClientGame* client, Camera* cam) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
@@ -189,19 +199,30 @@ void Scene::update(ClientGame* client, Camera* cam) {
 		PlayerStats& c = client->GameState.player_stats[i];
 		glm::vec3 pos = client->GameState.players[i].model[3];
 		for (int j = 0; j < 5; j++) {
-			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j]) {
-				audiomanager->PlayAudio(attackKeys[j], pos);
-				prevAttackFlags[i][j] = true;
-			}
+			float now = glfwGetTime();
 			if (c.attackPowerupFlag[j] == 0 || c.attackPowerupFlag[j] > 2) {
 				prevAttackFlags[i][j] = false;
 			}
-			if ((c.movementPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevMovementFlags[i][j]) {
-				audiomanager->PlayAudio(movementKeys[j], pos);
-				prevMovementFlags[i][j] = true;
-			}
 			if (c.movementPowerupFlag[j] == 0 || c.movementPowerupFlag[j] > 2) {
 				prevMovementFlags[i][j] = false;
+			}
+			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j] && attackKeys[j]) {
+				std::cout << "Going to play audio for player:  " << i << " power: " << j << std::endl;
+				if (now - lastUsedAttack[i][j] > soundcooldown) {
+					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
+					audiomanager->PlayAudio(attackKeys[j], pos);
+					lastUsedAttack[i][j] = now;
+				}
+				prevAttackFlags[i][j] = true;
+			}
+			if ((c.movementPowerupFlag[j] == 1 || c.movementPowerupFlag[j] == 2) && !prevMovementFlags[i][j] && movementKeys[j]) {
+				std::cout << "Going to play audio for player:  " << i << " movement: " << j << std::endl;
+				if (now - lastUsedMovement[i][j] > soundcooldown) {
+					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
+					audiomanager->PlayAudio(movementKeys[j], pos);
+					lastUsedMovement[i][j] = now;
+				}
+				prevMovementFlags[i][j] = true;
 			}
 		}
 	}
