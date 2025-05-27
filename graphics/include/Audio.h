@@ -12,12 +12,15 @@ public:
 	void Update(Camera* cam);
 	void PlayAudio(std::string n, glm::vec3 pos);
 	void StopAudio();
+	void Filter();
 private:
-	FMOD::System* system;
+	FMOD::System* system = nullptr;
 	FMOD_VECTOR listenerPos;
 	FMOD_VECTOR listenerVel;
 	FMOD_VECTOR forward;
 	FMOD_VECTOR up;
-	FMOD::Channel* musicChannel;
+	FMOD::Channel* musicChannel = nullptr;
+	FMOD::ChannelGroup* mainGroup = nullptr;
+	FMOD::DSP* lowpassDSP = nullptr;
 	
 };

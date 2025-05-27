@@ -77,8 +77,10 @@ void Scene::loadObjects() {
 	}
 }
 
-const char* attackKeys[] = { nullptr, nullptr, "fireA", "waterA", nullptr };
-const char* movementKeys[] = { nullptr, nullptr, "fireM", "waterM", nullptr };
+const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
+const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
+static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
+static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 
 void Scene::update(ClientGame* client, Camera* cam) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
@@ -186,13 +188,20 @@ void Scene::update(ClientGame* client, Camera* cam) {
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		PlayerStats& c = client->GameState.player_stats[i];
 		glm::vec3 pos = client->GameState.players[i].model[3];
-
 		for (int j = 0; j < 5; j++) {
-			if (c.attackPowerupFlag[j] == 1 && attackKeys[j]) {
+			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j]) {
 				audiomanager->PlayAudio(attackKeys[j], pos);
+				prevAttackFlags[i][j] = true;
 			}
-			if (c.movementPowerupFlag[j] == 1 && movementKeys[j]) {
+			if (c.attackPowerupFlag[j] == 0 || c.attackPowerupFlag[j] > 2) {
+				prevAttackFlags[i][j] = false;
+			}
+			if ((c.movementPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevMovementFlags[i][j]) {
 				audiomanager->PlayAudio(movementKeys[j], pos);
+				prevMovementFlags[i][j] = true;
+			}
+			if (c.movementPowerupFlag[j] == 0 || c.movementPowerupFlag[j] > 2) {
+				prevMovementFlags[i][j] = false;
 			}
 		}
 	}
