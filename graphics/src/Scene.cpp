@@ -190,8 +190,7 @@ void Scene::update(ClientGame* client, Camera* cam) {
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
 	dummy.seconds = client->GameState.timeLeft;
-
-	audiomanager->Update(cam);
+	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
 
 	//This is where we will play the sounds

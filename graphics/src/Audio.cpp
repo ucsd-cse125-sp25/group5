@@ -72,7 +72,16 @@ void Audio::StopAudio() {
 }
 
 //FMOD::System* automatically handles playing audio
-void Audio::Update(Camera* cam) {
+void Audio::Update(Camera* cam, UIData &p) {
+	if (isAlive && p.currHP <= 20) {
+		isAlive = false;
+		this->Filter();
+
+	}
+	else if (!isAlive && p.currHP > 20) {
+		isAlive = true;
+		this->Filter();
+	}
 	//Set the position up and forward
 	glm::vec3 pos = cam->GetPosition();
 	glm::vec3 f = glm::normalize(cam->GetCameraForwardVector());

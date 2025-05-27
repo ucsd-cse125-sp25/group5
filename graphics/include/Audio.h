@@ -9,11 +9,13 @@
 class Audio {
 public:
 	void Init();
-	void Update(Camera* cam);
+	void Update(Camera* cam, UIData &p);
 	void PlayAudio(std::string n, glm::vec3 pos);
 	void StopAudio();
 	void Filter();
 private:
+	bool isAlive = true;
+	bool isUnderwater;
 	FMOD::System* system = nullptr;
 	FMOD_VECTOR listenerPos;
 	FMOD_VECTOR listenerVel;
