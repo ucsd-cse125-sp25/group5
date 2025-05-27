@@ -172,7 +172,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		printf("Projectile velocity %f %f %f\n", obj->physics->velocity.x, obj->physics->velocity.y, obj->physics->velocity.z);
 
 		//reduce mana
-		playerStats.mana[1] -= WOOD_PROJ_COST;
+		//playerStats.mana[1] -= WOOD_PROJ_COST;
 	}
 	else if (type == METAL && playerStats.mana[0] >= METAL_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
@@ -185,7 +185,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
 
-		playerStats.mana[0] -= METAL_PROJ_COST;
+		//playerStats.mana[0] -= METAL_PROJ_COST;
 	}
 	else if (type == WATER && playerStats.mana[2] >= WATER_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
@@ -198,7 +198,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
 
-		playerStats.mana[2] -= WATER_PROJ_COST;
+		//playerStats.mana[2] -= WATER_PROJ_COST;
 	}
 	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
@@ -211,7 +211,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
 
-		playerStats.mana[3] -= FIRE_PROJ_COST;
+		//playerStats.mana[3] -= FIRE_PROJ_COST;
 	}
 	else if (type == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
@@ -224,7 +224,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
 
-		playerStats.mana[4] -= EARTH_PROJ_COST;
+		//playerStats.mana[4] -= EARTH_PROJ_COST;
 	}
 	
 }
@@ -257,6 +257,36 @@ void PlayerBehaviorComponent::updateParticleFlags() {
 	}
 
 
+}
+
+
+void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& phys, float deltaTime) {
+	//if we have a slow timer, apply the slow
+
+	//cooldown for the slow effect
+	if (slowTimer > 0.0f) {
+		curSlowFactor = WATER_SLOW_FACTOR; // apply slow factor
+		slowTimer -= deltaTime;
+		if (slowTimer <= 0.0f) {
+			slowTimer = 0.0f;
+			//obj->physics->drag = 0.1f; // reset drag to normal
+			curSlowFactor = 1.0f; // reset slow factor
+		}
+	}
+	else {
+		curSlowFactor = 1.0f; // reset slow factor
+	}
+
+	//cooldown for all 5 attack powers
+	for (int i = 0; i < 5; i++) {
+		if (curCooldownArray[i] > 0.0f) {
+			curCooldownArray[i] -= deltaTime;
+			if (curCooldownArray[i] <= 0.0f) {
+				curCooldownArray[i] = 0.0f;
+				playerStats.attackPowerupFlag[i] = 0; // reset attack power flag
+			}
+		}
+	}
 }
 
 //—— integrate — called once per tick
@@ -365,7 +395,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	else if (state == PlayerMovementState::MAGNET) {
 		glm::vec3 direction = phys.getClosestPlayerObject(obj->transform.position, obj->id)->transform.position - obj->transform.position;
 		direction = glm::normalize(direction);
-		obj->physics->velocity = direction * MAGNET_SPEEED;
+		obj->physics->velocity = -direction * MAGNET_SPEEED;
 
 		magnetTimer -= deltaTime;
 		//if we've run out of time, release the magnet
@@ -484,19 +514,28 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 		//check for attacks
 		//printf("rightClickDuration is %d\n", phys.PlayerTrackings[obj->id].leftClickDuration);
-		if (intent.leftClickIntent) {
+
+		//make sure cooldown works
+		if (intent.leftClickIntent && curCooldownArray[playerStats.activePower] <= 0.0f && playerStats.mana[playerStats.activePower] >= ATTACK_COST_ARRAY[playerStats.activePower]) {
 			if (playerStats.activePower == FIRE && phys.PlayerTrackings[obj->id].leftClickDuration >= 1) {
 				spawnProjectile(obj, playerStats.activePower, phys);
 				playerStats.attackPowerupFlag[FIRE] = 1;
+				playerStats.mana[playerStats.activePower] -= ATTACK_COST_ARRAY[playerStats.activePower];
 			}
 			else if (phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
 				spawnProjectile(obj, playerStats.activePower, phys);
 				playerStats.attackPowerupFlag[playerStats.activePower] = 1;
 				printf("Hit e\n");
 				printf("Physics system size %d\n", int(phys.dynamicObjects.size()));
+				playerStats.mana[playerStats.activePower] -= ATTACK_COST_ARRAY[playerStats.activePower];
 			}
+			//set the cooldown for the attack
+			curCooldownArray[playerStats.activePower] = ATTACK_COOLDOWN_ARRAY[playerStats.activePower];
+			//reduce mana
 			
 		}
+
+		manageCooldowns(obj, phys, deltaTime);
 
 
 		// apply force 
@@ -522,7 +561,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		//set moving flag
 		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
 		//apply transformation
-		obj->transform.position += inputDirection * deltaTime;
+		obj->transform.position += inputDirection * deltaTime * curSlowFactor;
 
 		
 
@@ -535,7 +574,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 	//obj->physics->velocity += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	//the important line
-	obj->transform.position += obj->physics->velocity * deltaTime;
+	obj->transform.position += obj->physics->velocity * deltaTime * curSlowFactor;
 
 	
 	//
@@ -563,6 +602,11 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			if (pb != nullptr && pb->originalPlayer != obj->id) {
 				playerStats.hp -= pb->damage;
 				printf("Player %d took %f damage from projectile %d\n", obj->id, pb->damage, other->id);
+
+				//apply slow
+				if (other->type == WATER_PROJ) {
+					slowTimer = SLOW_TIME;
+				}
 			}
 			//if we get killed, update the killfeed
 			if (playerStats.hp <= 0) {
