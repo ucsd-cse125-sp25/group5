@@ -269,6 +269,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
+	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+
 	//when death first happens 
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
 		//set state to death, start the death timer, do tags
@@ -280,8 +282,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj,
 		if (obj->attached != nullptr && obj->attached->type == FLAG) {
 			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
 			behavior->owningPlayer = -1;
+			behavior->owningGameObject = nullptr;
 			obj->attached = nullptr;
-			playerStats.hasFlag = false;
+			//playerStats.hasFlag = false;
 
 			//killfeed item for dropping the flag
 			struct KillfeedItem item = { -1, obj->id, FLAGDROP, 0.0f };

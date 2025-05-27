@@ -124,6 +124,7 @@ public:
 	int owningPlayer = -1;
 	float tagTransferTimer = 3.0f;
 	bool inCooldown = false;
+	GameObject* owningGameObject = nullptr;
 
 	FlagBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
 		: BehaviorComponent(self, physicsSystem)
