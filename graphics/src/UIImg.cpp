@@ -326,6 +326,9 @@ void Killfeed::Draw() {
 
 	glDisable(GL_DEPTH_TEST);
 
+	glm::vec3 attackerColor = glm::vec3(1.0, 0.0, 0.0);
+	glm::vec3 actionColor = glm::vec3(0.3, 0.6, 0.0);
+	glm::vec3 victimColor = glm::vec3(0.0, 0.2, 0.7);
 
 	glBindVertexArray(VAO);
 	glm::mat4 baseModel = glm::mat4(1.0f);
@@ -341,13 +344,17 @@ void Killfeed::Draw() {
 		float transparency = (30 - uidata.killfeed[i].lifetime)/1.5;
 
 		glUniform1f(glGetUniformLocation(shaderProgram, "transparency"),  transparency);
+		
 		//attacker draw
+		glUniform3f(glGetUniformLocation(shaderProgram, "borderColor"), attackerColor.x, attackerColor.y, attackerColor.z);
 		GLuint sprite = (*texs)["player" + std::to_string(uidata.killfeed[i].attacker)];
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glBindTexture(GL_TEXTURE_2D, sprite);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.1f, 0.0f, 0.0f));
+
+		glUniform3f(glGetUniformLocation(shaderProgram, "borderColor"), actionColor.x, actionColor.y, actionColor.z);
 		//action draw
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glBindTexture(GL_TEXTURE_2D, (*texs)["action" + std::to_string(uidata.killfeed[i].type)]);
@@ -357,6 +364,7 @@ void Killfeed::Draw() {
 		// will be -1 if there is no victim
 		if (uidata.killfeed[i].victim != -1) {
 			//victim draw only if there is a victim
+			glUniform3f(glGetUniformLocation(shaderProgram, "borderColor"), victimColor.x, victimColor.y, victimColor.z);
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 			glBindTexture(GL_TEXTURE_2D, (*texs)["player" + std::to_string(uidata.killfeed[i].victim)]);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
