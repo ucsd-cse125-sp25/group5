@@ -35,11 +35,8 @@ void Scene::createGame() {
 
 	audiomanager = new Audio;
 	audiomanager->Init();
-	audiomanager->PlayAudio("matchsong");
-	audiomanager->PlayAudio("firesound");
-	//Necessary for the uimanager, will change once network protocol gets updated
-	//dummy.maxHP = 250;
-	//dummy.currHP = dummy.maxHP;
+	//audiomanager->PlayAudio("matchsong");
+	//audiomanager->PlayAudio("firesound");
 	test = new PlayerObject();
 
 	//Cinema
@@ -72,7 +69,6 @@ void Scene::loadObjects() {
 	glm::mat4 mov = glm::mat4(1.0f);
 	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
 	
-	
 	//test->UpdateMat(mov);
 	//wasp load-in
 	player->LoadAnimation();
@@ -81,26 +77,17 @@ void Scene::loadObjects() {
 	}
 }
 
-void Scene::update(ClientGame* client) {
+const char* attackKeys[] = { nullptr, nullptr, "fireA", "waterA", nullptr };
+const char* movementKeys[] = { nullptr, nullptr, "fireM", "waterM", nullptr };
+
+void Scene::update(ClientGame* client, Camera* cam) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
 
-	audiomanager->Update();
-
 	player->UpdateMat(client->playerModel);
 	player->Update();
-	//test->Update();
-
-	//get information from client state
-	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
-	dummy.currMetal = client->GameState.player_stats[client->playerId].mana[0];
-	dummy.currWood = client->GameState.player_stats[client->playerId].mana[1];
-	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
-	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
-	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
-	dummy.seconds = client->GameState.timeLeft;
 
 	int i;
 	int j;
@@ -190,8 +177,25 @@ void Scene::update(ClientGame* client) {
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
+	dummy.seconds = client->GameState.timeLeft;
 
+	audiomanager->Update(cam);
 	uimanager->update(dummy);
+
+	//This is where we will play the sounds
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		PlayerStats& c = client->GameState.player_stats[i];
+		glm::vec3 pos = client->GameState.players[i].model[3];
+
+		for (int j = 0; j < 5; j++) {
+			if (c.attackPowerupFlag[j] == 1 && attackKeys[j]) {
+				audiomanager->PlayAudio(attackKeys[j], pos);
+			}
+			if (c.movementPowerupFlag[j] == 1 && movementKeys[j]) {
+				audiomanager->PlayAudio(movementKeys[j], pos);
+			}
+		}
+	}
 }
 
 bool Scene::initShaders() {

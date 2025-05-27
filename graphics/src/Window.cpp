@@ -144,7 +144,7 @@ void Window::idleCallback() {
   
     client->update(PlayerIntent);
     Cam->Update(client, scene->uimanager->GetGamePhase());
-    scene->update(client);
+    scene->update(client, Cam);
 
     //if (PlayerIntent.scrollIntentTriggered) {
     //    PlayerIntent.scrollIntentTriggered = false;

@@ -17,7 +17,8 @@ void Camera::Update(ClientGame* client, GamePhase phase) {
     if (phase == GamePhase::LOBBY) {
         glm::mat4 world(1);
         glm::mat4 translate(1);
-        Rot = glm::rotate(Rot, 0.0008f, glm::vec3(0.0f, 1.0f, 0.0f));
+        //0.0008f
+        Rot = glm::rotate(Rot, 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
 
        
 
@@ -91,4 +92,10 @@ void Camera::Reset() {
     Pos = glm::vec3(0, 0, 2.0);
 
     sensitivity = 0.6f;
+}
+
+glm::vec3 Camera::GetCameraForwardVector() {
+    glm::mat4 camWorld = glm::inverse(ViewMtx); // Convert view -> world
+    glm::vec3 forward = -glm::normalize(glm::vec3(camWorld[2])); // -Z axis
+    return forward;
 }

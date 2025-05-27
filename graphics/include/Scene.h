@@ -44,7 +44,7 @@ public:
 	bool initShaders();
 	void initShadows();
 	void loadObjects();
-	void update(ClientGame* client);
+	void update(ClientGame* client, Camera* cam);
 	void draw(Camera* cam);
 	void TriggerAnim(int anim);
 	int getPowerup();

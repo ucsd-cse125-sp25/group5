@@ -27,6 +27,8 @@ public:
     void SetIncline(float i) { Incline = i; }
     void SetPosition(glm::vec3 a) { Pos = a; }
 
+    glm::vec3 GetCameraForwardVector();
+
     float GetDistance() { return Distance; }
     float GetAzimuth() { return Azimuth; }
     float GetIncline() { return Incline; }

@@ -4,12 +4,13 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
+#include "Camera.h"
 
 class Audio {
 public:
 	void Init();
-	void Update();
-	void PlayAudio(std::string n);
+	void Update(Camera* cam);
+	void PlayAudio(std::string n, glm::vec3 pos);
 	void StopAudio();
 private:
 	FMOD::System* system;
