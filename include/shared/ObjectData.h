@@ -10,6 +10,7 @@
 static glm::vec3 island_extents = glm::vec3(10.0f, 1.0f, 10.0f);
 static glm::vec3 woodProjExtents = glm::vec3(0.1f, 0.1f, 0.1f);
 static glm::vec3 fireProjExtents = glm::vec3(0.5f, 0.5f, 0.5f);
+static glm::vec3 groundExtents = glm::vec3(1000.0f, 1.0f, 1000.0f);
 
 static float woodProjSpeed = 25.0f;
 static float fireProjSpeed = 12.0f;

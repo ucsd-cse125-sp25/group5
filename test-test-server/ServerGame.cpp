@@ -18,7 +18,7 @@
 
 #define PRE_GAME_COUNTDOWN 5
 #define IN_GAME_DURATION 120
-#define NUM_PLAYERS_TO_START 2
+#define NUM_PLAYERS_TO_START 3
 
 #define TICKS_PER_SECOND 100
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
@@ -133,6 +133,10 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 		island->type = ISLAND;
 		physicsSystem.addStaticObject(island);
 	}
+
+	GameObject* ground = physicsSystem.makeGameObject(glm::vec3(0.0f, -20.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), groundExtents);
+	ground->type = COLLIDER;
+	physicsSystem.addStaticObject(ground);
 
 
 }
@@ -313,7 +317,7 @@ void ServerGame::writeToGameState() {
 	//send the killfeed
 	writeKillfeed(physicsSystem, physicsSystem.killfeed_queue, GameState);
   
-	GameState.waterLevel = physicsSystem.waterLevel; // Update the water level in the game state
+	GameState.waterLevel = -10; // Update the water level in the game state
 
 	for (int i = 0; i < 4; i++) {
 		if (playerBehaviors[i] != nullptr) {
@@ -334,6 +338,21 @@ void ServerGame::writeToGameState() {
 	}
 }
 
+struct {
+	char rem[MAX_PACKET_SIZE];
+	int remSize = 0;
+	PacketTypes type = NONE;
+} bufs[4];
+
+char network_data[MAX_PACKET_SIZE];
+
+void ServerGame::handlePlayerIntentPacket(unsigned int id, char* buf) {
+	physicsSystem.PlayerIntents[id].deserialize(buf);
+	physicsSystem.applyInput(physicsSystem.PlayerIntents[id], id);
+	inputManager.updateTracking(physicsSystem.PlayerIntents[id], id);
+	physicsSystem.PlayerTrackings[id] = inputManager.playerIntentTrackers[id];
+}
+
 bool ServerGame::receiveFromClients() {
 	bool receivedChanges = false;
 
@@ -341,27 +360,49 @@ bool ServerGame::receiveFromClients() {
 	std::map<unsigned int, SOCKET>::iterator iter;
 
 	for (iter = network->sessions.begin(); iter != network->sessions.end(); iter++) {
-		int data_length = network->receiveData(iter->first, network_data);
+		unsigned int id = iter->first;
+		int bytes_received = network->receiveData(id, network_data);
 
-		//no data recieved
-		if (data_length <= 0) {
-			continue;
-		}
+		if (bytes_received >= 0) {
+			receivedChanges = true;
+			int i = 0;
 
-		receivedChanges = true;
+			// There is partial packet stored in rem
+			if (bufs[id].type != NONE) {
+				int bytes_required = sizeof(PlayerIntentPacket) - bufs[id].remSize;
 
-		unsigned int i = 0;
-		while (i < (unsigned int)data_length) {
-			//copy the network packet data into player intent
-			physicsSystem.PlayerIntents[iter->first].deserialize(&(network_data[i]));
+				// buffer STILL has less bytes than what's needed for processing a full GameState Packet
+				if (bytes_received < bytes_required) {
+					memcpy(&(bufs[id].rem[bufs[id].remSize]), network_data, bytes_received);
+					bufs[id].remSize += bytes_received;
+					bufs[id].type = PLAYER_INTENT;
+					i += bytes_received;
+				}
+				else {
+					memcpy(&(bufs[id].rem[bufs[id].remSize]), network_data, bytes_required);
+					handlePlayerIntentPacket(id, bufs[id].rem);
+					bufs[id].remSize = 0;
+					bufs[id].type = NONE;
+					i += bytes_required;
+				}
+			}
 
-			//increment in case we have more 
-			i += sizeof(PlayerIntentPacket);
+			while (i < bytes_received) {
+				// GameState Packet
+				int bytes_required = sizeof(PlayerIntentPacket);
+				int bytes_remaining = bytes_received - i;
 
-			//apply the input to our game world
-			physicsSystem.applyInput(physicsSystem.PlayerIntents[iter->first], iter->first);
-			inputManager.updateTracking(physicsSystem.PlayerIntents[iter->first], iter->first);
-			physicsSystem.PlayerTrackings[iter->first] = inputManager.playerIntentTrackers[iter->first];
+				// buffer has less bytes than what's needed for processing a full GameState Packet
+				if (bytes_remaining < bytes_required) {
+					memcpy(bufs[id].rem, &(network_data[i]), bytes_remaining);
+					bufs[id].remSize = bytes_remaining;
+					bufs[id].type = PLAYER_INTENT;
+					break;
+				}
+
+				handlePlayerIntentPacket(id, &(network_data[i]));
+				i += sizeof(PlayerIntentPacket);
+			}
 		}
 	}
 

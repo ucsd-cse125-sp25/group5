@@ -19,7 +19,8 @@ public:
    ~ServerGame(void);  
 
    void update();  
-   bool receiveFromClients();  
+   bool receiveFromClients();
+   void handlePlayerIntentPacket(unsigned int id, char* buf);
    void sendGameStatePackets(); // Ensure this declaration matches the definition in ServerGame.cpp  
    void writeToGameState(); // Ensure this declaration matches the definition in ServerGame.cpp
    void loadComposites();
@@ -28,8 +29,7 @@ public:
 
 private:  
    static unsigned int client_id;  
-   ServerNetwork* network;  
-   char network_data[MAX_PACKET_SIZE];  
+   ServerNetwork* network;
 
    GameObject* flag = nullptr;
 
