@@ -20,7 +20,6 @@ float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
-
 float soundcooldown = 0.5f;
 const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
 const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
@@ -28,7 +27,10 @@ static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
 static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
 static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
-void Scene::createGame() {
+
+void Scene::createGame(ClientGame *client) {
+	this->client = client;
+
 	//setup lights
 	lightmanager = new Lights();
 	lightmanager->init();
@@ -39,7 +41,7 @@ void Scene::createGame() {
 	skybox->initSkybox();
 
 	uimanager = new UIManager;
-	uimanager->Init();
+	uimanager->Init(client);
 
 	audiomanager = new Audio;
 	audiomanager->Init();
@@ -73,16 +75,18 @@ void Scene::createGame() {
 	glFrontFace(GL_CCW);
 }
 
+
 void Scene::loadObjects() {
 	Object* obj = new Object();
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 
+	flag = new Object();
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
+	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
+	objects.push_back(flag);
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
-
-	glm::mat4 mov = glm::mat4(1.0f);
-	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
 	
 	//test->UpdateMat(mov);
 	//wasp load-in
@@ -92,7 +96,8 @@ void Scene::loadObjects() {
 	}
 }
 
-void Scene::update(ClientGame* client, Camera* cam) {
+
+void Scene::update(Camera* cam) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
@@ -100,6 +105,11 @@ void Scene::update(ClientGame* client, Camera* cam) {
 
 	player->UpdateMat(client->playerModel);
 	player->Update();
+
+	//test->Update();
+	for (int i = 0; i < KILLFEED_LENGTH; i++) {
+		dummy.killfeed[i] = client->GameState.killfeed[i];
+	}
 
 	int i;
 	int j;
@@ -114,14 +124,16 @@ void Scene::update(ClientGame* client, Camera* cam) {
 		players[j++]->Update();
 	}
 	
-
 	for (int i = 0; i < cubes.size(); i++) {
 		delete(cubes[i]);
 	}
 	cubes.clear();
 
-
-	
+	//set the height of the water
+	glm::mat4 watermat(1);
+	watermat[3] = glm::vec4(-25.0, client->GameState.waterLevel, -25.0, 1);
+	water->update(watermat);
+	waterLevel = client->GameState.waterLevel;
 	
 	for (i = 0; i < client->GameState.num_entities; i++) {
 		auto entity = client->GameState.entities[i];
@@ -144,9 +156,9 @@ void Scene::update(ClientGame* client, Camera* cam) {
 			cubes.push_back(cu);
 		}
 		else if (entity.type == FLAG) {
-			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			if (flag != NULL) {
+				flag->update(entity.model);
+			}
 		}
 		else if (entity.type == WOOD_PROJ) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));
@@ -189,7 +201,7 @@ void Scene::update(ClientGame* client, Camera* cam) {
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
-	dummy.seconds = client->GameState.timeLeft;
+	dummy.seconds = client->GameState.time;
 	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
 

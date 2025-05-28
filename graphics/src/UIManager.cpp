@@ -15,16 +15,15 @@
 * - The aspect ratio of the texture (float)
 **/
 static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float, float, float, float>> UIStorage = {
-	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::MATCH, 0.78, 0.0, 0.25, 1.0} },
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::MATCH, 0.5, 0.5, 0.05, 1.0}},
-	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::MATCH, 0.0, 0.0, 0.30, 0.5}},
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::MATCH, 0.5, 0.5, 0.05, 1.0}},
-	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adopt-me-logo_2.png"), GamePhase::LOBBY, 0.5, 0.9, 0.25, 0.5}},
-	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.2, 0.2, 0.1, 1.0}},
-	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.4, 0.2, 0.1, 1.0}},
-	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.6, 0.2, 0.1, 1.0}},
-	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::LOBBY, 0.8, 0.2, 0.1, 1.0}},
-	{ "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::MATCH, 0.0, 0.0, 1.0, 1.0}},
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::IN_GAME, 0.7, 0.0, 0.3, 1.0} },
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
+	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.5, 0.5}},
+	//{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adopt-me-logo_2.png"), GamePhase::WAITING, 0.5, 0.9, 0.25, 0.5}},
+	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.2, 0.2, 0.1, 1.0}},
+	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
+	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.6, 0.2, 0.1, 1.0}},
+	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.8, 0.2, 0.1, 1.0}},
+  { "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::IN_GAME, 0.0, 0.0, 1.0, 1.0}},
 };
 
 /**
@@ -58,19 +57,30 @@ static std::unordered_map<std::string, std::string> LobbyCharacters = {
 	{ "character4", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")}
 };
 
+static std::unordered_map<std::string, std::string> KillfeedSprites = {
+	{ "player0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1.png")},
+	{ "player1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2.png")},
+	{ "player2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3.png")} ,
+	{ "player3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4.png")},
+	{ "action0", PROJECT_SOURCE_DIR + std::string("/assets/action1.png")},
+	{ "action1", PROJECT_SOURCE_DIR + std::string("/assets/action2.png")},
+	{ "action2", PROJECT_SOURCE_DIR + std::string("/assets/action3.png")} ,
+	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/action4.png")}
+};
+
 //0-9 + colon (:)
 static std::unordered_map<std::string, std::string> Numbers = {
-	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0_-removebg-preview.png")},
-	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1_-removebg-preview.png")},
-	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2_-removebg-preview.png")},
-	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3_-removebg-preview.png")},
-	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4_-removebg-preview.png")},
-	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5_-removebg-preview.png")},
-	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6_-removebg-preview.png")},
-	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7_-removebg-preview.png")},
-	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8_-removebg-preview.png")},
-	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9_-removebg-preview.png")},
-	{":", PROJECT_SOURCE_DIR + std::string("/assets/colom_1_-removebg-preview.png")},
+	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0.png")},
+	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1.png")},
+	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2.png")},
+	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3.png")},
+	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4.png")},
+	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5.png")},
+	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6.png")},
+	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7.png")},
+	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8.png")},
+	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9.png")},
+	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
 };
 
 
@@ -83,7 +93,8 @@ static std::vector<std::string> FlowerOrder{
 };
 
 //Loads textures and creates UI elements
-void UIManager::Init() {
+void UIManager::Init(ClientGame* client) {
+	this->client = client;
 
 	//load in number textures to use
 	for (const auto& pair : Numbers) {
@@ -94,8 +105,9 @@ void UIManager::Init() {
 	//add a clock to match elements
 	//UIImg* clock = new Clock();
 	UIImg* clock = new Clock();
-	std::vector<float> startPerc = { 0.3, 0.9 };
-	clock->Init(startPerc, 0.05, 1.0);
+	std::vector<float> startPerc = { 0.0, 0.9 };
+	clock->Init(startPerc, 0.07, 1.0);
+	lobbyElements.push_back(clock);
 	matchElements.push_back(clock);
 	Clock* cl = dynamic_cast<Clock*>(clock);
 	cl->texs = &textures; //Mickey mouse
@@ -113,7 +125,17 @@ void UIManager::Init() {
 	characters->Init(startPercchar, 0.12, 1.0);
 
 
+	for (const auto& pair : KillfeedSprites) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+	UIImg* killfeed = new Killfeed();
+	std::vector<float> startPercKill = { 0.75, 0.94 };
 
+	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
+	kf->texs = &textures; //Mickey mouse
+	killfeed->Init(startPercKill, 0.09, 1.0);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
@@ -205,10 +227,10 @@ void UIManager::Init() {
 
 
 		switch (state) {
-		case GamePhase::LOBBY:
+		case GamePhase::WAITING:
 			lobbyElements.push_back(img);
 			break;
-		case GamePhase::MATCH:
+		case GamePhase::IN_GAME:
 			matchElements.push_back(img);
 			break;
 		}
@@ -216,16 +238,17 @@ void UIManager::Init() {
 	}
 
 	lobbyElements.push_back(characters);
+	matchElements.push_back(killfeed);
 }
 
 void UIManager::update(const UIData& p) {
-	switch (currState) {
-	case GamePhase::LOBBY:
+	switch (client->GameState.phase) {
+	case GamePhase::WAITING:
 		for (auto* img : lobbyElements) {
 			img->Update(p);
 		}
 		break;
-	case GamePhase::MATCH:
+	case GamePhase::IN_GAME:
 		for (auto* img : matchElements) {
 			img->Update(p);
 		}
@@ -234,20 +257,19 @@ void UIManager::update(const UIData& p) {
 }
 
 void UIManager::draw() {
-	switch (currState) {
-	case GamePhase::LOBBY:
+	switch (client->GameState.phase) {
+	case GamePhase::WAITING:
 		for (auto* img : lobbyElements) {
 			img->Draw();
 		}
 		break;
-	case GamePhase::MATCH:
+	case GamePhase::IN_GAME:
 		for (auto* img : matchElements) {
 			img->Draw();
 		}
 		break;
 	}
 }
-
 
 
 void UIManager::LoadTexture(const std::string &name, const std::string &path) {
@@ -302,16 +324,13 @@ void UIManager::UnloadAllTextures() {
 }
 
 void UIManager::NextGamePhase() {
-	if (currState == GamePhase::MATCH) {
-		currState = GamePhase::LOBBY; // Wrap around to the first value
-		return;
-	}
-	currState = static_cast<GamePhase>(static_cast<int>(currState) + 1);
+
 }
 
 GamePhase UIManager::GetGamePhase() {
-	return currState;
+	return client->GameState.phase;
 }
+
 void UIManager::TriggerAnim(int anim) {
 	for (auto* img : matchElements) {
 		if (Magic* ma = dynamic_cast<Magic*>(img)) {

@@ -1,5 +1,7 @@
 #include "UIImg.h"
 #include "Global.h"
+//#include "Scene.h"
+//#include "network/ClientGame.h"
 //#include "UIManager.h"
 
 void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
@@ -15,12 +17,6 @@ void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 		WINDOWHEIGHT * startPerc[1]
 	};
 
-	float percX = startPerc[0];
-	float percY = startPerc[1];
-
-	float offsetX = WINDOWWIDTH * percent;
-	float offsetY = WINDOWHEIGHT * percent * ratio;
-
 	uiData = {
 		//Position                                     //UV         //Color
 		startPos[0] - (uiWidth/2), startPos[1] - (uiHeight/2),                      0.0f, 0.0f,  baseColor[0], baseColor[1], baseColor[2],
@@ -28,6 +24,7 @@ void UIImg::Init(std::vector<float> startPerc, float percent, float ratio) {
 		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2),  1.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
 		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2),            0.0f, 1.0f,  baseColor[0], baseColor[1], baseColor[2],
 	};
+
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -87,12 +84,20 @@ void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
+
 	float uiWidth = WINDOWWIDTH * percent;
-	//float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float uiHeight = WINDOWHEIGHT * percent * ratio;
 	float startX = WINDOWWIDTH * startPerc[0];
 	float startY = WINDOWHEIGHT * startPerc[1];
 	std::vector<float> startPos = { startX, startY };
 
+	container = {
+		//Position												   //UV         //Color
+		startPos[0] - (uiWidth / 2), startPos[1] - (uiHeight / 2), 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2), 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -101,14 +106,6 @@ void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	container = {
-		//Position                                     //UV        //Color
-		startPos[0], startPos[1],                      0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		startPos[0] + uiWidth, startPos[1],            1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		startPos[0] + uiWidth, startPos[1] + uiWidth,  1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-		startPos[0], startPos[1] + uiWidth,            0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-	};
 
 
 	glBindVertexArray(VAO);
@@ -126,19 +123,10 @@ void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 }
 
 void Clock::Update(const UIData& p) {
-	//p.seconds = 10 - (glfwGetTime() - start);
-	//seconds = timerStart - (glfwGetTime() - start);
 	seconds = p.seconds;
 
 	int tempSeconds = seconds;
-	//if (tempSeconds < 1 * 60) {
-	//	digits[0] = (*texs)["0"];
-	//	digits[1] = (*texs)["0"];
-	//	digits[2] = (*texs)[":"];
-	//	digits[3] = (*texs)["0"];
-	//	digits[4] = (*texs)["0"];
-	//	return;
-	//}
+
 
 	//int seconds = (int)p.seconds;
 	int tensMin = tempSeconds / (60 * 10);
@@ -158,9 +146,9 @@ void Clock::Update(const UIData& p) {
 
 void Clock::Draw() {
 	//seconds = timerStart - (glfwGetTime() - start);
-	if (seconds < 1 * 30) {
+	/*if (seconds < 1 * 30) {
 		return;
-	}
+	}*/
 
 	glUseProgram(shaderProgram);
 	glEnable(GL_BLEND);
@@ -173,12 +161,16 @@ void Clock::Draw() {
 
 	glBindVertexArray(VAO);
 	glm::mat4 model = glm::mat4(1.0f);
+
+	model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.5, WINDOWHEIGHT* 0.04f, 0.0f));
+
+	model = glm::translate(model, glm::vec3(WINDOWWIDTH * widthPercSpacing * -2.0f, 0.0f, 0.0f));
 	for (GLuint num : digits) {
 		//translate, scale then translate by the offset
-		model = glm::translate(model, glm::vec3(WINDOWWIDTH*0.07, 0.0f, 0.0f));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glBindTexture(GL_TEXTURE_2D, num);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * widthPercSpacing, 0.0f, 0.0f));
 	}
 	glDisable(GL_BLEND);
 
@@ -267,6 +259,118 @@ void Characters::Draw() {
 	glBindVertexArray(0);
 }
 
+void Killfeed::Init(std::vector<float> startPerc, float percent, float ratio) {
+
+
+	shaderProgram = LoadShaders("shaders/killfeed.vert", "shaders/killfeed.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	float uiWidth = WINDOWWIDTH * percent;
+	float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float startX = WINDOWWIDTH * startPerc[0];
+	float startY = WINDOWHEIGHT * startPerc[1];
+	std::vector<float> startPos = { startX, startY };
+
+	container = {
+		//Position												   //UV         //Color
+		startPos[0] - (uiWidth / 2), startPos[1] - (uiHeight / 2), 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2), 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, container.size() * sizeof(float), container.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+
+	players[0] = (*texs)["character1"];
+	players[1] = (*texs)["character2"];
+	players[2] = (*texs)["character3"];
+	players[3] = (*texs)["character4"];
+
+	action[0] = (*texs)["character1"];
+}
+
+void Killfeed::Update(const UIData& p) {
+	this->uidata = p;
+}
+
+void Killfeed::Draw() {
+	//seconds = timerStart - (glfwGetTime() - start);
+
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, healthTexture);
+
+	glDisable(GL_DEPTH_TEST);
+
+
+	glBindVertexArray(VAO);
+	glm::mat4 baseModel = glm::mat4(1.0f);
+	glm::mat4 lineStart = baseModel;
+	glm::mat4 model = baseModel;
+	for (int i = 0; i < KILLFEED_LENGTH; i++) {
+		//printf("UIData at %d = %d %d %d %f\n",i, uidata.killfeed[i].attacker, uidata.killfeed[i].victim, uidata.killfeed[i].type, uidata.killfeed[i].lifetime);
+
+		//what units is lifetime in?? 1/3 of a second???
+		if (uidata.killfeed[i].attacker == uidata.killfeed[i].victim || uidata.killfeed[i].lifetime >= 30.0f) {
+			continue;
+		}
+		float transparency = (30 - uidata.killfeed[i].lifetime)/1.5;
+
+		glUniform1f(glGetUniformLocation(shaderProgram, "transparency"),  transparency);
+		//attacker draw
+		GLuint sprite = (*texs)["player" + std::to_string(uidata.killfeed[i].attacker)];
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glBindTexture(GL_TEXTURE_2D, sprite);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.1f, 0.0f, 0.0f));
+		//action draw
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glBindTexture(GL_TEXTURE_2D, (*texs)["action" + std::to_string(uidata.killfeed[i].type)]);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.1f, 0.0f, 0.0f));
+		// will be -1 if there is no victim
+		if (uidata.killfeed[i].victim != -1) {
+			//victim draw only if there is a victim
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+			glBindTexture(GL_TEXTURE_2D, (*texs)["player" + std::to_string(uidata.killfeed[i].victim)]);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+
+		//newline of sprites
+		model = glm::translate(lineStart, glm::vec3(0.0f, -WINDOWHEIGHT * 0.1f, 0.0f));
+		lineStart = model;
+		
+	}
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
 /**
 * @brief Initalizes the quads of both the health and container bars.
 * Using pixel coordinates: (0,0) will be bottom left of the screen

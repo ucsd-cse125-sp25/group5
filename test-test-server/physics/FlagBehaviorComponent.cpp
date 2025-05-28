@@ -23,7 +23,8 @@ void FlagBehaviorComponent::integrate(GameObject* obj,
 	if (owningPlayer != -1) {
 		for (auto player : physicsSystem.playerObjects) {
 			if (player->id == owningPlayer) {
-				obj->transform.position = player->transform.position + glm::vec3(0, 7, 0);
+				obj->transform.position = player->transform.position + glm::vec3(0,4,0);
+				obj->transform.rotation = player->transform.rotation;
 				break;
 			}
 		}
@@ -47,6 +48,7 @@ void FlagBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other,
 		//the flag got captured while it is not owned
 		if (owningPlayer == -1) {
 			owningPlayer = other->id;
+			owningGameObject = other;
 			other->attached = obj;
 			printf("Flag transferred to player %d\n", other->id);
 
@@ -65,12 +67,20 @@ void FlagBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other,
 				int originalOwningPlayer = owningPlayer;
 				//rely on the fact that playerID is its object id
 				owningPlayer = other->id;
+
+				//unattach the player
+				owningGameObject->attached = nullptr;
+
+				//we are now owned by someobdy else
+				owningGameObject = other;
+
 				//attach the flag to this player
-				other->attached = other;
+				other->attached = obj;
 				//start the timer
 				tagTransferTimer = TAG_TRANSFER_TIME;
 
 				inCooldown = true;
+
 
 				printf("Flag transferred to player %d\n", other->id);
 

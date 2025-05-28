@@ -10,7 +10,8 @@ enum class PlayerMovementState {
 	STOMP,
     DASH,
     GRAPPLE,
-	DEATH
+	DEATH,
+	MAGNET
 };
 
 class BehaviorComponent {  
@@ -41,12 +42,16 @@ class PlayerBehaviorComponent : public BehaviorComponent {
 const float JUMP_FORCE = 10.0f;
 const float DASH_TIME = 0.5f;
 const float DASH_SPEED = 20.0f;
-const float STOMP_TIME = 3.0f;
+const float STOMP_TIME = 5.0f;
 const float STOMP_SPEED = 30.0f;
 const float GRAPPLE_SPEED = 15.0f;
 const float GRAPPLE_TIME = 10.0f;
+const float MAGNET_TIME = 5.0f;
+const float MAGNET_SPEEED = 15.0f;
 const float WOOD_PROJ_SPEED = 25.0f;
 
+
+const float SLOW_TIME = 3.0f;
 const float DEATH_TIME = 10.0f;
 
 
@@ -61,12 +66,30 @@ const float FIRE_MOVE_COST = 10.0f;
 const float EARTH_PROJ_COST = 5.0f;
 const float EARTH_MOVE_COST = 10.0f;
 
+const float WATER_ATTACK_COOLDOWN = 1.0f;
+const float FIRE_ATTACK_COOLDOWN = 0.2f;
+const float EARTH_ATTACK_COOLDOWN = 3.0f;
+const float ATTACK_COOLDOWN_ARRAY[5] = { 0.0f, 0.0f, WATER_ATTACK_COOLDOWN, FIRE_ATTACK_COOLDOWN, EARTH_ATTACK_COOLDOWN };
+const float ATTACK_COST_ARRAY[5] = { METAL_PROJ_COST, WOOD_PROJ_COST, WATER_PROJ_COST, FIRE_PROJ_COST, EARTH_PROJ_COST};
+
+const float UNDERWATER_SLOW_FACTOR = 0.5f;
+const float WATER_SLOW_FACTOR = 0.2f;
+
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
     float dashTimer = 0.0f;
 	float stompTimer = 0.0f;
+	float magnetTimer = 0.0f;
     float grappleTimer = 0.0f;
 	float deathTimer = 0.0f;
+	float slowTimer = 0.0f;
+
+	float curCooldownArray[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+	float curSlowFactor = 1.0f;
+	float curUnderwaterSlowFactor = 1.0f;
+
+
 	GameObject* grappleTarget = nullptr;
     PlayerStats playerStats;
     int debugVar = 0;
@@ -81,6 +104,7 @@ public:
 	void changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent);
 	void spawnProjectile(GameObject* player, PowerType type, PhysicsSystem& phys);
 	void updateParticleFlags();
+	void manageCooldowns(GameObject* player, PhysicsSystem& phys, float deltaTime);
 
     // override the abstract methods
     void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
@@ -117,6 +141,18 @@ public:
    void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
 };
 
+class MetalProjectileBehaviorComponent : public ProjectileBehaviorComponent {
+public:
+	MetalProjectileBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, glm::vec3 velocity, float damage, int originalPlayer)
+		: ProjectileBehaviorComponent(self, physicsSystem, velocity, damage, originalPlayer)
+	{
+		this->self = self;
+		this->physicsSystem = physicsSystem;
+	}
+	void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
+	void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
+};
+
 class FlagBehaviorComponent : public BehaviorComponent {
 
 	const float TAG_TRANSFER_TIME = 3.0f;
@@ -124,6 +160,7 @@ public:
 	int owningPlayer = -1;
 	float tagTransferTimer = 3.0f;
 	bool inCooldown = false;
+	GameObject* owningGameObject = nullptr;
 
 	FlagBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem)
 		: BehaviorComponent(self, physicsSystem)

@@ -20,11 +20,13 @@ const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 //Scene Class which will contain data about map, players, etc
 class Scene {
 private:
+	ClientGame* client;
 	std::vector<Object*> objects;
 	std::vector<Object*> animObjects; //type will be changed later
 	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
 	PlayerObject* test;
+	Object* flag;
 	Water* water;
 	Skybox* skybox; //each player holds a copy of the skybox
 	Cube* cube;
@@ -40,11 +42,11 @@ private:
 	
 public:
 	std::vector<GLuint> shaders;
-	void createGame();
+	void createGame(ClientGame* client);
 	bool initShaders();
 	void initShadows();
 	void loadObjects();
-	void update(ClientGame* client, Camera* cam);
+	void update(Camera* cam);
 	void draw(Camera* cam);
 	void TriggerAnim(int anim);
 	int getPowerup();
