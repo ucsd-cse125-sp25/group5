@@ -285,21 +285,21 @@ void ServerGame::writeToGameState() {
 	GameState.phase = phase;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-	int timeSinceStart = (int)std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();
+	float timeSinceStart = std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();
 	
 	switch (phase) {
 		case PRE_GAME:
-			GameState.time = PRE_GAME_COUNTDOWN - timeSinceStart;
+			GameState.time = PRE_GAME_COUNTDOWN - (int) timeSinceStart;
 			break;
 		case IN_GAME:
-			GameState.time = IN_GAME_DURATION - timeSinceStart;
+			GameState.time = IN_GAME_DURATION - (int) timeSinceStart;
 			break;
 		default:
-			GameState.time = timeSinceStart;
+			GameState.time = (int) timeSinceStart;
 	}
 
-  physicsSystem.timePassed = timeSinceStart; // Update the physics system with the time passed since the start of the game
-  physicsSystem.totalTime = IN_GAME_DURATION; // Set the total time for the physics system
+	physicsSystem.timePassed = timeSinceStart; // Update the physics system with the time passed since the start of the game
+	physicsSystem.totalTime = IN_GAME_DURATION; // Set the total time for the physics system
 	//GameState.moonPhase = static_cast<MoonPhase>(timeLeft / IN_GAME_DURATION * 5); // Assuming 4 phases of the moon, this will cycle through them based on time left
 
 	//send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
