@@ -15,6 +15,7 @@ Camera::Camera(ClientGame* client) {
 
 void Camera::Update() {
     if (client->GameState.phase != GamePhase::IN_GAME) {
+        Pos = glm::vec3(0, 0, 2.0);
         glm::mat4 world(1);
         glm::mat4 translate(1);
         Rot = glm::rotate(Rot, 0.0008f, glm::vec3(0.0f, 1.0f, 0.0f));

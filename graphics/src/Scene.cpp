@@ -69,11 +69,12 @@ void Scene::loadObjects() {
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 
-	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	flag = new Object();
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
+	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
+	objects.push_back(flag);
 
-	glm::mat4 mov = glm::mat4(1.0f);
-	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
-	
+	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 	
 	//test->UpdateMat(mov);
 	//wasp load-in
@@ -121,14 +122,10 @@ void Scene::update() {
 		players[j++]->Update();
 	}
 	
-
 	for (int i = 0; i < cubes.size(); i++) {
 		delete(cubes[i]);
 	}
 	cubes.clear();
-
-
-	
 	
 	for (i = 0; i < client->GameState.num_entities; i++) {
 		auto entity = client->GameState.entities[i];
@@ -151,9 +148,9 @@ void Scene::update() {
 			cubes.push_back(cu);
 		}
 		else if (entity.type == FLAG) {
-			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			if (flag != NULL) {
+				flag->update(entity.model);
+			}
 		}
 		else if (entity.type == WOOD_PROJ) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));

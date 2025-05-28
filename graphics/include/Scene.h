@@ -26,6 +26,7 @@ private:
 	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
 	PlayerObject* test;
+	Object* flag;
 	Water* water;
 	Skybox* skybox; //each player holds a copy of the skybox
 	Cube* cube;
