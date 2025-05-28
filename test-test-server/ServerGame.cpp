@@ -298,6 +298,8 @@ void ServerGame::writeToGameState() {
 			GameState.time = timeSinceStart;
 	}
 
+  physicsSystem.timePassed = timeSinceStart; // Update the physics system with the time passed since the start of the game
+  physicsSystem.totalTime = IN_GAME_DURATION; // Set the total time for the physics system
 	//GameState.moonPhase = static_cast<MoonPhase>(timeLeft / IN_GAME_DURATION * 5); // Assuming 4 phases of the moon, this will cycle through them based on time left
 
 	//send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
@@ -308,9 +310,10 @@ void ServerGame::writeToGameState() {
 
 	//send all the static objects
 	writeEntities(physicsSystem, physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
-
 	//send the killfeed
 	writeKillfeed(physicsSystem, physicsSystem.killfeed_queue, GameState);
+  
+	GameState.waterLevel = physicsSystem.waterLevel; // Update the water level in the game state
 
 	for (int i = 0; i < 4; i++) {
 		if (playerBehaviors[i] != nullptr) {
