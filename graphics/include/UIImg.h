@@ -103,6 +103,25 @@ private:
 
 	GLuint VAO, VBO, EBO;
 };
+
+class HealthNums : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+private:
+	GLuint digits[3];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	int health;
+	float widthPercSpacing = 0.04;
+
+	GLuint VAO, VBO, EBO;
+};
+
 class Characters : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;
@@ -110,6 +129,7 @@ public:
 	void Update(const UIData& p) override;
 	std::string name;
 	std::unordered_map<std::string, GLuint>* texs;
+	ClientGame* client;
 private:
 	GLuint sprites[4];
 	GLuint shaderProgram;
