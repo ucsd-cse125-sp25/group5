@@ -61,6 +61,7 @@ void Scene::createGame() {
 	glFrontFace(GL_CCW);
 }
 
+
 void Scene::loadObjects() {
 	Object* obj = new Object();
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
@@ -124,6 +125,11 @@ void Scene::update(ClientGame* client) {
 	}
 	cubes.clear();
 
+	//set the height of the water
+	glm::mat4 watermat(1);
+	watermat[3] = glm::vec4(-25.0, client->GameState.waterLevel, -25.0, 1);
+	water->update(watermat);
+	waterLevel = client->GameState.waterLevel;
 
 	
 	

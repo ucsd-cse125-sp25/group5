@@ -122,7 +122,8 @@ struct GameStatePacket {
 
     //flag for moon
 	MoonPhase moonPhase;
-
+    //water level
+    float waterLevel = 0.0f; // Initial water level
     
 
     unsigned int num_players;

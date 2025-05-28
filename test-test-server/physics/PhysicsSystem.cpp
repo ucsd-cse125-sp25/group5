@@ -32,6 +32,8 @@ void PhysicsSystem::tick(float dt) {
         obj->physics->acceleration = glm::vec3(0);
     }
 
+    updateWaterLevel();
+
     //delete all objects marked for deletion
 	deleteMarkedDynamicObjects();
 
@@ -102,6 +104,10 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
         }
     }
     return;
+}
+
+void PhysicsSystem::updateWaterLevel() {
+	waterLevel = (ENDING_WATER_LEVEL - STARTING_WATER_LEVEL) * (timePassed / totalTime);
 }
 
 
