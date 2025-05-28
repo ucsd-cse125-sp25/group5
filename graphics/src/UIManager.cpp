@@ -111,6 +111,15 @@ void UIManager::Init(ClientGame* client) {
 	matchElements.push_back(clock);
 	Clock* cl = dynamic_cast<Clock*>(clock);
 	cl->texs = &textures; //Mickey mouse
+
+	//add a clock to match elements
+	//UIImg* clock = new Clock();
+	UIImg* healthNums = new HealthNums();
+	std::vector<float> startPercHealthNums = { 0.1, 0.965 };
+	healthNums->Init(startPercHealthNums, 0.04, 1.0);
+	matchElements.push_back(healthNums);
+	HealthNums* hn = dynamic_cast<HealthNums*>(healthNums);
+	hn->texs = &textures; //Mickey mouse
 	
 	for (const auto& pair : LobbyCharacters) {
 		const std::string& name = pair.first;
@@ -123,6 +132,8 @@ void UIManager::Init(ClientGame* client) {
 	Characters* ch = dynamic_cast<Characters*>(characters);
 	ch->texs = &textures; //Mickey mouse
 	characters->Init(startPercchar, 0.12, 1.0);
+
+	ch->client = client;
 
 
 	for (const auto& pair : KillfeedSprites) {
