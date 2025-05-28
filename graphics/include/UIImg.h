@@ -47,7 +47,7 @@ public:
 	void Draw() override;
 	void Update(const UIData& p) override;
 	void SetTexture(GLuint texture);
-	void StartRegrow(int anim);
+	void StartRegrow();
 
 	std::vector<std::vector<float>> flowerPositions;
 	//std::unordered_map<std::string, GLuint>* texs;
@@ -65,6 +65,8 @@ private:
 	GLuint VAO, VBO, EBO;
 	GLuint FlowerVAO, FlowerVBO;
 	float percent = 1.0; //0.0-1.0
+	int lastHealth = 120;
+	bool isAlive = true;
 	float flowerWidth;
 	double animStart;
 	bool animating;
@@ -180,4 +182,24 @@ private:
 	bool animating;
 	float spinDuration = 0.1f;
 
+};
+
+class Vignette : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	void SetTexture(GLuint tex) override;
+	std::string name;
+private: 
+	GLuint texture;
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> uiData;
+	int lastHealth;
+	bool isAlive;
+	bool isLow;
+	double animStart;
+	float damageDuration = 0.1f;
+	GLuint VAO, VBO, EBO;
 };

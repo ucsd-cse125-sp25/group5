@@ -136,7 +136,6 @@ void Window::idleCallback() {
 
 	prevTime = currTime;
 	currTime = time;
-
 	if (!flag) {
 		startTime = time;
 		flag = true;
@@ -144,7 +143,7 @@ void Window::idleCallback() {
 
 	client->update(PlayerIntent);
 	Cam->Update();
-	scene->update();
+	scene->update(Cam);
 
 	//if (PlayerIntent.scrollIntentTriggered) {
 	//    PlayerIntent.scrollIntentTriggered = false;

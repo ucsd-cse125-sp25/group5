@@ -18,12 +18,12 @@ static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float,
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::IN_GAME, 0.7, 0.0, 0.3, 1.0} },
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
 	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.5, 0.5}},
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
 	//{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adopt-me-logo_2.png"), GamePhase::WAITING, 0.5, 0.9, 0.25, 0.5}},
 	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.2, 0.2, 0.1, 1.0}},
 	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
 	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.6, 0.2, 0.1, 1.0}},
 	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.8, 0.2, 0.1, 1.0}},
+  { "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::IN_GAME, 0.0, 0.0, 1.0, 1.0}},
 };
 
 /**
@@ -153,6 +153,9 @@ void UIManager::Init(ClientGame* client) {
 		}
 		else if (name == "magicback") {
 			img = new Magic();
+		}
+		else if (name == "vignette") {
+			img = new Vignette();
 		}
 		else {
 			img = new UIImg();
@@ -337,7 +340,7 @@ void UIManager::TriggerAnim(int anim) {
 		}
 		else if (HealthBar* hb = dynamic_cast<HealthBar*>(img)) {
 			if (anim == 2) {
-				hb->StartRegrow(anim);
+				hb->StartRegrow();
 			}
 		}
 	}

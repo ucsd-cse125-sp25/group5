@@ -20,6 +20,14 @@ float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
+float soundcooldown = 0.5f;
+const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
+const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
+static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
+static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
+static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
+static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
+
 void Scene::createGame(ClientGame *client) {
 	this->client = client;
 
@@ -37,11 +45,8 @@ void Scene::createGame(ClientGame *client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init();
-	audiomanager->PlayAudio("matchsong");
-	audiomanager->PlayAudio("firesound");
-	//Necessary for the uimanager, will change once network protocol gets updated
-	//dummy.maxHP = 250;
-	//dummy.currHP = dummy.maxHP;
+	//audiomanager->PlayAudio("matchsong");
+	//audiomanager->PlayAudio("firesound");
 	test = new PlayerObject();
 
 	//Cinema
@@ -57,6 +62,13 @@ void Scene::createGame(ClientGame *client) {
 	glm::mat4 watermat(1);
 	watermat[3] = glm::vec4(-25.0, 0, -25.0, 1);
 	water->update(watermat);
+
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		for (int j = 0; j < 5; j++) {
+			lastUsedAttack[i][j] = glfwGetTime();
+			lastUsedMovement[i][j] = glfwGetTime();
+		}
+	}
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -74,7 +86,6 @@ void Scene::loadObjects() {
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
 	objects.push_back(flag);
-
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 	
 	//test->UpdateMat(mov);
@@ -85,27 +96,17 @@ void Scene::loadObjects() {
 	}
 }
 
-void Scene::update() {
+
+void Scene::update(Camera* cam) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
 
-	audiomanager->Update();
-
 	player->UpdateMat(client->playerModel);
 	player->Update();
+
 	//test->Update();
-
-	//get information from client state
-	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
-	dummy.currMetal = client->GameState.player_stats[client->playerId].mana[0];
-	dummy.currWood = client->GameState.player_stats[client->playerId].mana[1];
-	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
-	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
-	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
-	dummy.seconds = client->GameState.time;
-
 	for (int i = 0; i < KILLFEED_LENGTH; i++) {
 		dummy.killfeed[i] = client->GameState.killfeed[i];
 	}
@@ -200,8 +201,42 @@ void Scene::update() {
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
-
+	dummy.seconds = client->GameState.time;
+	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
+
+	//This is where we will play the sounds
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		PlayerStats& c = client->GameState.player_stats[i];
+		glm::vec3 pos = client->GameState.players[i].model[3];
+		for (int j = 0; j < 5; j++) {
+			float now = glfwGetTime();
+			if (c.attackPowerupFlag[j] == 0 || c.attackPowerupFlag[j] > 2) {
+				prevAttackFlags[i][j] = false;
+			}
+			if (c.movementPowerupFlag[j] == 0 || c.movementPowerupFlag[j] > 2) {
+				prevMovementFlags[i][j] = false;
+			}
+			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j] && attackKeys[j]) {
+				std::cout << "Going to play audio for player:  " << i << " power: " << j << std::endl;
+				if (now - lastUsedAttack[i][j] > soundcooldown) {
+					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
+					audiomanager->PlayAudio(attackKeys[j], pos);
+					lastUsedAttack[i][j] = now;
+				}
+				prevAttackFlags[i][j] = true;
+			}
+			if ((c.movementPowerupFlag[j] == 1 || c.movementPowerupFlag[j] == 2) && !prevMovementFlags[i][j] && movementKeys[j]) {
+				std::cout << "Going to play audio for player:  " << i << " movement: " << j << std::endl;
+				if (now - lastUsedMovement[i][j] > soundcooldown) {
+					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
+					audiomanager->PlayAudio(movementKeys[j], pos);
+					lastUsedMovement[i][j] = now;
+				}
+				prevMovementFlags[i][j] = true;
+			}
+		}
+	}
 }
 
 bool Scene::initShaders() {

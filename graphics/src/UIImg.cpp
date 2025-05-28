@@ -390,7 +390,7 @@ void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 	float bHeight = WINDOWHEIGHT * percent * (806.0f / 1576.0f);
 	flowerWidth = WINDOWWIDTH * percent * 0.15;
 
-	float bump = (WINDOWHEIGHT * 0.65);
+	float bump = (WINDOWHEIGHT * 0.85);
 	std::vector<float> startPos = { WINDOWWIDTH * startPerc[0], WINDOWHEIGHT * startPerc[1] + bump};
 
 	health = {
@@ -451,10 +451,13 @@ void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 void HealthBar::Update(const UIData &p) {
 
 	float healthP = (float)p.currHP / (float)p.maxHP;
-	//std::cout << (float)p.currHP << std::endl;
-	//std::cout << (float)p.maxHP << std::endl;
-	//std::cout << "Current health percetnage " << healthP <<std::endl;
+
 	double now = glfwGetTime();
+	if (lastHealth <= 0 && p.currHP > lastHealth) {
+		this->StartRegrow();
+	}
+	lastHealth = p.currHP;
+	(lastHealth <= 0) ? isAlive = false : isAlive = true;
 
 
 	if (animating) {
@@ -553,7 +556,9 @@ void HealthBar::Draw() {
 	glDisable(GL_DEPTH_TEST);
 
 	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	if (isAlive) {
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
 
 	//display each flower
 	glBindVertexArray(FlowerVAO);
@@ -576,7 +581,7 @@ void HealthBar::Draw() {
 	glBindVertexArray(0);
 }
 
-void HealthBar::StartRegrow(int anim) {
+void HealthBar::StartRegrow() {
 	if (animating) {
 		return;
 	}
@@ -601,7 +606,7 @@ void Magic::Init(std::vector<float> startPerc, float p, float r) {
 	percY = startPerc[1];
 	position = { percX * WINDOWWIDTH, percY * WINDOWHEIGHT };
 	uiWidth = WINDOWWIDTH * percent;
-	uiHeight = WINDOWHEIGHT * percent * ratio;
+	uiHeight = WINDOWHEIGHT * percent * 1.3 * ratio;
 	centerX = position[0] + (uiWidth / 2.0f) + 15;
 	centerY = position[1] + (uiHeight / 2.0f) - 15;
 
@@ -853,4 +858,84 @@ void Magic::StartRotate(int anim) {
 	animStart = glfwGetTime();
 	animating = true;
 	
+}
+
+void Vignette::Init(std::vector<float> startPos, float percent, float ratio) {
+	shaderProgram = LoadShaders("shaders/vignette.vert", "shaders/vignette.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	uiData = {
+		//Position												   //UV         //Color
+		startPos[0], startPos[1], 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + WINDOWWIDTH, startPos[1], 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + WINDOWWIDTH, startPos[1] + WINDOWHEIGHT, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0], startPos[1] + WINDOWHEIGHT, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, uiData.size() * sizeof(float), uiData.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+}
+
+void Vignette::Update(const UIData& p) {
+	lastHealth = p.currHP;
+	if (lastHealth <= 0) {
+		isAlive = false;
+		isLow = false;
+	}
+	else if (lastHealth <= 20) {
+		isLow = true;
+		isAlive = true;
+	}
+	else {
+		isLow = false;
+		isAlive = true;
+	}
+
+}
+
+void Vignette::Draw() {
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	glBindVertexArray(VAO);
+
+	glm::mat4 model = glm::mat4(1.0f);
+	float seconds = glfwGetTime();
+	glUniform1f(glGetUniformLocation(shaderProgram, "time"), seconds);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniform1i(glGetUniformLocation(shaderProgram, "isAlive"), isAlive);
+	glUniform1i(glGetUniformLocation(shaderProgram, "isLow"), isLow);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
+
+void Vignette::SetTexture(GLuint tex) {
+	texture = tex;
 }

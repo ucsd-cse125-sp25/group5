@@ -18,7 +18,8 @@ void Camera::Update() {
         Pos = glm::vec3(0, 0, 2.0);
         glm::mat4 world(1);
         glm::mat4 translate(1);
-        Rot = glm::rotate(Rot, 0.0008f, glm::vec3(0.0f, 1.0f, 0.0f));
+        //0.0008f
+        Rot = glm::rotate(Rot, 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
 
        // world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment * glm::eulerAngleX(glm::radians(-Incline)) * world;
 
@@ -78,7 +79,7 @@ void Camera::Update() {
     }
 }
 void Camera::Reset() {
-    FOV = 70.0f;
+    FOV = 80.0f;
     Aspect = 1.33f;
     NearClip = 0.1f;
     FarClip = 100.0f;
@@ -89,4 +90,10 @@ void Camera::Reset() {
     Pos = glm::vec3(0, 0, 2.0);
 
     sensitivity = 0.6f;
+}
+
+glm::vec3 Camera::GetCameraForwardVector() {
+    glm::mat4 camWorld = glm::inverse(ViewMtx); // Convert view -> world
+    glm::vec3 forward = -glm::normalize(glm::vec3(camWorld[2])); // -Z axis
+    return forward;
 }

@@ -46,7 +46,7 @@ public:
 	bool initShaders();
 	void initShadows();
 	void loadObjects();
-	void update();
+	void update(Camera* cam);
 	void draw(Camera* cam);
 	void TriggerAnim(int anim);
 	int getPowerup();
