@@ -250,6 +250,10 @@ void ServerGame::update()
    float timeSinceStart = std::chrono::duration<float>(gameNowTime - ServerGame::gameStartTime).count();
    timeLeft = gameTimeLimit - (int)timeSinceStart;
 
+   //bruh
+   physicsSystem.timePassed = timeSinceStart; // Update the physics system with the time passed since the start of the game
+   physicsSystem.totalTime = gameTimeLimit; // Set the total time for the physics system
+
 
    //time left
    //printf("Time left %d\n", timeLeft);
@@ -316,6 +320,8 @@ void ServerGame::writeToGameState() {
 
     //send the killfeed
     writeKillfeed(physicsSystem, physicsSystem.killfeed_queue, GameState);
+
+	GameState.waterLevel = physicsSystem.waterLevel; // Update the water level in the game state
 
     for (int i = 0; i < 4; i++)
 	{
