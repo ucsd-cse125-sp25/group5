@@ -314,10 +314,11 @@ void ServerGame::writeToGameState() {
 
 	//send all the static objects
 	writeEntities(physicsSystem, physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
+
 	//send the killfeed
 	writeKillfeed(physicsSystem, physicsSystem.killfeed_queue, GameState);
   
-	GameState.waterLevel = -10; // Update the water level in the game state
+	GameState.waterLevel = physicsSystem.waterLevel; // Update the water level in the game state
 
 	for (int i = 0; i < 4; i++) {
 		if (playerBehaviors[i] != nullptr) {

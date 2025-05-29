@@ -280,6 +280,19 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		curSlowFactor = 1.0f; // reset slow factor
 	}
 
+	if (playerStats.underwater) {
+		underwaterTimer += deltaTime;
+		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL) {
+			playerStats.hp -= 1;
+			underwaterTimer = 0.0f;
+			curUnderwaterSlowFactor = UNDERWATER_SLOW_FACTOR;
+		}
+	}
+	else {
+		underwaterTimer = 0.0f;
+		curUnderwaterSlowFactor = 1.0f;
+	}
+
 	//cooldown for all 5 attack powers
 	for (int i = 0; i < 5; i++) {
 		if (curCooldownArray[i] > 0.0f) {
@@ -297,6 +310,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 
 	//when death first happens 
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
@@ -538,7 +552,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		}
 
 		//detect collision from bottom for jump, and make the player jump
-		if (checkBottom(obj, phys) && physicsSystem.PlayerIntents[obj->id].moveUpIntent) {
+		if ((checkBottom(obj, phys) || playerStats.underwater) && physicsSystem.PlayerIntents[obj->id].moveUpIntent) {
 			obj->physics->velocity += glm::vec3(0.0f, 3.0f, 0.0f);
 		}
 
@@ -547,7 +561,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//set moving flag
 		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
 		//apply transformation
-		obj->transform.position += inputDirection * deltaTime * curSlowFactor;
+		obj->transform.position += inputDirection * deltaTime * curSlowFactor * curUnderwaterSlowFactor;
 	}
 
 	updateParticleFlags();
@@ -556,7 +570,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	//the important line
 
-	obj->transform.position += obj->physics->velocity * deltaTime * curSlowFactor;
+	obj->transform.position += obj->physics->velocity * deltaTime * curSlowFactor * curUnderwaterSlowFactor;
 	
 	//remove it after
 	//obj->physics->velocity -= getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);

@@ -76,6 +76,7 @@ struct PlayerStats {
 	bool hasFlag = false;
 	bool moving = false;
 	bool inAir = false;
+	bool underwater = false;
 	unsigned int mana[5] = { 100, 100, 100, 100, 100 };
 	PowerType activePower = METAL;
 

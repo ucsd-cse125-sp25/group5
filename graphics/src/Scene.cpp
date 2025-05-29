@@ -28,6 +28,8 @@ static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
 static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 
+
+
 void Scene::createGame(ClientGame *client) {
 	this->client = client;
 
