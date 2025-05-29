@@ -146,9 +146,9 @@ void Clock::Update(const UIData& p) {
 
 void Clock::Draw() {
 	//seconds = timerStart - (glfwGetTime() - start);
-	/*if (seconds < 1 * 30) {
+	if (seconds < 1 * 30) {
 		return;
-	}*/
+	}
 
 	glUseProgram(shaderProgram);
 	glEnable(GL_BLEND);
@@ -955,6 +955,8 @@ void Magic::StartRotate(int anim) {
 void Vignette::Init(std::vector<float> startPos, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/vignette.vert", "shaders/vignette.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+
+	//goldTexture = textures["gold"];
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
@@ -1002,7 +1004,7 @@ void Vignette::Update(const UIData& p) {
 		isLow = false;
 		isAlive = true;
 	}
-
+	hasFlag = client->GameState.player_stats[client->playerId].hasFlag;
 }
 
 void Vignette::Draw() {
@@ -1018,8 +1020,11 @@ void Vignette::Draw() {
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniform1i(glGetUniformLocation(shaderProgram, "isAlive"), isAlive);
 	glUniform1i(glGetUniformLocation(shaderProgram, "isLow"), isLow);
+	glUniform1i(glGetUniformLocation(shaderProgram, "hasFlag"), hasFlag);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
+	//glActiveTexture(GL_TEXTURE1);
+	//glBindTexture(GL_TEXTURE_2D, goldTexture);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);

@@ -211,14 +211,17 @@ public:
 	void Update(const UIData& p) override;
 	void SetTexture(GLuint tex) override;
 	std::string name;
+	ClientGame* client;
 private: 
 	GLuint texture;
+	GLuint goldTexture;
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> uiData;
 	int lastHealth;
 	bool isAlive;
 	bool isLow;
+	bool hasFlag;
 	double animStart;
 	float damageDuration = 0.1f;
 	GLuint VAO, VBO, EBO;

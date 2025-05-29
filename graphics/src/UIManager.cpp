@@ -166,7 +166,9 @@ void UIManager::Init(ClientGame* client) {
 			img = new Magic();
 		}
 		else if (name == "vignette") {
-			img = new Vignette();
+			Vignette *vig = new Vignette();
+			vig->client = client;
+			img = vig;
 		}
 		else {
 			img = new UIImg();
