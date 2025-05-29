@@ -194,6 +194,16 @@ void Scene::update(Camera* cam) {
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
+		else if (entity.type == HP_PICKUP) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == MANA_PICKUP) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.0f, 1.0f, 1.0f)); // Cyan for Mana pickup
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
 	}
 
 

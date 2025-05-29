@@ -349,7 +349,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 		if (deathTimer <= 0.0f) {
 			
-			playerStats.hp = 120.0f;
+			playerStats.hp = maxHP;
 			playerStats.alive = true;
 			state = PlayerMovementState::IDLE;
 			deathTimer = 0.0f;
@@ -606,6 +606,28 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 				KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
 				physicsSystem.addKillfeedItem(item);
 			}
+		}
+
+		//handle hpPickup 
+		if(other->type == HP_PICKUP) {
+			//if we hit a hp pickup, increase our hp
+			playerStats.hp += HP_PICKUP_AMOUNT;
+			if (playerStats.hp > maxHP) {
+				playerStats.hp = maxHP; // cap at 120
+			}
+			//remove the pickup
+			printf("Player %d picked up a health pickup, new hp: %f\n", obj->id, playerStats.hp);
+		}
+
+		if(other->type == MANA_PICKUP) {
+			//if we hit a mana pickup, increase our mana
+			int i = playerStats.activePower;
+			playerStats.mana[i] += MANA_PICKUP_AMOUNT;
+			if (playerStats.mana[i] > 100.0f) {
+				playerStats.mana[i] = 100.0f; // cap at 100
+			}
+			//remove the pickup
+			printf("Player %d picked up a mana pickup\n", obj->id);
 		}
 
 		

@@ -30,7 +30,10 @@ enum EntityType {
 	WATER_PROJ,
 	FIRE_PROJ,
 	EARTH_PROJ,
-	COLLIDER
+	COLLIDER,
+	BOUNDS,
+	HP_PICKUP,
+	MANA_PICKUP
 };
 
 enum PowerType {

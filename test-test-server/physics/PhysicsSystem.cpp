@@ -107,7 +107,10 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 }
 
 void PhysicsSystem::updateWaterLevel() {
-	waterLevel = (ENDING_WATER_LEVEL - STARTING_WATER_LEVEL) * (timePassed / totalTime);
+	if (timePassed > totalTime / 2) {
+		waterLevel = (ENDING_WATER_LEVEL - STARTING_WATER_LEVEL) * ((timePassed - totalTime/2 ) / (totalTime / 2) );
+	}
+	
 }
 
 

@@ -10,7 +10,7 @@ add_executable(server_app1
     NetworkServices.cpp
     stdafx.cpp
 
-  "include/physics/PhysicsData.h" "include/physics/PhysicsSystem.h" "physics/PhysicsSystem.cpp" "include/core.h" "include/physics/BehaviorComponent.h" "physics/PlayerBehaviorComponent.cpp" "physics/ProjectileBehaviorComponent.cpp" "physics/FlagBehaviorComponent.cpp"  "include/InputManager.h" "InputManager.cpp" "physics/MetalProjectileBehaviorComponent.cpp")
+  "include/physics/PhysicsData.h" "include/physics/PhysicsSystem.h" "physics/PhysicsSystem.cpp" "include/core.h" "include/physics/BehaviorComponent.h" "physics/PlayerBehaviorComponent.cpp" "physics/ProjectileBehaviorComponent.cpp" "physics/FlagBehaviorComponent.cpp"  "include/InputManager.h" "InputManager.cpp" "physics/MetalProjectileBehaviorComponent.cpp" "physics/PickupBehaviorComponent.cpp")
 
 
 # Add include directories
