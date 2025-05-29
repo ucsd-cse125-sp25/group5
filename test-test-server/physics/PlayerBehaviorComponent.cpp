@@ -342,8 +342,10 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 			//half the amount of mana
 			for (int i = 0; i < 5; i++) {
-				playerStats.mana[i] /= 2.0f;
+				playerStats.mana[i] = 100.0f;
 			}
+			//set the postion of the player to same x and z, but y to 100.0f
+			obj->transform.position = glm::vec3(obj->transform.position.x, 100.0f, obj->transform.position.z);
 
 			//turn collider back on
 			//TODO: set extents to player defaults
