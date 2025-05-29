@@ -18,7 +18,7 @@
 
 #define PRE_GAME_COUNTDOWN 5
 #define IN_GAME_DURATION 120
-#define NUM_PLAYERS_TO_START 2
+#define NUM_PLAYERS_TO_START 1
 
 #define TICKS_PER_SECOND 100
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
@@ -314,10 +314,11 @@ void ServerGame::writeToGameState() {
 
 	//send all the static objects
 	writeEntities(physicsSystem, physicsSystem.staticObjects, GameState.entities, physicsSystem.dynamicObjects.size(), numEntities);
+
 	//send the killfeed
 	writeKillfeed(physicsSystem, physicsSystem.killfeed_queue, GameState);
   
-	GameState.waterLevel = -10; // Update the water level in the game state
+	GameState.waterLevel = physicsSystem.waterLevel; // Update the water level in the game state
 
 	for (int i = 0; i < 4; i++) {
 		if (playerBehaviors[i] != nullptr) {

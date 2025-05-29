@@ -4,6 +4,7 @@
 #include "physics/PhysicsData.h"        // for GameObject
 #include "ServerGame.h"
 #include "../include/shared/ObjectData.h"
+#include <algorithm>
 
 void FlagBehaviorComponent::integrate(GameObject* obj,
 	float deltaTime,
@@ -30,6 +31,9 @@ void FlagBehaviorComponent::integrate(GameObject* obj,
 		}
 	} else {
 		physicsSystem.defaultIntegrate(obj, deltaTime);
+		float maxY = std::max(obj->transform.position.y, phys.waterLevel);
+
+		obj->transform.position.y = maxY; // keep the flag above the water level
 	}
 
 	//also get the AABB

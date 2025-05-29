@@ -74,6 +74,7 @@ const float ATTACK_COST_ARRAY[5] = { METAL_PROJ_COST, WOOD_PROJ_COST, WATER_PROJ
 
 const float UNDERWATER_SLOW_FACTOR = 0.5f;
 const float WATER_SLOW_FACTOR = 0.2f;
+const float UNDERWATER_DAMAGE_INTERVAL = 1.0f;
 
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
@@ -83,6 +84,7 @@ public:
     float grappleTimer = 0.0f;
 	float deathTimer = 0.0f;
 	float slowTimer = 0.0f;
+	float underwaterTimer = 0.0f;
 
 	float curCooldownArray[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
