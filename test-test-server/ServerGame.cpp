@@ -141,6 +141,35 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 
 }
 
+
+void spawnPickups(PhysicsSystem& physicsSystem) {
+	glm::vec3 hpPickupCoordinates[3] = {
+		glm::vec3(5.0f, 30.0f, 5.0f),
+		glm::vec3(-5.0f, 30.0f, -5.0f),
+		glm::vec3(0.0f, 30.0f, 0.0f)
+	};
+
+	glm::vec3 manaPickupCoordinates[3] = {
+		glm::vec3(10.0f, 30.0f, 10.0f),
+		glm::vec3(-10.0f, 30.0f, -10.0f),
+		glm::vec3(15.0f, 30.0f, -15.0f)
+	};
+	for (int i = 0; i < 3; i++) {
+		GameObject* hpPickup = physicsSystem.makeGameObject(hpPickupCoordinates[i], glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f));
+		hpPickup->type = HP_PICKUP;
+		hpPickup->isDynamic = true;
+		hpPickup->behavior = new PickupBehaviorComponent(hpPickup, physicsSystem, HP_PICKUP, hpPickupCoordinates[i]);
+		physicsSystem.addDynamicObject(hpPickup);
+		physicsSystem.addMovingObject(hpPickup);
+		GameObject* manaPickup = physicsSystem.makeGameObject(manaPickupCoordinates[i], glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f));
+		manaPickup->type = MANA_PICKUP;
+		manaPickup->isDynamic = true;
+		manaPickup->behavior = new PickupBehaviorComponent(manaPickup, physicsSystem, MANA_PICKUP, manaPickupCoordinates[i]);
+		physicsSystem.addDynamicObject(manaPickup);
+		physicsSystem.addMovingObject(manaPickup);
+	}	
+}
+
 GameObject* spawnFlag(PhysicsSystem& physicsSystem) {
 	GameObject* flag = physicsSystem.makeGameObject();
 	flag->transform.position = glm::vec3(5.0f, 30.0f, 0.0f);
@@ -174,6 +203,7 @@ ServerGame::ServerGame(void) {
 
 	//add islands
 	spawnIslands(physicsSystem);
+	spawnPickups(physicsSystem);
 
 	//add a flag
 	flag = spawnFlag(physicsSystem);

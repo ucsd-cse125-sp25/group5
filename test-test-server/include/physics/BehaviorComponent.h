@@ -37,6 +37,30 @@ public:
    virtual void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) = 0;
 };
 
+class PickupBehaviorComponent : public BehaviorComponent {
+
+public:
+
+	EntityType type;
+	float pickupTimer = 0.0f;
+	glm::vec3 position;
+	glm::vec3 restPosition;
+	bool isActive = true;
+
+	PickupBehaviorComponent(GameObject* self, PhysicsSystem& physicsSystem, EntityType type, glm::vec3 position)
+		: BehaviorComponent(self, physicsSystem), type(type), position(position)
+	{
+		this->self = self;
+		this->physicsSystem = physicsSystem;
+		restPosition = position - vec3(0.0f, 1000.0f, 0.0f); // Adjust the rest position to be slightly above the original position
+		self->type = type;
+	}
+
+	void integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) override;
+	void resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) override;
+};
+
+
 class PlayerBehaviorComponent : public BehaviorComponent {
 
 const float JUMP_FORCE = 10.0f;
@@ -76,6 +100,9 @@ const float UNDERWATER_SLOW_FACTOR = 0.5f;
 const float WATER_SLOW_FACTOR = 0.2f;
 const float UNDERWATER_DAMAGE_INTERVAL = 1.0f;
 
+const int HP_PICKUP_AMOUNT = 10;
+const int MANA_PICKUP_AMOUNT = 10;
+
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
     float dashTimer = 0.0f;
@@ -90,6 +117,7 @@ public:
 
 	float curSlowFactor = 1.0f;
 	float curUnderwaterSlowFactor = 1.0f;
+	float maxHP = 120.0f;
 
 
 	GameObject* grappleTarget = nullptr;
