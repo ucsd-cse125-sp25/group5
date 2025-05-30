@@ -99,6 +99,7 @@ const float ATTACK_COST_ARRAY[5] = { METAL_PROJ_COST, WOOD_PROJ_COST, WATER_PROJ
 const float UNDERWATER_SLOW_FACTOR = 0.5f;
 const float WATER_SLOW_FACTOR = 0.2f;
 const float UNDERWATER_DAMAGE_INTERVAL = 1.0f;
+const float FLAG_BOOST_INTERVAL = 2.0f;
 
 const int HP_PICKUP_AMOUNT = 10;
 const int MANA_PICKUP_AMOUNT = 10;
@@ -112,6 +113,7 @@ public:
 	float deathTimer = 0.0f;
 	float slowTimer = 0.0f;
 	float underwaterTimer = 0.0f;
+	float flagBoostTimer = 0.0f;
 
 	float curCooldownArray[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 

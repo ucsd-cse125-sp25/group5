@@ -75,6 +75,7 @@ struct Entity {
 
 struct PlayerStats {
 	unsigned int hp = MAX_HP;
+	unsigned int maxHP = 120;
 	bool alive = true;
 	bool hasFlag = false;
 	bool moving = false;
