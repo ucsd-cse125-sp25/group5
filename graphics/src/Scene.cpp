@@ -33,6 +33,8 @@ static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 void Scene::createGame(ClientGame *client) {
 	this->client = client;
 
+	shrink = glm::scale(shrink, glm::vec3(0.05f));
+
 	//setup lights
 	lightmanager = new Lights();
 	lightmanager->init();
@@ -83,11 +85,52 @@ void Scene::loadObjects() {
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
-
 	flag = new Object();
-	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated.fbx");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
 	objects.push_back(flag);
+
+	metalpower = new Object();
+	std::string importstr3 = PROJECT_SOURCE_DIR + std::string("/assets/metal.fbx");
+	metalpower->create((char*)importstr3.c_str(), glm::mat4(1), 1);
+
+	metalring = new Object();
+	std::string importstr4 = PROJECT_SOURCE_DIR + std::string("/assets/Metal_power.fbx");
+	metalring->create((char*)importstr4.c_str(), glm::mat4(1), 1);
+
+	woodpower = new Object();
+	std::string importstr5 = PROJECT_SOURCE_DIR + std::string("/assets/wood.fbx");
+	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 1);
+
+	woodring = new Object();
+	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_Power.fbx");
+	woodring->create((char*)importstr6.c_str(), glm::mat4(1), 1);
+
+	waterpower = new Object();
+	std::string importstr7 = PROJECT_SOURCE_DIR + std::string("/assets/water.fbx");
+	waterpower->create((char*)importstr7.c_str(), glm::mat4(1), 1);
+
+	waterring = new Object();
+	std::string importstr8 = PROJECT_SOURCE_DIR + std::string("/assets/Water_Power.fbx");
+	waterring->create((char*)importstr8.c_str(), glm::mat4(1), 1);
+
+	firepower = new Object();
+	std::string importstr9 = PROJECT_SOURCE_DIR + std::string("/assets/fire.fbx");
+	firepower->create((char*)importstr9.c_str(), glm::mat4(1), 1);
+
+	firering = new Object();
+	std::string importstr10 = PROJECT_SOURCE_DIR + std::string("/assets/Fire_power.fbx");
+	firering->create((char*)importstr10.c_str(), glm::mat4(1), 1);
+
+	earthpower = new Object();
+	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.fbx");
+	earthpower->create((char*)importstr11.c_str(), glm::mat4(1), 1);
+
+	earthring = new Object();
+	std::string importstr12 = PROJECT_SOURCE_DIR + std::string("/assets/Earth_power.fbx");
+	earthring->create((char*)importstr12.c_str(), glm::mat4(1), 1);
+
+
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 	
 	//test->UpdateMat(mov);
@@ -96,6 +139,7 @@ void Scene::loadObjects() {
 	for (int i = 1; i < 4; i++) {
 		players[i]->LoadAnimation();
 	}
+	lastFrameTime = glfwGetTime();
 }
 
 
@@ -354,9 +398,46 @@ void Scene::draw(Camera* cam) {
 
 	//test->Draw(mainShader, false);
 
-	for (int i = 1; i < 4; i++) {
-
+	float now = glfwGetTime();
+	float deltaTime = now - lastFrameTime;
+	lastFrameTime = now;
+	ringRot += 180.0f * deltaTime;
+	ringRot = fmod(ringRot, 360.0f);
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		if (client->playerId == i) {
+			continue;
+		}
 		players[i]->Draw(mainShader, false);
+		glm::vec3 pos = client->GameState.players[i].model[3];
+		std::cout << i << std::endl;
+		std::cout << glm::to_string(pos) << std::endl;
+		glm::mat4 matrix = glm::mat4(1.0f);
+		matrix = glm::scale(matrix, glm::vec3(0.05f));
+		matrix[3] = glm::vec4(pos, 1.0f);
+		matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
+		PowerType active = client->GameState.player_stats[i].activePower;
+
+		if (active == METAL) {
+			metalring->update(matrix);
+			metalring->draw(mainShader, false);
+		}
+		else if (active == WOOD) {
+			woodring->update(matrix);
+			woodring->draw(mainShader, false);
+		}
+		else if (active == WATER) {
+			waterring->update(matrix);
+			waterring->draw(mainShader, false);
+		}
+		else if (active == FIRE) {
+			firering->update(matrix);
+			firering->draw(mainShader, false);
+		}
+		else if (active == EARTH) {
+			earthring->update(matrix);
+			earthring->draw(mainShader, false);
+		}
 	}
 
 	glDisable(GL_CULL_FACE);

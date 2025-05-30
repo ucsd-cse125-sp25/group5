@@ -8,6 +8,7 @@
 #include <glm/gtc/random.hpp>
 
 glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
+
 	//process player input
 	GameObject* target = obj;
 
@@ -607,7 +608,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 //—— resolveCollision — called when this object hits another
 void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
-{
+{	
+	playerStats.damageFlag = false;
 	if (status == 0) {
 		//if we hit a static object, stop grappling
 		if (state == PlayerMovementState::GRAPPLE) {

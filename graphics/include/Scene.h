@@ -34,6 +34,20 @@ private:
 	Cube* testCube;
 	Audio* audiomanager;
 	UIData uiData;
+
+	Object* metalpower;
+	Object* metalring;
+	Object* woodpower;
+	Object* woodring;
+	Object* waterpower;
+	Object* waterring;
+	Object* firepower;
+	Object* firering;
+	Object* earthpower;
+	Object* earthring;
+	glm::mat4 shrink = glm::mat4(1.0f);
+	float lastFrameTime;
+	float ringRot = 0.0f;
 	//std::vector<Light*> lights; lights baked into the world
 	//std::vector<Light*> movLights; dynamic lights from abilities/powerups/events etc.
 
