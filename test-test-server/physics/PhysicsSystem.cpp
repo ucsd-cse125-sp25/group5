@@ -4,7 +4,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include "physics/BehaviorComponent.h"
-// #include "physics/Octree.h"
+#include "physics/Octree.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;

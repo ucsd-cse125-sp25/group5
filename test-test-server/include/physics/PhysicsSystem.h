@@ -5,7 +5,7 @@
 #include "physics/PhysicsData.h"
 #include "../include/shared/NetworkData.h"
 #include "InputManager.h"
-#include "Octree.h"
+#include "physics/Octree.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -17,7 +17,7 @@ const float ENDING_WATER_LEVEL = 100.0f;
 
 using namespace std;
 
-//class Octree;
+class Octree;
 
 class PhysicsSystem {
 
@@ -283,9 +283,9 @@ public:
 	}
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
-        if (this->octreeStaticObjects) {
+        if (octreeStaticObjects) {
 			updateGameObjectAABB(obj);
-			this->octreeStaticObjects->insert(obj, this->octreeStaticObjects->getRoot());
+			octreeStaticObjects->insert(obj, octreeStaticObjects->getRoot());
         }
 	}
 	void addPlayerObject(GameObject* obj) {
@@ -293,9 +293,9 @@ public:
 	}
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
-        if (this->octreeMovingObjects) {
+        if (octreeMovingObjects) {
             updateGameObjectAABB(obj);
-			this->octreeMovingObjects->insert(obj, this->octreeMovingObjects->getRoot());
+			octreeMovingObjects->insert(obj, octreeMovingObjects->getRoot());
         }
     }
 
