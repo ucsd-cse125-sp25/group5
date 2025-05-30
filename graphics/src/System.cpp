@@ -25,6 +25,7 @@ void System::InitSimpleParticleSystem() {
 	particleradius = 1.0f;
 	particlecolor = glm::vec3(0.7, 0.3, 0.3);
 	spawn = false;
+	decayMode = 0;
 
 	ctime = currTime;
 	particlesystems.push_back(this);
@@ -34,18 +35,63 @@ void System::InitColoredTrail(glm::vec3 pos, glm::vec3 color) {
 	creationrate = 15;
 	ground = -INFINITY;
 	initpos = pos;
-	initposvar = glm::vec3(0.5, 2.0, 0.5);
+	initposvar = glm::vec3(0.01, 0.05, 0.01);
 	initvel = glm::vec3(0, 0, 0);
-	initvelvar = glm::vec3(0.5, 0.5, 0.5);
-	gravity = 0.1;
+	initvelvar = glm::vec3(0.05, 0.05, 0.05);
+	gravity = 0.02;
 	airdensity = 2;
 	friction = 0.9;
 	particlelifetime = 5000.0;
 	particlelifetimevar = 1000.0;
 	particleElasticity = 0.5f;
-	particleradius = 0.2f;
+	particleradius = 0.03f;
 	particlecolor = color;
 	spawn = false;
+	decayMode = 1;
+
+	ctime = currTime;
+	particlesystems.push_back(this);
+}
+
+void System::InitParticleExplosion(glm::vec3 pos) {
+	creationrate = 200;
+	ground = -INFINITY;
+	initpos = pos;
+	initposvar = glm::vec3(0.01, 0.05, 0.01);
+	initvel = glm::vec3(0, 0, 0);
+	initvelvar = glm::vec3(0.05, 0.05, 0.05);
+	gravity = 0.02;
+	airdensity = 2;
+	friction = 0.9;
+	particlelifetime = 3500.0;
+	particlelifetimevar = 1000.0;
+	particleElasticity = 0.5f;
+	particleradius = 0.035f;
+	particlecolor = glm::vec3(0, 0, 0);
+	spawn = false;
+	decayMode = 2;
+
+	ctime = currTime;
+	particlesystems.push_back(this);
+}
+
+void System::InitDamageEffect(glm::vec3 pos) {
+	creationrate = 300;
+	ground = -INFINITY;
+	initpos = pos;
+	initposvar = glm::vec3(0.01, 0.05, 0.01);
+	initvel = glm::vec3(0, 0, 0);
+	initvelvar = glm::vec3(0.05, 0.05, 0.05);
+	gravity = 0.02;
+	airdensity = 2;
+	friction = 0.9;
+	particlelifetime = 2500.0;
+	particlelifetimevar = 500.0;
+	particleElasticity = 0.5f;
+	particleradius = 0.03f;
+	particlecolor = glm::vec3(0.55, 0.1, 0.15);
+	spawn = false;
+	decayMode = 2;
 
 	ctime = currTime;
 	particlesystems.push_back(this);
@@ -71,7 +117,7 @@ void System::CreateParticle(float lifetime) {
 	float velz = dvz(gen);
 	glm::vec3 vel = glm::vec3(velx, vely, velz);
 
-	Particle* p = new Particle(particlecolor, 0.1f, pos, vel, particleradius, particleElasticity, currTime, lifetime);
+	Particle* p = new Particle(particlecolor, 0.1f, pos, vel, particleradius, particleElasticity, currTime, lifetime, decayMode);
 	particles.push_back(p);
 }
 
@@ -134,7 +180,7 @@ void System::Update(float deltaTime) {
 		}
 
 		for (int i = 0; i < particles.size(); i++) {
-			particles[i]->Update();
+			particles[i]->Update(currTime);
 		}
 	}
 }
