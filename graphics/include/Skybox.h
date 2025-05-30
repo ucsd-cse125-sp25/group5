@@ -18,5 +18,5 @@ private:
 public:
 	void initSkybox();
 	GLuint loadCubemap(const std::vector<std::string> faces);
-	void draw(Camera* cam);
+	void draw(Camera* cam, float* model);
 };
