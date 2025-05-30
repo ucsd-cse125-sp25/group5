@@ -318,6 +318,12 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 			}
 		}
 	}
+
+	if(state != PlayerMovementState::GRAPPLE) {
+		//reset grapple target if we're not grappling
+		playerStats.grappleTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+		grappleTarget = nullptr;
+	}
 }
 
 //—— integrate — called once per tick
@@ -325,6 +331,12 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+
+
+	//water setting
+	if (playerStats.underwater && obj->transform.position.y >= phys.waterLevel) {
+		obj->physics->velocity.y *= 0.1;
+	}
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 
 	//when death first happens 
@@ -410,18 +422,18 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
 		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
 
-		//if we've collided with our target object, or if we've run out of time, release the grapple
-		if (grappleTimer <= 0.0f) {
-			printf(
-				"grapple timer expired or collided with target\n");
+		////if we've collided with our target object, or if we've run out of time, release the grapple
+		//if (grappleTimer <= 0.0f) {
+		//	printf(
+		//		"grapple timer expired or collided with target\n");
 
-			printf("grapple timer %f\n", grappleTimer);
-			printf("penetration %f\n", penetration.second);
-			obj->physics->velocity *= 0.1f;
-			state = PlayerMovementState::IDLE;
-			grappleTimer = 0.0f;
-			grappleTarget = nullptr;
-		}
+		//	printf("grapple timer %f\n", grappleTimer);
+		//	printf("penetration %f\n", penetration.second);
+		//	obj->physics->velocity *= 0.1f;
+		//	state = PlayerMovementState::IDLE;
+		//	grappleTimer = 0.0f;
+		//	grappleTarget = nullptr;
+		//}
 	}
 	else if (state == PlayerMovementState::MAGNET) {
 		glm::vec3 direction = phys.getClosestPlayerObject(obj->transform.position, obj->id)->transform.position - obj->transform.position;
@@ -485,7 +497,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				playerStats.mana[2] -= WATER_MOVE_COST;
 				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 			}
-			else if (playerStats.activePower == WOOD && playerStats.mana[1] >= EARTH_MOVE_COST) {
+			else if (playerStats.activePower == WOOD && playerStats.mana[1] >= WOOD_MOVE_COST) {
 				//our target point, we've also set the target object, this could probably use some restructuring
 
 
@@ -493,6 +505,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				pair<glm::vec3, float> result = handlePlayerGrapple(obj, phys);
 
 				glm::vec3 target = result.first;
+				playerStats.grappleTarget = result.first;
 
 				//we have a target
 				if (target != glm::vec3(0.0f, 0.0f, 0.0f)) {
@@ -596,6 +609,19 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
 {
 	if (status == 0) {
+		//if we hit a static object, stop grappling
+		if (state == PlayerMovementState::GRAPPLE) {
+			printf(
+				"grapple timer expired or collided with target\n");
+
+			printf("grapple timer %f\n", grappleTimer);
+			printf("penetration %f\n", penetration.second);
+			obj->physics->velocity *= 0.1f;
+			state = PlayerMovementState::IDLE;
+			grappleTimer = 0.0f;
+			grappleTarget = nullptr;
+		}
+
 		physicsSystem.resolveCollision(obj, other, penetration, status);
 	}
 	else if (status == 1) {
