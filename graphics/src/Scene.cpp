@@ -403,11 +403,15 @@ void Scene::draw(Camera* cam) {
 	lastFrameTime = now;
 	ringRot += 180.0f * deltaTime;
 	ringRot = fmod(ringRot, 360.0f);
+
+	for (int i = 1; i < client->GameState.num_players; i++) {
+		players[i]->Draw(mainShader, false);
+	}
+
 	for (int i = 0; i < client->GameState.num_players; i++) {
-		if (client->playerId == i) {
+		if (client->GameState.players[i].id == client->playerId) {
 			continue;
 		}
-		players[i]->Draw(mainShader, false);
 		glm::vec3 pos = client->GameState.players[i].model[3];
 		std::cout << i << std::endl;
 		std::cout << glm::to_string(pos) << std::endl;
