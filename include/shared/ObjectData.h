@@ -89,6 +89,7 @@ struct PlayerStats {
 
 	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};
 	int attackPowerupFlag[5] = { 0, 0, 0, 0, 0 };
+	bool damageFlag = false; // used to indicate if the player has taken damage this tick
 };
 
 struct KillfeedItem {

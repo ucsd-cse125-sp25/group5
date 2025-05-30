@@ -636,11 +636,14 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			if (pb != nullptr && pb->originalPlayer != obj->id) {
 				playerStats.hp -= pb->damage;
 				printf("Player %d took %f damage from projectile %d\n", obj->id, pb->damage, other->id);
-
-				//apply slow
-				if (other->type == WATER_PROJ) {
-					slowTimer = SLOW_TIME;
-				}
+				playerStats.damageFlag = true;
+			}
+			else {
+				playerStats.damageFlag = false;
+			}
+			//apply slow
+			if (other->type == WATER_PROJ) {
+				slowTimer = SLOW_TIME;
 			}
 			//if we get killed, update the killfeed
 			if (playerStats.hp <= 0) {
