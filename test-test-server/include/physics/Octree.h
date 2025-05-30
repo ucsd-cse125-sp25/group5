@@ -2,8 +2,13 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-#include "PhysicsSystem.h"
+// "PhysicsSystem.h"
 #include "PhysicsData.h"
+
+class GameObject; // Forward declaration
+struct AABB; // Forward declaration
+using namespace std;
+typedef glm::vec3 vec3;
 
 class Node {
     private:

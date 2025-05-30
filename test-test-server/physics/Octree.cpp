@@ -1,4 +1,5 @@
 #include "../include/physics/Octree.h"
+#include "../include/physics/PhysicsSystem.h"
 
 Node::Node(const AABB& boundingBox, int depthLevel)
     : boundingBox(boundingBox), depthLevel(depthLevel), isLeaf(true) {

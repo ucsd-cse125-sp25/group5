@@ -17,8 +17,6 @@ const float ENDING_WATER_LEVEL = 100.0f;
 
 using namespace std;
 
-class Octree;
-
 class PhysicsSystem {
 
 private: 
