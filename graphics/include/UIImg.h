@@ -47,7 +47,7 @@ public:
 	void Draw() override;
 	void Update(const UIData& p) override;
 	void SetTexture(GLuint texture);
-	void StartRegrow(int anim);
+	void StartRegrow();
 
 	std::vector<std::vector<float>> flowerPositions;
 	//std::unordered_map<std::string, GLuint>* texs;
@@ -65,6 +65,8 @@ private:
 	GLuint VAO, VBO, EBO;
 	GLuint FlowerVAO, FlowerVBO;
 	float percent = 1.0; //0.0-1.0
+	int lastHealth = 120;
+	bool isAlive = true;
 	float flowerWidth;
 	double animStart;
 	bool animating;
@@ -97,10 +99,12 @@ private:
 	std::vector<float> container;
 	double start = 0.0;
 	int seconds;
+	float widthPercSpacing = 0.07;
 
 	GLuint VAO, VBO, EBO;
 };
-class Characters : public UIImg {
+
+class HealthNums : public UIImg {
 public:
 	void Init(std::vector<float> startPos, float percent, float ratio) override;
 	void Draw() override;
@@ -108,12 +112,50 @@ public:
 	std::string name;
 	std::unordered_map<std::string, GLuint>* texs;
 private:
+	GLuint digits[3];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	int health;
+	float widthPercSpacing = 0.04;
+
+	GLuint VAO, VBO, EBO;
+};
+
+class Characters : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+	ClientGame* client;
+private:
 	GLuint sprites[4];
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> container;
 	double start = 0.0;
 	int players;
+
+	GLuint VAO, VBO, EBO;
+};
+
+class Killfeed : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+private:
+	GLuint players[4];
+	GLuint action[4];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	double start = 0.0;
+	UIData uidata;
 
 	GLuint VAO, VBO, EBO;
 };
@@ -160,4 +202,24 @@ private:
 	bool animating;
 	float spinDuration = 0.1f;
 
+};
+
+class Vignette : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	void SetTexture(GLuint tex) override;
+	std::string name;
+private: 
+	GLuint texture;
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> uiData;
+	int lastHealth;
+	bool isAlive;
+	bool isLow;
+	double animStart;
+	float damageDuration = 0.1f;
+	GLuint VAO, VBO, EBO;
 };

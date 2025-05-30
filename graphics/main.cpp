@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     scene = new Scene();
     scene->initShaders();
-    scene->createGame();
+    scene->createGame(client);
     scene->loadObjects();
     // Loop while GLFW window should stay open.
     while (!glfwWindowShouldClose(window)) {

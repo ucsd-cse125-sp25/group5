@@ -15,9 +15,9 @@
 
 class Camera {
 public:
-    Camera();
+    Camera(ClientGame* client);
 
-    void Update(ClientGame * client, GamePhase phase);
+    void Update();
     void Reset();
 
     // Access functions
@@ -26,6 +26,8 @@ public:
     void SetAzimuth(float a) { Azimuth = a; }
     void SetIncline(float i) { Incline = i; }
     void SetPosition(glm::vec3 a) { Pos = a; }
+
+    glm::vec3 GetCameraForwardVector();
 
     float GetDistance() { return Distance; }
     float GetAzimuth() { return Azimuth; }
@@ -39,6 +41,8 @@ public:
     float sensitivity;
 
 private:
+    ClientGame* client;
+
     // Perspective controls
     float FOV;       // Field of View Angle (degrees)
     float Aspect;    // Aspect Ratio

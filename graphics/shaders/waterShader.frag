@@ -244,10 +244,10 @@ void main()
 
     float height = FBMVertex(viewPos) + waterLevel;
     if(viewPos.y < height){
-        result = mix(fogColorW, result, clamp(fogWeightW - 0.05, 0, 1));
+       result = mix(fogColorW, result, clamp(fogWeightW - 0.05, 0, 1));
     }
     else{
-        result = mix(fogColor, result, clamp(fogWeight - 0.02, 0, 1));
+       result = mix(fogColor, result, clamp(fogWeight - 0.02, 0, 1));
     }
 
     fragColor = vec4(result, 1.0);
