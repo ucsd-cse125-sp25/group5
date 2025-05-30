@@ -164,7 +164,13 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 		powerupsystem->ctime = currTime;
 	}
 
-
+	if (stats.damageFlag == true) {
+		damagesystem->creationrate = 300;
+	}
+	else {
+		damagesystem->creationrate = 0;
+		damagesystem->ctime = currTime;
+	}
 	
 
 }
@@ -180,6 +186,7 @@ void PlayerObject::Update() {
 		double deltaTime = currTime - prevTime;
 		particlesystem->Update(deltaTime);
 		powerupsystem->Update(deltaTime);
+		damagesystem->Update(deltaTime);
 
 		if (!psflag) {
 
