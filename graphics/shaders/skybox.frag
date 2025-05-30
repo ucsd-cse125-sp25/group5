@@ -13,6 +13,7 @@ uniform float fogConstant;
 uniform float fogConstantW;
 uniform vec3 fogColor;
 uniform vec3 fogColorW;
+uniform mat4 waterModel;
 
 // Simplex 2D noise
 //
@@ -91,7 +92,7 @@ void main()
 
 	vec4 result = texture(skybox, TexCoords);
 
-	float height = FBMVertex(viewPos) + waterLevel;
+	float height = waterLevel + FBMVertex(viewPos);
 
     if(viewPos.y < height){
         result.xyz = fogColorW;

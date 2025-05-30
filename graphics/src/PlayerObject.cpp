@@ -153,11 +153,11 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 			powerupsystem->particlecolor = cores[i + 4];
 			break;
 		}
-		else if (stats.attackPowerupFlag[i] > 0) {
-			powerupsystem->creationrate = 40;
-			powerupsystem->particlecolor = cores[i + 4];
-			break;
-		}
+		//else if (stats.attackPowerupFlag[i] > 0) {
+		//	powerupsystem->creationrate = 40;
+		//	powerupsystem->particlecolor = cores[i + 4];
+		//	break;
+		//}
 	}
 
 	if (powerupsystem->creationrate == 0) {
