@@ -31,11 +31,11 @@ void PhysicsSystem::tick(float dt) {
     }
 
     // After integration is complete for all objects, start handling collision
-     for (size_t i = 0; i < movingObjects.size(); ++i) {
-         GameObject* obj = movingObjects[i];
-         handleCollisions(obj);
-         obj->physics->acceleration = glm::vec3(0);
-     }
+     //for (size_t i = 0; i < movingObjects.size(); ++i) {
+     //    GameObject* obj = movingObjects[i];
+     //   // handleCollisions(obj);
+     //    obj->physics->acceleration = glm::vec3(0);
+     //}
 
     checkCollisionDynamicAll();
 
@@ -403,10 +403,8 @@ void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree* octree) {
 }
 
 void PhysicsSystem::broadphaseInit() {
-    Octree* octreeMovingObjects;
-	Octree* octreeStaticObjects;
-    initOctree(movingObjects, octreeMovingObjects);
-    initOctree(staticObjects, octreeStaticObjects);
+    initOctree(movingObjects, this->octreeMovingObjects);
+    initOctree(staticObjects, this->octreeStaticObjects);
 }
 
 void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {
@@ -417,7 +415,7 @@ void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objec
 
     for (auto& otherObj : potentialCollisions) {
         if (otherObj != obj && obj->id < otherObj->id) { 
-            pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherAABB->transform.aabb);
+            pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherObj->transform.aabb);
             if (penetration.second > 0.0f) {
                 resolveCollision(obj, otherObj, penetration, status);
             }

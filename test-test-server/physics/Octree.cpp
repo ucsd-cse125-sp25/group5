@@ -74,7 +74,7 @@ void Octree::subdivide(Node* node) {
     // Create 8 children nodes
     for (int i = 0; i < 8; i++) {
         AABB childBox = getBoundingBox(center, halfExtents, i);
-		node->setChild(i, new Node(childBox, node, node->getDepthLevel() + 1));
+		node->setChild(i, new Node(childBox, node->getDepthLevel() + 1));
     }
     
 	node->setLeaf(false);
@@ -172,29 +172,29 @@ bool overlap(const AABB& box1, const AABB& box2) {
            (box1.min.z <= box2.max.z && box1.max.z >= box2.min.z);
 }
 
-void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const {
-    if (!root) return;
+void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const {  
+    if (!root) return;  
 
-    vector<Node*> nodesToCheck;
-    nodesToCheck.push_back(root);
+    vector<Node*> nodesToCheck;  
+    nodesToCheck.push_back(root);  
 
-    while (!nodesToCheck.empty()) {
-        Node* currentNode = nodesToCheck.back();
-        nodesToCheck.pop_back();
+    while (!nodesToCheck.empty()) {  
+        Node* currentNode = nodesToCheck.back();  
+        nodesToCheck.pop_back();  
 
-        if (overlap(currentNode->getBoundingBox(), box)) {
-            if (currentNode->isLeafNode()) {
-                for (GameObject* obj : currentNode->getObjects()) {
-                    if (potentialCollisions.find(obj) != potentialCollisions.end()) {
-                        continue; // Skip if already checked or added
-                    }
-                    potentialCollisions.push_back(obj);
-                }
-            } else {
-                for (int i = 0; i < 8; i++) {
-                    nodesToCheck.push_back(currentNode->getChild(i));
-                }
-            }
-        }
-    }
+        if (overlap(currentNode->getBoundingBox(), box)) {  
+            if (currentNode->isLeafNode()) {  
+                for (GameObject* obj : currentNode->getObjects()) {  
+                    if (find(potentialCollisions.begin(), potentialCollisions.end(), obj) != potentialCollisions.end()) {  
+                        continue; // Skip if already checked or added  
+                    }  
+                    potentialCollisions.push_back(obj);  
+                }  
+            } else {  
+                for (int i = 0; i < 8; i++) {  
+                    nodesToCheck.push_back(currentNode->getChild(i));  
+                }  
+            }  
+        }  
+    }  
 }
