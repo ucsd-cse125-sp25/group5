@@ -9,8 +9,8 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1200;
-int WINDOWWIDTH = 1920;
+int WINDOWHEIGHT = 1440;
+int WINDOWWIDTH = 2560;
 //2560
 //1440
 
