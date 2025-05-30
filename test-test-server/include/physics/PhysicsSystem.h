@@ -260,7 +260,7 @@ public:
     void initOctree(vector<GameObject*> objects, Octree* octree);
     void broadphaseInit();
     void checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status);
-    void checkCollisionDynamicOne(Octree* octree, vector<GameObject*>& objects);
+    void checkCollisionDynamicOne(GameObject* obj);
     void checkCollisionDynamicAll();
     
     //adding objects

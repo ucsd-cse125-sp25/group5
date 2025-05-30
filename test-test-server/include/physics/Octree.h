@@ -11,13 +11,12 @@ class Node {
         vec3 halfExtents = (boundingBox.max - boundingBox.min) * 0.5f;
         vec3 center = boundingBox.min + halfExtents;
         Node* children[8];
-        Node* parent;
         vector<GameObject*> objects;
         bool isLeaf;
         int depthLevel;
     
     public:
-        Node(const AABB& boundingBox, Node* parent = nullptr, int depthLevel = 0);
+        Node(const AABB& boundingBox, int depthLevel = 0);
         ~Node();
 
         bool contains(const AABB& box);
@@ -28,7 +27,6 @@ class Node {
         const vector<GameObject*>& getObjects() const { return objects; }
         bool isLeafNode() const { return isLeaf; }
         int getDepthLevel() const { return depthLevel; }
-        Node* getParent() const { return parent; }
         Node* getChild(int index) const { return children[index]; }
         const vec3& getCenter() const { return center; }
         const vec3& getHalfExtents() const { return halfExtents; }
@@ -65,7 +63,7 @@ class Octree {
         void insert(GameObject* obj, Node* node);
 
         void getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const;
-        
+
         // getters
 		int getMaxDepth() const { return maxDepth; }
         int getMaxObjectsPerNode() const { return maxObjectsPerNode; }

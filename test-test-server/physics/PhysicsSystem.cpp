@@ -19,6 +19,10 @@ int nextid = 10;
 class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
 void PhysicsSystem::tick(float dt) {
+    if (octreeMovingObjects == nullptr || octreeStaticObjects == nullptr) {
+        broadphaseInit();
+    }
+
     // Update all dynamic objects
     for (size_t i = 0; i < movingObjects.size(); ++i) {
         GameObject* obj = movingObjects[i];
@@ -33,7 +37,6 @@ void PhysicsSystem::tick(float dt) {
     //     obj->physics->acceleration = glm::vec3(0);
     // }
 
-    broadphaseInit();
     checkCollisionDynamicAll();
 
     //delete all objects marked for deletion
@@ -382,7 +385,7 @@ void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objec
     octree->getPotentialCollisionPairs(getAABB(obj), potentialCollisions);
 
     for (auto& otherObj : potentialCollisions) {
-        if (otherObj != obj) {
+        if (otherObj != obj && obj->id < otherObj->id) { 
             pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherAABB->transform.aabb);
             if (penetration.second > 0.0f) {
                 resolveCollision(obj, otherObj, penetration, status);
@@ -397,6 +400,7 @@ void PhysicsSystem::checkCollisionDynamicOne(GameObject* dynamicObj) {
 }
 
 void PhysicsSystem::checkCollisionDynamicAll() {
+    updateGameObjectsAABB(movingObjects);
     for (auto& obj : movingObjects) {
         checkCollisionDynamicOne(obj);
     }

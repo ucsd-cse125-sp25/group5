@@ -1,7 +1,7 @@
 #include "../include/physics/Octree.h"
 
-Node::Node(const AABB& boundingBox, Node* parent, int depthLevel)
-    : boundingBox(boundingBox), parent(parent), depthLevel(depthLevel), isLeaf(true) {
+Node::Node(const AABB& boundingBox, int depthLevel)
+    : boundingBox(boundingBox), depthLevel(depthLevel), isLeaf(true) {
     for (int i = 0; i < 8; i++) {
         children[i] = nullptr;
     }
@@ -185,6 +185,9 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
         if (overlap(currentNode->getBoundingBox(), box)) {
             if (currentNode->isLeafNode()) {
                 for (GameObject* obj : currentNode->getObjects()) {
+                    if (potentialCollisions.find(obj) != potentialCollisions.end()) {
+                        continue; // Skip if already checked or added
+                    }
                     potentialCollisions.push_back(obj);
                 }
             } else {
