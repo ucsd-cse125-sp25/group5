@@ -386,7 +386,6 @@ void PhysicsSystem::updateGameObjectAABB(GameObject* obj) {
         return; // Ensure the object and its collider are valid
     }
     obj->transform.aabb = getAABB(obj);
-    obj->collider->halfExtents = (obj->transform.aabb.max - obj->transform.aabb.min) * 0.5f; // Update half extents based on the new AABB
 }
 
 void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
@@ -395,7 +394,7 @@ void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
     }   
 }
 
-void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree* octree) {
+void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree*& octree) {
     updateGameObjectsAABB(objects);
 	if (octree == nullptr) {
 		octree = new Octree(worldBounds, objects, 8, 8);

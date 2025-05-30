@@ -188,8 +188,9 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
                     potentialCollisions.push_back(obj);  
                 }  
             } else {  
-                for (int i = 0; i < 8; i++) {  
-                    nodesToCheck.push_back(currentNode->getChild(i));  
+                for (int i = 0; i < 8; i++) {
+                    Node* child = currentNode->getChild(i);
+                    if (child) nodesToCheck.push_back(child);  
                 }  
             }  
         }  

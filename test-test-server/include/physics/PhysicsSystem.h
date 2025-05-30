@@ -269,7 +269,7 @@ public:
     GameObject* getClosestPlayerObject(glm::vec3 pos, int exclude);
 
     // broadphase
-    void initOctree(vector<GameObject*> objects, Octree* octree);
+    void initOctree(vector<GameObject*> objects, Octree*& octree);
     void broadphaseInit();
     void checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status);
     void checkCollisionDynamicOne(GameObject* obj);
@@ -315,7 +315,7 @@ public:
 
 	//delete all objects that are marked for deletion
     void deleteMarkedDynamicObjects() {
-		for (size_t i = movingObjects.size() - 1; i >= 0; i--) {
+		for (int i = movingObjects.size() - 1; i >= 0; i--) {
 			GameObject* obj = movingObjects[i];
 			if (obj->markDeleted) {
 				deleteDynamicObject(obj);
