@@ -9,8 +9,8 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1440;
-int WINDOWWIDTH = 2560;
+int WINDOWHEIGHT = 1200;
+int WINDOWWIDTH = 1920;
 //2560
 //1440
 
@@ -106,6 +106,7 @@ void Scene::update(Camera* cam) {
 	lightSpaceMatrix = lightmanager->getDirLightMat();
 
 	player->UpdateMat(client->playerModel);
+	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
 	player->Update();
 
 	//test->Update();
@@ -188,8 +189,7 @@ void Scene::update(Camera* cam) {
 			cubes.push_back(cu);
 		}
 		else if (entity.type == COLLIDER) {
-			//generate a random color
-
+		  //generate a random color
 			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
@@ -394,6 +394,7 @@ void Scene::draw(Camera* cam) {
 	GLuint particleShader = shaders[3];
 	glUseProgram(particleShader);
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(particleShader, "viewPos"), 1, &camPos[0]);
 
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
