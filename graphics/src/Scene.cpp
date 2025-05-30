@@ -70,9 +70,9 @@ void Scene::createGame(ClientGame *client) {
 		}
 	}
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 }
 
 
@@ -85,7 +85,7 @@ void Scene::loadObjects() {
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
-	objects.push_back(flag);
+	//objects.push_back(flag);
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 	
 	//test->UpdateMat(mov);
@@ -241,7 +241,7 @@ void Scene::update(Camera* cam) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader"};
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -300,7 +300,8 @@ void Scene::draw(Camera* cam) {
 
 	//RENDER PASS
 	glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//We will use a global shader for everything for right now
 	GLuint mainShader = shaders[1];
@@ -331,13 +332,13 @@ void Scene::draw(Camera* cam) {
 	glUniform3fv(glGetUniformLocation(mainShader, "fogColorW"), 1, &fogColorW[0]);
 
 	lightmanager->bind();
-	
+
 	for (int i = 0; i < objects.size(); i++) {
 		objects[i]->draw(mainShader, false);
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
-		cubes[i]->draw(mainShader, false);
+		//cubes[i]->draw(mainShader, false);
 	}
 
 	//test->Draw(mainShader, false);
@@ -347,9 +348,15 @@ void Scene::draw(Camera* cam) {
 		players[i]->Draw(mainShader, false);
 	}
 
-	glDisable(GL_CULL_FACE);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);   // Always pass
+	glStencilMask(0xFF);                 // Write 1s to stencil where drawn
+	glDepthFunc(GL_LESS);
+	flag->draw(mainShader, false);
+	glStencilMask(0x00);
 
 	//water shading and drawing
+	/*
 	GLuint waterShader = shaders[4];
 	glUseProgram(waterShader);
 
@@ -386,9 +393,26 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
 	}
-  
+	*/
+
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);  // Pass only where stencil != 1
+	glStencilMask(0x00);                  // Don’t modify stencil
+	glDisable(GL_DEPTH_TEST);
+	GLuint spectral = shaders[5];
+	glUseProgram(spectral);
+
+	glUniformMatrix4fv(glGetUniformLocation(spectral, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+	glUniformMatrix4fv(glGetUniformLocation(spectral, "scale"), 1, GL_FALSE, (float*)&scale);
+
+	flag->draw(spectral, false);
+
+	glEnable(GL_DEPTH_TEST);
+	glStencilMask(0x00);
+	glStencilFunc(GL_ALWAYS, 0, 0xFF);
+	glDisable(GL_STENCIL_TEST);
 	glUseProgram(0); //skybox and uimanager use their own shader
-	
+
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
 	skybox->draw(cam);
 	uimanager->draw();
