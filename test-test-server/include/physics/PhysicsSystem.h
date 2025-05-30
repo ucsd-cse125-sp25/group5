@@ -42,6 +42,8 @@ public:
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
     vector<float> AABBdistances;
     float cellSize;
+    AABB worldBounds = AABB{vec3(-1000.0f), vec3(1000.0f)};
+    
 
 	//water level
 	float waterLevel = 0.0f;
@@ -56,8 +58,8 @@ public:
     vector<GameObject*> staticObjects;
 
     // Broadphase
-	Octree *octreeMovingObjects = new Octree({ glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f) }, movingObjects, 8, 8);
-    Octree *octreeStaticObjects = new Octree({ glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f) }, staticObjects, 8, 8);
+	Octree *octreeMovingObjects;
+    Octree *octreeStaticObjects;
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
@@ -282,6 +284,7 @@ public:
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
         if (this->octreeStaticObjects) {
+			updateGameObjectAABB(obj);
 			this->octreeStaticObjects->insert(obj, this->octreeStaticObjects->getRoot());
         }
 	}
@@ -291,6 +294,7 @@ public:
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
         if (this->octreeMovingObjects) {
+            updateGameObjectAABB(obj);
 			this->octreeMovingObjects->insert(obj, this->octreeMovingObjects->getRoot());
         }
     }

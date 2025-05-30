@@ -2,6 +2,8 @@
 
 Node::Node(const AABB& boundingBox, int depthLevel)
     : boundingBox(boundingBox), depthLevel(depthLevel), isLeaf(true) {
+	halfExtents = (boundingBox.max - boundingBox.min) * 0.5f;
+	center = boundingBox.min + halfExtents;
     for (int i = 0; i < 8; i++) {
         children[i] = nullptr;
     }
@@ -141,16 +143,10 @@ void Node::removeObject(GameObject* obj) {
     }
 }
 
-void Octree::reconstructTree(const vector<GameObject*>& objects) {
-    if (root) {
-        delete root;
-    }
-    constructTree(objects);
-}
-
 void Octree::constructTree(const vector<GameObject*>& objects) {
-    root = new Node(boundingBox);
+    if (root) delete root;
 
+    root = new Node(boundingBox);
     for (GameObject* obj : objects) {
         insert(obj, root);
     }

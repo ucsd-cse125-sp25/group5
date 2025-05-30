@@ -8,8 +8,8 @@
 class Node {
     private:
         AABB boundingBox;
-        vec3 halfExtents = (boundingBox.max - boundingBox.min) * 0.5f;
-        vec3 center = boundingBox.min + halfExtents;
+        vec3 halfExtents;
+        vec3 center;
         Node* children[8];
         vector<GameObject*> objects;
         bool isLeaf;
@@ -59,7 +59,6 @@ class Octree {
         void subdivide(Node* node);
 
         void constructTree(const vector<GameObject*>& objects);
-        void reconstructTree(const vector<GameObject*>& objects);
         void insert(GameObject* obj, Node* node);
 
         void getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const;

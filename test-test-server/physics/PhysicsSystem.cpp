@@ -19,7 +19,7 @@ int nextid = 10;
 class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
 void PhysicsSystem::tick(float dt) {
-    if (&octreeMovingObjects == nullptr || &octreeStaticObjects == nullptr) {
+    if (octreeMovingObjects == nullptr || octreeStaticObjects == nullptr) {
         broadphaseInit();
     }
 
@@ -397,12 +397,15 @@ void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
 
 void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree* octree) {
     updateGameObjectsAABB(objects);
+	if (octree == nullptr) {
+		octree = new Octree(worldBounds, objects, 8, 8);
+	}
     octree->constructTree(objects);
 }
 
 void PhysicsSystem::broadphaseInit() {
-    initOctree(movingObjects, octreeMovingObjects);
-    initOctree(staticObjects, octreeStaticObjects);
+	initOctree(movingObjects, octreeMovingObjects);
+	initOctree(staticObjects, octreeStaticObjects);
 }
 
 void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {
