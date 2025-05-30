@@ -563,6 +563,10 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			if (pb != nullptr && pb->originalPlayer != obj->id) {
 				playerStats.hp -= pb->damage;
 				printf("Player %d took %f damage from projectile %d\n", obj->id, pb->damage, other->id);
+				playerStats.damageFlag = true;
+			}
+			else {
+				playerStats.damageFlag = false;
 			}
 			//if we get killed, update the killfeed
 			if (playerStats.hp <= 0) {
