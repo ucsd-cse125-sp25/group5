@@ -17,6 +17,10 @@
 
 const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
+struct Projectile {
+	
+};
+
 //Scene Class which will contain data about map, players, etc
 class Scene {
 private:
