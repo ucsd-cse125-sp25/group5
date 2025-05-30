@@ -58,8 +58,8 @@ public:
     vector<GameObject*> staticObjects;
 
     // Broadphase
-	Octree *octreeMovingObjects;
-    Octree *octreeStaticObjects;
+	Octree *octreeMovingObjects = nullptr;
+    Octree *octreeStaticObjects = nullptr;
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
