@@ -11,48 +11,48 @@ const static int KILLFEED_LENGTH = 3;
 
 enum PacketTypes {
 
-    PLAYER_INTENT = 0,
-    JOIN_RESPONSE = 1,
-    GAME_STATE = 2,
-    NONE = 3
+	PLAYER_INTENT = 0,
+	JOIN_RESPONSE = 1,
+	GAME_STATE = 2,
+	NONE = 3
 
 };
 
 struct Packet {
 
-    unsigned int packet_type;
-    char buf[128];
+	unsigned int packet_type;
+	char buf[128];
 
-    void serialize(char* data) {
-        memcpy(data, this, sizeof(Packet));
-    }
+	void serialize(char* data) {
+		memcpy(data, this, sizeof(Packet));
+	}
 
-    void deserialize(char* data) {
-        memcpy(this, data, sizeof(Packet));
-    }
+	void deserialize(char* data) {
+		memcpy(this, data, sizeof(Packet));
+	}
 };
 
 struct PlayerIntentPacket {
 
-    //movement
-    bool moveLeftIntent = false;
-    bool moveRightIntent = false;
-    bool moveUpIntent = false;
-    bool moveDownIntent = false;
-    bool moveForwardIntent = false;
-    bool moveBackIntent = false;
-    float azimuthIntent = 0.0f;
-    float inclineIntent = 0.0f;
+	//movement
+	bool moveLeftIntent = false;
+	bool moveRightIntent = false;
+	bool moveUpIntent = false;
+	bool moveDownIntent = false;
+	bool moveForwardIntent = false;
+	bool moveBackIntent = false;
+	float azimuthIntent = 0.0f;
+	float inclineIntent = 0.0f;
 
-    //attack triggers
+	//attack triggers
 	bool rightClickIntent = false;
 	bool leftClickIntent = false;
-    bool scrollUpIntent = false;
+	bool scrollUpIntent = false;
 	bool scrollDownIntent = false;
 
-    bool scrollIntentTriggered = false;
+	bool scrollIntentTriggered = false;
 
-    //powers
+	//powers
 	bool hit1Intent = false;
 	bool hit2Intent = false;
 	bool hit3Intent = false;
@@ -67,13 +67,13 @@ struct PlayerIntentPacket {
 
 	PowerType changeToPower = METAL;
 
-    void serialize(char* data) {
-        memcpy(data, this, sizeof(PlayerIntentPacket));
-    }
+	void serialize(char* data) {
+		memcpy(data, this, sizeof(PlayerIntentPacket));
+	}
 
-    void deserialize(char* data) {
-        memcpy(this, data, sizeof(PlayerIntentPacket));
-    }
+	void deserialize(char* data) {
+		memcpy(this, data, sizeof(PlayerIntentPacket));
+	}
 };
 
 /**
@@ -99,46 +99,48 @@ struct PlayerIntentPacket {
  * @param data A pointer to the source buffer containing the serialized data.
  */
 struct JoinResponsePacket {
-    unsigned int packet_type;
+	unsigned int packet_type;
 
-    unsigned int entity_id;
+	unsigned int entity_id;
 
-    void serialize(char* data) {
-        memcpy(data, this, sizeof(JoinResponsePacket));
-    }
+	void serialize(char* data) {
+		memcpy(data, this, sizeof(JoinResponsePacket));
+	}
 
-    void deserialize(char* data) {
-        memcpy(this, data, sizeof(JoinResponsePacket));
-    }
+	void deserialize(char* data) {
+		memcpy(this, data, sizeof(JoinResponsePacket));
+	}
 };
 
 struct GameStatePacket {
 
-    unsigned int packet_type;
+	unsigned int packet_type;
 
 	struct PlayerStats player_stats[MAX_PLAYERS];
 
-    int timeLeft;
+	GamePhase phase;
+	int time;
 
-    unsigned int num_players;
-    struct Entity players[MAX_PLAYERS];
+	//flag for moon
+	MoonPhase moonPhase;
+	unsigned int num_players;
+	struct Entity players[MAX_PLAYERS];
 
-    unsigned int num_entities;
-    struct Entity entities[MAX_ENTITIES];
+  //water level
+  float waterLevel = 0.0f; // Initial water level
+  
+	unsigned int num_entities;
+	struct Entity entities[MAX_ENTITIES];
 
-
-    struct KillfeedItem killfeed[KILLFEED_LENGTH];
+	struct KillfeedItem killfeed[KILLFEED_LENGTH];
 
 	int lockedWinnerId = -1; // -1 means no one has won yet
 
-    float seconds;
+	void serialize(char* data) {
+		memcpy(data, this, sizeof(GameStatePacket));
+	}
 
-
-    void serialize(char* data) {
-        memcpy(data, this, sizeof(GameStatePacket));
-    }
-
-    void deserialize(char* data) {
-        memcpy(this, data, sizeof(GameStatePacket));
-    }
+	void deserialize(char* data) {
+		memcpy(this, data, sizeof(GameStatePacket));
+	}
 };

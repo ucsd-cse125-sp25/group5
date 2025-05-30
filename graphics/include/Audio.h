@@ -4,19 +4,25 @@
 #include <unordered_map>
 #include <vector>
 #include <iostream>
+#include "Camera.h"
 
 class Audio {
 public:
 	void Init();
-	void Update();
-	void PlayAudio(std::string n);
+	void Update(Camera* cam, UIData &p);
+	void PlayAudio(std::string n, glm::vec3 pos);
 	void StopAudio();
+	void Filter();
 private:
-	FMOD::System* system;
+	bool isAlive = true;
+	bool isUnderwater;
+	FMOD::System* system = nullptr;
 	FMOD_VECTOR listenerPos;
 	FMOD_VECTOR listenerVel;
 	FMOD_VECTOR forward;
 	FMOD_VECTOR up;
-	FMOD::Channel* musicChannel;
+	FMOD::Channel* musicChannel = nullptr;
+	FMOD::ChannelGroup* mainGroup = nullptr;
+	FMOD::DSP* lowpassDSP = nullptr;
 	
 };

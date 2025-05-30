@@ -41,133 +41,144 @@ double scrollStart;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
-    //cube = new Cube();
-    scrollStart = glfwGetTime();
-    return true;
+	//cube = new Cube();
+	scrollStart = glfwGetTime();
+	return true;
 }
 
 void Window::cleanUp() {
-    //delete cube;
+	//delete cube;
 }
 
 // for the Window
 GLFWwindow* Window::createWindow(int width, int height, ClientGame* _client) {
-    // Initialize GLFW.
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return NULL;
-    }
+	// Initialize GLFW.
+	if (!glfwInit()) {
+		std::cerr << "Failed to initialize GLFW" << std::endl;
+		return NULL;
+	}
 
-    // 4x antialiasing.
-    glfwWindowHint(GLFW_SAMPLES, 4);
+	width = WINDOWWIDTH;
+	height = WINDOWHEIGHT;
 
-    // Create the GLFW window.
-    GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
+	// 4x antialiasing.
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
-    // Check if the window could not be created.
-    if (!window) {
-        std::cerr << "Failed to open GLFW window." << std::endl;
-        glfwTerminate();
-        return NULL;
-    }
+	// Create the GLFW window.
 
-    // Make the context of the window.
-    glfwMakeContextCurrent(window);
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primary);
 
-    // Initialize GLEW
-    glewInit();
+	glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, windowTitle, NULL, NULL);
+	glfwSetWindowPos(window, 0, 0);
+	//int WINDOWHEIGHT = mode->height;
+	//int WINDOWWIDTH = mode->width;
+	// Check if the window could not be created.
+	if (!window) {
+		std::cerr << "Failed to open GLFW window." << std::endl;
+		glfwTerminate();
+		return NULL;
+	}
 
-    // Set swap interval to 1.
-    glfwSwapInterval(0);
+	// Make the context of the window.
+	glfwMakeContextCurrent(window);
 
-    // set up the camera
-    Cam = new Camera();
-    Cam->SetAspect(float(width) / float(height));
+	// Initialize GLEW
+	glewInit();
 
-    // initialize the interaction variables
-    LeftDown = RightDown = false;
-    A_Down = D_Down = W_Down = S_Down = false;
+	// Set swap interval to 1.
+	glfwSwapInterval(0);
+
+	// set up the camera
+	Cam = new Camera(_client);
+	Cam->SetAspect(float(width) / float(height));
+
+	// initialize the interaction variables
+	LeftDown = RightDown = false;
+	A_Down = D_Down = W_Down = S_Down = false;
   
-    MouseX = width / 2;
-    MouseY = height / 2;
+	MouseX = width / 2;
+	MouseY = height / 2;
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 
-    glfwSetScrollCallback(window, scroll_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetMouseButtonCallback(window, mouse_callback);
-    // Call the resize callback to make sure things get drawn immediately.
-    Window::resizeCallback(window, width, height);
-    Window::client = _client;
+	// Call the resize callback to make sure things get drawn immediately.
+	Window::resizeCallback(window, width, height);
+	Window::client = _client;
 
-    return window;
+	return window;
 }
 
 void Window::resizeCallback(GLFWwindow* window, int width, int height) {
-    std::cout << "Resized window" << std::endl;
-    Window::width = width;
-    Window::height = height;
-    WINDOWWIDTH = width;
-    WINDOWHEIGHT = height;
-    // Set the viewport size.
-    glViewport(0, 0, width, height);
+	std::cout << "Resized window" << std::endl;
+	Window::width = width;
+	Window::height = height;
+	WINDOWWIDTH = width;
+	WINDOWHEIGHT = height;
+	std::cout << WINDOWHEIGHT << std::endl;
+	std::cout << WINDOWWIDTH << std::endl;
+	// Set the viewport size.
+	glViewport(0, 0, width, height);
 
-    Cam->SetAspect(float(width) / float(height));
+	Cam->SetAspect(float(width) / float(height));
 }
 
 // update and draw functions
 void Window::idleCallback() { 
-    // Perform any updates as necessary.
+	// Perform any updates as necessary.
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-    double time = std::chrono::duration<double, std::milli>(now.time_since_epoch()).count();
+	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+	double time = std::chrono::duration<double, std::milli>(now.time_since_epoch()).count();
 
-    prevTime = currTime;
-    currTime = time;
+	prevTime = currTime;
+	currTime = time;
+	if (!flag) {
+		startTime = time;
+		flag = true;
+	}
 
-    if (!flag) {
-        startTime = time;
-        flag = true;
-    }
-  
-    client->update(PlayerIntent);
-    Cam->Update(client);
-    scene->update(client);
+	client->update(PlayerIntent);
+	Cam->Update();
+	scene->update(Cam);
 
-    //if (PlayerIntent.scrollIntentTriggered) {
-    //    PlayerIntent.scrollIntentTriggered = false;
-    //    PlayerIntent.scrollDownIntent = false;
-    //    PlayerIntent.scrollUpIntent = false;
-    //}
+	//if (PlayerIntent.scrollIntentTriggered) {
+	//    PlayerIntent.scrollIntentTriggered = false;
+	//    PlayerIntent.scrollDownIntent = false;
+	//    PlayerIntent.scrollUpIntent = false;
+	//}
 
-    //set scroll
+	//set scroll
 }
 
 void Window::displayCallback(GLFWwindow* window) {
-    // Clear the color and depth buffers.
-    glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// Clear the color and depth buffers.
+	glClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    scene->draw(Cam);
+	scene->draw(Cam);
 	
-    glfwPollEvents();
+	glfwPollEvents();
 
-    glfwSwapBuffers(window);
+	glfwSwapBuffers(window);
 }
 
 // helper to reset the camera
 void Window::resetCamera() {
-    Cam->Reset();
-    Cam->SetAspect(float(Window::width) / float(Window::height));
+	Cam->Reset();
+	Cam->SetAspect(float(Window::width) / float(Window::height));
 }
 
 // callbacks - for Interaction
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    // Check for a key press.
-    int BURST = 10;
+	// Check for a key press.
+	int BURST = 10;
 
 	PlayerIntent.hit1Intent = false;
 	PlayerIntent.hit2Intent = false;
@@ -182,12 +193,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 
 
-    if (action == GLFW_PRESS) {
-        switch (key) {
-            case GLFW_KEY_ESCAPE:
-                // Close the window. This causes the program to also terminate.
-                glfwSetWindowShouldClose(window, GL_TRUE);
-                break;
+	if (action == GLFW_PRESS) {
+		switch (key) {
+			case GLFW_KEY_ESCAPE:
+				// Close the window. This causes the program to also terminate.
+				glfwSetWindowShouldClose(window, GL_TRUE);
+				break;
 			case GLFW_KEY_1:
 				PlayerIntent.hit1Intent = true;
 				//cube->setColor(1.0f, 0.0f, 0.0f);
@@ -208,8 +219,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				PlayerIntent.hit5Intent = true;
 				//cube->setColor(0.0f, 1.0f, 1.0f);
 				break;
-            //next for the Keys ,E,R,T,Y,U
-            case GLFW_KEY_E:
+			//next for the Keys ,E,R,T,Y,U
+			case GLFW_KEY_E:
 				PlayerIntent.hitEIntent = true;
 				//cube->setColor(1.0f, 0.0f, 0.0f); 
 				break;
@@ -229,23 +240,24 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				PlayerIntent.hitUIntent = true;
 				//cube->setColor(0.0f, 1.0f, 1.0f);
 				break;
-      default:
-        break;
-        }
+	  default:
+		break;
+		}
 
-    }
+	}
    
 
-    if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) { scene->TriggerAnim(2); } //trigger repawn anim (branch growing back)
+	if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) { scene->TriggerAnim(2); } //trigger repawn anim (branch growing back)
 
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP - 20; }
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP + 20; }
-    PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
-    PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
-    PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
-    PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
-    PlayerIntent.moveForwardIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
-    PlayerIntent.moveBackIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP - 20; }
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) { scene->dummy.currHP = scene->dummy.currHP + 20; }
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) { scene->uimanager->NextGamePhase(); }
+	PlayerIntent.moveLeftIntent = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+	PlayerIntent.moveRightIntent = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+	PlayerIntent.moveUpIntent = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
+	PlayerIntent.moveDownIntent = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+	PlayerIntent.moveForwardIntent = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+	PlayerIntent.moveBackIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
 	PlayerIntent.leftClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 	PlayerIntent.rightClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 	//PlayerIntent.scrollUpIntent = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
@@ -262,46 +274,46 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 
-    double time = glfwGetTime();
+	double time = glfwGetTime();
 
-    if (time - scrollStart < 0.1) {
-        return;
-    }
-    if (yoffset > 0) {
-        PlayerIntent.scrollIntentTriggered = true;
+	if (time - scrollStart < 0.1) {
+		return;
+	}
+	if (yoffset > 0) {
+		PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollUpIntent = true;
 		PlayerIntent.scrollDownIntent = false;
 
 		
 
 	}
-    else if(yoffset < 0){
-        PlayerIntent.scrollIntentTriggered = true;
+	else if(yoffset < 0){
+		PlayerIntent.scrollIntentTriggered = true;
 		PlayerIntent.scrollDownIntent = true;
 		PlayerIntent.scrollUpIntent = false;
-    }
+	}
 
 
 	printf("Scroll: %f %f\n", xoffset, yoffset);
 
-    scrollStart = glfwGetTime();
-    if (PlayerIntent.scrollDownIntent) { 
-        scene->TriggerAnim(0); 
-        PlayerIntent.changeToPower = (PowerType)(((int)PlayerIntent.changeToPower + 1) % 5);
-    }; //Rotate UI CCW
-    if (PlayerIntent.scrollUpIntent) { 
-        scene->TriggerAnim(1); 
-        PlayerIntent.changeToPower = (PowerType)(((int)(PlayerIntent.changeToPower) - 1 + 5) % 5);
-    }; //Rotate UI CW
+	scrollStart = glfwGetTime();
+	if (PlayerIntent.scrollDownIntent) { 
+		scene->TriggerAnim(0); 
+		PlayerIntent.changeToPower = (PowerType)(((int)PlayerIntent.changeToPower + 1) % 5);
+	}; //Rotate UI CCW
+	if (PlayerIntent.scrollUpIntent) { 
+		scene->TriggerAnim(1); 
+		PlayerIntent.changeToPower = (PowerType)(((int)(PlayerIntent.changeToPower) - 1 + 5) % 5);
+	}; //Rotate UI CW
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        LeftDown = (action == GLFW_PRESS);
-    }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        RightDown = (action == GLFW_PRESS);
-    }
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		LeftDown = (action == GLFW_PRESS);
+	}
+	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+		RightDown = (action == GLFW_PRESS);
+	}
 	PlayerIntent.leftClickIntent = LeftDown;
 	PlayerIntent.rightClickIntent = RightDown;
 	//std::cout << "LeftDown: " << LeftDown << std::endl;
@@ -311,30 +323,30 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 }
 
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
-    int maxDelta = 100;
-    int dx = Cam->sensitivity * glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
-    int dy = Cam->sensitivity * glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
+	int maxDelta = 100;
+	int dx = Cam->sensitivity * glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
+	int dy = Cam->sensitivity * glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
 
-    //MouseX = (int)currX;
-    //MouseY = (int)currY;
-    glfwSetCursorPos(window, MouseX, MouseY);
+	//MouseX = (int)currX;
+	//MouseY = (int)currY;
+	glfwSetCursorPos(window, MouseX, MouseY);
 
-    // Move camera
-    // NOTE: this should really be part of Camera::Update()
+	// Move camera
+	// NOTE: this should really be part of Camera::Update()
 
-    //if (LeftDown) {
-    const float rate = 1.0f;
+	//if (LeftDown) {
+	const float rate = 1.0f;
 
-    PlayerIntent.azimuthIntent = Cam->GetAzimuth() + dx * rate;
-    PlayerIntent.inclineIntent = glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f);
+	PlayerIntent.azimuthIntent = Cam->GetAzimuth() + dx * rate;
+	PlayerIntent.inclineIntent = glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f);
 
-    Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
-    Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
-    //}
-    
-    //if (RightDown) {
-    //    const float rate = 0.005f;
-    //    float dist = glm::clamp(Cam->GetDistance() * (1.0f - dx * rate), 0.01f, 1000.0f);
-    //    Cam->SetDistance(dist);
-    //}
+	Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
+	Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
+	//}
+	
+	//if (RightDown) {
+	//    const float rate = 0.005f;
+	//    float dist = glm::clamp(Cam->GetDistance() * (1.0f - dx * rate), 0.01f, 1000.0f);
+	//    Cam->SetDistance(dist);
+	//}
 }

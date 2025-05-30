@@ -1,9 +1,6 @@
 #include <Scene.h>
 #include <Water.h>
 
-int WINDOWWIDTH = 1200;
-int WINDOWHEIGHT = 900;
-
 UIData dummy;
 
 PlayerObject* players[4];
@@ -12,6 +9,10 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
+int WINDOWHEIGHT = 1200;
+int WINDOWWIDTH = 1920;
+//2560
+//1440
 
 float waterLevel = -2.0f;
 float fogConstant = 0.01f;
@@ -19,7 +20,19 @@ float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
-void Scene::createGame() {
+float soundcooldown = 0.5f;
+const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
+const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
+static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
+static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
+static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
+static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
+
+
+
+void Scene::createGame(ClientGame *client) {
+	this->client = client;
+
 	//setup lights
 	lightmanager = new Lights();
 	lightmanager->init();
@@ -30,15 +43,12 @@ void Scene::createGame() {
 	skybox->initSkybox();
 
 	uimanager = new UIManager;
-	uimanager->Init();
+	uimanager->Init(client);
 
 	audiomanager = new Audio;
 	audiomanager->Init();
-	audiomanager->PlayAudio("matchsong");
-	audiomanager->PlayAudio("firesound");
-	//Necessary for the uimanager, will change once network protocol gets updated
-	//dummy.maxHP = 250;
-	//dummy.currHP = dummy.maxHP;
+	//audiomanager->PlayAudio("matchsong");
+	//audiomanager->PlayAudio("firesound");
 	test = new PlayerObject();
 
 	//Cinema
@@ -55,10 +65,18 @@ void Scene::createGame() {
 	watermat[3] = glm::vec4(-25.0, 0, -25.0, 1);
 	water->update(watermat);
 
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		for (int j = 0; j < 5; j++) {
+			lastUsedAttack[i][j] = glfwGetTime();
+			lastUsedMovement[i][j] = glfwGetTime();
+		}
+	}
+
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 }
+
 
 void Scene::loadObjects() {
 	Object* obj = new Object();
@@ -66,11 +84,11 @@ void Scene::loadObjects() {
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 
+	flag = new Object();
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
+	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
+	objects.push_back(flag);
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
-
-	glm::mat4 mov = glm::mat4(1.0f);
-	mov = glm::scale(mov, glm::vec3(0.05f, 0.05f, 0.05f));
-	
 	
 	//test->UpdateMat(mov);
 	//wasp load-in
@@ -80,26 +98,21 @@ void Scene::loadObjects() {
 	}
 }
 
-void Scene::update(ClientGame* client) {
+
+void Scene::update(Camera* cam) {
 	//this is where game state will be sent to and then recieved from the server. This function can be updated to include parameters that encapsulate
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
 
-	audiomanager->Update();
-
 	player->UpdateMat(client->playerModel);
+	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
 	player->Update();
-	//test->Update();
 
-	//get information from client state
-	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
-	dummy.currMetal = client->GameState.player_stats[client->playerId].mana[0];
-	dummy.currWood = client->GameState.player_stats[client->playerId].mana[1];
-	dummy.currWater = client->GameState.player_stats[client->playerId].mana[2];
-	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
-	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
-	//dummy.seconds = client->GameState.seconds;
+	//test->Update();
+	for (int i = 0; i < KILLFEED_LENGTH; i++) {
+		dummy.killfeed[i] = client->GameState.killfeed[i];
+	}
 
 	int i;
 	int j;
@@ -114,14 +127,16 @@ void Scene::update(ClientGame* client) {
 		players[j++]->Update();
 	}
 	
-
 	for (int i = 0; i < cubes.size(); i++) {
 		delete(cubes[i]);
 	}
 	cubes.clear();
 
-
-	
+	//set the height of the water
+	glm::mat4 watermat(1);
+	watermat[3] = glm::vec4(-25.0, client->GameState.waterLevel, -25.0, 1);
+	water->update(watermat);
+	waterLevel = client->GameState.waterLevel;
 	
 	for (i = 0; i < client->GameState.num_entities; i++) {
 		auto entity = client->GameState.entities[i];
@@ -144,9 +159,9 @@ void Scene::update(ClientGame* client) {
 			cubes.push_back(cu);
 		}
 		else if (entity.type == FLAG) {
-			Cube* cu = new Cube(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(1.0f, 0.1f, 0.1f));
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			if (flag != NULL) {
+				flag->update(entity.model);
+			}
 		}
 		else if (entity.type == WOOD_PROJ) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));
@@ -174,9 +189,18 @@ void Scene::update(ClientGame* client) {
 			cubes.push_back(cu);
 		}
 		else if (entity.type == COLLIDER) {
-			//generate a random color
-
+		  //generate a random color
 			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == HP_PICKUP) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
+			cu->setModel(entity.model);
+			cubes.push_back(cu);
+		}
+		else if (entity.type == MANA_PICKUP) {
+			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.0f, 1.0f, 1.0f)); // Cyan for Mana pickup
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
@@ -189,8 +213,42 @@ void Scene::update(ClientGame* client) {
 	dummy.currFire = client->GameState.player_stats[client->playerId].mana[3];
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
-
+	dummy.seconds = client->GameState.time;
+	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
+
+	//This is where we will play the sounds
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		PlayerStats& c = client->GameState.player_stats[i];
+		glm::vec3 pos = client->GameState.players[i].model[3];
+		for (int j = 0; j < 5; j++) {
+			float now = glfwGetTime();
+			if (c.attackPowerupFlag[j] == 0 || c.attackPowerupFlag[j] > 2) {
+				prevAttackFlags[i][j] = false;
+			}
+			if (c.movementPowerupFlag[j] == 0 || c.movementPowerupFlag[j] > 2) {
+				prevMovementFlags[i][j] = false;
+			}
+			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j] && attackKeys[j]) {
+				std::cout << "Going to play audio for player:  " << i << " power: " << j << std::endl;
+				if (now - lastUsedAttack[i][j] > soundcooldown) {
+					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
+					audiomanager->PlayAudio(attackKeys[j], pos);
+					lastUsedAttack[i][j] = now;
+				}
+				prevAttackFlags[i][j] = true;
+			}
+			if ((c.movementPowerupFlag[j] == 1 || c.movementPowerupFlag[j] == 2) && !prevMovementFlags[i][j] && movementKeys[j]) {
+				std::cout << "Going to play audio for player:  " << i << " movement: " << j << std::endl;
+				if (now - lastUsedMovement[i][j] > soundcooldown) {
+					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
+					audiomanager->PlayAudio(movementKeys[j], pos);
+					lastUsedMovement[i][j] = now;
+				}
+				prevMovementFlags[i][j] = true;
+			}
+		}
+	}
 }
 
 bool Scene::initShaders() {
@@ -336,6 +394,7 @@ void Scene::draw(Camera* cam) {
 	GLuint particleShader = shaders[3];
 	glUseProgram(particleShader);
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(particleShader, "viewPos"), 1, &camPos[0]);
 
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);

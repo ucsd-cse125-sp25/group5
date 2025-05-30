@@ -8,7 +8,7 @@
 
 class UIManager {
 public:
-	void Init();
+	void Init(ClientGame* client);
 
 	void update(const UIData &p);
 
@@ -19,11 +19,12 @@ public:
 	GLuint GetTexture(const std::string& name);
 	void UIManager::UnloadAllTextures();
 
-	void SetGameState(GameState state);
+	void NextGamePhase();
+	GamePhase GetGamePhase();
 	void TriggerAnim(int anim);
 	int getPowerup();
-	GameState currState = GameState::MATCH;
 private:
+	ClientGame* client;
 	//GLuint shaderProgram;
 	glm::mat4 projection;
 

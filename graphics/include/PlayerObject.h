@@ -16,7 +16,10 @@ private:
 	Animation* animation;
 	Player* animplayer;
 	System* particlesystem;
+	System* powerupsystem;
+	System* damagesystem;
 	bool psflag;
+	bool colorflag;
 	
 public:
 	PlayerObject();
@@ -25,5 +28,6 @@ public:
 	void LoadExperimental(std::string filename, int meshindex);
 	void UpdateMat(glm::mat4 newmodel);
 	void Update();
+	void UpdateParticles(PlayerStats stats, int id);
 	void Draw(GLuint shader, bool shadow);
 };

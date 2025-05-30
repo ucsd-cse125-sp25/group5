@@ -1,9 +1,15 @@
 #include <Audio.h>
+#include "Camera.h"
+#include <glm/gtx/string_cast.hpp>
 
 //Name the audio file will be reference by to play and the path of the audio file
 static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"firesound", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/firesound.wav")},
-	{"matchsong", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/LastSurprise.mp3")}
+	{"fireA", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/fireA.wav")},
+	{"fireM", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/fireM.wav")},
+	{"waterA", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterA.wav")},
+	{"waterM", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterM.wav")}
+	//{"matchsong", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/LastSurprise.mp3")}
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
@@ -20,7 +26,7 @@ void Audio::Init() {
 		const std::string& track = pair.first;
 		const std::string& path = pair.second;
 		FMOD::Sound* s;
-		system->createSound(path.c_str(), FMOD_3D | FMOD_LOOP_NORMAL, 0, &s);
+		system->createSound(path.c_str(), FMOD_3D, 0, &s);
 		Sounds[track] = s;
 	}
 	listenerPos = { 0.0f, 0.0f, 0.0f };
@@ -29,29 +35,36 @@ void Audio::Init() {
 	up = { 0.0f, 1.0f, 0.0f };
 	system->set3DListenerAttributes(0, &listenerPos, &listenerVel, &forward, &up);
 	system->set3DSettings(1.0f, 1.0f, 1.0f);
+	system->getMasterChannelGroup(&mainGroup);
+
+	system->createDSPByType(FMOD_DSP_TYPE_LOWPASS, &lowpassDSP);
+	lowpassDSP->setParameterFloat(FMOD_DSP_LOWPASS_CUTOFF, 750.0f);
+	lowpassDSP->setBypass(true);
+	mainGroup->addDSP(0, lowpassDSP);
 }
 
 //Given name of audio, from AudioFiles hash map, place audio track into channel and then play it
-void Audio::PlayAudio(std::string n) {
-	bool isMatching = (n == "matchsong");
-
-	FMOD_VECTOR soundPos;
+//Also pass in the position for spatial audio
+void Audio::PlayAudio(std::string n, glm::vec3 pos) {
+	std::cout << "Going to play audio at: " << glm::to_string(pos) << std::endl;
+	FMOD_VECTOR soundPos = {pos.x, pos.y, pos.z};
+	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
 	FMOD::Channel* channel = nullptr;
 	system->playSound(Sounds[n], nullptr, true, &channel);
-
-	
-	if (isMatching) {
-		musicChannel = channel;
-		soundPos = { 5.0f, 0.0f, 0.0f };
-	}
-	else {
-		soundPos = { 0.0f, 1.0f, 0.0f };
-	}
-	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
 	channel->set3DAttributes(&soundPos, &soundVel);
 	channel->setPaused(false);  // Unpause to start playing
 	channel->set3DMinMaxDistance(1.0f, 100.0f);
 }
+
+/*
+if (isMatching) {
+	musicChannel = channel;
+	soundPos = { 5.0f, 0.0f, 0.0f };
+}
+else {
+	soundPos = { 0.0f, 1.0f, 0.0f };
+}
+*/
 
 //Can only stop the background music
 void Audio::StopAudio() {
@@ -59,6 +72,29 @@ void Audio::StopAudio() {
 }
 
 //FMOD::System* automatically handles playing audio
-void Audio::Update() {
+void Audio::Update(Camera* cam, UIData &p) {
+	if (isAlive && p.currHP <= 20) {
+		isAlive = false;
+		this->Filter();
+
+	}
+	else if (!isAlive && p.currHP > 20) {
+		isAlive = true;
+		this->Filter();
+	}
+	//Set the position up and forward
+	glm::vec3 pos = cam->GetPosition();
+	glm::vec3 f = glm::normalize(cam->GetCameraForwardVector());
+	listenerPos = { pos.x, pos.y, pos.z };
+	listenerVel = { 0.0f, 0.0f, 0.0f };
+	forward = { f.x, f.y, f.z };
+	up = { 0.0f, 1.0f, 0.0f };
+	system->set3DListenerAttributes(0, &listenerPos, &listenerVel, &forward, &up);
 	system->update();
+}
+
+void Audio::Filter() {
+	bool active = false;
+	FMOD_RESULT result = lowpassDSP->getBypass(&active);
+	if (result == FMOD_OK) { lowpassDSP->setBypass(!active); }
 }

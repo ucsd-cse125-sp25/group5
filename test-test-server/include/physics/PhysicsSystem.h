@@ -12,6 +12,9 @@ typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 typedef glm::quat quat;
 
+const float STARTING_WATER_LEVEL = 0.0f;
+const float ENDING_WATER_LEVEL = 100.0f;
+
 using namespace std;
 
 class Octree;
@@ -38,6 +41,13 @@ public:
 
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
     vector<float> AABBdistances;
+    float cellSize;
+
+	//water level
+	float waterLevel = 0.0f;
+    //times for water level calculation 
+	float timePassed = 0.0f;
+	float totalTime = 0.0f;
 
     //container stuff
     vector<GameObject*> movingObjects;
@@ -256,6 +266,8 @@ public:
     int getNextId();
     GameObject* getPlayerObjectById(int id);
 
+    GameObject* getClosestPlayerObject(glm::vec3 pos, int exclude);
+
     // broadphase
     void initOctree(vector<GameObject*> objects, Octree* octree);
     void broadphaseInit();
@@ -276,6 +288,8 @@ public:
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
     }
+
+    void updateWaterLevel();
 
     void addKillfeedItem(KillfeedItem item) {
         killfeed_queue.push_back(item);

@@ -14,11 +14,16 @@
 * - The width as a percentage of screen width (float)
 * - The aspect ratio of the texture (float)
 **/
-static std::unordered_map<std::string, std::tuple<std::string, GameState, float, float, float, float>> UIStorage = {
-	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GameState::MATCH, 0.7, 0.0, 0.3, 1.0} },
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}},
-	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GameState::MATCH, 0.0, 0.0, 0.5, 0.5}},
-	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GameState::MATCH, 0.5, 0.5, 0.05, 1.0}}
+static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float, float, float, float>> UIStorage = {
+	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::IN_GAME, 0.7, 0.0, 0.3, 1.0} },
+	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
+	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.5, 0.5}},
+	//{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adopt-me-logo_2.png"), GamePhase::WAITING, 0.5, 0.9, 0.25, 0.5}},
+	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.2, 0.2, 0.1, 1.0}},
+	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
+	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.6, 0.2, 0.1, 1.0}},
+	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.8, 0.2, 0.1, 1.0}},
+  { "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::IN_GAME, 0.0, 0.0, 1.0, 1.0}},
 };
 
 /**
@@ -45,19 +50,37 @@ static std::unordered_map<std::string, std::string> HealthUI = {
 };
 
 
+static std::unordered_map<std::string, std::string> LobbyCharacters = {
+	{ "character1", PROJECT_SOURCE_DIR + std::string("/assets/character1.png")},
+	{ "character2", PROJECT_SOURCE_DIR + std::string("/assets/character2.png")},
+	{ "character3", PROJECT_SOURCE_DIR + std::string("/assets/character3.png")} ,
+	{ "character4", PROJECT_SOURCE_DIR + std::string("/assets/character4.png")}
+};
+
+static std::unordered_map<std::string, std::string> KillfeedSprites = {
+	{ "player0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1.png")},
+	{ "player1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2.png")},
+	{ "player2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3.png")} ,
+	{ "player3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4.png")},
+	{ "action0", PROJECT_SOURCE_DIR + std::string("/assets/action1.png")},
+	{ "action1", PROJECT_SOURCE_DIR + std::string("/assets/action2.png")},
+	{ "action2", PROJECT_SOURCE_DIR + std::string("/assets/action3.png")} ,
+	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/action4.png")}
+};
+
 //0-9 + colon (:)
 static std::unordered_map<std::string, std::string> Numbers = {
-	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0_-removebg-preview.png")},
-	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1_-removebg-preview.png")},
-	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2_-removebg-preview.png")},
-	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3_-removebg-preview.png")},
-	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4_-removebg-preview.png")},
-	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5_-removebg-preview.png")},
-	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6_-removebg-preview.png")},
-	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7_-removebg-preview.png")},
-	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8_-removebg-preview.png")},
-	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9_-removebg-preview.png")},
-	{":", PROJECT_SOURCE_DIR + std::string("/assets/colom_1_-removebg-preview.png")},
+	{"0", PROJECT_SOURCE_DIR + std::string("/assets/numbers_0.png")},
+	{"1", PROJECT_SOURCE_DIR + std::string("/assets/numbers_1.png")},
+	{"2", PROJECT_SOURCE_DIR + std::string("/assets/numbers_2.png")},
+	{"3", PROJECT_SOURCE_DIR + std::string("/assets/numbers_3.png")},
+	{"4", PROJECT_SOURCE_DIR + std::string("/assets/numbers_4.png")},
+	{"5", PROJECT_SOURCE_DIR + std::string("/assets/numbers_5.png")},
+	{"6", PROJECT_SOURCE_DIR + std::string("/assets/numbers_6.png")},
+	{"7", PROJECT_SOURCE_DIR + std::string("/assets/numbers_7.png")},
+	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8.png")},
+	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9.png")},
+	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
 };
 
 
@@ -70,7 +93,8 @@ static std::vector<std::string> FlowerOrder{
 };
 
 //Loads textures and creates UI elements
-void UIManager::Init() {
+void UIManager::Init(ClientGame* client) {
+	this->client = client;
 
 	//load in number textures to use
 	for (const auto& pair : Numbers) {
@@ -81,17 +105,53 @@ void UIManager::Init() {
 	//add a clock to match elements
 	//UIImg* clock = new Clock();
 	UIImg* clock = new Clock();
-	std::vector<float> startPerc = { 0.3, 0.9 };
-	clock->Init(startPerc, 0.05, 1.0);
+	std::vector<float> startPerc = { 0.0, 0.9 };
+	clock->Init(startPerc, 0.07, 1.0);
+	lobbyElements.push_back(clock);
 	matchElements.push_back(clock);
-	Clock* c = dynamic_cast<Clock*>(clock);
-	c->texs = &textures; //Mickey mouse
+	Clock* cl = dynamic_cast<Clock*>(clock);
+	cl->texs = &textures; //Mickey mouse
+
+	//add a clock to match elements
+	//UIImg* clock = new Clock();
+	UIImg* healthNums = new HealthNums();
+	std::vector<float> startPercHealthNums = { 0.1, 0.965 };
+	healthNums->Init(startPercHealthNums, 0.04, 1.0);
+	matchElements.push_back(healthNums);
+	HealthNums* hn = dynamic_cast<HealthNums*>(healthNums);
+	hn->texs = &textures; //Mickey mouse
 	
+	for (const auto& pair : LobbyCharacters) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+	UIImg* characters = new Characters();
+	std::vector<float> startPercchar = { 0.2, 0.2 };
+	
+	Characters* ch = dynamic_cast<Characters*>(characters);
+	ch->texs = &textures; //Mickey mouse
+	characters->Init(startPercchar, 0.12, 1.0);
+
+	ch->client = client;
+
+
+	for (const auto& pair : KillfeedSprites) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+	UIImg* killfeed = new Killfeed();
+	std::vector<float> startPercKill = { 0.75, 0.94 };
+
+	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
+	kf->texs = &textures; //Mickey mouse
+	killfeed->Init(startPercKill, 0.09, 1.0);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
 		const std::string& path = std::get<0>(pair.second);
-		GameState state = std::get<1>(pair.second);
+		GamePhase state = std::get<1>(pair.second);
 		float percX = std::get<2>(pair.second);
 		float percY = std::get<3>(pair.second);
 		float percent = std::get<4>(pair.second);
@@ -104,6 +164,9 @@ void UIManager::Init() {
 		}
 		else if (name == "magicback") {
 			img = new Magic();
+		}
+		else if (name == "vignette") {
+			img = new Vignette();
 		}
 		else {
 			img = new UIImg();
@@ -175,25 +238,28 @@ void UIManager::Init() {
 
 
 		switch (state) {
-		case GameState::LOBBY:
+		case GamePhase::WAITING:
 			lobbyElements.push_back(img);
 			break;
-		case GameState::MATCH:
+		case GamePhase::IN_GAME:
 			matchElements.push_back(img);
 			break;
 		}
 		
 	}
+
+	lobbyElements.push_back(characters);
+	matchElements.push_back(killfeed);
 }
 
 void UIManager::update(const UIData& p) {
-	switch (currState) {
-	case GameState::LOBBY:
+	switch (client->GameState.phase) {
+	case GamePhase::WAITING:
 		for (auto* img : lobbyElements) {
 			img->Update(p);
 		}
 		break;
-	case GameState::MATCH:
+	case GamePhase::IN_GAME:
 		for (auto* img : matchElements) {
 			img->Update(p);
 		}
@@ -202,20 +268,19 @@ void UIManager::update(const UIData& p) {
 }
 
 void UIManager::draw() {
-	switch (currState) {
-	case GameState::LOBBY:
+	switch (client->GameState.phase) {
+	case GamePhase::WAITING:
 		for (auto* img : lobbyElements) {
 			img->Draw();
 		}
 		break;
-	case GameState::MATCH:
+	case GamePhase::IN_GAME:
 		for (auto* img : matchElements) {
 			img->Draw();
 		}
 		break;
 	}
 }
-
 
 
 void UIManager::LoadTexture(const std::string &name, const std::string &path) {
@@ -230,10 +295,9 @@ void UIManager::LoadTexture(const std::string &name, const std::string &path) {
 
 	int width, height, channels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 4);
 	if (data) {
-		GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		stbi_image_free(data);
 	}
@@ -270,9 +334,12 @@ void UIManager::UnloadAllTextures() {
 	textures.clear();
 }
 
-void UIManager::SetGameState(GameState newState) {
-	if (currState == newState) return;
-	currState = newState;
+void UIManager::NextGamePhase() {
+
+}
+
+GamePhase UIManager::GetGamePhase() {
+	return client->GameState.phase;
 }
 
 void UIManager::TriggerAnim(int anim) {
@@ -284,7 +351,7 @@ void UIManager::TriggerAnim(int anim) {
 		}
 		else if (HealthBar* hb = dynamic_cast<HealthBar*>(img)) {
 			if (anim == 2) {
-				hb->StartRegrow(anim);
+				hb->StartRegrow();
 			}
 		}
 	}

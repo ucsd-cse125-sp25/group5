@@ -4,7 +4,7 @@
 
 constexpr double pi = 3.14159265358979323846;
 
-Particle::Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 vel, float radius, float elasticity, double creationTime, double lifetime) {
+Particle::Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 vel, float radius, float elasticity, double creationTime, double lifetime, int mode) {
 	this->mass = mass;
 	this->position = position;
 	this->velocity = vel;
@@ -15,6 +15,8 @@ Particle::Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 ve
 	this->fixed = false;
 	this->elasticity = elasticity;
     this->color = color;
+    this->sMode = mode;
+    this->scale = 1.0f;
 
 	//set up rendering, currently cube but will be changed to sphere
     
@@ -109,7 +111,7 @@ Particle::Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 ve
     //};
 
     // Model matrix.
-    model = glm::mat4(0.5f);
+    model = glm::mat4(1.0f);
     model[0][0] = radius;
     model[1][1] = radius;
     model[2][2] = radius;
@@ -152,12 +154,23 @@ Particle::Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 ve
     glBindVertexArray(0);
 }
 
-void Particle::Update() {
+void Particle::Update(double time) {
+    float tp = (time - creationTime) / lifetime;
+    if (sMode == 1) { //linear reduction in particle size
+        scale = (1 - tp);
+        model[0][0] = scale;
+        model[1][1] = scale;
+        model[2][2] = scale;
+    }
+    else if (sMode == 2) {
+        scale = 1.0f - (glm::exp(5 * tp) - 1) / (glm::exp(5) - 1);
+        model[0][0] = scale;
+        model[1][1] = scale;
+        model[2][2] = scale;
+    }
     model[3][0] = position.x;
     model[3][1] = position.y;
     model[3][2] = position.z;
-
-    //std::cout << position.x << " " << position.y << " " << position.z << " " << std::endl;
 }
 
 void Particle::Draw(GLuint shader) {

@@ -6,7 +6,7 @@ class Particle {
 public:
 	void ApplyForce(glm::vec3& f);
 	void Integrate(float deltaTime);
-	void Update();
+	void Update(double time);
 	void Draw(GLuint shader);
 	glm::vec3 GetPosition();
 	glm::vec3 GetVelocity();
@@ -14,16 +14,18 @@ public:
 	void GroundCheck(float ground, float friction);
 	void move(glm::vec3 dir);
 	void ApplyDrag(float airdensity);
-	Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 vel, float radius, float elasticity, double creationTime, double lifetime);
+	Particle(glm::vec3 color, float mass, glm::vec3 position, glm::vec3 vel, float radius, float elasticity, double creationTime, double lifetime, int mode);
 	void SetMesh(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* normals, std::vector<unsigned int>* indices, int layersH, int layersW);
 	bool fixed;
 	double creationTime;
 	double lifetime;
+	int sMode;
 private:
 	glm::vec3 position;
 	glm::vec3 velocity;
 	glm::vec3 force;
 	float radius;
+	float scale;
 	float mass;
 	float elasticity;
 	int index;
