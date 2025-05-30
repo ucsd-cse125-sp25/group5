@@ -81,6 +81,9 @@ struct PlayerStats {
 	bool moving = false;
 	bool inAir = false;
 	bool underwater = false;
+	
+	glm::vec3 grappleTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	unsigned int mana[5] = { 100, 100, 100, 100, 100 };
 	PowerType activePower = METAL;
 
