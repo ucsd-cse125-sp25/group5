@@ -279,7 +279,8 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		curSlowFactor = 1.0f; // reset slow factor
 	}
-
+	
+	//underwater damage and slow
 	if (playerStats.underwater) {
 		underwaterTimer += deltaTime;
 		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL) {
@@ -291,6 +292,20 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		underwaterTimer = 0.0f;
 		curUnderwaterSlowFactor = 1.0f;
+	}
+
+	//flag holding hp increase
+	if (playerStats.hasFlag) {
+		flagBoostTimer += deltaTime;
+		if (flagBoostTimer >= FLAG_BOOST_INTERVAL) {
+			playerStats.hp += 1;
+			playerStats.maxHP += 1;
+			maxHP += 1;
+			flagBoostTimer = 0.0f; // reset the timer
+		}
+	}
+	else {
+		flagBoostTimer = 0.0f;
 	}
 
 	//cooldown for all 5 attack powers
