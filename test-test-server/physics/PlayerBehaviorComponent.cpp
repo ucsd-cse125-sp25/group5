@@ -301,6 +301,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 			playerStats.hp += 1;
 			playerStats.maxHP += 1;
 			maxHP += 1;
+			flagBoostTimer = 0.0f; // reset the timer
 		}
 	}
 	else {
