@@ -4,7 +4,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include "physics/BehaviorComponent.h"
-#include "physics/Octree.h"
+// #include "physics/Octree.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -19,7 +19,7 @@ int nextid = 10;
 class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
 void PhysicsSystem::tick(float dt) {
-    if (octreeMovingObjects == nullptr || octreeStaticObjects == nullptr) {
+    if (&octreeMovingObjects == nullptr || &octreeStaticObjects == nullptr) {
         broadphaseInit();
     }
 
@@ -118,7 +118,6 @@ void PhysicsSystem::updateWaterLevel() {
 	}
 	
 }
-
 
 GameObject* PhysicsSystem::getClosestPlayerObject(glm::vec3 pos, int exclude) {
 	float closest = 1000000.0f; // Initialize with a large value
@@ -397,14 +396,13 @@ void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
 }
 
 void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree* octree) {
-    octree = new Octree({glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f)}, objects, 8, 8);
     updateGameObjectsAABB(objects);
     octree->constructTree(objects);
 }
 
 void PhysicsSystem::broadphaseInit() {
-    initOctree(movingObjects, this->octreeMovingObjects);
-    initOctree(staticObjects, this->octreeStaticObjects);
+    initOctree(movingObjects, octreeMovingObjects);
+    initOctree(staticObjects, octreeStaticObjects);
 }
 
 void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {

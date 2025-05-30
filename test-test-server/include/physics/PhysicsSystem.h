@@ -5,7 +5,7 @@
 #include "physics/PhysicsData.h"
 #include "../include/shared/NetworkData.h"
 #include "InputManager.h"
-// #include "Octree.h"
+#include "Octree.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -17,7 +17,7 @@ const float ENDING_WATER_LEVEL = 100.0f;
 
 using namespace std;
 
-class Octree;
+//class Octree;
 
 class PhysicsSystem {
 
@@ -56,8 +56,8 @@ public:
     vector<GameObject*> staticObjects;
 
     // Broadphase
-    Octree *octreeMovingObjects;
-    Octree *octreeStaticObjects;
+	Octree *octreeMovingObjects = new Octree({ glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f) }, movingObjects, 8, 8);
+    Octree *octreeStaticObjects = new Octree({ glm::vec3(-1000.0f, -1000.0f, -1000.0f), glm::vec3(1000.0f, 1000.0f, 1000.0f) }, staticObjects, 8, 8);
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
@@ -281,12 +281,18 @@ public:
 	}
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
+        if (this->octreeStaticObjects) {
+			this->octreeStaticObjects->insert(obj, this->octreeStaticObjects->getRoot());
+        }
 	}
 	void addPlayerObject(GameObject* obj) {
 		playerObjects.push_back(obj);
 	}
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
+        if (this->octreeMovingObjects) {
+			this->octreeMovingObjects->insert(obj, this->octreeMovingObjects->getRoot());
+        }
     }
 
     void updateWaterLevel();
