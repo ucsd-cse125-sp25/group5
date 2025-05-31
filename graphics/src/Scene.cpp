@@ -86,7 +86,7 @@ void Scene::loadObjects() {
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
 	flag = new Object();
-	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated.fbx");
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flagflag.fbx");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
 	objects.push_back(flag);
 
@@ -103,7 +103,7 @@ void Scene::loadObjects() {
 	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 0);
 
 	woodring = new Object();
-	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_Power.fbx");
+	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_power.fbx");
 	woodring->create((char*)importstr6.c_str(), glm::mat4(1), 1);
 
 	waterpower = new Object();
@@ -205,6 +205,8 @@ void Scene::update(Camera* cam) {
 		}
 		else if (entity.type == FLAG) {
 			if (flag != NULL) {
+				entity.model = glm::rotate(entity.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+				entity.model = glm::rotate(entity.model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
 				flag->update(entity.model);
 			}
 		}
@@ -420,6 +422,8 @@ void Scene::draw(Camera* cam) {
 		objects[i]->draw(mainShader, false);
 	}
 
+
+
 	for (int i = 0; i < cubes.size(); i++) {
 		cubes[i]->draw(mainShader, false);
 	}
@@ -461,7 +465,7 @@ void Scene::draw(Camera* cam) {
 
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		if (client->GameState.players[i].id == client->playerId) {
-			continue;
+			//continue;
 		}
 		glm::vec3 pos = client->GameState.players[i].model[3];
 		std::cout << i << std::endl;
