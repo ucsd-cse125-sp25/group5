@@ -62,7 +62,7 @@ void Scene::createGame(ClientGame *client) {
 	water = new Water();
 	water->create(301, 301, 0.5f, waterLevel);
 	glm::mat4 watermat(1);
-	watermat[3] = glm::vec4(-25.0, 0, -25.0, 1);
+	watermat[3] = glm::vec4(-75.0, 0, -75.0, 1);
 	water->update(watermat);
 
 	for (int i = 0; i < MAX_PLAYERS; i++) {
@@ -134,7 +134,7 @@ void Scene::update(Camera* cam) {
 
 	//set the height of the water
 	glm::mat4 watermat(1);
-	watermat[3] = glm::vec4(-25.0, waterLevel + 2.0f, -25.0, 1);
+	watermat[3] = glm::vec4(-75.0, waterLevel + 2.0f, -75.0, 1);
 	water->update(watermat);
 	waterLevel = client->GameState.waterLevel;
 	
