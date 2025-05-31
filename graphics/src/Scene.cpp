@@ -85,6 +85,7 @@ void Scene::loadObjects() {
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
 	objects.push_back(obj);
+
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flagflag.fbx");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
@@ -194,11 +195,7 @@ void Scene::update(Camera* cam) {
 			glm::vec3 island_min = glm::vec3(0, 0, 0);
 			island_min -= island_extents;
 			glm::vec3 island_max = glm::vec3(0, 0, 0);
-			island_max += island_extents;
-
-			//printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
-			//printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
-			
+			island_max += island_extents;		
 			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
@@ -211,20 +208,12 @@ void Scene::update(Camera* cam) {
 			}
 		}
 		else if (entity.type == WOOD_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.05f));
 			Projectile p;
 			p.power = WOOD;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == METAL_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.5f, 0.5f, 0.5f));
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = METAL;
 			p.model = entity.model;
@@ -232,30 +221,18 @@ void Scene::update(Camera* cam) {
 
 		}
 		else if (entity.type == WATER_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.2f, 0.4f, 1.0f)); // Blue-ish
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = WATER;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == FIRE_PROJ) {
-			//Cube* cu = new Cube(fireProjExtents, -fireProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = FIRE;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == EARTH_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.4f, 0.3f, 0.1f)); // Brown/soil tone
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = EARTH;
 			p.model = entity.model;
