@@ -167,8 +167,8 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
 
     // update acceleration to zero after collision
-    go1->physics->acceleration = glm::vec3(0.0f);
-    go2->physics->acceleration = glm::vec3(0.0f);
+    /*go1->physics->acceleration = glm::vec3(0.0f);
+    go2->physics->acceleration = glm::vec3(0.0f);*/
 }
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
@@ -424,8 +424,9 @@ void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objec
 }
 
 void PhysicsSystem::checkCollisionDynamicOne(GameObject* dynamicObj) {
-    checkCollisionOne(octreeMovingObjects, movingObjects, dynamicObj, 1);
+    //checkCollisionOne(octreeMovingObjects, movingObjects, dynamicObj, 1);
     checkCollisionOne(octreeStaticObjects, staticObjects, dynamicObj, 0);
+	dynamicObj->physics->acceleration = glm::vec3(0);
 }
 
 void PhysicsSystem::checkCollisionDynamicAll() {
