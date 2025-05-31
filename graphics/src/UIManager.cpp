@@ -348,6 +348,9 @@ void UIManager::TriggerAnim(int anim) {
 			if (anim == 0 || anim == 1) {
 				ma->StartRotate(anim);
 			}
+			else if (anim >= 3 && anim <= 7) {
+				ma->SetRotate(anim);
+			}
 		}
 		else if (HealthBar* hb = dynamic_cast<HealthBar*>(img)) {
 			if (anim == 2) {

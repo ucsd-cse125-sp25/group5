@@ -495,9 +495,25 @@ void Scene::draw(Camera* cam) {
 		}
 	}
 
+
+	Cube* c = new Cube(glm::vec3(-0.1f, -0.1f, -0.1f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.55f, 0.0f));
+	c->setModel(glm::mat4(1.0f));
+	c->draw(mainShader, false);
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		if (client->GameState.player_stats[i].grappleTarget != glm::vec3(0.0f)) {
+			glm::vec3 pos = client->GameState.players[i].model[3];
+			glm::vec3 end = client->GameState.player_stats[i].grappleTarget;
+			glLineWidth(10.0f);
+			glBegin(GL_LINES);
+			glVertex3f(pos.x, pos.y - 0.15f, pos.z);
+			glVertex3f(end.x, end.y, end.z);
+			glEnd();
+		}
+	}
 	glDisable(GL_CULL_FACE);
 
 	//water shading and drawing
+	/*
 	GLuint waterShader = shaders[4];
 	glUseProgram(waterShader);
 
@@ -535,6 +551,7 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
 	}
+	*/
   
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
