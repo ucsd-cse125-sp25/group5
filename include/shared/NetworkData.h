@@ -127,7 +127,7 @@ struct GameStatePacket {
 	struct Entity players[MAX_PLAYERS];
 
   //water level
-  float waterLevel = 0.0f; // Initial water level
+  float waterLevel = -2.0f; // Initial water level
   
 	unsigned int num_entities;
 	struct Entity entities[MAX_ENTITIES];

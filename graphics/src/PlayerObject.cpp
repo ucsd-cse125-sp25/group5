@@ -153,18 +153,31 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 			powerupsystem->particlecolor = cores[i + 4];
 			break;
 		}
-		else if (stats.attackPowerupFlag[i] > 0) {
-			powerupsystem->creationrate = 40;
-			powerupsystem->particlecolor = cores[i + 4];
-			break;
-		}
+		//else if (stats.attackPowerupFlag[i] > 0) {
+		//	powerupsystem->creationrate = 40;
+		//	powerupsystem->particlecolor = cores[i + 4];
+		//	break;
+		//}
 	}
 
 	if (powerupsystem->creationrate == 0) {
 		powerupsystem->ctime = currTime;
 	}
 
-
+	if (stats.damageFlag == true && stats.underwater == false) {
+		damagesystem->creationrate = 300;
+		damagesystem->ctime -= 20 * (1000.0 / damagesystem->creationrate);
+		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
+	}
+	else if (stats.underwater) {
+		damagesystem->creationrate = 60;
+		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01) * 4.0f;
+	}
+	else {
+		damagesystem->creationrate = 0;
+		damagesystem->ctime = currTime;
+		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
+	}
 	
 
 }
@@ -180,6 +193,7 @@ void PlayerObject::Update() {
 		double deltaTime = currTime - prevTime;
 		particlesystem->Update(deltaTime);
 		powerupsystem->Update(deltaTime);
+		damagesystem->Update(deltaTime);
 
 		if (!psflag) {
 

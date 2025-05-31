@@ -88,8 +88,8 @@ void System::InitDamageEffect(glm::vec3 pos) {
 	particlelifetime = 2500.0;
 	particlelifetimevar = 500.0;
 	particleElasticity = 0.5f;
-	particleradius = 0.03f;
-	particlecolor = glm::vec3(0.55, 0.1, 0.15);
+	particleradius = 0.02f;
+	particlecolor = glm::vec3(0.47, 0.1, 0.15);
 	spawn = false;
 	decayMode = 2;
 

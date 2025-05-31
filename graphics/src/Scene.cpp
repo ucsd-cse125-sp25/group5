@@ -9,8 +9,8 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1200;
-int WINDOWWIDTH = 1920;
+int WINDOWHEIGHT = 1440;
+int WINDOWWIDTH = 2560;
 //2560
 //1440
 
@@ -179,7 +179,7 @@ void Scene::update(Camera* cam) {
 
 	//set the height of the water
 	glm::mat4 watermat(1);
-	watermat[3] = glm::vec4(-25.0, client->GameState.waterLevel, -25.0, 1);
+	watermat[3] = glm::vec4(-25.0, waterLevel + 2.0f, -25.0, 1);
 	water->update(watermat);
 	waterLevel = client->GameState.waterLevel;
 	
@@ -412,6 +412,7 @@ void Scene::draw(Camera* cam) {
 	glUniform1f(glGetUniformLocation(mainShader, "fogConstantW"), fogConstantW);
 	glUniform3fv(glGetUniformLocation(mainShader, "fogColor"), 1, &fogColor[0]);
 	glUniform3fv(glGetUniformLocation(mainShader, "fogColorW"), 1, &fogColorW[0]);
+	glUniform4fv(glGetUniformLocation(mainShader, "waterModel"), 1, (float*)&water->model);
 
 	lightmanager->bind();
 	
@@ -538,7 +539,7 @@ void Scene::draw(Camera* cam) {
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
-	skybox->draw(cam);
+	skybox->draw(cam, (float*)&water->model);
 	uimanager->draw();
 }
 

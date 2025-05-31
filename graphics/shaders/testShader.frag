@@ -23,6 +23,7 @@ uniform float fogConstant;
 uniform float fogConstantW;
 uniform vec3 fogColor;
 uniform vec3 fogColorW;
+uniform mat4 waterModel;
 
 struct Light {
     vec4 position;
@@ -188,7 +189,7 @@ void main()
         result += PointLightCalc(light, norm, FragPos, texColor, viewDir, shadow);
     }
 
-    float height = FBMVertex(viewPos) + waterLevel;
+    float height = waterLevel + FBMVertex(viewPos);
     if(viewPos.y < height){
         result = mix(fogColorW, result, clamp(fogWeightW - 0.05, 0, 1));
     }

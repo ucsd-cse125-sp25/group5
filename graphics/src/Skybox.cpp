@@ -115,7 +115,7 @@ GLuint Skybox::loadCubemap(const std::vector<std::string> faces) {
     return textureID;
 }
 
-void Skybox::draw(Camera* cam) {
+void Skybox::draw(Camera* cam, float* model) {
     glDepthMask(GL_FALSE);
     glDepthFunc(GL_LEQUAL); //change depth function so depth test passes when values are equal to depth buffer's content
     glUseProgram(shaderProgram);
@@ -131,6 +131,7 @@ void Skybox::draw(Camera* cam) {
     glUniform3fv(glGetUniformLocation(shaderProgram, "fogColorW"), 1, &fogColorW[0]);
     glm::vec3 camPos = cam->GetPosition();
     glUniform3fv(glGetUniformLocation(shaderProgram, "viewPos"), 1, &camPos[0]);
+    glUniform4fv(glGetUniformLocation(shaderProgram, "waterModel"), 1, model);
    
     glBindVertexArray(skyboxVAO);
     glActiveTexture(GL_TEXTURE0);
