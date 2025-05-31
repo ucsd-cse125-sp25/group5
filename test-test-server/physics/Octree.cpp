@@ -20,28 +20,29 @@ Node::~Node() {
     objects.clear();
 }
 
-bool isPointInside(const vec3& point, const AABB& box) {
+static bool isPointInside(const vec3& point, const AABB& box) {
     return point.x >= box.min.x && point.x <= box.max.x &&
            point.y >= box.min.y && point.y <= box.max.y &&
            point.z >= box.min.z && point.z <= box.max.z;
 }
 
-bool Node::contains(const AABB& box) {
+bool Node::contains(const AABB& box) const {
     return isPointInside(box.min, boundingBox) && isPointInside(box.max, boundingBox);
 }
 
-bool Node::partiallyEmbedded(const AABB& box) {
+bool Node::partiallyEmbedded(const AABB& box) const {
     return (isPointInside(box.min, boundingBox) && !isPointInside(box.max, boundingBox)) ||
             (!isPointInside(box.min, boundingBox) && isPointInside(box.max, boundingBox));
            
 }
 
-bool Octree::shouldSubdivide(const Node* node) {
+bool Octree::shouldSubdivide(const Node* node) const {
+	if (!node) return false;
     return node->getObjects().size() > this->getMaxObjectsPerNode() && node->getDepthLevel() < this->getMaxDepth();
 }
 
 AABB getBoundingBox(const vec3& center, const vec3& halfExtents, int i) {
-    vec3 childMin, childMax;
+    vec3 childMin{}, childMax{};
         
     if (i & 1) {
         childMin.x = center.x;
@@ -163,7 +164,7 @@ Octree::~Octree() {
     root = nullptr;
 }
 
-bool overlap(const AABB& box1, const AABB& box2) {
+static bool overlap(const AABB& box1, const AABB& box2) {
     return (box1.min.x <= box2.max.x && box1.max.x >= box2.min.x) &&
            (box1.min.y <= box2.max.y && box1.max.y >= box2.min.y) &&
            (box1.min.z <= box2.max.z && box1.max.z >= box2.min.z);

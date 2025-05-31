@@ -116,7 +116,6 @@ void PhysicsSystem::updateWaterLevel() {
 	if (timePassed > totalTime / 2) {
 		waterLevel = (ENDING_WATER_LEVEL - STARTING_WATER_LEVEL) * ((timePassed - totalTime/2 ) / (totalTime / 2) );
 	}
-	
 }
 
 GameObject* PhysicsSystem::getClosestPlayerObject(glm::vec3 pos, int exclude) {
@@ -165,10 +164,6 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
     // Positional correction: push both objects out of each other
     go1->transform.position += normal * (overlap * overlapFraction);
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
-
-    // update acceleration to zero after collision
-    /*go1->physics->acceleration = glm::vec3(0.0f);
-    go2->physics->acceleration = glm::vec3(0.0f);*/
 }
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
@@ -249,7 +244,7 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
 	outEulerRadians = glm::eulerAngles(rotation);
 }
 
-float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
+static float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
 	return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
 }
 
@@ -351,13 +346,13 @@ float getMeshMinOrMaxCoord(const vector<vec3>& positions, int coord, bool isMin)
     return result;
 }
 
-vec3 getPosition(const vec3& start, const float width, const int directionOfSlice) {
+static vec3 getPosition(const vec3& start, const float width, const int directionOfSlice) {
     vec3 change = vec3(0.0f);
 	change[directionOfSlice] = width/2.0f;
 	return start + change; 
 }
 
-vec3 getHalfExtents(const vec3& halfExtents, const int directionOfSlice, const float width) {
+static vec3 getHalfExtents(const vec3& halfExtents, const int directionOfSlice, const float width) {
 	vec3 halfExs = halfExtents;
 	halfExs[directionOfSlice] = width * 0.5f;
 	return halfExs;
@@ -403,8 +398,8 @@ void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree*& octree) {
 }
 
 void PhysicsSystem::broadphaseInit() {
-	initOctree(movingObjects, octreeMovingObjects);
 	initOctree(staticObjects, octreeStaticObjects);
+	initOctree(movingObjects, octreeMovingObjects);
 }
 
 void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {
@@ -415,17 +410,23 @@ void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objec
 
     for (auto& otherObj : potentialCollisions) {
         if (otherObj != obj && obj->id < otherObj->id) { 
+			updateGameObjectAABB(otherObj);
+			updateGameObjectAABB(obj);
             pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherObj->transform.aabb);
             if (penetration.second > 0.0f) {
-                resolveCollision(obj, otherObj, penetration, status);
+				if (obj->behavior != nullptr) {
+					obj->behavior->resolveCollision(obj, otherObj, penetration, status);
+				} else if (status == 0) {
+					resolveCollision(obj, otherObj, penetration, status);
+				}
             }
         }
     }
 }
 
 void PhysicsSystem::checkCollisionDynamicOne(GameObject* dynamicObj) {
-    //checkCollisionOne(octreeMovingObjects, movingObjects, dynamicObj, 1);
-    checkCollisionOne(octreeStaticObjects, staticObjects, dynamicObj, 0);
+	checkCollisionOne(octreeStaticObjects, staticObjects, dynamicObj, 0);
+    checkCollisionOne(octreeMovingObjects, movingObjects, dynamicObj, 1);
 	dynamicObj->physics->acceleration = glm::vec3(0);
 }
 

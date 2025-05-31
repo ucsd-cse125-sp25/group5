@@ -40,7 +40,7 @@ public:
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
     vector<float> AABBdistances;
     float cellSize;
-    AABB worldBounds = AABB{vec3(-1000.0f), vec3(1000.0f)};
+    AABB worldBounds = AABB{vec3(-100.0f), vec3(100.0f)};
     
 
 	//water level
@@ -281,20 +281,20 @@ public:
 	}
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
-        if (octreeStaticObjects) {
+        /*if (octreeStaticObjects) {
 			updateGameObjectAABB(obj);
 			octreeStaticObjects->insert(obj, octreeStaticObjects->getRoot());
-        }
+        }*/
 	}
 	void addPlayerObject(GameObject* obj) {
 		playerObjects.push_back(obj);
 	}
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
-        if (octreeMovingObjects) {
+        /*if (octreeMovingObjects) {
             updateGameObjectAABB(obj);
 			octreeMovingObjects->insert(obj, octreeMovingObjects->getRoot());
-        }
+        }*/
     }
 
     void updateWaterLevel();

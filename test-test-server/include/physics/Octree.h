@@ -24,8 +24,8 @@ class Node {
         Node(const AABB& boundingBox, int depthLevel = 0);
         ~Node();
 
-        bool contains(const AABB& box);
-        bool partiallyEmbedded(const AABB& box);
+        bool contains(const AABB& box) const;
+        bool partiallyEmbedded(const AABB& box) const;
         
         // Getters
         const AABB& getBoundingBox() const { return boundingBox; }
@@ -60,7 +60,7 @@ class Octree {
         Octree(const AABB& boundingBox, vector<GameObject*>& objectsInTree, int maxDepth, int maxObjectsPerNode);
         ~Octree();
 
-        bool shouldSubdivide(const Node* node);
+        bool shouldSubdivide(const Node* node) const;
         void subdivide(Node* node);
 
         void constructTree(const vector<GameObject*>& objects);
