@@ -17,12 +17,18 @@
 
 const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
+struct Projectile {
+	enum PowerType power;
+	glm::mat4 model;
+};
+
 //Scene Class which will contain data about map, players, etc
 class Scene {
 private:
 	ClientGame* client;
 	std::vector<Object*> objects;
 	std::vector<Object*> animObjects; //type will be changed later
+	std::vector<Projectile> projectiles;
 	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
 	PlayerObject* test;
@@ -34,6 +40,20 @@ private:
 	Cube* testCube;
 	Audio* audiomanager;
 	UIData uiData;
+
+	Object* metalpower;
+	Object* metalring;
+	Object* woodpower;
+	Object* woodring;
+	Object* waterpower;
+	Object* waterring;
+	Object* firepower;
+	Object* firering;
+	Object* earthpower;
+	Object* earthring;
+	glm::mat4 shrink = glm::mat4(1.0f);
+	float lastFrameTime;
+	float ringRot = 0.0f;
 	//std::vector<Light*> lights; lights baked into the world
 	//std::vector<Light*> movLights; dynamic lights from abilities/powerups/events etc.
 

@@ -8,6 +8,7 @@
 #include <glm/gtc/random.hpp>
 
 glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
+
 	//process player input
 	GameObject* target = obj;
 
@@ -335,7 +336,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	//water setting
 	if (playerStats.underwater && obj->transform.position.y >= phys.waterLevel) {
-		obj->physics->velocity.y *= 0.1;
+		obj->physics->velocity.y *= 0.5;
 	}
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 
@@ -635,8 +636,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 }
 
 //—— resolveCollision — called when this object hits another
-void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
-{
+void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status) {
 	playerStats.damageFlag = false;
 	if (status == 0) {
 		//if we hit a static object, stop grappling
