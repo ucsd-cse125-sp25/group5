@@ -18,7 +18,8 @@
 const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
 struct Projectile {
-	
+	enum PowerType power;
+	glm::mat4 model;
 };
 
 //Scene Class which will contain data about map, players, etc
@@ -27,6 +28,7 @@ private:
 	ClientGame* client;
 	std::vector<Object*> objects;
 	std::vector<Object*> animObjects; //type will be changed later
+	std::vector<Projectile> projectiles;
 	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
 	PlayerObject* test;

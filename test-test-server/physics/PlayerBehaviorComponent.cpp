@@ -336,7 +336,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	//water setting
 	if (playerStats.underwater && obj->transform.position.y >= phys.waterLevel) {
-		obj->physics->velocity.y *= 0.1;
+		obj->physics->velocity.y *= 0.5;
 	}
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 
