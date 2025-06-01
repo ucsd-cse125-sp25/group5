@@ -1,7 +1,9 @@
 #pragma once
 #include <string.h> 
 #include "core.h"
-
+#include <utility>
+#include <string> // Include for std::string
+#include <vector>
 
 #define MAX_HP 120;
 #define MAX_MANA 100;
@@ -97,4 +99,9 @@ struct KillfeedItem {
 	int attacker;
 	KillfeedType type;
 	float lifetime;
+};
+
+
+const static std::vector < std::pair < std::string, glm::vec3 >> mapObjects = {
+	{ "floating-island", glm::vec3(0.0f, 0.0f, 0.0f) },
 };
