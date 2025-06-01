@@ -36,7 +36,7 @@ public:
     int numLights();
     glm::mat4 getDirLightMat() const { return dirLight.getLightSpaceMatrix(); };
     glm::vec3 getDirLightDir() const { return dirLight.direction; };
-    DirectionalLight getDirLight();
+    DirectionalLight* getDirLight();
 private:
 	GLuint SSBO;
     std::vector<Light> lights;

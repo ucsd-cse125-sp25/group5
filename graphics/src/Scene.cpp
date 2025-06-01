@@ -386,24 +386,24 @@ void Scene::draw(Camera* cam) {
 	glm::vec3 camPos = cam->GetPosition();
 	glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
 
-	DirectionalLight dirLight = lightmanager->getDirLight();
+	DirectionalLight* dirLight = lightmanager->getDirLight();
 	//update dirLight for moon phase
 	if (phasechange) {
 		if (moonphase == 1) {
-			dirLight.color = glm::vec3(0.7, 0.75, 0.68) / 2.5f;
-			dirLight.direction = glm::normalize(glm::vec3(1.0, 0.4, 0.5));
-			dirLight.specular = glm::vec3(0.7, 0.75, 0.68) / 1.67f;
+			dirLight->color = glm::vec3(0.7, 0.75, 0.68) / 2.5f;
+			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.45, 0.0));
+			dirLight->specular = glm::vec3(0.7, 0.75, 0.68) / 1.67f;
 		}
 		else if (moonphase == 2) {
-			dirLight.color = glm::vec3(0.7, 0.75, 0.68) / 2.0f;
-			dirLight.direction = glm::normalize(glm::vec3(1.0, 0.4, 0.5));
-			dirLight.specular = glm::vec3(0.7, 0.75, 0.68) / 1.33f;
+			dirLight->color = glm::vec3(0.7, 0.75, 0.68) / 2.0f;
+			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.46, 0.07));
+			dirLight->specular = glm::vec3(0.7, 0.75, 0.68) / 1.33f;
 		}
 	}
 
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight.direction[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight.color[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight.specular[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight->specular[0]);
 	glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
 	glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 
@@ -525,9 +525,9 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(waterShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 	glUniform3fv(glGetUniformLocation(waterShader, "viewPos"), 1, &camPos[0]);
 
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightDir"), 1, &dirLight.direction[0]);
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightColor"), 1, &dirLight.color[0]);
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightSpec"), 1, &dirLight.specular[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightSpec"), 1, &dirLight->specular[0]);
 	glUniform1i(glGetUniformLocation(waterShader, "numLights"), lightmanager->numLights());
 	glUniformMatrix4fv(glGetUniformLocation(waterShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 

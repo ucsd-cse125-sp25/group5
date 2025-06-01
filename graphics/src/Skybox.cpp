@@ -80,7 +80,15 @@ void Skybox::initSkybox() {
         PROJECT_SOURCE_DIR + std::string("/assets/back.png")
     };
 
-    cubemapTexture = loadCubemap(faces);
+    ct1 = loadCubemap(faces);
+
+    faces[1] = PROJECT_SOURCE_DIR + std::string("/assets/left_gibbousmoon.png");
+    ct2 = loadCubemap(faces);
+
+    faces[1] = PROJECT_SOURCE_DIR + std::string("/assets/left_fullmoon.png");
+    ct3 = loadCubemap(faces);
+
+    cubemapTexture = ct1;
 
     shaderProgram = LoadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 }
@@ -143,11 +151,9 @@ void Skybox::draw(Camera* cam, float* model) {
 
 void Skybox::updatePhase(int phase) {
     if (phase == 1) {
-        faces[1] = PROJECT_SOURCE_DIR + std::string("/assets/left_gibbousmoon.png");
+        cubemapTexture = ct2;
     }
     else if (phase == 2) {
-        faces[2] = PROJECT_SOURCE_DIR + std::string("/assets/left_fullmoon.png");
+        cubemapTexture = ct3;
     }
-
-    cubemapTexture = loadCubemap(faces);
 }

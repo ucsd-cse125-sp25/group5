@@ -9,7 +9,7 @@
 
 class Skybox {
 private:
-	GLuint skyboxVAO, skyboxVBO, cubemapTexture;
+	GLuint skyboxVAO, skyboxVBO, cubemapTexture, ct1, ct2, ct3;
 	std::vector<std::string> faces; //texture paths
 
 	GLuint shaderProgram;
