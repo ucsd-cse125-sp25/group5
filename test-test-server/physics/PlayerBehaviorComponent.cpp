@@ -332,6 +332,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+	playerStats.dealtDamageFlag = false;
 
 
 	//water setting
@@ -575,6 +576,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//apply drag
 		obj->physics->velocity *= (1.0f - obj->physics->drag * deltaTime);
 
+		//apply drag hard if we're on ground
+		if(checkBottom(obj, phys)) {
+			obj->physics->velocity *= 0.5f; // reduce speed by half on ground
+		}
+
 		//clamp velocity
 		if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
 			obj->physics->velocity = glm::normalize(obj->physics->velocity) * obj->physics->maxSpeed;
@@ -667,6 +673,9 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 				playerStats.hp -= pb->damage;
 				printf("Player %d took %f damage from projectile %d\n", obj->id, pb->damage, other->id);
 				playerStats.damageFlag = true;
+				//get a reference to the other player
+				PlayerBehaviorComponent* playerBehavior = dynamic_cast<PlayerBehaviorComponent*>(physicsSystem.playerObjects[pb->originalPlayer]->behavior);
+				playerBehavior->playerStats.dealtDamageFlag = true;
 			}
 			else {
 				playerStats.damageFlag = false;
@@ -676,10 +685,13 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 				slowTimer = SLOW_TIME;
 			}
 			//if we get killed, update the killfeed
-			if (playerStats.hp <= 0) {
+			if (playerStats.hp <= 0 && playerStats.alive) {
 				KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
 				physicsSystem.addKillfeedItem(item);
+				playerStats.alive = false;
 			}
+
+			
 		}
 
 		//handle hpPickup 

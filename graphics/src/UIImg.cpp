@@ -952,6 +952,40 @@ void Magic::StartRotate(int anim) {
 	
 }
 
+//0 1 2 3 4
+void Magic::SetRotate(int anim) {
+	if (animating) {
+		return;
+	}
+
+	for (auto& p : powers) {
+		int size = baseAngles.size();
+		if (anim == 3) {
+			int offset = size - powers.at(0).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 4) {
+			int offset = size - powers.at(1).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 5) {
+			int offset = size - powers.at(2).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 6) {
+			int offset = size - powers.at(3).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 7) {
+			int offset = size - powers.at(4).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+	}
+
+	animStart = glfwGetTime();
+	animating = true;
+}
+
 void Vignette::Init(std::vector<float> startPos, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/vignette.vert", "shaders/vignette.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
