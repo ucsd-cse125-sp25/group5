@@ -343,6 +343,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	//when death first happens 
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
+		playerStats.hp = 0;
 		//set state to death, start the death timer, do tags
 		state = PlayerMovementState::DEATH;
 		deathTimer = DEATH_TIME;
@@ -383,7 +384,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			state = PlayerMovementState::IDLE;
 			deathTimer = 0.0f;
 
-			//half the amount of mana
 			for (int i = 0; i < 5; i++) {
 				playerStats.mana[i] = 100.0f;
 			}
@@ -660,12 +660,12 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 
 		physicsSystem.resolveCollision(obj, other, penetration, status);
 	}
-	else if (status == 1) {
+	else if (status == 1 && playerStats.alive) {
 		//this is fucking terrible 
 		//printf("Detected a collision between %d and %d\n", obj->id, other->id);
 
 		//make sure its a projectile
-		if (other->type >= 5 && other->type <= 9) {
+		if (other->type >= 5 && other->type <= 9 && playerStats.alive) {
 			ProjectileBehaviorComponent* pb = dynamic_cast<ProjectileBehaviorComponent*>(other->behavior);
 			printf("pb %d\n", pb);
 			//make sure we didn't fire it
@@ -676,20 +676,22 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 				//get a reference to the other player
 				PlayerBehaviorComponent* playerBehavior = dynamic_cast<PlayerBehaviorComponent*>(physicsSystem.playerObjects[pb->originalPlayer]->behavior);
 				playerBehavior->playerStats.dealtDamageFlag = true;
+
+				//apply slow
+				if (other->type == WATER_PROJ) {
+					slowTimer = SLOW_TIME;
+				}
+				//if we get killed, update the killfeed
+				if (playerStats.hp <= 0 && playerStats.alive) {
+					KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
+					physicsSystem.addKillfeedItem(item);
+					playerStats.alive = false;
+				}
 			}
 			else {
 				playerStats.damageFlag = false;
 			}
-			//apply slow
-			if (other->type == WATER_PROJ) {
-				slowTimer = SLOW_TIME;
-			}
-			//if we get killed, update the killfeed
-			if (playerStats.hp <= 0 && playerStats.alive) {
-				KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
-				physicsSystem.addKillfeedItem(item);
-				playerStats.alive = false;
-			}
+			
 
 			
 		}
