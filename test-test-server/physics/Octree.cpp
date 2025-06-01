@@ -199,6 +199,24 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
     }  
 }
 
+static void updateAABB(vec3& position, vec3& halfExtents, AABB& aabb) {
+    aabb.min = position - halfExtents;
+    aabb.max = position + halfExtents;
+}
+
+static void updateAABBGameObject(GameObject* obj) {
+    if (obj == nullptr || obj->collider == nullptr) {
+        return; // Ensure the object and its collider are valid
+    }
+	updateAABB(obj->transform.position, obj->collider->halfExtents, obj->transform.aabb);
+}
+
+static void updateAABBGameObjects(vector<GameObject*>& objects) {
+    for (auto obj : objects) {
+        updateAABBGameObject(obj);
+    }
+}
+
 void Octree::updateObject(GameObject* obj) {  
     if (!root) return;  
 
@@ -206,6 +224,6 @@ void Octree::updateObject(GameObject* obj) {
     root->removeObject(obj);  
 
     // Reinsert the object into the tree  
-	//obj->transform.aabb = obj->getAABB();
+	updateAABBGameObject(obj);
     insert(obj, root);  
 }

@@ -27,14 +27,13 @@ void PhysicsSystem::tick(float dt) {
         GameObject* obj = movingObjects[i];
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
         integrate(obj, dt);
+
     }
 
-    // After integration is complete for all objects, start handling collision
-     //for (size_t i = 0; i < movingObjects.size(); ++i) {
-     //    GameObject* obj = movingObjects[i];
-     //   // handleCollisions(obj);
-     //    obj->physics->acceleration = glm::vec3(0);
-     //}
+    for (auto& obj : movingObjects) {
+		updateGameObjectAABB(obj);
+		octreeMovingObjects->updateObject(obj);
+	}
 
     checkCollisionDynamicAll();
 

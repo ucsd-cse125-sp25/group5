@@ -67,6 +67,7 @@ class Octree {
         void insert(GameObject* obj, Node* node);
 
         void getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const;
+
         void updateObject(GameObject* obj);
 
         // getters
