@@ -244,20 +244,14 @@ float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
 	return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
 }
 
-vec3 PhysicsSystem::getAABBCenter(AABB& a) {
-	return (a.min + a.max) * 0.5f;
-}
-
-vec3 PhysicsSystem::getAABBDistanceCenters(AABB& a, AABB& b) {
+vec3 PhysicsSystem::getAABBDistanceCenters(AABB& a, AABB& b) {  // in AABB.cpp
 	vec3 aCenterAABB = (a.min + a.max) * 0.5f;
 	vec3 bCenterAABB = (b.min + b.max) * 0.5f;
 	return aCenterAABB - bCenterAABB;
 }
-pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
-	/*printf("getAABBpenetration\n");
-	printf("aabb1: (%f, %f, %f) (%f, %f, %f)\n", a.min.x, a.min.y, a.min.z, a.max.x, a.max.y, a.max.z);
-	printf("aabb2: (%f, %f, %f) (%f, %f, %f)\n", b.min.x, b.min.y, b.min.z, b.max.x, b.max.y, b.max.z);*/
-	vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
+
+pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) { // in AABB.cpp
+    vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
 
 	float minOverlap = 999999.0f;
 	vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);

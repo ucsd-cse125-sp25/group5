@@ -41,7 +41,7 @@ void FlagBehaviorComponent::integrate(GameObject* obj,
 	//obj->collider->aabb = phys.getAABB(obj);
 }
 
-//—— resolveCollision — called when this object hits another
+//ï¿½ï¿½ resolveCollision ï¿½ called when this object hits another
 void FlagBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
 {
 	if (status == 0) {
