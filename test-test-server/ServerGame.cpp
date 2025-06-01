@@ -30,42 +30,44 @@ unsigned int ServerGame::client_id;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
+#include <fstream> // Add this include to resolve incomplete type "std::ifstream"
+
 void ServerGame::loadComposites() {
-	string PATH_TO_COLLIDERS = "../../../colliders/";
+    string PATH_TO_COLLIDERS = "../../../colliders/";
 
-	for (const auto& entry : experimental::filesystem::directory_iterator(PATH_TO_COLLIDERS)) {
-		const fs::path& file_path = entry.path();
+    for (const auto& entry : experimental::filesystem::directory_iterator(PATH_TO_COLLIDERS)) {
+        const fs::path& file_path = entry.path();
 
-		std::cout << "Reading file: " << entry.path().stem() << "\n";
-	
-		std::ifstream in{ file_path };
+        std::cout << "Reading file: " << entry.path().stem() << "\n";
 
-		if (!in) {
-			std::cout << "Failed to open " << file_path << "\n";
-			continue;
-		}
+        // Initialize the ifstream object properly
+        std::ifstream in(file_path.string());
 
-		string file_name = entry.path().stem().string();
-		composites[file_name] = std::vector<std::pair<glm::vec3, glm::vec3>>();
-		
-		int num_colliders;
-		in >> num_colliders;
+        if (!in) {
+            std::cout << "Failed to open " << file_path << "\n";
+            continue;
+        }
 
-		for (int i = 0; i < num_colliders; i++) {
-			float pX, pY, pZ;
-			float eX, eY, eZ;
-			in >> pX >> pY >> pZ >> eX >> eY >> eZ;
-			glm::vec3 pos = glm::vec3(pX, pY, pZ);
-			glm::vec3 ext = glm::vec3(eX, eY, eZ);
-			composites[file_name].push_back(std::make_pair(pos, ext));
-			GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
-			col->type = COLLIDER;
-			physicsSystem.addStaticObject(col);
-		}
-		
-	}
+        string file_name = entry.path().stem().string();
+        composites[file_name] = std::vector<std::pair<glm::vec3, glm::vec3>>();
 
-	printf("Finished loading colliders.\n");
+        int num_colliders;
+        in >> num_colliders;
+
+        for (int i = 0; i < num_colliders; i++) {
+            float pX, pY, pZ;
+            float eX, eY, eZ;
+            in >> pX >> pY >> pZ >> eX >> eY >> eZ;
+            glm::vec3 pos = glm::vec3(pX, pY, pZ);
+            glm::vec3 ext = glm::vec3(eX, eY, eZ);
+            composites[file_name].push_back(std::make_pair(pos, ext));
+            GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
+            col->type = COLLIDER;
+            physicsSystem.addStaticObject(col);
+        }
+    }
+
+    printf("Finished loading colliders.\n");
 }
 
 void spawnIslands(PhysicsSystem& physicsSystem) {
