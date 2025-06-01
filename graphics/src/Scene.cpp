@@ -21,8 +21,8 @@ glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
 float soundcooldown = 0.5f;
-const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
-const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
+const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", "earthA" };
+const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", "earthM" };
 static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
 static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
@@ -281,18 +281,14 @@ void Scene::update(Camera* cam) {
 				prevMovementFlags[i][j] = false;
 			}
 			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j] && attackKeys[j]) {
-				std::cout << "Going to play audio for player:  " << i << " power: " << j << std::endl;
 				if (now - lastUsedAttack[i][j] > soundcooldown) {
-					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
 					audiomanager->PlayAudio(attackKeys[j], pos);
 					lastUsedAttack[i][j] = now;
 				}
 				prevAttackFlags[i][j] = true;
 			}
 			if ((c.movementPowerupFlag[j] == 1 || c.movementPowerupFlag[j] == 2) && !prevMovementFlags[i][j] && movementKeys[j]) {
-				std::cout << "Going to play audio for player:  " << i << " movement: " << j << std::endl;
 				if (now - lastUsedMovement[i][j] > soundcooldown) {
-					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
 					audiomanager->PlayAudio(movementKeys[j], pos);
 					lastUsedMovement[i][j] = now;
 				}
@@ -300,6 +296,8 @@ void Scene::update(Camera* cam) {
 			}
 		}
 	}
+
+
 }
 
 bool Scene::initShaders() {
@@ -407,7 +405,7 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < projectiles.size(); i++) {
 		Projectile p = projectiles.at(i);
 		if (p.power == METAL) {
-			metalpower->update(p.model);
+			metalpower->update(glm::scale(p.model, glm::vec3(0.05f)));
 			metalpower->draw(mainShader, false);
 		}
 		else if (p.power == WOOD) {

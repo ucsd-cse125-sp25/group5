@@ -4,12 +4,18 @@
 
 //Name the audio file will be reference by to play and the path of the audio file
 static std::unordered_map<std::string, std::string> AudioFiles = {
-	{"firesound", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/firesound.wav")},
 	{"fireA", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/fireA.wav")},
 	{"fireM", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/fireM.wav")},
 	{"waterA", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterA.wav")},
-	{"waterM", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterM.wav")}
-	//{"matchsong", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/LastSurprise.mp3")}
+	{"waterM", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterM.wav")},
+	{"earthA", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/earthA.wav")},
+	{"earthM", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/earthM.wav")},
+	{"death", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/death.wav")},
+	{"defeat", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/defeat.wav")},
+	{"victory", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/victory.wav")},
+	{"hit", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/hit.wav")},
+	{"respawn", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/respawn.wav")},
+	{"ticktock", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ticktock.wav")},
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
