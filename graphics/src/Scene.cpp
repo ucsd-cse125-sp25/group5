@@ -49,8 +49,6 @@ void Scene::createGame(ClientGame* client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init();
-	//audiomanager->PlayAudio("matchsong");
-	//audiomanager->PlayAudio("firesound");
 	test = new PlayerObject();
 
 	//Cinema
@@ -80,11 +78,17 @@ void Scene::createGame(ClientGame* client) {
 }
 
 void Scene::loadObjects() {
-	Object* obj = new Object();
-	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/islandU.obj");
-	obj->create((char*)importstr.c_str(), glm::mat4(1), 0);
-	objects.push_back(obj);
-
+	for (int i = 0; i < mapObjects.size(); i++) {
+		auto entry = mapObjects[i];
+		std::string file_name = entry.first;
+		glm::vec3 position = entry.second;
+		Object* obj = new Object();
+		std::string statObj = PROJECT_SOURCE_DIR + std::string("/assets/") + file_name + std::string(".obj");
+		glm::mat4 id = glm::mat4(1.0f);
+		id[3] = glm::vec4(position, 1.0f);
+		obj->create((char*)statObj.c_str(), id, 1);
+		objects.push_back(obj);
+	}
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated1.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 0);
@@ -201,8 +205,6 @@ void Scene::update(Camera* cam) {
 		}
 		else if (entity.type == FLAG) {
 			if (flag != NULL) {
-				entity.model = glm::rotate(entity.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-				entity.model = glm::rotate(entity.model, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
 				flag->update(entity.model);
 			}
 		}
@@ -241,7 +243,7 @@ void Scene::update(Camera* cam) {
 		  //generate a random color
 			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
 			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			//cubes.push_back(cu);
 		}
 		else if (entity.type == HP_PICKUP) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
@@ -398,8 +400,6 @@ void Scene::draw(Camera* cam) {
 		objects[i]->draw(mainShader, false);
 	}
 
-
-
 	for (int i = 0; i < cubes.size(); i++) {
 		cubes[i]->draw(mainShader, false);
 	}
@@ -441,7 +441,7 @@ void Scene::draw(Camera* cam) {
 
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		if (client->GameState.players[i].id == client->playerId) {
-			//continue;
+			continue;
 		}
 		glm::vec3 pos = client->GameState.players[i].model[3];
 		std::cout << i << std::endl;
@@ -493,7 +493,6 @@ void Scene::draw(Camera* cam) {
 	glDisable(GL_CULL_FACE);
 
 	//water shading and drawing
-	/*
 	GLuint waterShader = shaders[4];
 	glUseProgram(waterShader);
 
@@ -531,7 +530,6 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
 	}
-	*/
   
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
