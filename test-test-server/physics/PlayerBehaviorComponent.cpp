@@ -575,6 +575,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//apply drag
 		obj->physics->velocity *= (1.0f - obj->physics->drag * deltaTime);
 
+		//apply drag hard if we're on ground
+		if(checkBottom(obj, phys)) {
+			obj->physics->velocity *= 0.5f; // reduce speed by half on ground
+		}
+
 		//clamp velocity
 		if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
 			obj->physics->velocity = glm::normalize(obj->physics->velocity) * obj->physics->maxSpeed;

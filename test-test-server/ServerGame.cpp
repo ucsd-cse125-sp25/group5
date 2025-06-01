@@ -19,8 +19,8 @@
 namespace fs = std::experimental::filesystem;
 
 #define PRE_GAME_COUNTDOWN 5
-#define IN_GAME_DURATION 120
-#define NUM_PLAYERS_TO_START 2
+#define IN_GAME_DURATION 300
+#define NUM_PLAYERS_TO_START 1
 
 #define TICKS_PER_SECOND 100
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
@@ -306,6 +306,14 @@ void ServerGame::writeToGameState() {
 	physicsSystem.timePassed = timeSinceStart; // Update the physics system with the time passed since the start of the game
 	physicsSystem.totalTime = IN_GAME_DURATION; // Set the total time for the physics system
 	//GameState.moonPhase = static_cast<MoonPhase>(timeLeft / IN_GAME_DURATION * 5); // Assuming 4 phases of the moon, this will cycle through them based on time left
+	if(physicsSystem.timePassed < 150.0f) {
+		GameState.moonPhase = NEW_MOON;
+	} else if(physicsSystem.timePassed < 240.0f) {
+		GameState.moonPhase = FIRST_QUARTER;
+	} else {
+		GameState.moonPhase = FULL_MOON;
+	}
+
 
 	//send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
 	writeEntities(physicsSystem, physicsSystem.playerObjects, GameState.players, 0, numPlayers);

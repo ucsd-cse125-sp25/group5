@@ -398,9 +398,7 @@ void Scene::draw(Camera* cam) {
 		objects[i]->draw(mainShader, false);
 	}
 
-	for (int i = 0; i < staticObjs.size(); i++) {
-		staticObjs[i]->draw(mainShader, false);
-	}
+
 
 	for (int i = 0; i < cubes.size(); i++) {
 		cubes[i]->draw(mainShader, false);
