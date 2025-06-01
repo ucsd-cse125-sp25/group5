@@ -16,6 +16,7 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"hit", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/hit.wav")},
 	{"respawn", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/respawn.wav")},
 	{"ticktock", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ticktock.wav")},
+	{"capture", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/capture.wav")}
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
@@ -24,6 +25,8 @@ static std::unordered_map<std::string, FMOD::Sound*> Sounds;
 
 //Loop through AudioFiles hash map and create Sound* placed in Sounds hashmap
 void Audio::Init() {
+	hitStart = glfwGetTime();
+	deathStart = glfwGetTime();
 	FMOD::System_Create(&system);
 	system->init(512, FMOD_INIT_3D_RIGHTHANDED, nullptr);
 
@@ -33,6 +36,7 @@ void Audio::Init() {
 		const std::string& path = pair.second;
 		FMOD::Sound* s;
 		system->createSound(path.c_str(), FMOD_3D, 0, &s);
+		s->setMode(FMOD_LOOP_OFF);
 		Sounds[track] = s;
 	}
 	listenerPos = { 0.0f, 0.0f, 0.0f };
@@ -62,16 +66,6 @@ void Audio::PlayAudio(std::string n, glm::vec3 pos) {
 	channel->set3DMinMaxDistance(1.0f, 100.0f);
 }
 
-/*
-if (isMatching) {
-	musicChannel = channel;
-	soundPos = { 5.0f, 0.0f, 0.0f };
-}
-else {
-	soundPos = { 0.0f, 1.0f, 0.0f };
-}
-*/
-
 //Can only stop the background music
 void Audio::StopAudio() {
 	musicChannel->stop();
@@ -79,24 +73,67 @@ void Audio::StopAudio() {
 
 //FMOD::System* automatically handles playing audio
 void Audio::Update(Camera* cam, UIData &p) {
-	if (isAlive && p.currHP <= 20) {
-		isAlive = false;
-		this->Filter();
-
-	}
-	else if (!isAlive && p.currHP > 20) {
-		isAlive = true;
-		this->Filter();
-	}
-	//Set the position up and forward
 	glm::vec3 pos = cam->GetPosition();
 	glm::vec3 f = glm::normalize(cam->GetCameraForwardVector());
+	//Set the position up and forward
 	listenerPos = { pos.x, pos.y, pos.z };
 	listenerVel = { 0.0f, 0.0f, 0.0f };
 	forward = { f.x, f.y, f.z };
 	up = { 0.0f, 1.0f, 0.0f };
 	system->set3DListenerAttributes(0, &listenerPos, &listenerVel, &forward, &up);
 	system->update();
+	if (isAlive && p.currHP <= 0) {
+		std::cout << "Has died" << std::endl;
+		isAlive = false;
+		//this->Filter();
+
+	}
+	if (!isAlive && p.currHP > 0) {
+		std::cout << "Has come to life" << std::endl;
+		isAlive = true;
+		//this->Filter();
+	}
+
+	float now = glfwGetTime();
+	if (dealtDamage && now - hitStart > 0.1f) {
+		hitStart = now;
+		std::string cs = "hit";
+		this->PlayAudio(cs, pos);
+	}
+
+	//if last alive and now dead play death
+	if (lastState && !isAlive) {
+		lastState = false;
+		std::string dt = "death";
+		this->PlayAudio(dt, pos);
+	}
+	//if last dead and now alive play respawn
+	else if (!lastState && isAlive) {
+		lastState = true;
+		std::string rs = "respawn";
+		this->PlayAudio(rs, pos);
+	}
+
+	if (!lastFlagState && p.hasFlag) {
+		lastFlagState = true;
+		std::string cap = "capture";
+		this->PlayAudio(cap, pos);
+	}
+	else if (!p.hasFlag) {
+		lastFlagState = false;
+		//lost the flag
+	}
+
+	if (!decision && selfState == 1) {
+		decision = true;
+		std::string d = "defeat";
+		this->PlayAudio(d, pos);
+	}
+	else if (!decision && selfState == 2) {
+		decision = true;
+		std::string w = "victory";
+		this->PlayAudio(w, pos);
+	}
 }
 
 void Audio::Filter() {

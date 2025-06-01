@@ -265,6 +265,13 @@ void Scene::update(Camera* cam) {
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
 	dummy.seconds = client->GameState.time;
+	dummy.hasFlag = client->GameState.player_stats[client->playerId].hasFlag;
+	if (client->GameState.phase == POST_GAME && dummy.hasFlag) {
+		audiomanager->selfState = 2;
+	}
+	if (client->GameState.phase == POST_GAME && !dummy.hasFlag) {
+		audiomanager->selfState = 1;
+	}
 	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
 

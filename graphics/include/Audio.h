@@ -13,9 +13,14 @@ public:
 	void PlayAudio(std::string n, glm::vec3 pos);
 	void StopAudio();
 	void Filter();
+	int selfState = 0; //1 = lost, 2 = won
 private:
 	bool isAlive = true;
 	bool isUnderwater;
+	bool dealtDamage = false;
+	bool lastState = true; //false = dead, true = alive
+	bool lastFlagState = false; //false = not have
+	bool decision = false;
 	FMOD::System* system = nullptr;
 	FMOD_VECTOR listenerPos;
 	FMOD_VECTOR listenerVel;
@@ -24,5 +29,7 @@ private:
 	FMOD::Channel* musicChannel = nullptr;
 	FMOD::ChannelGroup* mainGroup = nullptr;
 	FMOD::DSP* lowpassDSP = nullptr;
+	float hitStart;
+	float deathStart;
 	
 };
