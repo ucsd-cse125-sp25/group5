@@ -391,12 +391,12 @@ void Scene::draw(Camera* cam) {
 	if (phasechange) {
 		if (moonphase == 1) {
 			dirLight->color = glm::vec3(0.7, 0.75, 0.68) / 2.5f;
-			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.45, 0.0));
+			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.48, 0.0));
 			dirLight->specular = glm::vec3(0.7, 0.75, 0.68) / 1.67f;
 		}
 		else if (moonphase == 2) {
 			dirLight->color = glm::vec3(0.7, 0.75, 0.68) / 2.0f;
-			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.46, 0.07));
+			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.52, 0.07));
 			dirLight->specular = glm::vec3(0.7, 0.75, 0.68) / 1.33f;
 		}
 	}
