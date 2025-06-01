@@ -9,6 +9,8 @@
 
 const static int KILLFEED_LENGTH = 3;
 
+
+
 enum PacketTypes {
 
 	PLAYER_INTENT = 0,
@@ -144,3 +146,8 @@ struct GameStatePacket {
 		memcpy(this, data, sizeof(GameStatePacket));
 	}
 };
+
+
+
+
+

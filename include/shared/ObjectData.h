@@ -1,7 +1,9 @@
 #pragma once
 #include <string.h> 
 #include "core.h"
-
+#include <utility>
+#include <string> // Include for std::string
+#include <vector>
 
 #define MAX_HP 120;
 #define MAX_MANA 100;
@@ -60,9 +62,7 @@ enum GamePhase {
 
 enum MoonPhase {
 	NEW_MOON,
-	WAXING_CRESCENT,
 	FIRST_QUARTER,
-	WAXING_GIBBOUS,
 	FULL_MOON
 };
 
@@ -90,6 +90,7 @@ struct PlayerStats {
 	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};
 	int attackPowerupFlag[5] = { 0, 0, 0, 0, 0 };
 	bool damageFlag = false; // used to indicate if the player has taken damage this tick
+	bool dealtDamageFlag = false; // used to indicate if the player has dealt damage this tick
 };
 
 struct KillfeedItem {
@@ -97,4 +98,9 @@ struct KillfeedItem {
 	int attacker;
 	KillfeedType type;
 	float lifetime;
+};
+
+
+const static std::vector < std::pair < std::string, glm::vec3 >> mapObjects = {
+	{ "floating-island", glm::vec3(0.0f, 0.0f, 0.0f) },
 };

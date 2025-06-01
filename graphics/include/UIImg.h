@@ -168,6 +168,7 @@ public:
 	void UpdateLayout();
 	void SetTexture(GLuint texture);
 	void StartRotate(int anim);
+	void SetRotate(int anim);
 
 	std::vector<MagicElement> powers;
 	std::vector<float> baseAngles;

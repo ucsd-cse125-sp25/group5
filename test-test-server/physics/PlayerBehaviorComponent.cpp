@@ -316,6 +316,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+	playerStats.dealtDamageFlag = false;
 
 
 	//water setting
@@ -326,6 +327,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	//when death first happens 
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
+		playerStats.hp = 0;
 		//set state to death, start the death timer, do tags
 		state = PlayerMovementState::DEATH;
 		deathTimer = DEATH_TIME;
@@ -366,7 +368,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			state = PlayerMovementState::IDLE;
 			deathTimer = 0.0f;
 
-			//half the amount of mana
 			for (int i = 0; i < 5; i++) {
 				playerStats.mana[i] = 100.0f;
 			}
@@ -545,6 +546,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//apply drag
 		obj->physics->velocity *= (1.0f - obj->physics->drag * deltaTime);
 
+		//apply drag hard if we're on ground
+		if(checkBottom(obj, phys)) {
+			obj->physics->velocity *= 0.5f; // reduce speed by half on ground
+		}
+
 		//clamp velocity
 		if (glm::length(obj->physics->velocity) > obj->physics->maxSpeed) {
 			obj->physics->velocity = glm::normalize(obj->physics->velocity) * obj->physics->maxSpeed;
@@ -624,30 +630,38 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 
 		physicsSystem.resolveCollision(obj, other, penetration, status);
 	}
-	else if (status == 1) {
+	else if (status == 1 && playerStats.alive) {
 		//this is fucking terrible 
 
 		//make sure its a projectile
-		if (other->type >= 5 && other->type <= 9) {
+		if (other->type >= 5 && other->type <= 9 && playerStats.alive) {
 			ProjectileBehaviorComponent* pb = dynamic_cast<ProjectileBehaviorComponent*>(other->behavior);
 			//make sure we didn't fire it
 			if (pb != nullptr && pb->originalPlayer != obj->id) {
 				playerStats.hp -= pb->damage;
 				printf("Player %d took %f damage from projectile %d\n", obj->id, pb->damage, other->id);
 				playerStats.damageFlag = true;
+				//get a reference to the other player
+				PlayerBehaviorComponent* playerBehavior = dynamic_cast<PlayerBehaviorComponent*>(physicsSystem.playerObjects[pb->originalPlayer]->behavior);
+				playerBehavior->playerStats.dealtDamageFlag = true;
+
+				//apply slow
+				if (other->type == WATER_PROJ) {
+					slowTimer = SLOW_TIME;
+				}
+				//if we get killed, update the killfeed
+				if (playerStats.hp <= 0 && playerStats.alive) {
+					KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
+					physicsSystem.addKillfeedItem(item);
+					playerStats.alive = false;
+				}
 			}
 			else {
 				playerStats.damageFlag = false;
 			}
-			//apply slow
-			if (other->type == WATER_PROJ) {
-				slowTimer = SLOW_TIME;
-			}
-			//if we get killed, update the killfeed
-			if (playerStats.hp <= 0) {
-				KillfeedItem item = { obj->id, pb->originalPlayer, KILL, 0.0f };
-				physicsSystem.addKillfeedItem(item);
-			}
+			
+
+			
 		}
 
 		//handle hpPickup 

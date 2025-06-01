@@ -14,10 +14,12 @@
 #include <string>
 #include <locale>
 #include <codecvt>
-#include <filesystem>
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING 1;
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
 
 #define PRE_GAME_COUNTDOWN 5
-#define IN_GAME_DURATION 120
+#define IN_GAME_DURATION 300
 #define NUM_PLAYERS_TO_START 1
 
 #define TICKS_PER_SECOND 100
@@ -28,25 +30,61 @@ unsigned int ServerGame::client_id;
 std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
 
+#include <fstream> // Add this include to resolve incomplete type "std::ifstream"
+
 void ServerGame::loadComposites() {
-	composites["Floating Island"] = std::vector<std::pair<glm::vec3, glm::vec3>>();
-	double values[18] = { 0, 0.38, 0, 5.01, 2.64, 4.315,
-							0, -4.42, 0, 3.43, 2.46, 2.845,
-							-0.49, -7.66, 0, 1.96, 0.8050001, 1.73 };
+    string PATH_TO_COLLIDERS = "../../../colliders/";
 
-	for (int i = 0; i < 3; i++) {
-		glm::vec3 pos = glm::vec3(values[i * 6], values[i * 6 + 1], values[i * 6 + 2]);
-		glm::vec3 ext = glm::vec3(values[i * 6 + 3], values[i * 6 + 4], values[i * 6 + 5]);
-		composites["Floating Island"].push_back(std::make_pair(pos, ext));
+    for (const auto& entry : experimental::filesystem::directory_iterator(PATH_TO_COLLIDERS)) {
+        const fs::path& file_path = entry.path();
+
+        std::cout << "Reading file: " << entry.path().stem() << "\n";
+
+        // Initialize the ifstream object properly
+        std::ifstream in(file_path.string());
+
+        if (!in) {
+            std::cout << "Failed to open " << file_path << "\n";
+            continue;
+        }
+
+        string file_name = entry.path().stem().string();
+        composites[file_name] = std::vector<std::pair<glm::vec3, glm::vec3>>();
+
+        int num_colliders;
+        in >> num_colliders;
+
+        for (int i = 0; i < num_colliders; i++) {
+            float pX, pY, pZ;
+            float eX, eY, eZ;
+            in >> pX >> pY >> pZ >> eX >> eY >> eZ;
+            glm::vec3 pos = glm::vec3(pX, pY, pZ);
+            glm::vec3 ext = glm::vec3(eX, eY, eZ);
+            composites[file_name].push_back(std::make_pair(pos, ext));
+            //GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
+            //col->type = COLLIDER;
+            //physicsSystem.addStaticObject(col);
+        }
+    }
+
+	//add map objects
+	for (int i = 0; i < mapObjects.size(); i++) {
+		auto entry = mapObjects[i];
+		//type of object to have collider, and the position
+		std::string file_name = entry.first;
+		glm::vec3 position = entry.second;
+
+		// pray to god that the composites has that file, and then generate all the colliders at the proper position
+		for(int j = 0; j < composites[file_name].size(); j++) {
+			glm::vec3 pos = composites[file_name][j].first + position;
+			glm::vec3 ext = composites[file_name][j].second;
+			GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
+			col->type = COLLIDER;
+			physicsSystem.addStaticObject(col);
+		}
 	}
 
-	for (int i = 0; i < composites["Floating Island"].size(); i++) {
-		glm::vec3 pos = composites["Floating Island"][i].first;
-		glm::vec3 ext = composites["Floating Island"][i].second;
-		GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
-		col->type = COLLIDER;
-		physicsSystem.addStaticObject(col);
-	}
+    printf("Finished loading colliders.\n");
 }
 
 void spawnIslands(PhysicsSystem& physicsSystem) {
@@ -265,6 +303,14 @@ void ServerGame::writeToGameState() {
 	physicsSystem.timePassed = timeSinceStart; // Update the physics system with the time passed since the start of the game
 	physicsSystem.totalTime = IN_GAME_DURATION; // Set the total time for the physics system
 	//GameState.moonPhase = static_cast<MoonPhase>(timeLeft / IN_GAME_DURATION * 5); // Assuming 4 phases of the moon, this will cycle through them based on time left
+	if(physicsSystem.timePassed < 150.0f) {
+		GameState.moonPhase = NEW_MOON;
+	} else if(physicsSystem.timePassed < 240.0f) {
+		GameState.moonPhase = FIRST_QUARTER;
+	} else {
+		GameState.moonPhase = FULL_MOON;
+	}
+
 
 	//send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
 	writeEntities(physicsSystem, physicsSystem.playerObjects, GameState.players, 0, numPlayers);

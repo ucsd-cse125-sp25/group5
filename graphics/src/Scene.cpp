@@ -30,7 +30,7 @@ static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 
 
 
-void Scene::createGame(ClientGame *client) {
+void Scene::createGame(ClientGame* client) {
 	this->client = client;
 
 	shrink = glm::scale(shrink, glm::vec3(0.05f));
@@ -49,8 +49,6 @@ void Scene::createGame(ClientGame *client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init();
-	//audiomanager->PlayAudio("matchsong");
-	//audiomanager->PlayAudio("firesound");
 	test = new PlayerObject();
 
 	//Cinema
@@ -79,15 +77,21 @@ void Scene::createGame(ClientGame *client) {
 	glFrontFace(GL_CCW);
 }
 
-
 void Scene::loadObjects() {
-	Object* obj = new Object();
-	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
-	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	objects.push_back(obj);
+	for (int i = 0; i < mapObjects.size(); i++) {
+		auto entry = mapObjects[i];
+		std::string file_name = entry.first;
+		glm::vec3 position = entry.second;
+		Object* obj = new Object();
+		std::string statObj = PROJECT_SOURCE_DIR + std::string("/assets/") + file_name + std::string(".obj");
+		glm::mat4 id = glm::mat4(1.0f);
+		id[3] = glm::vec4(position, 1.0f);
+		obj->create((char*)statObj.c_str(), id, 1);
+		objects.push_back(obj);
+	}
 	flag = new Object();
-	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated.fbx");
-	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated1.obj");
+	flag->create((char*)importstr2.c_str(), glm::mat4(1), 0);
 	objects.push_back(flag);
 
 	metalpower = new Object();
@@ -103,7 +107,7 @@ void Scene::loadObjects() {
 	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 0);
 
 	woodring = new Object();
-	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_Power.fbx");
+	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_power.fbx");
 	woodring->create((char*)importstr6.c_str(), glm::mat4(1), 1);
 
 	waterpower = new Object();
@@ -194,11 +198,7 @@ void Scene::update(Camera* cam) {
 			glm::vec3 island_min = glm::vec3(0, 0, 0);
 			island_min -= island_extents;
 			glm::vec3 island_max = glm::vec3(0, 0, 0);
-			island_max += island_extents;
-
-			//printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
-			//printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
-			
+			island_max += island_extents;		
 			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
@@ -209,20 +209,12 @@ void Scene::update(Camera* cam) {
 			}
 		}
 		else if (entity.type == WOOD_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.05f));
 			Projectile p;
 			p.power = WOOD;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == METAL_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.5f, 0.5f, 0.5f));
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = METAL;
 			p.model = entity.model;
@@ -230,30 +222,18 @@ void Scene::update(Camera* cam) {
 
 		}
 		else if (entity.type == WATER_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.2f, 0.4f, 1.0f)); // Blue-ish
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = WATER;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == FIRE_PROJ) {
-			//Cube* cu = new Cube(fireProjExtents, -fireProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = FIRE;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == EARTH_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.4f, 0.3f, 0.1f)); // Brown/soil tone
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = EARTH;
 			p.model = entity.model;
@@ -263,7 +243,7 @@ void Scene::update(Camera* cam) {
 		  //generate a random color
 			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
 			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			//cubes.push_back(cu);
 		}
 		else if (entity.type == HP_PICKUP) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
@@ -495,6 +475,21 @@ void Scene::draw(Camera* cam) {
 		}
 	}
 
+
+	Cube* c = new Cube(glm::vec3(-0.1f, -0.1f, -0.1f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.55f, 0.0f));
+	c->setModel(glm::mat4(1.0f));
+	c->draw(mainShader, false);
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		if (client->GameState.player_stats[i].grappleTarget != glm::vec3(0.0f)) {
+			glm::vec3 pos = client->GameState.players[i].model[3];
+			glm::vec3 end = client->GameState.player_stats[i].grappleTarget;
+			glLineWidth(10.0f);
+			glBegin(GL_LINES);
+			glVertex3f(pos.x, pos.y - 0.15f, pos.z);
+			glVertex3f(end.x, end.y, end.z);
+			glEnd();
+		}
+	}
 	glDisable(GL_CULL_FACE);
 
 	//water shading and drawing
