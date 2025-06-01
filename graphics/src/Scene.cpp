@@ -30,7 +30,7 @@ static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 
 
 
-void Scene::createGame(ClientGame *client) {
+void Scene::createGame(ClientGame* client) {
 	this->client = client;
 
 	shrink = glm::scale(shrink, glm::vec3(0.05f));
@@ -79,16 +79,15 @@ void Scene::createGame(ClientGame *client) {
 	glFrontFace(GL_CCW);
 }
 
-
 void Scene::loadObjects() {
 	Object* obj = new Object();
-	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
-	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	objects.push_back(obj);
+	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/islandU.obj");
+	obj->create((char*)importstr.c_str(), glm::mat4(1), 0);
+	staticObjs.push_back(obj);
 
 	flag = new Object();
-	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flagflag.fbx");
-	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated1.obj");
+	flag->create((char*)importstr2.c_str(), glm::mat4(1), 0);
 	objects.push_back(flag);
 
 	metalpower = new Object();
@@ -399,7 +398,9 @@ void Scene::draw(Camera* cam) {
 		objects[i]->draw(mainShader, false);
 	}
 
-
+	for (int i = 0; i < staticObjs.size(); i++) {
+		staticObjs[i]->draw(mainShader, false);
+	}
 
 	for (int i = 0; i < cubes.size(); i++) {
 		cubes[i]->draw(mainShader, false);
