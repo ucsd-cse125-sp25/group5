@@ -62,9 +62,7 @@ enum GamePhase {
 
 enum MoonPhase {
 	NEW_MOON,
-	WAXING_CRESCENT,
 	FIRST_QUARTER,
-	WAXING_GIBBOUS,
 	FULL_MOON
 };
 
