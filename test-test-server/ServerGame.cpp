@@ -61,11 +61,28 @@ void ServerGame::loadComposites() {
             glm::vec3 pos = glm::vec3(pX, pY, pZ);
             glm::vec3 ext = glm::vec3(eX, eY, eZ);
             composites[file_name].push_back(std::make_pair(pos, ext));
-            GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
-            col->type = COLLIDER;
-            physicsSystem.addStaticObject(col);
+            //GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
+            //col->type = COLLIDER;
+            //physicsSystem.addStaticObject(col);
         }
     }
+
+	//add map objects
+	for (int i = 0; i < mapObjects.size(); i++) {
+		auto entry = mapObjects[i];
+		//type of object to have collider, and the position
+		std::string file_name = entry.first;
+		glm::vec3 position = entry.second;
+
+		// pray to god that the composites has that file, and then generate all the colliders at the proper position
+		for(int j = 0; j < composites[file_name].size(); j++) {
+			glm::vec3 pos = composites[file_name][j].first + position;
+			glm::vec3 ext = composites[file_name][j].second;
+			GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
+			col->type = COLLIDER;
+			physicsSystem.addStaticObject(col);
+		}
+	}
 
     printf("Finished loading colliders.\n");
 }
