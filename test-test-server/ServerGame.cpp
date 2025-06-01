@@ -210,6 +210,7 @@ void ServerGame::update() {
 
 		player->type = PLAYER;
 		player->isDynamic = true;
+		player->transform.position = spawnPoints[client_id];
 		//place where player gets added
 		//physicsSystem.playerObjects[client_id] = player;
 		physicsSystem.addPlayerObject(player);
