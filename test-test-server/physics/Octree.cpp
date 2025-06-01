@@ -1,5 +1,6 @@
 #include "../include/physics/Octree.h"
 #include "../include/physics/PhysicsSystem.h"
+#include <ServerGame.h>
 
 Node::Node(const AABB& boundingBox, int depthLevel)
     : boundingBox(boundingBox), depthLevel(depthLevel), isLeaf(true) {
@@ -196,4 +197,15 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
             }  
         }  
     }  
+}
+
+void Octree::updateObject(GameObject* obj) {  
+    if (!root) return;  
+
+    // Remove the object from the current tree  
+    root->removeObject(obj);  
+
+    // Reinsert the object into the tree  
+	//obj->transform.aabb = obj->getAABB();
+    insert(obj, root);  
 }
