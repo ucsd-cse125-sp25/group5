@@ -6,6 +6,7 @@
 #include "../include/shared/NetworkData.h"
 #include "InputManager.h"
 #include "physics/Octree.h"
+#include "physics/AABB.h"
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -41,7 +42,6 @@ public:
     vector<float> AABBdistances;
     float cellSize;
     AABB worldBounds = AABB{vec3(-100.0f), vec3(100.0f)};
-    
 
 	//water level
 	float waterLevel = -2.0f;

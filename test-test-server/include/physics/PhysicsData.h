@@ -1,6 +1,6 @@
 #include <stdafx.h>
 #include "../include/shared/ObjectData.h"
-
+#include "physics/AABB.h"
 
 #pragma once
 using namespace std;
@@ -13,11 +13,6 @@ struct ColliderComponent;
 class BehaviorComponent;
 
 const float GRAVITY = 9.8f * 0.1f;
-
-struct AABB {
-	vec3 min;
-	vec3 max;
-};
 
 struct Transform {
 	glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
