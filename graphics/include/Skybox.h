@@ -19,4 +19,5 @@ public:
 	void initSkybox();
 	GLuint loadCubemap(const std::vector<std::string> faces);
 	void draw(Camera* cam, float* model);
+	void updatePhase(int phase);
 };
