@@ -49,7 +49,7 @@ void Camera::Update() {
         glm::mat4 translate(1);
 
         Pos = glm::vec3(client->playerModel[3]);
-        std::cout << "cam pos: " << Pos.x << " " << Pos.y << " " << Pos.z << std::endl;
+        //std::cout << "cam pos: " << Pos.x << " " << Pos.y << " " << Pos.z << std::endl;
         translate[3][0] = Pos.x;
         translate[3][1] = Pos.y;
         translate[3][2] = Pos.z;
