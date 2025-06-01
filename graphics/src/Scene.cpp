@@ -83,7 +83,7 @@ void Scene::loadObjects() {
 	Object* obj = new Object();
 	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/islandU.obj");
 	obj->create((char*)importstr.c_str(), glm::mat4(1), 0);
-	staticObjs.push_back(obj);
+	objects.push_back(obj);
 
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated1.obj");
