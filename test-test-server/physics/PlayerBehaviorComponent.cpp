@@ -438,7 +438,15 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//}
 	}
 	else if (state == PlayerMovementState::MAGNET) {
-		glm::vec3 direction = phys.getClosestPlayerObject(obj->transform.position, obj->id)->transform.position - obj->transform.position;
+		GameObject* closestPlayer = phys.getClosestPlayerObject(obj->transform.position, obj->id);
+		printf("closest player %d\n", closestPlayer ? closestPlayer->id : -1);
+		if (closestPlayer == nullptr) {
+			state = PlayerMovementState::IDLE;
+			magnetTimer = 0.0f;
+			//if we can't find a player, just return
+			return;
+		}
+		glm::vec3 direction = closestPlayer->transform.position - obj->transform.position;
 		direction = glm::normalize(direction);
 		obj->physics->velocity = -direction * MAGNET_SPEEED;
 
