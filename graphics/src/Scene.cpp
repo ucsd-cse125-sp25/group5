@@ -37,6 +37,9 @@ static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 void Scene::createGame(ClientGame* client) {
 	this->client = client;
 
+	grapple = new Cube(glm::vec3(-0.1f, -0.1f, -0.1f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.55f, 0.0f));
+	grapple->setModel(glm::mat4(1.0f));
+
 	shrink = glm::scale(shrink, glm::vec3(0.05f));
 
 	//setup lights
@@ -247,7 +250,7 @@ void Scene::update(Camera* cam) {
 		  //generate a random color
 			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 1.0f, 0.0f));
 			cu->setModel(entity.model);
-			//cubes.push_back(cu);
+			cubes.push_back(cu);
 		}
 		else if (entity.type == HP_PICKUP) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
@@ -510,9 +513,7 @@ void Scene::draw(Camera* cam) {
 	}
 
 
-	Cube* c = new Cube(glm::vec3(-0.1f, -0.1f, -0.1f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.55f, 0.0f));
-	c->setModel(glm::mat4(1.0f));
-	c->draw(mainShader, false);
+	grapple->draw(mainShader, false);
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		if (client->GameState.player_stats[i].grappleTarget != glm::vec3(0.0f)) {
 			glm::vec3 pos = client->GameState.players[i].model[3];

@@ -40,7 +40,7 @@ private:
 	Cube* testCube;
 	Audio* audiomanager;
 	UIData uiData;
-
+	Cube* grapple;
 	Object* metalpower;
 	Object* metalring;
 	Object* woodpower;
