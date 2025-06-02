@@ -103,4 +103,8 @@ struct KillfeedItem {
 
 const static std::vector < std::pair < std::string, glm::vec3 >> mapObjects = {
 	{ "floating-island", glm::vec3(0.0f, 0.0f, 0.0f) },
+	{ "corridor1", glm::vec3(0.0f, 0.0f, 10.0f) },
+	{ "corridor-2", glm::vec3(10.0f, 0.0f, 0.0f) },
+	{ "floating-island", glm::vec3(10.0f, 20.0f, 0.0f) },
+	{ "island", glm::vec3(30.0f, 10.0f, 0.0f) },
 };
