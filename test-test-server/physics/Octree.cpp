@@ -2,6 +2,36 @@
 #include "../include/physics/PhysicsSystem.h"
 #include <ServerGame.h>
 
+static bool overlap(const AABB& box1, const AABB& box2) {
+    return (box1.min.x <= box2.max.x && box1.max.x >= box2.min.x) &&
+        (box1.min.y <= box2.max.y && box1.max.y >= box2.min.y) &&
+        (box1.min.z <= box2.max.z && box1.max.z >= box2.min.z);
+}
+
+static bool isPointInside(const vec3& point, const AABB& box) {
+    return point.x >= box.min.x && point.x <= box.max.x &&
+        point.y >= box.min.y && point.y <= box.max.y &&
+        point.z >= box.min.z && point.z <= box.max.z;
+}
+
+static void updateAABB(vec3& position, vec3& halfExtents, AABB& aabb) {
+    aabb.min = position - halfExtents;
+    aabb.max = position + halfExtents;
+}
+
+static void updateAABBGameObject(GameObject* obj) {
+    if (obj == nullptr || obj->collider == nullptr) {
+        return; // Ensure the object and its collider are valid
+    }
+    updateAABB(obj->transform.position, obj->collider->halfExtents, obj->transform.aabb);
+}
+
+static void updateAABBGameObjects(vector<GameObject*>& objects) {
+    for (auto obj : objects) {
+        updateAABBGameObject(obj);
+    }
+}
+
 Node::Node(const AABB& boundingBox, int depthLevel)
     : boundingBox(boundingBox), depthLevel(depthLevel), isLeaf(true) {
 	halfExtents = (boundingBox.max - boundingBox.min) * 0.5f;
@@ -21,20 +51,14 @@ Node::~Node() {
     objects.clear();
 }
 
-static bool isPointInside(const vec3& point, const AABB& box) {
-    return point.x >= box.min.x && point.x <= box.max.x &&
-           point.y >= box.min.y && point.y <= box.max.y &&
-           point.z >= box.min.z && point.z <= box.max.z;
-}
-
 bool Node::contains(const AABB& box) const {
-    return isPointInside(box.min, boundingBox) && isPointInside(box.max, boundingBox);
+    return (box.min.x >= boundingBox.min.x && box.max.x <= boundingBox.max.x) &&
+           (box.min.y >= boundingBox.min.y && box.max.y <= boundingBox.max.y) &&
+		   (box.min.z >= boundingBox.min.z && box.max.z <= boundingBox.max.z);
 }
 
 bool Node::partiallyEmbedded(const AABB& box) const {
-    return (isPointInside(box.min, boundingBox) && !isPointInside(box.max, boundingBox)) ||
-            (!isPointInside(box.min, boundingBox) && isPointInside(box.max, boundingBox));
-           
+    return overlap(boundingBox, box) || !contains(box);
 }
 
 bool Octree::shouldSubdivide(const Node* node) const {
@@ -165,12 +189,6 @@ Octree::~Octree() {
     root = nullptr;
 }
 
-static bool overlap(const AABB& box1, const AABB& box2) {
-    return (box1.min.x <= box2.max.x && box1.max.x >= box2.min.x) &&
-           (box1.min.y <= box2.max.y && box1.max.y >= box2.min.y) &&
-           (box1.min.z <= box2.max.z && box1.max.z >= box2.min.z);
-}
-
 void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const {  
     if (!root) return;  
 
@@ -197,24 +215,6 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
             }  
         }  
     }  
-}
-
-static void updateAABB(vec3& position, vec3& halfExtents, AABB& aabb) {
-    aabb.min = position - halfExtents;
-    aabb.max = position + halfExtents;
-}
-
-static void updateAABBGameObject(GameObject* obj) {
-    if (obj == nullptr || obj->collider == nullptr) {
-        return; // Ensure the object and its collider are valid
-    }
-	updateAABB(obj->transform.position, obj->collider->halfExtents, obj->transform.aabb);
-}
-
-static void updateAABBGameObjects(vector<GameObject*>& objects) {
-    for (auto obj : objects) {
-        updateAABBGameObject(obj);
-    }
 }
 
 void Octree::updateObject(GameObject* obj) {  
