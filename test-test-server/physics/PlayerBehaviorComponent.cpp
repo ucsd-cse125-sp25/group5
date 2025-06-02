@@ -174,7 +174,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 15.0f, player->id);
 		obj->type = WOOD_PROJ;
 		obj->isDynamic = true;
 
@@ -191,7 +191,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 5.0f, 10.0f, player->id);
+		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 5.0f, 7.0f, player->id);
 		obj->type = METAL_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -204,7 +204,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 20.0f, player->id);
 		obj->type = WATER_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -217,7 +217,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, fireProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 10.0f, player->id, 3.0f);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 10.0f, player->id, 2.5f);
 		obj->type = FIRE_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -233,9 +233,9 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 
 		//shoot like 100 units in a random direction
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 25; i++) {
 			GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
-			obj->behavior = new ProjectileBehaviorComponent(obj, phys, glm::sphericalRand(1.0f) * 20.0f, 10.0f, player->id, 1.0f);
+			obj->behavior = new ProjectileBehaviorComponent(obj, phys, glm::sphericalRand(1.0f) * 20.0f, 25.0f, player->id, 1.0f);
 			obj->type = EARTH_PROJ;
 			obj->isDynamic = true;
 			//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)

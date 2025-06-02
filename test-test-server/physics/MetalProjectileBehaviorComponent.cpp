@@ -18,7 +18,7 @@ void MetalProjectileBehaviorComponent::integrate(GameObject* obj,
 		glm::vec3 direction = closestPlayer->transform.position - obj->transform.position;
 		direction = glm::normalize(direction);
 
-		obj->physics->velocity = direction * 15.0f;
+		obj->physics->velocity = direction * 7.5f;
 	}
 
 	
