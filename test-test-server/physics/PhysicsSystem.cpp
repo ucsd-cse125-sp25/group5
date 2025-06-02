@@ -387,7 +387,7 @@ void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
     }   
 }
 
-void PhysicsSystem::initOctree(vector<GameObject*> objects, Octree*& octree) {
+void PhysicsSystem::initOctree(vector<GameObject*>& objects, Octree*& octree) {
     updateGameObjectsAABB(objects);
 	if (octree == nullptr) {
 		octree = new Octree(worldBounds, objects, 8, 8);
