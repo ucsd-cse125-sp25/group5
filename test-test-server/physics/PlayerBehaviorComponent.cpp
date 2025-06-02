@@ -59,17 +59,29 @@ glm::vec3 static getDirection(float azimuth, float incline) {
 bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 	// 1) compute a single point just below the player's feet
 	float eps = 0.1f;
-	glm::vec3 foot = obj->transform.position
-		- glm::vec3(0.f, obj->collider->halfExtents.y + eps, 0.f);
+	glm::vec3 foot1 = obj->transform.position
+		- glm::vec3(0.5f, obj->collider->halfExtents.y + eps, 0.5f);
+	glm::vec3 foot2 = obj->transform.position
+		- glm::vec3(-0.5f, obj->collider->halfExtents.y + eps, 0.5f);
+	glm::vec3 foot3 = obj->transform.position
+		- glm::vec3(-0.5f, obj->collider->halfExtents.y + eps, -0.5f);
+	glm::vec3 foot4 = obj->transform.position
+		- glm::vec3(0.5f, obj->collider->halfExtents.y + eps, -0.5f);
+
+	glm::vec3 feetArray[4] = { foot1, foot2, foot3, foot4 };
 
 	// 2) test that point against every static AABB
 	for (auto* s : phys.staticObjects) {
 		const AABB& b = phys.getAABB(s);
-		if (foot.x >= b.min.x && foot.x <= b.max.x
-			&& foot.y >= b.min.y && foot.y <= b.max.y
-			&& foot.z >= b.min.z && foot.z <= b.max.z)
-		{
-			return true;
+		for(int i = 0; i < 4; i++) {
+			const glm::vec3& foot = feetArray[i];
+			// 3) if the point is inside the AABB, return true
+			if (foot.x >= b.min.x && foot.x <= b.max.x
+				&& foot.y >= b.min.y && foot.y <= b.max.y
+				&& foot.z >= b.min.z && foot.z <= b.max.z)
+			{
+				return true;
+			}
 		}
 	}
 
