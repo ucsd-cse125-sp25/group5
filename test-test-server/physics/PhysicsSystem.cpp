@@ -87,7 +87,7 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 			if (obj->behavior != nullptr) {
 				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
 			} else {
-                resolveCollision(obj, sobj, penetration, 0);
+                resolveCollision(obj, sobj, penetration, status);
             }
         }  
     }
@@ -407,7 +407,8 @@ void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objec
     octree->getPotentialCollisionPairs(getAABB(obj), potentialCollisions);
 
     for (auto& otherObj : potentialCollisions) {
-        if (otherObj != obj && obj->id < otherObj->id) { 
+        // if (otherObj != obj && obj->id < otherObj->id) {
+		if (otherObj->id != obj->id) { 
 			updateGameObjectAABB(otherObj);
 			updateGameObjectAABB(obj);
             pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherObj->transform.aabb);
