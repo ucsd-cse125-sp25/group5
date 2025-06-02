@@ -18,19 +18,24 @@ int nextid = 10;
 class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
 void PhysicsSystem::tick(float dt) {
+    if (octreeMovingObjects == nullptr || octreeStaticObjects == nullptr) {
+        broadphaseInit();
+    }
+
     // Update all dynamic objects
     for (size_t i = 0; i < movingObjects.size(); ++i) {
         GameObject* obj = movingObjects[i];
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
         integrate(obj, dt);
+
     }
 
-    // After integration is complete for all objects, start handling collision
-    for (size_t i = 0; i < movingObjects.size(); ++i) {
-        GameObject* obj = movingObjects[i];
-        handleCollisions(obj);
-        obj->physics->acceleration = glm::vec3(0);
-    }
+    for (auto& obj : movingObjects) {
+		updateGameObjectAABB(obj);
+		octreeMovingObjects->updateObject(obj);
+	}
+
+    checkCollisionDynamicAll();
 
     updateWaterLevel();
 
@@ -82,11 +87,10 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 			if (obj->behavior != nullptr) {
 				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
 			} else {
-				resolveCollision(obj, sobj, penetration, 0);
-			}
-			
-		}  
-	}
+                resolveCollision(obj, sobj, penetration, status);
+            }
+        }  
+    }
 	
 	for (auto dobj : movingObjects) {
 		if (obj->id == dobj->id) {
@@ -110,9 +114,7 @@ void PhysicsSystem::updateWaterLevel() {
 	if (timePassed > totalTime / 2) {
 		waterLevel = (ENDING_WATER_LEVEL - STARTING_WATER_LEVEL) * ((timePassed - totalTime/2 ) / (totalTime / 2) );
 	}
-	
 }
-
 
 GameObject* PhysicsSystem::getClosestPlayerObject(glm::vec3 pos, int exclude) {
 	float closest = 1000000.0f; // Initialize with a large value
@@ -263,7 +265,7 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
 	outEulerRadians = glm::eulerAngles(rotation);
 }
 
-float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
+static float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
 	return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
 }
 
@@ -277,36 +279,30 @@ vec3 PhysicsSystem::getAABBDistanceCenters(AABB& a, AABB& b) {
 	return aCenterAABB - bCenterAABB;
 }
 pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
-	/*printf("getAABBpenetration\n");
-	printf("aabb1: (%f, %f, %f) (%f, %f, %f)\n", a.min.x, a.min.y, a.min.z, a.max.x, a.max.y, a.max.z);
-	printf("aabb2: (%f, %f, %f) (%f, %f, %f)\n", b.min.x, b.min.y, b.min.z, b.max.x, b.max.y, b.max.z);*/
-	vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
+    vec3 axes[3] = { vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1) };
 
 	float minOverlap = 999999.0f;
 	vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
 
-	for (int i = 0; i < 3; i++) {
-		pair<float, float> interval1 = { a.min[i], a.max[i] };
-		pair<float, float> interval2 = { b.min[i], b.max[i] };
-		/*printf("interval1: (%f, %f)\n", interval1.first, interval1.second);
-		printf("interval2: (%f, %f)\n", interval2.first, interval2.second);*/
+    for (int i = 0; i < 3; i++) {
+        pair<float, float> interval1 = { a.min[i], a.max[i] };
+        pair<float, float> interval2 = { b.min[i], b.max[i] };
+
 
 		vec3 dir = getAABBDistanceCenters(a, b);
 
-		float overlap = getOverlap(interval1, interval2);
-		//printf("Overlap %d: %f\n", i, overlap);
+        float overlap = getOverlap(interval1, interval2);
 
 		if (overlap <= 0.0f) {   
 			return pair<vec3, float>(vec3(0.0f), overlap); // No overlap
 		}
 
-		if (overlap < minOverlap) {
-			minOverlap = overlap;
-			minAxis = axes[i] * (dir[i] > 0 ? 1.0f : -1.0f); // Choose the axis direction based on the distance vector
-		}
-	}
-	//printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
-	return pair<vec3, float>(minAxis, minOverlap);
+        if (overlap < minOverlap) {
+            minOverlap = overlap;
+            minAxis = axes[i] * (dir[i] > 0 ? 1.0f : -1.0f); // Choose the axis direction based on the distance vector
+        }
+    }
+    return pair<vec3, float>(minAxis, minOverlap);
 }
 
 int PhysicsSystem::getNextId() {
@@ -323,31 +319,34 @@ GameObject* PhysicsSystem::getPlayerObjectById(int id) {
 	return nullptr;
 }
 
-vector<vec3> getAABBVertices(const AABB &aabb) {
-	vector<vec3> vertices(8);
-	vec3 min = aabb.min;
-	vec3 max = aabb.max;
+vector<vec3> PhysicsSystem::getAABBVerticesForMesh(const AABB &aabb)
+{
+    vector<vec3> vertices(8);
+    vec3 min = aabb.min;
+    vec3 max = aabb.max;
 
-	vertices[0] = vec3(min.x, min.y, min.z);
-	vertices[1] = vec3(max.x, min.y, min.z);
-	vertices[2] = vec3(min.x, max.y, min.z);
-	vertices[3] = vec3(max.x, max.y, min.z);
-	vertices[4] = vec3(min.x, min.y, max.z);
-	vertices[5] = vec3(max.x, min.y, max.z);
-	vertices[6] = vec3(min.x, max.y, max.z);
-	vertices[7] = vec3(max.x, max.y, max.z);
-
-	return vertices;
+    vertices[0] = vec3(min.x, min.y, min.z);
+    vertices[1] = vec3(max.x, min.y, min.z);
+    vertices[2] = vec3(min.x, max.y, min.z);
+    vertices[3] = vec3(max.x, max.y, min.z);
+    vertices[4] = vec3(min.x, min.y, max.z);
+    vertices[5] = vec3(max.x, min.y, max.z);
+    vertices[6] = vec3(min.x, max.y, max.z);
+    vertices[7] = vec3(max.x, max.y, max.z);
+    
+    return vertices;
 }
 
-vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
-	vector<vec3> vertices = getAABBVertices(aabb);
-	vector<vec4> worldSpaceVertices(vertices.size());
+vector<vec4> PhysicsSystem::convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
+    vector<vec3> vertices = getAABBVerticesForMesh(aabb);
+    vector<vec4> worldSpaceVertices(vertices.size());
 
-	for (size_t i = 0; i < vertices.size(); ++i) {
-		vec4 vertex = glm::vec4(vertices[i], 1.0f);
-		worldSpaceVertices[i] = rotation * vertex + vec4(position, 0.0f);
-	}
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        vec4 vertex = vec4(vertices[i], 1.0f); // Convert to vec4
+        vertex = rotation * vertex; // Rotate the vertex
+        vertex += vec4(position, 0.0f); // Translate the vertex
+        worldSpaceVertices[i] = vertex;
+    }
 
 	return worldSpaceVertices;
 }
