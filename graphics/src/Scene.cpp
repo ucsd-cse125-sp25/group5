@@ -87,10 +87,11 @@ void Scene::createGame(ClientGame* client) {
 void Scene::loadObjects() {
 	for (int i = 0; i < mapObjects.size(); i++) {
 		auto entry = mapObjects[i];
-		std::string file_name = entry.first;
-		glm::vec3 position = entry.second;
+		std::string file_name = std::get<0>(entry);
+		glm::vec3 position = std::get<1>(entry);
+		std::string extension = std::get<2>(entry);
 		Object* obj = new Object();
-		std::string statObj = PROJECT_SOURCE_DIR + std::string("/assets/") + file_name + std::string(".obj");
+		std::string statObj = PROJECT_SOURCE_DIR + std::string("/assets/") + file_name + extension;
 		glm::mat4 id = glm::mat4(1.0f);
 		id[3] = glm::vec4(position, 1.0f);
 		obj->create((char*)statObj.c_str(), id, 1);

@@ -36,6 +36,7 @@ private:
 	Water* water;
 	Skybox* skybox; //each player holds a copy of the skybox
 	Cube* cube;
+	Object* unity;
 	Lights* lightmanager;
 	Cube* testCube;
 	Audio* audiomanager;

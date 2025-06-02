@@ -71,8 +71,10 @@ void ServerGame::loadComposites() {
 	for (int i = 0; i < mapObjects.size(); i++) {
 		auto entry = mapObjects[i];
 		//type of object to have collider, and the position
-		std::string file_name = entry.first;
-		glm::vec3 position = entry.second;
+
+
+		std::string file_name = std::get<0>(entry);
+		glm::vec3 position = std::get<1>(entry);
 
 		// pray to god that the composites has that file, and then generate all the colliders at the proper position
 		for(int j = 0; j < composites[file_name].size(); j++) {

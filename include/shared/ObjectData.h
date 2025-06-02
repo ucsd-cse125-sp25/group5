@@ -4,6 +4,8 @@
 #include <utility>
 #include <string> // Include for std::string
 #include <vector>
+#include <glm/vec3.hpp> // Ensure glm::vec3 is included
+#include <tuple>
 
 #define MAX_HP 120;
 #define MAX_MANA 100;
@@ -101,10 +103,10 @@ struct KillfeedItem {
 };
 
 
-const static std::vector < std::pair < std::string, glm::vec3 >> mapObjects = {
-	{ "floating-island", glm::vec3(0.0f, 0.0f, 0.0f) },
-	{ "corridor1", glm::vec3(0.0f, 0.0f, 10.0f) },
-	{ "corridor-2", glm::vec3(10.0f, 0.0f, 0.0f) },
-	{ "floating-island", glm::vec3(10.0f, 20.0f, 0.0f) },
-	{ "island", glm::vec3(30.0f, 10.0f, 0.0f) },
+const static std::vector<std::tuple<std::string, glm::vec3, std::string>> mapObjects = {
+    std::make_tuple("floating-island", glm::vec3(0.0f, 0.0f, 0.0f), ".obj"),
+    std::make_tuple("corridor1", glm::vec3(0.0f, 0.0f, 10.0f), ".obj"),
+    std::make_tuple("corridor-2", glm::vec3(10.0f, 0.0f, 0.0f), ".obj"),
+    std::make_tuple("floating-island", glm::vec3(10.0f, 20.0f, 0.0f), ".obj"),
+    std::make_tuple("island", glm::vec3(30.0f, 10.0f, 0.0f), ".obj"),
 };
