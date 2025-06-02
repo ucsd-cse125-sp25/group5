@@ -96,6 +96,7 @@ void Scene::loadObjects() {
 		obj->create((char*)statObj.c_str(), id, 1);
 		objects.push_back(obj);
 	}
+
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
@@ -134,7 +135,7 @@ void Scene::loadObjects() {
 	firering->create((char*)importstr10.c_str(), glm::mat4(1), 1);
 
 	earthpower = new Object();
-	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.fbx");
+	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.obj");
 	earthpower->create((char*)importstr11.c_str(), glm::mat4(1), 1);
 
 	earthring = new Object();
