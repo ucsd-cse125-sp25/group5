@@ -137,13 +137,33 @@ GameObject* PhysicsSystem::getClosestPlayerObject(glm::vec3 pos, int exclude) {
     return toRet;
 }
 
-vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution) {
+void PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVelocity, GameObject* go1, GameObject* go2) {
 	float velAlongNormal = glm::dot(relativeVelocity, normal);
-	if (velAlongNormal < 0.0f) {
-		float impulse = -(1.0f + restitution) * velAlongNormal;
-		return impulse * normal;
+
+	if (velAlongNormal > 0.0f) return vec3(0.0f); // Objects are moving apart, no impulse needed
+	
+	float e = min(go1->physics->restitution, go2->physics->restitution); // take min of restitution coefficients for each of g1, g2
+	float j = (-(1.0f + e) * velAlongNormal) / (go1->physics->inverseMass + go2->physics->inverseMass); // newton's law of restitution to calc bounce
+	
+	vec3 impulse = j * normal;
+	go1->physics->velocity += impulse * go1->physics->inverseMass;
+	go2->physics->velocity -= impulse * go2->physics->inverseMass;
+
+	vec3 tangent = relativeVelocity - glm::dot(relativeVelocity, normal) * normal;
+	tangent = glm::normalize(tangent);
+
+	float jt = -glm::dot(relativeVelocity, tangent) / (go1->physics->inverseMass + go2->physics->inverseMass);
+	float mu = go1->physics->friction * go2->physics->friction; // friction coefficient
+	vec3 frictionImpulse;
+
+	if (abs(jt) < mu * j) {
+		frictionImpulse = jt * tangent; // friction impulse is less than max friction
+	} else {
+		frictionImpulse = -mu * j * tangent; // friction impulse exceeds max friction, apply max friction
 	}
-	return vec3(0.0f);
+
+	go1->physics->velocity += frictionImpulse * go1->physics->inverseMass;
+	go2->physics->velocity -= frictionImpulse * go2->physics->inverseMass;
 }
 
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status) {
@@ -156,9 +176,9 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
 	}
 
 	// Velocity resolution: bounce off if moving into each other
-	go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
-	go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
-
+	vec3 relativeVelocity = go1->physics->velocity - go2->physics->velocity;
+	getImpulseVector(normal, relativeVelocity, go1, go2);
+	
     // Positional correction: push both objects out of each other
     go1->transform.position += normal * (overlap * overlapFraction);
     go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
@@ -212,12 +232,15 @@ GameObject* PhysicsSystem::makeGameObject() {
 	return obj; // return reference to the new object
 }
 
-GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents) {
+GameObject* PhysicsSystem::makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents, float mass) {
 	GameObject* obj = makeGameObject();
 
 	obj->transform.position = position;
 	obj->transform.rotation = rotation;
 	obj->collider->halfExtents = halfExtents;
+
+	obj->physics->mass = mass;
+	obj->physics->inverseMass = (mass > 0.0f) ? 1.0f / mass : 0.0f; 
 
 	return obj;
 }
@@ -328,7 +351,6 @@ vector<vec4> PhysicsSystem::convertToWorldSpaceAABB(const AABB& aabb, const glm:
 	return worldSpaceVertices;
 }
 
-
 float getMeshMinOrMaxCoord(const vector<vec3>& positions, int coord, bool isMin) {
     assert(positions.size() > 0);
     assert(coord >= 0 && coord < 3);
@@ -361,7 +383,7 @@ void PhysicsSystem::generateGameObjectsForWholeThing(const vec3& position, const
 	vec3 startPoint = position - halfExtents;
 	vec3 currPoint = startPoint;
     for (int i = 0; i < numObjects; i++) {
-		makeGameObject(getPosition(currPoint, sliceWidth, directionOfSlice), rotation, getHalfExtents(halfExtents, directionOfSlice, sliceWidth));
+		makeGameObject(getPosition(currPoint, sliceWidth, directionOfSlice), rotation, getHalfExtents(halfExtents, directionOfSlice, sliceWidth), 1.0f); // Assuming mass is 1.0f for now
 		currPoint[directionOfSlice] += sliceWidth;
     }
 }

@@ -160,12 +160,19 @@ void Octree::insert(GameObject* obj, Node* node) {
 }
 
 void Node::removeObject(GameObject* obj) {
-    auto it = std::find(objects.begin(), objects.end(), obj);
-    if (it != objects.end()) {
-        objects.erase(it);
-    } else if (!this->isLeaf) {
+    if (!obj) return;
+    if (isLeaf) {
+        // If this is a leaf node, remove the object from this node
+        auto it = std::find(objects.begin(), objects.end(), obj);
+        if (it != objects.end()) {
+            objects.erase(it);
+        }
+    } else {
+        // If this is not a leaf node, check each child node
         for (int i = 0; i < 8; i++) {
-            this->children[i]->removeObject(obj);
+            if (children[i]) {
+                children[i]->removeObject(obj);
+            }
         }
     }
 }
