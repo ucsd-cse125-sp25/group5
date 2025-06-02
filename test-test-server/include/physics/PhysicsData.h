@@ -37,6 +37,11 @@ struct PhysicsComponent {
 	float maxSpeed = 10.0f;
 	float gravityScale = 1.0f;
 	float drag = 0.2f;
+
+	float mass = 1.0f;
+	float inverseMass = 1.0f;
+	float restitution = 0.5f; // Coefficient of restitution for bounciness
+	float friction = 0.5f; // Coefficient of friction for sliding
 };
 
 struct ColliderComponent {

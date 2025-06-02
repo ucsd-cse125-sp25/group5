@@ -209,7 +209,7 @@ public:
      * @param halfExtents The half-extents of the GameObject's collider (glm::vec3).
      * @return A pointer to the newly created GameObject.
      */
-    GameObject* makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents);
+    GameObject* makeGameObject(glm::vec3 position, glm::quat rotation, glm::vec3 halfExtents, float mass = 1.0f);
 	
     //AABB stuff 
     /**
@@ -246,7 +246,11 @@ public:
      * @return A vec3 representing the impulse vector. If the velocity along the normal is non-negative,
      *         a zero vector is returned, indicating no impulse is applied.
      */
-    vec3 getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution);
+    getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution1, float restitution2, GameObject* go1, GameObject* go2)
+
+    vector<vec3> getAABBVerticesForMesh(const AABB &aabb);
+    vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation);
+    void PhysicsSystem::generateGameObjectsForWholeThing(const vec3& position, const vec3& halfExtents, int numObjects, const int directionOfSlice, const quat& rotation);
     
     //id
     int getNextId();
