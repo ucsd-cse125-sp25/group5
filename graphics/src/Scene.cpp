@@ -98,12 +98,12 @@ void Scene::loadObjects() {
 	}
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
-	flag->create((char*)importstr2.c_str(), glm::mat4(1), 0);
+	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
 	objects.push_back(flag);
 
 	metalpower = new Object();
 	std::string importstr3 = PROJECT_SOURCE_DIR + std::string("/assets/metal.fbx");
-	metalpower->create((char*)importstr3.c_str(), glm::mat4(1), 0);
+	metalpower->create((char*)importstr3.c_str(), glm::mat4(1), 1);
 
 	metalring = new Object();
 	std::string importstr4 = PROJECT_SOURCE_DIR + std::string("/assets/Metal_power.fbx");
@@ -111,15 +111,15 @@ void Scene::loadObjects() {
 
 	woodpower = new Object();
 	std::string importstr5 = PROJECT_SOURCE_DIR + std::string("/assets/wood.obj");
-	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 0);
+	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 1);
 
 	woodring = new Object();
-	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_power.fbx");
+	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_Power.fbx");
 	woodring->create((char*)importstr6.c_str(), glm::mat4(1), 1);
 
 	waterpower = new Object();
 	std::string importstr7 = PROJECT_SOURCE_DIR + std::string("/assets/water.fbx");
-	waterpower->create((char*)importstr7.c_str(), glm::mat4(1), 0);
+	waterpower->create((char*)importstr7.c_str(), glm::mat4(1), 1);
 
 	waterring = new Object();
 	std::string importstr8 = PROJECT_SOURCE_DIR + std::string("/assets/Water_Power.fbx");
@@ -127,7 +127,7 @@ void Scene::loadObjects() {
 
 	firepower = new Object();
 	std::string importstr9 = PROJECT_SOURCE_DIR + std::string("/assets/fire.obj");
-	firepower->create((char*)importstr9.c_str(), glm::mat4(1), 0);
+	firepower->create((char*)importstr9.c_str(), glm::mat4(1), 1);
 
 	firering = new Object();
 	std::string importstr10 = PROJECT_SOURCE_DIR + std::string("/assets/Fire_power.fbx");
@@ -135,7 +135,7 @@ void Scene::loadObjects() {
 
 	earthpower = new Object();
 	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.fbx");
-	earthpower->create((char*)importstr11.c_str(), glm::mat4(1), 0);
+	earthpower->create((char*)importstr11.c_str(), glm::mat4(1), 1);
 
 	earthring = new Object();
 	std::string importstr12 = PROJECT_SOURCE_DIR + std::string("/assets/Earth_power.fbx");
@@ -495,6 +495,11 @@ void Scene::draw(Camera* cam) {
 			metalring->draw(mainShader, false);
 		}
 		else if (active == WOOD) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.2f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			woodring->update(matrix);
 			woodring->draw(mainShader, false);
 		}
@@ -503,6 +508,11 @@ void Scene::draw(Camera* cam) {
 			waterring->draw(mainShader, false);
 		}
 		else if (active == FIRE) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.15f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			firering->update(matrix);
 			firering->draw(mainShader, false);
 		}
