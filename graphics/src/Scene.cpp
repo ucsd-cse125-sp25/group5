@@ -98,11 +98,6 @@ void Scene::loadObjects() {
 		objects.push_back(obj);
 	}
 
-	unity = new Object();
-	std::string unitystr = PROJECT_SOURCE_DIR + std::string("/assets/frag5.fbx");
-	unity->create((char*)unitystr.c_str(), glm::mat4(1), 1);
-	objects.push_back(unity);
-
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);

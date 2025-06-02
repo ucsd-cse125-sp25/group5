@@ -109,4 +109,8 @@ const static std::vector<std::tuple<std::string, glm::vec3, std::string>> mapObj
     std::make_tuple("corridor-2", glm::vec3(10.0f, 0.0f, 0.0f), ".obj"),
     std::make_tuple("floating-island", glm::vec3(10.0f, 20.0f, 0.0f), ".obj"),
     std::make_tuple("island", glm::vec3(30.0f, 10.0f, 0.0f), ".obj"),
+	std::make_tuple("Platform 1", glm::vec3(0.0f, 100.0f, 00.0f), ".fbx"),
+	std::make_tuple("Island Fragment 8", glm::vec3(30.0f, 20.0f, 0.0f), ".fbx"),
+	std::make_tuple("Island Fragment 5", glm::vec3(0.0f, 50.0f, 30.0f), ".fbx"),
+	std::make_tuple("Cloud 4", glm::vec3(10.0f, 70.0f, 0.0f), ".fbx"),
 };

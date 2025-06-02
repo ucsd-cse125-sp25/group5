@@ -55,7 +55,6 @@ private:
 	glm::mat4 shrink = glm::mat4(1.0f);
 	float lastFrameTime;
 	float ringRot = 0.0f;
-	Object* unity;
 	//std::vector<Light*> lights; lights baked into the world
 	//std::vector<Light*> movLights; dynamic lights from abilities/powerups/events etc.
 
