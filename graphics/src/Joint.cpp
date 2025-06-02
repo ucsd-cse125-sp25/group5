@@ -186,7 +186,8 @@ void Joint::Update(glm::mat4& parent) {
 	glm::mat4 localTransform = translationMat * scaleMat * animRot;
 
 	// Compose world transform
-	W = parent * localTransform;
+	//W = parent * localTransform;
+	W = parent * preL;
 	// std::cout << "after dof set before matrices" << std::endl;
 
 //	this->xDof->SetValue(20.0f);

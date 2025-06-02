@@ -33,7 +33,7 @@ PlayerObject::PlayerObject() {
 	animplayer = new Player(skel, animation, std::chrono::steady_clock::now());
 	skel->doSkel();
 	skin->doSkinning();
-	animation->doAnimation();
+	//animation->doAnimation();
 	particlesystem = nullptr;
 }
 
@@ -119,7 +119,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	//std::cout << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0] << std::endl;
 	//load animations
 	std::cout << "NUMBER OF ANIMATIONS: " << iscene->mNumAnimations << std::endl;
-	animation->Load(iscene, 0);
+	//animation->Load(iscene, 0);
 }
 
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {

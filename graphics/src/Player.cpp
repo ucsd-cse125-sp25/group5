@@ -46,8 +46,8 @@ void Player::update() {
 
         }
         */
-        for (size_t i = 0; i < animation->channels.size(); i += 3) {
-            int nameIndex = i / 3;
+        for (size_t i = 0; i < animation->channels.size(); i += 6) {
+            int nameIndex = i / 6;
             //std::cout << "bone name: " << animation->names[nameIndex] << std::endl;
             auto it = skeleton->JNameMap.find(animation->names[nameIndex]);
             if (it == skeleton->JNameMap.end()) {
@@ -67,6 +67,14 @@ void Player::update() {
             );
             //rotation.x += glm::pi<float>();
             skeleton->joints[jointIndex]->setRotation(rotation);
+
+            // Translation
+            glm::vec3 translation(
+                animation->channels[i + 3].getValue(time, animation->channels[i + 3].keyframes.back().time - animation->channels[i + 3].keyframes.front().time, animation->channels[i + 3].keyframes.back().value - animation->channels[i + 3].keyframes.front().value),
+                animation->channels[i + 4].getValue(time, animation->channels[i + 4].keyframes.back().time - animation->channels[i + 4].keyframes.front().time, animation->channels[i + 4].keyframes.back().value - animation->channels[i + 4].keyframes.front().value),
+                animation->channels[i + 5].getValue(time, animation->channels[i + 5].keyframes.back().time - animation->channels[i + 5].keyframes.front().time, animation->channels[i + 5].keyframes.back().value - animation->channels[i + 5].keyframes.front().value)
+            );
+            skeleton->joints[jointIndex]->setTranslation(translation);
 
             //std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << " + time = " << time << std::endl;
             
