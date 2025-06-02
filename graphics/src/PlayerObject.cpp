@@ -33,7 +33,7 @@ PlayerObject::PlayerObject() {
 	animplayer = new Player(skel, animation, std::chrono::steady_clock::now());
 	skel->doSkel();
 	skin->doSkinning();
-	//animation->doAnimation();
+	animation->doAnimation();
 	particlesystem = nullptr;
 }
 
@@ -87,7 +87,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[0]->mNode->mNumChildren << std::endl;
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[1]->mNode->mNumChildren << std::endl;
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[2]->mNode->mNumChildren << std::endl;
-	//std::cout << "total Verts: " << iscene->mMeshes[1]->mNumVertices << std::endl;
+	std::cout << "total Verts: " << iscene->mMeshes[0]->mNumVertices << std::endl;
 	std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
 	//std::cout << "Skeleton 1 " << iscene->mSkeletons[0]->mNumBones << std::endl;
 	//std::cout << "Skeleton 2 " << iscene->mSkeletons[1]->mNumBones << std::endl;
@@ -119,7 +119,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	//std::cout << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0] << std::endl;
 	//load animations
 	std::cout << "NUMBER OF ANIMATIONS: " << iscene->mNumAnimations << std::endl;
-	//animation->Load(iscene, 0);
+	animation->Load(iscene, 0);
 }
 
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {

@@ -59,6 +59,7 @@ void Joint::Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone,
 	//}
 
 	preL = ConvertMatrix(node->mTransformation);
+	std::cout << "joint array size during load: " << skely->joints.size() - 1 << std::endl;
 	//std::cout << glm::to_string(preL) << std::endl;
 	if (nodeToBone->count(node) > 0) {
 		//std::cout << "Found node in nodeToBone: " << std::endl;
@@ -180,14 +181,14 @@ void Joint::Update(glm::mat4& parent) {
 	glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
 
 	// Build translation matrix
-	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), translation);
+	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), translation); //use offset here if you want to animate offset
 
 	// Compose local transform: T * S * animRot
 	glm::mat4 localTransform = translationMat * scaleMat * animRot;
 
 	// Compose world transform
 	//W = parent * localTransform;
-	W = parent * preL;
+	W = parent * localTransform;
 	// std::cout << "after dof set before matrices" << std::endl;
 
 //	this->xDof->SetValue(20.0f);

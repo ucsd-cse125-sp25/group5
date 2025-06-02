@@ -66,7 +66,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 		std::cout << "DID NOT FIND UVS" << std::endl;
 	}
 
-	this->tri = new Triangle(positions, normals, uvs, triangles);
+	this->tri = new Triangle(&positions, &normals, &uvs, &triangles);
 	tri->tex = false;
 
 	aiColor4D diffuse;
@@ -114,6 +114,19 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 
 
 	}
+	for (int i = 0; i < mMesh->mNumVertices; i++) {
+		SkinWeights* skinweight = sw[i];
+		float totalWeight = 0.0f;
+		for (float w : skinweight->weights) totalWeight += w;
+
+		if (totalWeight > 0.0f) {
+			for (float& w : skinweight->weights) w /= totalWeight;
+		}
+		else {
+			std::cerr << "Warning: vertex " << i << " has zero total weight!" << std::endl;
+		}
+	}
+	
 	return true;
 }
 
@@ -188,7 +201,9 @@ bool Skin::Load(const char* file) {
 
 	std::vector<glm::vec2> uvs;
 
-	this->tri = new Triangle(positions, normals, uvs, triangles);
+	this->tri = new Triangle(&positions, &normals, &uvs, &triangles);
+
+
 	return true;
 }
 
@@ -197,7 +212,7 @@ void Skin::update() {
 	if (!doSkin) return;
 
 	if (!skely->doSkeleton) {
-		tri->update(positions, normals, uvs, triangles, glm::mat4(1.0f));
+		tri->update(&positions, &normals, &uvs, &triangles, glm::mat4(1.0f));
 		return;
 	}
 	//smooth skin algorithm
@@ -222,12 +237,18 @@ void Skin::update() {
 		glm::mat4 newPosMat = glm::mat4(0.0f);
 		glm::mat4 newNormMat = glm::mat4(0.0f);
 		SkinWeights* skinweight = sw.at(i);
+		float sum = 0;
 		for (int j = 0; j < skinweight->jointIDs.size(); j++) {
 			float weight = skinweight->weights.at(j);
+			sum += weight;
 			int jointId = skinweight->jointIDs.at(j);
 			glm::mat4 jointMatrix = jointMatrices.at(jointId);
-			newPosMat += (skinweight->weights.at(j) * jointMatrices.at(skinweight->jointIDs.at(j)));
-			newNormMat += skinweight->weights.at(j) * jointMatrices.at(skinweight->jointIDs.at(j));
+			newPosMat += (skinweight->weights.at(j) * jointMatrix);
+			glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(jointMatrix)));
+			newNormMat += glm::mat4(skinweight->weights.at(j) * normalTransform);
+		}
+		if (abs(sum - 1.0f) > 0.01) {
+			//std::cout << "WEIGHTS DO NOT SUM TO 1: " << i << " " << sum << std::endl;
 		}
 		glm::vec4 newPos = newPosMat * glm::vec4(positions.at(i), 1.0);
 		transformedPositions.push_back(glm::vec3(newPos.x, newPos.y, newPos.z));
@@ -236,7 +257,7 @@ void Skin::update() {
 		transformedNormals.push_back(glm::vec3(newNorm.x, newNorm.y, newNorm.z));
 	}
 	
-	tri->update(transformedPositions, transformedNormals, uvs, triangles, oneglm);
+	tri->update(&transformedPositions, &transformedNormals, &uvs, &triangles, oneglm);
 
 }// –(traverse tree& compute all joint matrices)
 

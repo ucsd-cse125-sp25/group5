@@ -139,7 +139,7 @@ void Scene::loadObjects() {
 	earthring->create((char*)importstr12.c_str(), glm::mat4(1), 1);
 
 
-	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv5.fbx"), 0);
 	glm::mat4 mov(0.05);
 	mov[3] = glm::vec4(0.0, 10.0, 0.0, 1.0);
 	mov = glm::eulerAngleX(-3.1415f / 2.0f) * mov;
