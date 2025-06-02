@@ -123,7 +123,9 @@ void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 }
 
 void Clock::Update(const UIData& p) {
-	seconds = p.seconds;
+	if (p.seconds >= 0) {
+		seconds = p.seconds;
+	}
 
 	int tempSeconds = seconds;
 

@@ -94,7 +94,7 @@ void Scene::loadObjects() {
 		objects.push_back(obj);
 	}
 	flag = new Object();
-	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated1.obj");
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 0);
 	objects.push_back(flag);
 
@@ -107,7 +107,7 @@ void Scene::loadObjects() {
 	metalring->create((char*)importstr4.c_str(), glm::mat4(1), 1);
 
 	woodpower = new Object();
-	std::string importstr5 = PROJECT_SOURCE_DIR + std::string("/assets/wood.fbx");
+	std::string importstr5 = PROJECT_SOURCE_DIR + std::string("/assets/wood.obj");
 	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 0);
 
 	woodring = new Object();
@@ -123,7 +123,7 @@ void Scene::loadObjects() {
 	waterring->create((char*)importstr8.c_str(), glm::mat4(1), 1);
 
 	firepower = new Object();
-	std::string importstr9 = PROJECT_SOURCE_DIR + std::string("/assets/fire.fbx");
+	std::string importstr9 = PROJECT_SOURCE_DIR + std::string("/assets/fire.obj");
 	firepower->create((char*)importstr9.c_str(), glm::mat4(1), 0);
 
 	firering = new Object();
