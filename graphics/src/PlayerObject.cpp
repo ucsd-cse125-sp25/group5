@@ -88,7 +88,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[1]->mNode->mNumChildren << std::endl;
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[2]->mNode->mNumChildren << std::endl;
 	//std::cout << "total Verts: " << iscene->mMeshes[1]->mNumVertices << std::endl;
-	//std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
+	std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
 	//std::cout << "Skeleton 1 " << iscene->mSkeletons[0]->mNumBones << std::endl;
 	//std::cout << "Skeleton 2 " << iscene->mSkeletons[1]->mNumBones << std::endl;
 
@@ -113,7 +113,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	skel->root = root;
 	//iscene->mRootNode->FindNode("b_Root") for fox
 	//iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root") for man
-	root->Load(iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root"), &nodeToBone, skin);
+	root->Load(iscene->mRootNode, &nodeToBone, skin);
 	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex]);
 
 	//std::cout << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0] << std::endl;

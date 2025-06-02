@@ -10,8 +10,8 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1440;
-int WINDOWWIDTH = 2560;
+int WINDOWHEIGHT = 1200;
+int WINDOWWIDTH = 1920;
 //2560
 //1440
 
@@ -139,9 +139,12 @@ void Scene::loadObjects() {
 	earthring->create((char*)importstr12.c_str(), glm::mat4(1), 1);
 
 
-	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv4.fbx"), 0);
+	glm::mat4 mov(0.05);
+	mov[3] = glm::vec4(0.0, 0.0, 10.0, 1.0);
+	mov = glm::eulerAngleX(-3.1415f / 2.0f) * mov;
 	
-	//test->UpdateMat(mov);
+	test->UpdateMat(mov);
 	//wasp load-in
 	player->LoadAnimation();
 	for (int i = 1; i < 4; i++) {
@@ -161,7 +164,7 @@ void Scene::update(Camera* cam) {
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
 	player->Update();
 
-	//test->Update();
+	test->Update();
 	for (int i = 0; i < KILLFEED_LENGTH; i++) {
 		dummy.killfeed[i] = client->GameState.killfeed[i];
 	}
@@ -453,7 +456,7 @@ void Scene::draw(Camera* cam) {
 			earthpower->draw(mainShader, false);
 		}
 	}
-	//test->Draw(mainShader, false);
+	test->Draw(mainShader, false);
 
 	float now = glfwGetTime();
 	float deltaTime = now - lastFrameTime;
