@@ -96,10 +96,16 @@ void Scene::loadObjects() {
 		obj->create((char*)statObj.c_str(), id, 1);
 		objects.push_back(obj);
 	}
+
+	unity = new Object();
+	std::string unitystr = PROJECT_SOURCE_DIR + std::string("/assets/frag5.fbx");
+	unity->create((char*)unitystr.c_str(), glm::mat4(1), 1);
+	objects.push_back(unity);
+
 	flag = new Object();
 	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
-	objects.push_back(flag);
+	//objects.push_back(flag);
 
 	metalpower = new Object();
 	std::string importstr3 = PROJECT_SOURCE_DIR + std::string("/assets/metal.fbx");
@@ -134,7 +140,7 @@ void Scene::loadObjects() {
 	firering->create((char*)importstr10.c_str(), glm::mat4(1), 1);
 
 	earthpower = new Object();
-	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.fbx");
+	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.obj");
 	earthpower->create((char*)importstr11.c_str(), glm::mat4(1), 1);
 
 	earthring = new Object();
@@ -212,6 +218,7 @@ void Scene::update(Camera* cam) {
 		}
 		else if (entity.type == FLAG) {
 			if (flag != NULL) {
+				entity.model = glm::scale(entity.model, glm::vec3(0.8f));
 				flag->update(entity.model);
 			}
 		}
@@ -327,7 +334,7 @@ void Scene::update(Camera* cam) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader"};
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -452,7 +459,7 @@ void Scene::draw(Camera* cam) {
 			woodpower->draw(mainShader, false);
 		}
 		else if (p.power == WATER) {
-			waterpower->update(p.model);
+			waterpower->update(glm::rotate(p.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 			waterpower->draw(mainShader, false);
 		}
 		else if (p.power == FIRE) {
@@ -535,6 +542,39 @@ void Scene::draw(Camera* cam) {
 			glEnd();
 		}
 	}
+
+	glDepthFunc(GL_GREATER);
+	glDepthMask(GL_FALSE);
+	GLuint spectral = shaders[5];
+	glUseProgram(spectral);
+	glUniformMatrix4fv(glGetUniformLocation(spectral, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform1f(glGetUniformLocation(spectral, "uScale"), 1.02f);
+	flag->draw(spectral, false);
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
+
+	glUseProgram(mainShader);
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight->specular[0]);
+	glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glUniform1i(glGetUniformLocation(mainShader, "shadowMap"), 1);
+	glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
+	glUniform1f(glGetUniformLocation(mainShader, "time"), (currTime - startTime) / 1000.0f);
+	glUniform1f(glGetUniformLocation(mainShader, "waterLevel"), waterLevel);
+	glUniform1f(glGetUniformLocation(mainShader, "fogConstant"), fogConstant);
+	glUniform1f(glGetUniformLocation(mainShader, "fogConstantW"), fogConstantW);
+	glUniform3fv(glGetUniformLocation(mainShader, "fogColor"), 1, &fogColor[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "fogColorW"), 1, &fogColorW[0]);
+	glUniform4fv(glGetUniformLocation(mainShader, "waterModel"), 1, (float*)&water->model);
+	lightmanager->bind();
+	flag->draw(mainShader, false);
+
 	glDisable(GL_CULL_FACE);
 
 	//water shading and drawing
