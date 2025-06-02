@@ -8,9 +8,7 @@
 
 void FlagBehaviorComponent::integrate(GameObject* obj,
 	float deltaTime,
-	PhysicsSystem& phys)
-{
-	//inCooldown = tagTransferTimer > 0;
+	PhysicsSystem& phys) {
 
 	if(tagTransferTimer > 0) {
 		tagTransferTimer -= deltaTime;
@@ -35,10 +33,6 @@ void FlagBehaviorComponent::integrate(GameObject* obj,
 
 		obj->transform.position.y = maxY; // keep the flag above the water level
 	}
-
-	//also get the AABB
-	//obj->transform.aabb = phys.getAABB(obj);
-	//obj->collider->aabb = phys.getAABB(obj);
 }
 
 //�� resolveCollision � called when this object hits another

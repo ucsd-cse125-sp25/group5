@@ -27,7 +27,6 @@ void PickupBehaviorComponent::integrate(GameObject* obj,
 //—— resolveCollision — called when this object hits another
 void PickupBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other, const pair<vec3, float>& penetration, int status)
 {
-
 	if (status == 1) {
 		//only delete if it comes into contact with a dynamic object that is a non self player
 		if (other->type == PLAYER) {

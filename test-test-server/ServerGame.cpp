@@ -209,14 +209,10 @@ void ServerGame::update() {
 		printf("Earth mana %d\n", playerBehavior->playerStats.mana[4]);
 
 		player->type = PLAYER;
-		player->isDynamic = true;
-		player->transform.position = spawnPoints[client_id];
-		//place where player gets added
-		//physicsSystem.playerObjects[client_id] = player;
+        player->isDynamic = true;
 		physicsSystem.addPlayerObject(player);
-		physicsSystem.addMovingObject(player);
-		player->id = client_id;
-		//physicsSystem.addDynamicObject(player);
+        physicsSystem.addMovingObject(player);
+        player->id = client_id;
 
 		//fill up the HP and the mana
 		JoinResponsePacket packet;
@@ -428,5 +424,3 @@ void ServerGame::sendGameStatePackets() {
 	GameState.serialize(packet_data);
 	network->sendToAll(packet_data, packet_size);
 }
-
-

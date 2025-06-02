@@ -192,7 +192,7 @@ namespace detail
 
 		return os;
 	}
-}//namespace detail
+}
 
 	template<typename CTy, typename CTr, typename T, qualifier Q>
 	GLM_FUNC_QUALIFIER std::basic_ostream<CTy,CTr>& operator<<(std::basic_ostream<CTy,CTr>& os, qua<T, Q> const& a)

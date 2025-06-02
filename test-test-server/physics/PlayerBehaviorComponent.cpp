@@ -16,11 +16,8 @@ glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), azimuth, up);
 	glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
-	//glm::vec3 translation = glm::vec3(target.cubeModel[3]);
 	glm::vec3 translation = target->transform.position;
 	glm::vec3 right = glm::normalize(glm::cross(up, forward));
-
-
 	glm::vec3 toRet = glm::vec3(0.0f);
 
 	if (intent.moveLeftIntent) {
@@ -40,17 +37,12 @@ glm::vec3 getInputDirection(const PlayerIntentPacket& intent, GameObject* obj) {
 }
 
 glm::vec3 static getDirection(float azimuth, float incline) {
-	// if azimuth & incline are in degrees:
-	// azimuth = glm::radians(azimuth);
-	// incline = glm::radians(incline);
-
 	float cosInc = cos(incline);
 
 	glm::vec3 D;
 	D.x = cosInc * sin(azimuth) * -1;  // right/left
 	D.y = sin(incline);           // up/down
 	D.z = cosInc * cos(azimuth) * -1;  // forward/back
- // invert direction
 
 	return glm::normalize(D);
 }
@@ -68,7 +60,7 @@ bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 		if (foot.x >= b.min.x && foot.x <= b.max.x
 			&& foot.y >= b.min.y && foot.y <= b.max.y
 			&& foot.z >= b.min.z && foot.z <= b.max.z)
-		{
+{
 			return true;
 		}
 	}
@@ -76,10 +68,7 @@ bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 	return false;
 }
 
-bool rayIntersectsAABB(const Ray& ray,
-	const AABB& box,
-	float& tHit)
-{
+bool rayIntersectsAABB(const Ray& ray, const AABB& box, float& tHit) {
 	float tMin = (box.min.x - ray.origin.x) / ray.dir.x;
 	float tMax = (box.max.x - ray.origin.x) / ray.dir.x;
 	if (tMin > tMax) std::swap(tMin, tMax);
@@ -107,9 +96,7 @@ bool rayIntersectsAABB(const Ray& ray,
 }
 
 pair<glm::vec3, float> PlayerBehaviorComponent::handlePlayerGrapple(GameObject* obj, PhysicsSystem& phys) {
-
 	Ray ray;
-
 	ray.origin = obj->transform.position;
 	ray.dir = getDirection(
 		glm::radians(-phys.PlayerIntents[obj->id].azimuthIntent),
@@ -151,6 +138,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		glm::radians(-phys.PlayerIntents[player->id].azimuthIntent),
 		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
 	);
+
 	//get the proper rotation of the projectile
 	glm::quat rotation = getRotationFromAzimuthIncline(
 		glm::radians(-phys.PlayerIntents[player->id].azimuthIntent),
@@ -169,9 +157,6 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
 		phys.addDynamicObject(obj);
 		phys.addMovingObject(obj);
-		//print velocity
-		printf("Projectile velocity %f %f %f\n", obj->physics->velocity.x, obj->physics->velocity.y, obj->physics->velocity.z);
-
 		//reduce mana
 		//playerStats.mana[1] -= WOOD_PROJ_COST;
 	}
@@ -234,7 +219,6 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 
 		//playerStats.mana[4] -= EARTH_PROJ_COST;
 	}
-	
 }
 
 void PlayerBehaviorComponent::changePlayerPower(GameObject* player, PhysicsSystem& phys, PlayerIntentPacket& intent) {
@@ -395,8 +379,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
 		}
 		return;
-	}
-	else if (state == PlayerMovementState::DASH) {
+	} else if (state == PlayerMovementState::DASH) {
 		dashTimer -= deltaTime;
 
 		//once we're done, exit dash
@@ -406,10 +389,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			//slow down our player 
 			obj->physics->velocity *= 0.1f;
 		}
-	}
-	else if (state == PlayerMovementState::STOMP) {
+	} else if (state == PlayerMovementState::STOMP) {
 		//straight DOWN
-		
 		stompTimer -= deltaTime;
 
 		//once we're done, exit stomp
@@ -417,9 +398,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			state = PlayerMovementState::IDLE;
 			stompTimer = 0.0f;
 		}
-	}
-	else if (state == PlayerMovementState::GRAPPLE) {
-
+	} else if (state == PlayerMovementState::GRAPPLE) {
 		grappleTimer -= deltaTime;
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
 		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
@@ -449,9 +428,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			state = PlayerMovementState::IDLE;
 			magnetTimer = 0.0f;
 		}
-
-	}
-	
+	}	
 
 	//regular movement
 	if (state == PlayerMovementState::IDLE) {
@@ -459,7 +436,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		playerStats.inAir = !checkBottom(obj, phys);
 		//check for movement powers 
 		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
-
 			printf("Metal mana %d\n", playerStats.mana[0]);
 			printf("Wood mana %d\n", playerStats.mana[1]);
 			printf("Water mana %d\n", playerStats.mana[2]);
@@ -470,17 +446,12 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				dashTimer = DASH_TIME;
 
 				//fix the velocity to the direction we wish to dash in
-				obj->physics->velocity = getDirection(
-					glm::radians(-intent.azimuthIntent),
-					glm::radians(-intent.inclineIntent)
-				) * DASH_SPEED;
-
+				obj->physics->velocity = getDirection(glm::radians(-intent.azimuthIntent), glm::radians(-intent.inclineIntent)) * DASH_SPEED;
 				playerStats.mana[3] -= FIRE_MOVE_COST;
 				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 
 				return;
-			}
-			else if (playerStats.activePower == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
+			} else if (playerStats.activePower == EARTH && playerStats.mana[4] >= EARTH_MOVE_COST) {
 				state = PlayerMovementState::STOMP;
 				stompTimer = STOMP_TIME;
 
@@ -501,7 +472,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			}
 			else if (playerStats.activePower == WOOD && playerStats.mana[1] >= WOOD_MOVE_COST) {
 				//our target point, we've also set the target object, this could probably use some restructuring
-
 
 				//result
 				pair<glm::vec3, float> result = handlePlayerGrapple(obj, phys);
@@ -630,8 +600,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	updateParticleFlags();
 	//only apply the player velocity for movement
-	//obj->physics->velocity += getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
+	
 	//the important line
 
 	obj->transform.position += obj->physics->velocity * deltaTime * curSlowFactor * curUnderwaterSlowFactor;
@@ -662,12 +632,10 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 	}
 	else if (status == 1 && playerStats.alive) {
 		//this is fucking terrible 
-		//printf("Detected a collision between %d and %d\n", obj->id, other->id);
 
 		//make sure its a projectile
 		if (other->type >= 5 && other->type <= 9 && playerStats.alive) {
 			ProjectileBehaviorComponent* pb = dynamic_cast<ProjectileBehaviorComponent*>(other->behavior);
-			printf("pb %d\n", pb);
 			//make sure we didn't fire it
 			if (pb != nullptr && pb->originalPlayer != obj->id) {
 				playerStats.hp -= pb->damage;

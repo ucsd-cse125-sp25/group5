@@ -9,6 +9,7 @@
 #include "physics/AABB.h"
 
 typedef glm::vec3 vec3;
+typedef glm::vec4 vec4;
 typedef glm::mat4 mat4;
 typedef glm::quat quat;
 
@@ -38,7 +39,6 @@ private:
 public:
 
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
-    map<vec3, vector<GameObject*>> worldGrid;
     vector<float> AABBdistances;
     float cellSize;
     AABB worldBounds = AABB{vec3(-100.0f), vec3(100.0f)};
@@ -50,10 +50,14 @@ public:
 	float totalTime = 0.0f;
 
     //container stuff
-    std::vector<GameObject*> movingObjects;
-	std::vector<GameObject*> playerObjects;
-    std::vector<GameObject*> dynamicObjects;
-    std::vector<GameObject*> staticObjects;
+    vector<GameObject*> movingObjects;
+	vector<GameObject*> playerObjects;
+    vector<GameObject*> dynamicObjects;
+    vector<GameObject*> staticObjects;
+
+    // Broadphase
+	Octree *octreeMovingObjects = nullptr;
+    Octree *octreeStaticObjects = nullptr;
 
     //player intent
 	PlayerIntentPacket PlayerIntents[4];
@@ -232,9 +236,12 @@ public:
      *       its collider, and its transform are not NULL.
      */
     AABB getAABB(GameObject* obj);
+    AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj);
     vec3 getAABBCenter(AABB& a);
     vec3 getAABBDistanceCenters(AABB& a, AABB& b);
 	pair<vec3, float> getAABBpenetration(AABB& a, AABB& b);
+	void updateGameObjectAABB(GameObject* obj);
+    void updateGameObjectsAABB(vector<GameObject*>& objects);
 
     /**
      * @brief Calculates the impulse vector for a collision based on the normal, 
@@ -250,12 +257,23 @@ public:
      *         a zero vector is returned, indicating no impulse is applied.
      */
     vec3 getImpulseVector(const vec3& normal, const vec3& relativeVelocity, float restitution);
+
+    vector<vec3> getAABBVerticesForMesh(const AABB &aabb);
+    vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation);
+    void PhysicsSystem::generateGameObjectsForWholeThing(const vec3& position, const vec3& halfExtents, int numObjects, const int directionOfSlice, const quat& rotation);
     
     //id
     int getNextId();
     GameObject* getPlayerObjectById(int id);
 
     GameObject* getClosestPlayerObject(glm::vec3 pos, int exclude);
+
+    // broadphase
+    void initOctree(vector<GameObject*>& objects, Octree*& octree);
+    void broadphaseInit();
+    void checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status);
+    void checkCollisionDynamicOne(GameObject* obj);
+    void checkCollisionDynamicAll();
     
     //adding objects
 	void addDynamicObject(GameObject* obj) {
@@ -263,12 +281,20 @@ public:
 	}
 	void addStaticObject(GameObject* obj) {
 		staticObjects.push_back(obj);
+        /*if (octreeStaticObjects) {
+			updateGameObjectAABB(obj);
+			octreeStaticObjects->insert(obj, octreeStaticObjects->getRoot());
+        }*/
 	}
 	void addPlayerObject(GameObject* obj) {
 		playerObjects.push_back(obj);
 	}
     void addMovingObject(GameObject* obj) {
         movingObjects.push_back(obj);
+        /*if (octreeMovingObjects) {
+            updateGameObjectAABB(obj);
+			octreeMovingObjects->insert(obj, octreeMovingObjects->getRoot());
+        }*/
     }
 
     void updateWaterLevel();

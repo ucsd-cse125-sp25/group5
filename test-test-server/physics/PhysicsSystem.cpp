@@ -18,19 +18,24 @@ int nextid = 10;
 class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
 void PhysicsSystem::tick(float dt) {
+    if (octreeMovingObjects == nullptr || octreeStaticObjects == nullptr) {
+        broadphaseInit();
+    }
+
     // Update all dynamic objects
     for (size_t i = 0; i < movingObjects.size(); ++i) {
         GameObject* obj = movingObjects[i];
         obj->physics->acceleration += glm::vec3(0, -GRAVITY * obj->physics->gravityScale, 0);
         integrate(obj, dt);
+
     }
 
-    // After integration is complete for all objects, start handling collision
-    for (size_t i = 0; i < movingObjects.size(); ++i) {
-        GameObject* obj = movingObjects[i];
-        handleCollisions(obj);
-        obj->physics->acceleration = glm::vec3(0);
-    }
+    for (auto& obj : movingObjects) {
+		updateGameObjectAABB(obj);
+		octreeMovingObjects->updateObject(obj);
+	}
+
+    checkCollisionDynamicAll();
 
     updateWaterLevel();
 
@@ -82,11 +87,10 @@ void PhysicsSystem::handleCollisions(GameObject* obj) {
 			if (obj->behavior != nullptr) {
 				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
 			} else {
-				resolveCollision(obj, sobj, penetration, 0);
-			}
-			
-		}  
-	}
+                resolveCollision(obj, sobj, penetration, status);
+            }
+        }  
+    }
 	
 	for (auto dobj : movingObjects) {
 		if (obj->id == dobj->id) {
@@ -110,9 +114,7 @@ void PhysicsSystem::updateWaterLevel() {
 	if (timePassed > totalTime / 2) {
 		waterLevel = (ENDING_WATER_LEVEL - STARTING_WATER_LEVEL) * ((timePassed - totalTime/2 ) / (totalTime / 2) );
 	}
-	
 }
-
 
 GameObject* PhysicsSystem::getClosestPlayerObject(glm::vec3 pos, int exclude) {
 	float closest = 1000000.0f; // Initialize with a large value
@@ -157,9 +159,9 @@ void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pai
 	go1->physics->velocity += getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 	go2->physics->velocity -= getImpulseVector(normal, go1->physics->velocity - go2->physics->velocity, 0.1f);
 
-	// Positional correction: push both objects out of each other
-	go1->transform.position += normal * (overlap * overlapFraction);
-	go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
+    // Positional correction: push both objects out of each other
+    go1->transform.position += normal * (overlap * overlapFraction);
+    go2->transform.position -= normal * (overlap * (1.0f - overlapFraction));
 }
 
 void PhysicsSystem::applyInput(const PlayerIntentPacket& intent, int playerId) {
@@ -240,7 +242,7 @@ void PhysicsSystem::fromMatrix(const glm::mat4& mat, glm::vec3& outPosition, glm
 	outEulerRadians = glm::eulerAngles(rotation);
 }
 
-float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
+static float getOverlap(pair<float,float> interval1, pair<float,float> interval2) {
 	return min(interval1.second, interval2.second) - max(interval1.first, interval2.first);
 }
 
@@ -256,28 +258,25 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) { // in AA
 	float minOverlap = 999999.0f;
 	vec3 minAxis = vec3(0.0f, 0.0f, 0.0f);
 
-	for (int i = 0; i < 3; i++) {
-		pair<float, float> interval1 = { a.min[i], a.max[i] };
-		pair<float, float> interval2 = { b.min[i], b.max[i] };
-		/*printf("interval1: (%f, %f)\n", interval1.first, interval1.second);
-		printf("interval2: (%f, %f)\n", interval2.first, interval2.second);*/
+    for (int i = 0; i < 3; i++) {
+        pair<float, float> interval1 = { a.min[i], a.max[i] };
+        pair<float, float> interval2 = { b.min[i], b.max[i] };
+
 
 		vec3 dir = getAABBDistanceCenters(a, b);
 
-		float overlap = getOverlap(interval1, interval2);
-		//printf("Overlap %d: %f\n", i, overlap);
+        float overlap = getOverlap(interval1, interval2);
 
 		if (overlap <= 0.0f) {   
 			return pair<vec3, float>(vec3(0.0f), overlap); // No overlap
 		}
 
-		if (overlap < minOverlap) {
-			minOverlap = overlap;
-			minAxis = axes[i] * (dir[i] > 0 ? 1.0f : -1.0f); // Choose the axis direction based on the distance vector
-		}
-	}
-	//printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
-	return pair<vec3, float>(minAxis, minOverlap);
+        if (overlap < minOverlap) {
+            minOverlap = overlap;
+            minAxis = axes[i] * (dir[i] > 0 ? 1.0f : -1.0f); // Choose the axis direction based on the distance vector
+        }
+    }
+    return pair<vec3, float>(minAxis, minOverlap);
 }
 
 int PhysicsSystem::getNextId() {
@@ -294,31 +293,143 @@ GameObject* PhysicsSystem::getPlayerObjectById(int id) {
 	return nullptr;
 }
 
-vector<vec3> getAABBVertices(const AABB &aabb) {
-	vector<vec3> vertices(8);
-	vec3 min = aabb.min;
-	vec3 max = aabb.max;
+vector<vec3> PhysicsSystem::getAABBVerticesForMesh(const AABB &aabb)
+{
+    vector<vec3> vertices(8);
+    vec3 min = aabb.min;
+    vec3 max = aabb.max;
 
-	vertices[0] = vec3(min.x, min.y, min.z);
-	vertices[1] = vec3(max.x, min.y, min.z);
-	vertices[2] = vec3(min.x, max.y, min.z);
-	vertices[3] = vec3(max.x, max.y, min.z);
-	vertices[4] = vec3(min.x, min.y, max.z);
-	vertices[5] = vec3(max.x, min.y, max.z);
-	vertices[6] = vec3(min.x, max.y, max.z);
-	vertices[7] = vec3(max.x, max.y, max.z);
-
-	return vertices;
+    vertices[0] = vec3(min.x, min.y, min.z);
+    vertices[1] = vec3(max.x, min.y, min.z);
+    vertices[2] = vec3(min.x, max.y, min.z);
+    vertices[3] = vec3(max.x, max.y, min.z);
+    vertices[4] = vec3(min.x, min.y, max.z);
+    vertices[5] = vec3(max.x, min.y, max.z);
+    vertices[6] = vec3(min.x, max.y, max.z);
+    vertices[7] = vec3(max.x, max.y, max.z);
+    
+    return vertices;
 }
 
-vector<vec4> convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
-	vector<vec3> vertices = getAABBVertices(aabb);
-	vector<vec4> worldSpaceVertices(vertices.size());
+vector<vec4> PhysicsSystem::convertToWorldSpaceAABB(const AABB& aabb, const glm::vec3& position, const glm::quat& rotation) {
+    vector<vec3> vertices = getAABBVerticesForMesh(aabb);
+    vector<vec4> worldSpaceVertices(vertices.size());
 
-	for (size_t i = 0; i < vertices.size(); ++i) {
-		vec4 vertex = glm::vec4(vertices[i], 1.0f);
-		worldSpaceVertices[i] = rotation * vertex + vec4(position, 0.0f);
-	}
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        vec4 vertex = vec4(vertices[i], 1.0f); // Convert to vec4
+        vertex = rotation * vertex; // Rotate the vertex
+        vertex += vec4(position, 0.0f); // Translate the vertex
+        worldSpaceVertices[i] = vertex;
+    }
 
 	return worldSpaceVertices;
 }
+
+
+float getMeshMinOrMaxCoord(const vector<vec3>& positions, int coord, bool isMin) {
+    assert(positions.size() > 0);
+    assert(coord >= 0 && coord < 3);
+    
+    float result = positions[0][coord];
+    for (const auto& pos : positions) {
+        if (isMin) {
+            result = std::min(result, pos[coord]);
+        } else {
+            result = std::max(result, pos[coord]);
+        }
+    }
+    return result;
+}
+
+static vec3 getPosition(const vec3& start, const float width, const int directionOfSlice) {
+    vec3 change = vec3(0.0f);
+	change[directionOfSlice] = width/2.0f;
+	return start + change; 
+}
+
+static vec3 getHalfExtents(const vec3& halfExtents, const int directionOfSlice, const float width) {
+	vec3 halfExs = halfExtents;
+	halfExs[directionOfSlice] = width * 0.5f;
+	return halfExs;
+}
+
+void PhysicsSystem::generateGameObjectsForWholeThing(const vec3& position, const vec3& halfExtents, int numObjects, const int directionOfSlice, const quat& rotation) {
+	float sliceWidth = halfExtents[directionOfSlice] * 2.0f / numObjects;
+	vec3 startPoint = position - halfExtents;
+	vec3 currPoint = startPoint;
+    for (int i = 0; i < numObjects; i++) {
+		makeGameObject(getPosition(currPoint, sliceWidth, directionOfSlice), rotation, getHalfExtents(halfExtents, directionOfSlice, sliceWidth));
+		currPoint[directionOfSlice] += sliceWidth;
+    }
+}
+
+AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj) {
+    if (positions.empty()) {
+        return { vec3(0.0f), vec3(0.0f) }; // Return an empty AABB if no positions are provided
+    }
+    return { vec3(getMeshMinOrMaxCoord(positions, 0, true), getMeshMinOrMaxCoord(positions, 1, true), getMeshMinOrMaxCoord(positions, 2, true)),
+             vec3(getMeshMinOrMaxCoord(positions, 0, false), getMeshMinOrMaxCoord(positions, 1, false), getMeshMinOrMaxCoord(positions, 2, false)) };
+}
+
+void PhysicsSystem::updateGameObjectAABB(GameObject* obj) {
+    if (obj == nullptr || obj->collider == nullptr) {
+        return; // Ensure the object and its collider are valid
+    }
+    obj->transform.aabb = getAABB(obj);
+}
+
+void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
+    for (auto obj : objects) {
+        updateGameObjectAABB(obj);
+    }   
+}
+
+void PhysicsSystem::initOctree(vector<GameObject*>& objects, Octree*& octree) {
+    updateGameObjectsAABB(objects);
+	if (octree == nullptr) {
+		octree = new Octree(worldBounds, objects, 8, 8);
+	}
+    octree->constructTree(objects);
+}
+
+void PhysicsSystem::broadphaseInit() {
+	initOctree(staticObjects, octreeStaticObjects);
+	initOctree(movingObjects, octreeMovingObjects);
+}
+
+void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {
+    if (octree == nullptr || obj == nullptr) return;
+    
+    vector<GameObject*> potentialCollisions;
+    octree->getPotentialCollisionPairs(getAABB(obj), potentialCollisions);
+
+    for (auto& otherObj : potentialCollisions) {
+        // if (otherObj != obj && obj->id < otherObj->id) {
+		if (otherObj->id != obj->id) { 
+			updateGameObjectAABB(otherObj);
+			updateGameObjectAABB(obj);
+            pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherObj->transform.aabb);
+            if (penetration.second > 0.0f) {
+				if (obj->behavior != nullptr) {
+					obj->behavior->resolveCollision(obj, otherObj, penetration, status);
+				} else if (status == 0) {
+					resolveCollision(obj, otherObj, penetration, status);
+				}
+            }
+        }
+    }
+}
+
+void PhysicsSystem::checkCollisionDynamicOne(GameObject* dynamicObj) {
+	checkCollisionOne(octreeStaticObjects, staticObjects, dynamicObj, 0);
+    checkCollisionOne(octreeMovingObjects, movingObjects, dynamicObj, 1);
+	dynamicObj->physics->acceleration = glm::vec3(0);
+}
+
+void PhysicsSystem::checkCollisionDynamicAll() {
+    updateGameObjectsAABB(movingObjects);
+    for (auto& obj : movingObjects) {
+        checkCollisionDynamicOne(obj);
+    }
+}
+
