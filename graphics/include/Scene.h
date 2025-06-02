@@ -39,7 +39,7 @@ private:
 	Lights* lightmanager;
 	Cube* testCube;
 	Audio* audiomanager;
-	UIData uiData;
+	//UIData uiData;
 
 	Object* metalpower;
 	Object* metalring;

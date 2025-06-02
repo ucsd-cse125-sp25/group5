@@ -23,6 +23,7 @@ struct UIData {
     ElementType currElem = ElementType::WATER;
     float seconds = 10;
     KillfeedItem killfeed[KILLFEED_LENGTH];
+    bool tooltip = false;
     //unsigned int ID : 4;
 };
 

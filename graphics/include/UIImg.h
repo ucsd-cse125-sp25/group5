@@ -75,6 +75,24 @@ private:
 	float bloomDuration = 0.9f;
 };
 
+class ToolTips : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+	ClientGame* client;
+private:
+	GLuint sprites[5];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	GLuint VAO, VBO, EBO;
+	bool draw = false;
+
+};
+
 struct MagicElement {
 	std::string name;
 	glm::vec2 position;

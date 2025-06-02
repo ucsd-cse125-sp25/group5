@@ -254,6 +254,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	PlayerIntent.moveBackIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
 	PlayerIntent.leftClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 	PlayerIntent.rightClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+	scene->dummy.tooltip = glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS;
 	//PlayerIntent.scrollUpIntent = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
 	//PlayerIntent.scrollDownIntent = glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
 	//if (key == GLFW_KEY_W && action == GLFW_PRESS) {
