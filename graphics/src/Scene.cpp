@@ -527,7 +527,6 @@ void Scene::draw(Camera* cam) {
 	glDisable(GL_CULL_FACE);
 
 	//water shading and drawing
-	/*
 	GLuint waterShader = shaders[4];
 	glUseProgram(waterShader);
 
@@ -555,7 +554,6 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 
 	water->draw(waterShader, false);
-	*/
 
 	//All particle effects
 	GLuint particleShader = shaders[3];
@@ -563,11 +561,9 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 	glUniform3fv(glGetUniformLocation(particleShader, "viewPos"), 1, &camPos[0]);
 
-	/*
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
 	}
-	*/
   
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
