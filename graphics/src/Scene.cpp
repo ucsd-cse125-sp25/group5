@@ -453,7 +453,7 @@ void Scene::draw(Camera* cam) {
 			woodpower->draw(mainShader, false);
 		}
 		else if (p.power == WATER) {
-			waterpower->update(p.model);
+			waterpower->update(glm::rotate(p.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 			waterpower->draw(mainShader, false);
 		}
 		else if (p.power == FIRE) {
