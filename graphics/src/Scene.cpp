@@ -24,9 +24,9 @@ glm::vec3 fogColorW(0.1, 0.2, 0.6);
 int moonphase = 0;
 bool phasechange = false;
 
-float soundcooldown = 0.5f;
-const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
-const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
+float soundcooldown = 0.4f;
+const char* attackKeys[] = { "metalA", "woodA", "waterA", "fireA", "earthA"};
+const char* movementKeys[] = { "metalM", "woodM", "waterM", "fireM", "earthM"};
 static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
 static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
@@ -269,6 +269,16 @@ void Scene::update(Camera* cam) {
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
 	dummy.seconds = client->GameState.time;
+	dummy.hasFlag = client->GameState.player_stats[client->playerId].hasFlag;
+	dummy.dealtDamage = client->GameState.player_stats[client->playerId].dealtDamageFlag;
+
+	if (client->GameState.phase == POST_GAME && dummy.hasFlag) {
+		audiomanager->selfState = 2;
+	}
+	if (client->GameState.phase == POST_GAME && !dummy.hasFlag) {
+		audiomanager->selfState = 1;
+	}
+	audiomanager->phase = client->GameState.phase;
 	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
 
@@ -276,6 +286,10 @@ void Scene::update(Camera* cam) {
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		PlayerStats& c = client->GameState.player_stats[i];
 		glm::vec3 pos = client->GameState.players[i].model[3];
+		float vol = 0.75f;
+		if (client->playerId != client->GameState.players[i].id) {
+			vol = 0.45f;
+		}
 		for (int j = 0; j < 5; j++) {
 			float now = glfwGetTime();
 			if (c.attackPowerupFlag[j] == 0 || c.attackPowerupFlag[j] > 2) {
@@ -285,19 +299,15 @@ void Scene::update(Camera* cam) {
 				prevMovementFlags[i][j] = false;
 			}
 			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j] && attackKeys[j]) {
-				std::cout << "Going to play audio for player:  " << i << " power: " << j << std::endl;
 				if (now - lastUsedAttack[i][j] > soundcooldown) {
-					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
-					audiomanager->PlayAudio(attackKeys[j], pos);
+					audiomanager->PlayAudio(attackKeys[j], pos, vol);
 					lastUsedAttack[i][j] = now;
 				}
 				prevAttackFlags[i][j] = true;
 			}
 			if ((c.movementPowerupFlag[j] == 1 || c.movementPowerupFlag[j] == 2) && !prevMovementFlags[i][j] && movementKeys[j]) {
-				std::cout << "Going to play audio for player:  " << i << " movement: " << j << std::endl;
 				if (now - lastUsedMovement[i][j] > soundcooldown) {
-					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
-					audiomanager->PlayAudio(movementKeys[j], pos);
+					audiomanager->PlayAudio(movementKeys[j], pos, vol);
 					lastUsedMovement[i][j] = now;
 				}
 				prevMovementFlags[i][j] = true;
@@ -310,8 +320,6 @@ void Scene::update(Camera* cam) {
 		phasechange = true;
 		skybox->updatePhase(moonphase);
 	}
-
-	
 }
 
 bool Scene::initShaders() {
@@ -433,7 +441,7 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < projectiles.size(); i++) {
 		Projectile p = projectiles.at(i);
 		if (p.power == METAL) {
-			metalpower->update(p.model);
+			metalpower->update(glm::scale(p.model, glm::vec3(0.05f)));
 			metalpower->draw(mainShader, false);
 		}
 		else if (p.power == WOOD) {
@@ -519,6 +527,7 @@ void Scene::draw(Camera* cam) {
 	glDisable(GL_CULL_FACE);
 
 	//water shading and drawing
+	/*
 	GLuint waterShader = shaders[4];
 	glUseProgram(waterShader);
 
@@ -546,6 +555,7 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 
 	water->draw(waterShader, false);
+	*/
 
 	//All particle effects
 	GLuint particleShader = shaders[3];
@@ -553,9 +563,11 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(particleShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 	glUniform3fv(glGetUniformLocation(particleShader, "viewPos"), 1, &camPos[0]);
 
+	/*
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
 	}
+	*/
   
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
