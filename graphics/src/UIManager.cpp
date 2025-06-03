@@ -131,7 +131,7 @@ void UIManager::Init(ClientGame* client) {
 	
 	Characters* ch = dynamic_cast<Characters*>(characters);
 	ch->texs = &textures; //Mickey mouse
-	characters->Init(startPercchar, 0.12, 1.0);
+	characters->Init(startPercchar, 0.14, 1.0);
 
 	ch->client = client;
 
