@@ -61,9 +61,6 @@ void ServerGame::loadComposites() {
             glm::vec3 pos = glm::vec3(pX, pY, pZ);
             glm::vec3 ext = glm::vec3(eX, eY, eZ);
             composites[file_name].push_back(std::make_pair(pos, ext));
-            //GameObject* col = physicsSystem.makeGameObject(pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), ext);
-            //col->type = COLLIDER;
-            //physicsSystem.addStaticObject(col);
         }
     }
 
@@ -71,7 +68,6 @@ void ServerGame::loadComposites() {
 	for (int i = 0; i < mapObjects.size(); i++) {
 		auto entry = mapObjects[i];
 		//type of object to have collider, and the position
-
 
 		std::string file_name = std::get<0>(entry);
 		glm::vec3 position = std::get<1>(entry);
@@ -85,8 +81,6 @@ void ServerGame::loadComposites() {
 			physicsSystem.addStaticObject(col);
 		}
 	}
-
-    printf("Finished loading colliders.\n");
 }
 
 void spawnIslands(PhysicsSystem& physicsSystem) {
@@ -110,10 +104,7 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 	GameObject* ground = physicsSystem.makeGameObject(glm::vec3(0.0f, -20.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), groundExtents);
 	ground->type = COLLIDER;
 	physicsSystem.addStaticObject(ground);
-
-
 }
-
 
 void spawnPickups(PhysicsSystem& physicsSystem) {
 	glm::vec3 hpPickupCoordinates[3] = {
@@ -204,12 +195,6 @@ void ServerGame::update() {
 		player->behavior = playerBehavior;
 		playerBehaviors[client_id] = playerBehavior;
 		//for player objects, we set a behavior component
-		printf("Metal mana %d\n", playerBehavior->playerStats.mana[0]);
-		printf("Wood mana %d\n", playerBehavior->playerStats.mana[1]);
-		printf("Water mana %d\n", playerBehavior->playerStats.mana[2]);
-		printf("Fire mana %d\n", playerBehavior->playerStats.mana[3]);
-		printf("Earth mana %d\n", playerBehavior->playerStats.mana[4]);
-
 		player->type = PLAYER;
         player->isDynamic = true;
 		physicsSystem.addPlayerObject(player);
@@ -312,7 +297,6 @@ void ServerGame::writeToGameState() {
 	} else {
 		GameState.moonPhase = FULL_MOON;
 	}
-
 
 	//send all the player objects, probably want to do this differently at some point, lock the correspondance between playerID and arrayIndex
 	writeEntities(physicsSystem, physicsSystem.playerObjects, GameState.players, 0, numPlayers);
