@@ -484,8 +484,8 @@ void Scene::draw(Camera* cam) {
 			continue;
 		}
 		glm::vec3 pos = client->GameState.players[i].model[3];
-		std::cout << i << std::endl;
-		std::cout << glm::to_string(pos) << std::endl;
+		//std::cout << i << std::endl;
+		//std::cout << glm::to_string(pos) << std::endl;
 		glm::mat4 matrix = glm::mat4(1.0f);
 		matrix = glm::scale(matrix, glm::vec3(0.05f));
 		matrix[3] = glm::vec4(pos, 1.0f);

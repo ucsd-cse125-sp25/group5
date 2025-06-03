@@ -134,7 +134,7 @@ public:
 	std::string name;
 	std::unordered_map<std::string, GLuint>* texs;
 private:
-	GLuint digits[3];
+	GLuint digits[4];
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> container;

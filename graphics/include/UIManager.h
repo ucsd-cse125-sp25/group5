@@ -32,6 +32,7 @@ private:
 	std::vector<UIImg*> matchElements;
 	std::vector<UIImg*> countdownElements;
 	std::vector<UIImg*> lobbyElements;
+	std::vector<UIImg*> endElements;
 	std::unordered_map<std::string, GLuint> textures;
 	
 };

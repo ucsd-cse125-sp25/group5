@@ -183,7 +183,7 @@ void Clock::Draw() {
 
 void HealthNums::Init(std::vector<float> startPerc, float percent, float ratio) {
 
-	shaderProgram = LoadShaders("shaders/clock.vert", "shaders/clock.frag");
+	shaderProgram = LoadShaders("shaders/healthnums.vert", "shaders/healthnums.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
@@ -238,9 +238,10 @@ void HealthNums::Update(const UIData& p) {
 	int ones = tempHealth % 10;
 
 
-	digits[0] = (*texs)[std::to_string(hundreds)];
-	digits[1] = (*texs)[std::to_string(tens)];
-	digits[2] = (*texs)[std::to_string(ones)];
+	digits[0] = (*texs)["heart"];
+	digits[1] = (*texs)[std::to_string(hundreds)];
+	digits[2] = (*texs)[std::to_string(tens)];
+	digits[3] = (*texs)[std::to_string(ones)];
 }
 
 void HealthNums::Draw() {

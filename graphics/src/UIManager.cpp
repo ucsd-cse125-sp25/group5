@@ -23,7 +23,13 @@ static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float,
 	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
 	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.6, 0.2, 0.1, 1.0}},
 	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.8, 0.2, 0.1, 1.0}},
-  { "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::IN_GAME, 0.0, 0.0, 1.0, 1.0}},
+	{ "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::IN_GAME, 0.0, 0.0, 1.0, 1.0}},
+	{"defeat", {PROJECT_SOURCE_DIR + std::string("/assets/end_defeat.png"), GamePhase::POST_GAME, 0.5, 0.25, 0.25, 0.5}},
+	{"victory", {PROJECT_SOURCE_DIR + std::string("/assets/end_victory.png"), GamePhase::POST_GAME, 0.5, 0.25, 0.25, 0.5}},
+	{ "c0", {PROJECT_SOURCE_DIR + std::string("/assets/character1.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "c1", {PROJECT_SOURCE_DIR + std::string("/assets/character2.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "c2", {PROJECT_SOURCE_DIR + std::string("/assets/character3.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "c3", {PROJECT_SOURCE_DIR + std::string("/assets/character4.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
 };
 
 /**
@@ -89,6 +95,7 @@ static std::unordered_map<std::string, std::string> Numbers = {
 	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8.png")},
 	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9.png")},
 	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
+	{"heart", PROJECT_SOURCE_DIR + std::string("/assets/heart.png")},
 };
 
 
@@ -128,7 +135,6 @@ void UIManager::Init(ClientGame* client) {
 	UIImg* healthNums = new HealthNums();
 	std::vector<float> startPercHealthNums = { 0.1, 0.965 };
 	healthNums->Init(startPercHealthNums, 0.04, 1.0);
-	matchElements.push_back(healthNums);
 	HealthNums* hn = dynamic_cast<HealthNums*>(healthNums);
 	hn->texs = &textures; //Mickey mouse
 	
@@ -202,6 +208,7 @@ void UIManager::Init(ClientGame* client) {
 
 		img->Init({ percX, percY }, percent, aspect);
 		img->SetTexture(GetTexture(name));
+		img->name = name;
 
 		if (name == "magicback") {
 			Magic* ma = dynamic_cast<Magic*>(img);
@@ -267,13 +274,15 @@ void UIManager::Init(ClientGame* client) {
 		switch (state) {
 		case GamePhase::WAITING:
 			lobbyElements.push_back(img);
-
 			if (name != "gameTitle") {
 				countdownElements.push_back(img);
 			}
 			break;
 		case GamePhase::IN_GAME:
 			matchElements.push_back(img);
+			break;
+		case GamePhase::POST_GAME:
+			endElements.push_back(img);
 			break;
 		}
 		
@@ -284,6 +293,7 @@ void UIManager::Init(ClientGame* client) {
 	matchElements.push_back(killfeed);
 	lobbyElements.push_back(tooltips);
 	matchElements.push_back(tooltips);
+	matchElements.push_back(healthNums);
 }
 
 void UIManager::update(const UIData& p) {
@@ -300,6 +310,11 @@ void UIManager::update(const UIData& p) {
 		break;
 	case GamePhase::IN_GAME:
 		for (auto* img : matchElements) {
+			img->Update(p);
+		}
+		break;
+	case GamePhase::POST_GAME:
+		for (auto* img : endElements) {
 			img->Update(p);
 		}
 		break;
@@ -323,6 +338,18 @@ void UIManager::draw() {
 			img->Draw();
 		}
 		break;
+	case GamePhase::POST_GAME:
+		for (auto* img : endElements) {
+			if (client->GameState.lockedWinnerId == client->playerId && img->name == "victory") {
+				img->Draw();
+			}
+			else if (client->GameState.lockedWinnerId != client->playerId && img->name == "defeat") {
+				img->Draw();
+			}
+			else if (img->name == "c" + std::to_string(client->GameState.lockedWinnerId)) {
+				img->Draw();
+			}
+		}
 	}
 }
 
