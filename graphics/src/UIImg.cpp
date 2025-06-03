@@ -183,7 +183,7 @@ void Clock::Draw() {
 
 void HealthNums::Init(std::vector<float> startPerc, float percent, float ratio) {
 
-	shaderProgram = LoadShaders("shaders/clock.vert", "shaders/clock.frag");
+	shaderProgram = LoadShaders("shaders/healthnums.vert", "shaders/healthnums.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
