@@ -412,7 +412,7 @@ void PhysicsSystem::broadphaseInit() {
 }
 
 void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {
-    if (octree == nullptr || obj == nullptr) return;
+    if (!octree || !obj || !obj->collider) return;
     
     vector<GameObject*> potentialCollisions;
     octree->getPotentialCollisionPairs(getAABB(obj), potentialCollisions);

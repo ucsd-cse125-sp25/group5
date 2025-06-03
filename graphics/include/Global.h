@@ -23,8 +23,13 @@ struct UIData {
     ElementType currElem = ElementType::WATER;
     float seconds = 10;
     KillfeedItem killfeed[KILLFEED_LENGTH];
+
     bool dealtDamage = false;
     bool hasFlag = false;
+
+    bool tooltip = false;
+    //unsigned int ID : 4;
+
 };
 
 extern int WINDOWWIDTH;

@@ -40,8 +40,13 @@ private:
 	Lights* lightmanager;
 	Cube* testCube;
 	Audio* audiomanager;
-	UIData uiData;
+
+	//UIData uiData;
 	Cube* grapple;
+
+
+
+
 	Object* metalpower;
 	Object* metalring;
 	Object* woodpower;
