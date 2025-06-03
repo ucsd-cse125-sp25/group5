@@ -21,6 +21,8 @@ public:
 	void update();
 	void Jump();
 	void Land();
+	void Walk();
+	void Stop();
 };
 
 

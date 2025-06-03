@@ -12,7 +12,14 @@ long long JUMP_START_RT = 0;
 long long JUMP_TOP_RT = 19;
 long long JUMP_TOP2_RT = 23;
 long long JUMP_END_RT = 38;
-float scale = 70.0f;
+
+long long WALK_START_RT = 80;
+long long WALK_CYCLE_START_RT = 90;
+long long WALK_CYCLE_END_RT = 120;
+long long WALK_END_RT = 130;
+
+float scale = 100.0f;
+float walkscale = 10.0f;
 
 Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clock::time_point realStartTime)
     : skeleton(skeleton), animation(animation) {
@@ -33,7 +40,20 @@ void Player::Land() {
     mode = 2;
     tAdj = JUMP_TOP_RT;
     this->realStartTime = std::chrono::high_resolution_clock::now();
+}
 
+void Player::Walk() {
+    anim = 1;
+    mode = 1;
+    tAdj = WALK_START_RT;
+    this->realStartTime = std::chrono::high_resolution_clock::now();
+
+}
+void Player::Stop() {
+    anim = 1;
+    mode = 2;
+    tAdj = WALK_CYCLE_END_RT;
+    this->realStartTime = std::chrono::high_resolution_clock::now();
 }
 
 void Player::update() {
@@ -43,7 +63,7 @@ void Player::update() {
 
         std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
         float time = time_clock.count();
-        time = (time * scale) + tAdj;
+        time = anim == 1 ? (time * scale) + tAdj : (time * walkscale) + tAdj;
         
         //time constraints based on animation state
         if (anim == 0 && mode == 1) {
@@ -54,6 +74,17 @@ void Player::update() {
         else if (anim == 0 && mode == 2) {
             if (time > JUMP_END_RT) {
                 time = JUMP_END_RT;
+            }
+        }
+        else if (anim == 1 && mode == 1) {
+            if (time > WALK_CYCLE_END_RT) {
+                this->realStartTime = std::chrono::high_resolution_clock::now();
+                tAdj = WALK_CYCLE_START_RT;
+            }
+        }
+        else if (anim == 1 && mode == 2) {
+            if (time > WALK_END_RT) {
+                time = WALK_END_RT;
             }
         }
 

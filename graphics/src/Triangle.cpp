@@ -7,7 +7,6 @@ Triangle::Triangle(std::vector<glm::vec3>* positions, std::vector<glm::vec3>* no
 
     model = glm::mat4(1.0f);
     tex = false;
-    create(positions, normals, triangles, uvs, model);
     // The color of the Triangle. Try setting it to something else!
     this->color = glm::vec3(0.8f, 0.3f, 0.05f);
 

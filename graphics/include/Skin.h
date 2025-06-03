@@ -26,7 +26,7 @@ public:
     std::vector<glm::mat4> bindMatrices;
     bool doSkin = false;
     void doSkinning();
-    bool Load(aiMesh* mMesh, aiMaterial* mMaterial);
+    bool Load(aiMesh* mMesh, aiMaterial* mMaterial, int texindex);
     bool Load(const char* file);
     void update(); //smooth skin algorithm
     void draw(GLuint shader, bool shadow);

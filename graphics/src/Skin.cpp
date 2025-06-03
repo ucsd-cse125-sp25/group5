@@ -33,7 +33,7 @@ void Skin::doSkinning() {
 	this->doSkin = true;
 }
 
-bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
+bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial, int texindex) {
 
 	triangles.reserve(mMesh->mNumFaces * 3);
 	for (int j = 0; j < mMesh->mNumFaces; j++) {
@@ -59,6 +59,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 			float x = mMesh->mTextureCoords[0][t].x;
 			float y = mMesh->mTextureCoords[0][t].y;
 			glm::vec2 uv(x, y);
+			//std::cout << "UVS" << uv.x << " " << uv.y << std::endl;
 			uvs.push_back(uv);
 		}
 	}
@@ -76,13 +77,13 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 	tri->color.z = diffuse.b;
 
 	aiString texPath;
-	if (mMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS) {
+	if (mMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS || texindex > 0) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		const char* path = texPath.C_Str();
+		const char* path = texindex == 1 ? "baked.png" : texPath.C_Str();
 		std::string filename = getLastPathPart(std::string(path));
 		std::string source = PROJECT_SOURCE_DIR;
 		std::string  middle = "/assets/textures/";
@@ -114,6 +115,10 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 
 
 	}
+
+	tri->create(&positions, &normals, &triangles, &uvs, oneglm);
+
+
 	for (int i = 0; i < mMesh->mNumVertices; i++) {
 		SkinWeights* skinweight = sw[i];
 		float totalWeight = 0.0f;

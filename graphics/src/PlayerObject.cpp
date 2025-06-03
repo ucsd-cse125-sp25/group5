@@ -59,6 +59,7 @@ PlayerObject::PlayerObject(int systemtype) {
 		psflag = false;
 		colorflag = false;
 		ground = true;
+		move = false;
 
 		animplayer->type = 0; //player model
 		animplayer->anim = 0;
@@ -101,8 +102,8 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	std::cout << "meshes: " << iscene->mNumMeshes << std::endl;
 	std::cout << "nodes: " << CountNodes(iscene->mRootNode) << std::endl;
 	for (int i = 0; i < iscene->mMeshes[meshindex]->mNumBones; i++) {
-		std::cout << "bone: " << iscene->mMeshes[meshindex]->mBones[i]->mName.C_Str() << std::endl;
-		std::cout << "node: " << iscene->mMeshes[meshindex]->mBones[i]->mNode->mName.C_Str() << std::endl;
+		//std::cout << "bone: " << iscene->mMeshes[meshindex]->mBones[i]->mName.C_Str() << std::endl;
+		//std::cout << "node: " << iscene->mMeshes[meshindex]->mBones[i]->mNode->mName.C_Str() << std::endl;
 
 		nodeToBone[iscene->mMeshes[meshindex]->mBones[i]->mNode] = iscene->mMeshes[meshindex]->mBones[i];
 	}
@@ -110,7 +111,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 
 	std::cout << "Going to print out the entire bones" << std::endl;
 	for (const auto& pair : nodeToBone) {
-		std::cout << pair.first->mName.C_Str() << " " << pair.second->mName.C_Str() << std::endl;
+		//std::cout << pair.first->mName.C_Str() << " " << pair.second->mName.C_Str() << std::endl;
 	}
 
 	skin->Preload(iscene->mMeshes[meshindex]->mNumVertices);
@@ -119,7 +120,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	//iscene->mRootNode->FindNode("b_Root") for fox
 	//iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root") for man
 	root->Load(iscene->mRootNode, &nodeToBone, skin);
-	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex]);
+	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex], 1);
 
 	//std::cout << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0] << std::endl;
 	//load animations
@@ -144,9 +145,17 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 		ground = false;
 		animplayer->Jump();
 	}
-	else if ((!stats.inAir) && !ground) {
+	else if ((!stats.inAir) && !ground && !stats.moving) {
 		ground = true;
 		animplayer->Land();
+	}
+	else if (!stats.inAir && stats.moving && !move) {
+		move = true;
+		animplayer->Walk();
+	}
+	else if (ground && !stats.moving && move) {
+		move = false;
+		animplayer->Stop();
 	}
 
 	if (!colorflag) {

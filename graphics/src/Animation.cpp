@@ -115,6 +115,7 @@ void Animation::Load(const aiScene* scene, int animIndex) {
                 }
                 //std::cout << "printing value: " << value << std::endl;
 
+                //std::cout << "key time " << time << std::endl;
                 Keyframe key(time, value, 0, 0, ruleIn, ruleOut);
                 key.import = true;
                 key.quatValue = quat;
