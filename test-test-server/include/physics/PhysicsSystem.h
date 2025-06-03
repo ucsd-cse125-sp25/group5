@@ -25,6 +25,7 @@ private:
         //remove from moving
         auto it = std::find(movingObjects.begin(), movingObjects.end(), obj);
         if (it != movingObjects.end() && obj->type != PLAYER) {
+            octreeMovingObjects->deleteObject(obj);
             movingObjects.erase(it);
         }
         //remove from dynamic
@@ -139,7 +140,7 @@ public:
      * @note The function assumes that the `obj` parameter is valid and not null. 
      *       An assertion is used to enforce this.
      */
-    void handleCollisions(GameObject* obj);
+    //void handleCollisions(GameObject* obj);
 
     /**
      * @brief Resolves the collision between two game objects by adjusting their velocities and positions.
@@ -318,6 +319,7 @@ public:
 		for (int i = movingObjects.size() - 1; i >= 0; i--) {
 			GameObject* obj = movingObjects[i];
 			if (obj->markDeleted) {
+				//octreeMovingObjects->getRoot()->removeObject(obj);
 				deleteDynamicObject(obj);
 			}
 		}

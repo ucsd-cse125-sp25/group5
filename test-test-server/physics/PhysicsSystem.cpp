@@ -18,6 +18,12 @@ int nextid = 10;
 class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
 void PhysicsSystem::tick(float dt) {
+	for (auto& obj : movingObjects) {
+		if (!obj || !obj->collider) {
+			printf("Invalid obj in movingObjects\n");
+		}
+	}
+
     if (octreeMovingObjects == nullptr || octreeStaticObjects == nullptr) {
         broadphaseInit();
     }
@@ -70,45 +76,45 @@ void PhysicsSystem::integrate(GameObject* obj, float dt) {
 	}
 }
 
-AABB PhysicsSystem::getAABB(GameObject* obj) {
+AABB PhysicsSystem::getAABB(GameObject* obj) {	
 	glm::vec3 min = obj->transform.position - obj->collider->halfExtents;
 	glm::vec3 max = obj->transform.position + obj->collider->halfExtents;
 	return { min, max };
 }
 
-void PhysicsSystem::handleCollisions(GameObject* obj) {
-	// Check for collisions with static objects
-	for (auto sobj : staticObjects) {
-		AABB objAABB = getAABB(obj);
-		AABB sobjAABB = getAABB(sobj);
-		
-		pair<vec3, float> penetration = getAABBpenetration(objAABB, sobjAABB);
-		if (penetration.second > 0.0f) {
-			if (obj->behavior != nullptr) {
-				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
-			} else {
-                resolveCollision(obj, sobj, penetration, status);
-            }
-        }  
-    }
-	
-	for (auto dobj : movingObjects) {
-		if (obj->id == dobj->id) {
-			continue; // Skip self-collision
-		}
-		AABB objAABB = getAABB(obj);
-		AABB dobjAABB = getAABB(dobj);
-
-		pair<vec3, float> penetration = getAABBpenetration(objAABB, dobjAABB);
-		if (penetration.second > 0.0f) {
-			/*resolveCollision(obj, dobj, penetration, 1);*/
-			if (obj->behavior != nullptr) {
-				obj->behavior->resolveCollision(obj, dobj, penetration, 1);
-			}
-		}
-	}
-	return;
-}
+//void PhysicsSystem::handleCollisions(GameObject* obj) {
+//	// Check for collisions with static objects
+//	for (auto sobj : staticObjects) {
+//		AABB objAABB = getAABB(obj);
+//		AABB sobjAABB = getAABB(sobj);
+//		
+//		pair<vec3, float> penetration = getAABBpenetration(objAABB, sobjAABB);
+//		if (penetration.second > 0.0f) {
+//			if (obj->behavior != nullptr) {
+//				obj->behavior->resolveCollision(obj, sobj, penetration, 0);
+//			} else {
+//                resolveCollision(obj, sobj, penetration, 0);
+//            }
+//        }  
+//    }
+//	
+//	for (auto dobj : movingObjects) {
+//		if (obj->id == dobj->id) {
+//			continue; // Skip self-collision
+//		}
+//		AABB objAABB = getAABB(obj);
+//		AABB dobjAABB = getAABB(dobj);
+//
+//		pair<vec3, float> penetration = getAABBpenetration(objAABB, dobjAABB);
+//		if (penetration.second > 0.0f) {
+//			/*resolveCollision(obj, dobj, penetration, 1);*/
+//			if (obj->behavior != nullptr) {
+//				obj->behavior->resolveCollision(obj, dobj, penetration, 1);
+//			}
+//		}
+//	}
+//	return;
+//}
 
 void PhysicsSystem::updateWaterLevel() {
 	if (timePassed > totalTime / 2) {
@@ -375,7 +381,7 @@ AABB PhysicsSystem::getMeshAABB(const vector<vec3>& positions, GameObject* obj) 
 }
 
 void PhysicsSystem::updateGameObjectAABB(GameObject* obj) {
-    if (obj == nullptr || obj->collider == nullptr) {
+    if (!obj || !obj->collider) {
         return; // Ensure the object and its collider are valid
     }
     obj->transform.aabb = getAABB(obj);

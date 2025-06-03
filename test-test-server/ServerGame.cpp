@@ -110,10 +110,7 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 	GameObject* ground = physicsSystem.makeGameObject(glm::vec3(0.0f, -20.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), groundExtents);
 	ground->type = COLLIDER;
 	physicsSystem.addStaticObject(ground);
-
-
 }
-
 
 void spawnPickups(PhysicsSystem& physicsSystem) {
 	glm::vec3 hpPickupCoordinates[3] = {
