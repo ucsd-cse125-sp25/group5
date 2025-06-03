@@ -110,6 +110,7 @@ public:
 	void Update(const UIData& p) override;
 	std::string name;
 	std::unordered_map<std::string, GLuint>* texs;
+	ClientGame* client;
 private:
 	GLuint digits[5];
 	GLuint shaderProgram;
