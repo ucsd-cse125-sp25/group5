@@ -41,7 +41,7 @@ void Audio::Init() {
 		const std::string& track = pair.first;
 		const std::string& path = pair.second;
 		FMOD::Sound* s;
-		system->createSound(path.c_str(), FMOD_3D | FMOD_CREATECOMPRESSEDSAMPLE, 0, &s);
+		system->createSound(path.c_str(), FMOD_3D | FMOD_CREATESAMPLE, 0, &s);
 		s->setMode(FMOD_LOOP_OFF);
 		Sounds[track] = s;
 	}
@@ -98,6 +98,7 @@ void Audio::StopAudio() {
 
 //FMOD::System* automatically handles playing audio
 void Audio::Update(Camera* cam, UIData &p) {
+	float volume = 0.7f;
 	glm::vec3 pos = cam->GetPosition();
 	glm::vec3 f = glm::normalize(cam->GetCameraForwardVector());
 	//Set the position up and forward
@@ -124,38 +125,38 @@ void Audio::Update(Camera* cam, UIData &p) {
 	if (p.dealtDamage && now - hitStart > 0.1f) {
 		hitStart = now;
 		std::string cs = "hit";
-		this->PlayAudio(cs, pos, 0.75f);
+		this->PlayAudio(cs, pos, volume);
 	}
 
 	//if last alive and now dead play death
 	if (lastState && !isAlive) {
 		lastState = false;
 		std::string dt = "death";
-		this->PlayAudio(dt, pos, 0.75f);
+		this->PlayAudio(dt, pos, volume);
 	}
 	//if last dead and now alive play respawn
 	else if (!lastState && isAlive) {
 		lastState = true;
 		std::string rs = "respawn";
-		this->PlayAudio(rs, pos, 0.75f);
+		this->PlayAudio(rs, pos, volume);
 	}
 
 	if (p.seconds < 60 && !timeOut && phase == IN_GAME) {
 		timeOut = true;
 		std::string tt = "ticktock";
-		this->PlayAudio(tt, pos, 0.75f);
+		this->PlayAudio(tt, pos, volume);
 	}
 
 	if (!lastFlagState && p.hasFlag) {
 		lastFlagState = true;
 		std::string cap = "capture";
-		this->PlayAudio(cap, pos, 0.75f);
+		this->PlayAudio(cap, pos, volume);
 	}
 	//Only play transfer when losing flag while not dead
 	else if (!p.hasFlag && lastFlagState && isAlive) {
 		lastFlagState = false;
 		std::string tra = "transfer";
-		this->PlayAudio(tra, pos, 0.75f);
+		this->PlayAudio(tra, pos, volume);
 	}
 	else if (!p.hasFlag) {
 		lastFlagState = false;
@@ -165,12 +166,12 @@ void Audio::Update(Camera* cam, UIData &p) {
 	if (!decision && selfState == 1) {
 		decision = true;
 		std::string d = "defeat";
-		this->PlayAudio(d, pos, 0.75f);
+		this->PlayAudio(d, pos, 0.70f);
 	}
 	else if (!decision && selfState == 2) {
 		decision = true;
 		std::string w = "victory";
-		this->PlayAudio(w, pos, 0.75f);
+		this->PlayAudio(w, pos, 0.70f);
 	}
 }
 

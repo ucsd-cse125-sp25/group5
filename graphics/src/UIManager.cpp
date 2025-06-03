@@ -113,6 +113,7 @@ void UIManager::Init(ClientGame* client) {
 	//add a clock to match elements
 	//UIImg* clock = new Clock();
 	UIImg* clock = new Clock();
+
 	std::vector<float> startPerc = { 0.0, 0.9 };
 	clock->Init(startPerc, 0.07, 1.0);
 	//lobbyElements.push_back(clock);
@@ -120,6 +121,7 @@ void UIManager::Init(ClientGame* client) {
 	matchElements.push_back(clock);
 	Clock* cl = dynamic_cast<Clock*>(clock);
 	cl->texs = &textures; //Mickey mouse
+	cl->client = client; //Mickey mouse
 
 	//add a clock to match elements
 	//UIImg* clock = new Clock();

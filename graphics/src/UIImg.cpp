@@ -148,7 +148,7 @@ void Clock::Update(const UIData& p) {
 
 void Clock::Draw() {
 	//seconds = timerStart - (glfwGetTime() - start);
-	if (seconds < 1 * 30) {
+	if (client->GameState.phase == IN_GAME && seconds < 1 * 30) {
 		return;
 	}
 
