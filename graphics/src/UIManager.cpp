@@ -108,6 +108,7 @@ void UIManager::Init(ClientGame* client) {
 	std::vector<float> startPerc = { 0.0, 0.9 };
 	clock->Init(startPerc, 0.07, 1.0);
 	//lobbyElements.push_back(clock);
+	countdownElements.push_back(clock);
 	matchElements.push_back(clock);
 	Clock* cl = dynamic_cast<Clock*>(clock);
 	cl->texs = &textures; //Mickey mouse
@@ -236,10 +237,13 @@ void UIManager::Init(ClientGame* client) {
 			}
 		}
 
-
 		switch (state) {
 		case GamePhase::WAITING:
 			lobbyElements.push_back(img);
+
+			if (name != "gameTitle") {
+				countdownElements.push_back(img);
+			}
 			break;
 		case GamePhase::IN_GAME:
 			matchElements.push_back(img);
@@ -249,6 +253,7 @@ void UIManager::Init(ClientGame* client) {
 	}
 
 	lobbyElements.push_back(characters);
+	countdownElements.push_back(characters);
 	matchElements.push_back(killfeed);
 }
 
@@ -256,6 +261,11 @@ void UIManager::update(const UIData& p) {
 	switch (client->GameState.phase) {
 	case GamePhase::WAITING:
 		for (auto* img : lobbyElements) {
+			img->Update(p);
+		}
+		break;
+	case GamePhase::PRE_GAME:
+		for (auto* img : countdownElements) {
 			img->Update(p);
 		}
 		break;
@@ -271,6 +281,11 @@ void UIManager::draw() {
 	switch (client->GameState.phase) {
 	case GamePhase::WAITING:
 		for (auto* img : lobbyElements) {
+			img->Draw();
+		}
+		break;
+	case GamePhase::PRE_GAME:
+		for (auto* img : countdownElements) {
 			img->Draw();
 		}
 		break;

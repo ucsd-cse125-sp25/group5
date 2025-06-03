@@ -30,6 +30,7 @@ private:
 
 	// Add more vectors for the different game states
 	std::vector<UIImg*> matchElements;
+	std::vector<UIImg*> countdownElements;
 	std::vector<UIImg*> lobbyElements;
 	std::unordered_map<std::string, GLuint> textures;
 	

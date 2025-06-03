@@ -51,17 +51,29 @@ glm::vec3 static getDirection(float azimuth, float incline) {
 bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 	// 1) compute a single point just below the player's feet
 	float eps = 0.1f;
-	glm::vec3 foot = obj->transform.position
-		- glm::vec3(0.f, obj->collider->halfExtents.y + eps, 0.f);
+	glm::vec3 foot1 = obj->transform.position
+		- glm::vec3(0.5f, obj->collider->halfExtents.y + eps, 0.5f);
+	glm::vec3 foot2 = obj->transform.position
+		- glm::vec3(-0.5f, obj->collider->halfExtents.y + eps, 0.5f);
+	glm::vec3 foot3 = obj->transform.position
+		- glm::vec3(-0.5f, obj->collider->halfExtents.y + eps, -0.5f);
+	glm::vec3 foot4 = obj->transform.position
+		- glm::vec3(0.5f, obj->collider->halfExtents.y + eps, -0.5f);
+
+	glm::vec3 feetArray[4] = { foot1, foot2, foot3, foot4 };
 
 	// 2) test that point against every static AABB
 	for (auto* s : phys.staticObjects) {
 		const AABB& b = phys.getAABB(s);
-		if (foot.x >= b.min.x && foot.x <= b.max.x
-			&& foot.y >= b.min.y && foot.y <= b.max.y
-			&& foot.z >= b.min.z && foot.z <= b.max.z)
-{
-			return true;
+		for(int i = 0; i < 4; i++) {
+			const glm::vec3& foot = feetArray[i];
+			// 3) if the point is inside the AABB, return true
+			if (foot.x >= b.min.x && foot.x <= b.max.x
+				&& foot.y >= b.min.y && foot.y <= b.max.y
+				&& foot.z >= b.min.z && foot.z <= b.max.z)
+			{
+				return true;
+			}
 		}
 	}
 
@@ -150,7 +162,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 15.0f, player->id);
 		obj->type = WOOD_PROJ;
 		obj->isDynamic = true;
 
@@ -164,7 +176,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 5.0f, 10.0f, player->id);
+		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 5.0f, 7.0f, player->id);
 		obj->type = METAL_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -177,7 +189,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 10.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 20.0f, player->id);
 		obj->type = WATER_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -190,7 +202,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, fireProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 10.0f, player->id, 3.0f);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 10.0f, player->id, 2.5f);
 		obj->type = FIRE_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -206,9 +218,9 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 
 		//shoot like 100 units in a random direction
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 25; i++) {
 			GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
-			obj->behavior = new ProjectileBehaviorComponent(obj, phys, glm::sphericalRand(1.0f) * 20.0f, 10.0f, player->id, 1.0f);
+			obj->behavior = new ProjectileBehaviorComponent(obj, phys, glm::sphericalRand(1.0f) * 20.0f, 25.0f, player->id, 1.0f);
 			obj->type = EARTH_PROJ;
 			obj->isDynamic = true;
 			//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -417,7 +429,15 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//}
 	}
 	else if (state == PlayerMovementState::MAGNET) {
-		glm::vec3 direction = phys.getClosestPlayerObject(obj->transform.position, obj->id)->transform.position - obj->transform.position;
+		GameObject* closestPlayer = phys.getClosestPlayerObject(obj->transform.position, obj->id);
+		printf("closest player %d\n", closestPlayer ? closestPlayer->id : -1);
+		if (closestPlayer == nullptr) {
+			state = PlayerMovementState::IDLE;
+			magnetTimer = 0.0f;
+			//if we can't find a player, just return
+			return;
+		}
+		glm::vec3 direction = closestPlayer->transform.position - obj->transform.position;
 		direction = glm::normalize(direction);
 		obj->physics->velocity = -direction * MAGNET_SPEEED;
 

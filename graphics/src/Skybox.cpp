@@ -73,14 +73,22 @@ void Skybox::initSkybox() {
     
     faces = {
         PROJECT_SOURCE_DIR + std::string("/assets/right.png"),
-        PROJECT_SOURCE_DIR + std::string("/assets/left.png"),
+        PROJECT_SOURCE_DIR + std::string("/assets/left_quartermoon.png"),
         PROJECT_SOURCE_DIR + std::string("/assets/top.png"),
         PROJECT_SOURCE_DIR + std::string("/assets/bottom.png"),
         PROJECT_SOURCE_DIR + std::string("/assets/front.png"),
         PROJECT_SOURCE_DIR + std::string("/assets/back.png")
     };
 
-    cubemapTexture = loadCubemap(faces);
+    ct1 = loadCubemap(faces);
+
+    faces[1] = PROJECT_SOURCE_DIR + std::string("/assets/left_gibbousmoon.png");
+    ct2 = loadCubemap(faces);
+
+    faces[1] = PROJECT_SOURCE_DIR + std::string("/assets/left_fullmoon.png");
+    ct3 = loadCubemap(faces);
+
+    cubemapTexture = ct1;
 
     shaderProgram = LoadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 }
@@ -139,4 +147,13 @@ void Skybox::draw(Camera* cam, float* model) {
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE);
+}
+
+void Skybox::updatePhase(int phase) {
+    if (phase == 1) {
+        cubemapTexture = ct2;
+    }
+    else if (phase == 2) {
+        cubemapTexture = ct3;
+    }
 }

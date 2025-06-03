@@ -13,12 +13,15 @@ void MetalProjectileBehaviorComponent::integrate(GameObject* obj,
 	PhysicsSystem& phys)
 {
 	//just keep going, fix the velocity, and update the position
+	GameObject* closestPlayer = phys.getClosestPlayerObject(obj->transform.position, originalPlayer);
+	if (closestPlayer != nullptr) {
+		glm::vec3 direction = closestPlayer->transform.position - obj->transform.position;
+		direction = glm::normalize(direction);
+
+		obj->physics->velocity = direction * 7.5f;
+	}
+
 	
-
-	glm::vec3 direction = phys.getClosestPlayerObject(obj->transform.position, originalPlayer)->transform.position - obj->transform.position;
-	direction = glm::normalize(direction);
-
-	obj->physics->velocity = direction * 15.0f;
 	obj->transform.position += obj->physics->velocity * deltaTime;
 
 	lifetime -= deltaTime;
