@@ -1,5 +1,6 @@
 #include <Scene.h>
 #include <Water.h>
+#include "Global.h"
 
 UIData dummy;
 
@@ -20,9 +21,12 @@ float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
-float soundcooldown = 0.5f;
-const char* attackKeys[] = { nullptr, nullptr, "waterA", "fireA", nullptr };
-const char* movementKeys[] = { nullptr, nullptr, "waterM", "fireM", nullptr };
+int moonphase = 0;
+bool phasechange = false;
+
+float soundcooldown = 0.4f;
+const char* attackKeys[] = { "metalA", "woodA", "waterA", "fireA", "earthA"};
+const char* movementKeys[] = { "metalM", "woodM", "waterM", "fireM", "earthM"};
 static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
 static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
@@ -30,8 +34,11 @@ static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 
 
 
-void Scene::createGame(ClientGame *client) {
+void Scene::createGame(ClientGame* client) {
 	this->client = client;
+
+	grapple = new Cube(glm::vec3(-0.1f, -0.1f, -0.1f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.55f, 0.0f));
+	grapple->setModel(glm::mat4(1.0f));
 
 	shrink = glm::scale(shrink, glm::vec3(0.05f));
 
@@ -49,8 +56,6 @@ void Scene::createGame(ClientGame *client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init();
-	//audiomanager->PlayAudio("matchsong");
-	//audiomanager->PlayAudio("firesound");
 	test = new PlayerObject();
 
 	//Cinema
@@ -79,28 +84,36 @@ void Scene::createGame(ClientGame *client) {
 	glFrontFace(GL_CCW);
 }
 
-
 void Scene::loadObjects() {
-	Object* obj = new Object();
-	std::string importstr = PROJECT_SOURCE_DIR + std::string("/assets/island.obj");
-	obj->create((char*)importstr.c_str(), glm::mat4(1), 1);
-	objects.push_back(obj);
+	for (int i = 0; i < mapObjects.size(); i++) {
+		auto entry = mapObjects[i];
+		std::string file_name = std::get<0>(entry);
+		glm::vec3 position = std::get<1>(entry);
+		std::string extension = std::get<2>(entry);
+		Object* obj = new Object();
+		std::string statObj = PROJECT_SOURCE_DIR + std::string("/assets/") + file_name + extension;
+		glm::mat4 id = glm::mat4(1.0f);
+		id[3] = glm::vec4(position, 1.0f);
+		obj->create((char*)statObj.c_str(), id, 1);
+		objects.push_back(obj);
+	}
+
 	flag = new Object();
-	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/Flag_updated.fbx");
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
-	objects.push_back(flag);
+	//objects.push_back(flag);
 
 	metalpower = new Object();
 	std::string importstr3 = PROJECT_SOURCE_DIR + std::string("/assets/metal.fbx");
-	metalpower->create((char*)importstr3.c_str(), glm::mat4(1), 0);
+	metalpower->create((char*)importstr3.c_str(), glm::mat4(1), 1);
 
 	metalring = new Object();
 	std::string importstr4 = PROJECT_SOURCE_DIR + std::string("/assets/Metal_power.fbx");
 	metalring->create((char*)importstr4.c_str(), glm::mat4(1), 1);
 
 	woodpower = new Object();
-	std::string importstr5 = PROJECT_SOURCE_DIR + std::string("/assets/wood.fbx");
-	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 0);
+	std::string importstr5 = PROJECT_SOURCE_DIR + std::string("/assets/wood.obj");
+	woodpower->create((char*)importstr5.c_str(), glm::mat4(1), 1);
 
 	woodring = new Object();
 	std::string importstr6 = PROJECT_SOURCE_DIR + std::string("/assets/Wood_Power.fbx");
@@ -108,23 +121,23 @@ void Scene::loadObjects() {
 
 	waterpower = new Object();
 	std::string importstr7 = PROJECT_SOURCE_DIR + std::string("/assets/water.fbx");
-	waterpower->create((char*)importstr7.c_str(), glm::mat4(1), 0);
+	waterpower->create((char*)importstr7.c_str(), glm::mat4(1), 1);
 
 	waterring = new Object();
 	std::string importstr8 = PROJECT_SOURCE_DIR + std::string("/assets/Water_Power.fbx");
 	waterring->create((char*)importstr8.c_str(), glm::mat4(1), 1);
 
 	firepower = new Object();
-	std::string importstr9 = PROJECT_SOURCE_DIR + std::string("/assets/fire.fbx");
-	firepower->create((char*)importstr9.c_str(), glm::mat4(1), 0);
+	std::string importstr9 = PROJECT_SOURCE_DIR + std::string("/assets/fire.obj");
+	firepower->create((char*)importstr9.c_str(), glm::mat4(1), 1);
 
 	firering = new Object();
 	std::string importstr10 = PROJECT_SOURCE_DIR + std::string("/assets/Fire_power.fbx");
 	firering->create((char*)importstr10.c_str(), glm::mat4(1), 1);
 
 	earthpower = new Object();
-	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.fbx");
-	earthpower->create((char*)importstr11.c_str(), glm::mat4(1), 0);
+	std::string importstr11 = PROJECT_SOURCE_DIR + std::string("/assets/earth.obj");
+	earthpower->create((char*)importstr11.c_str(), glm::mat4(1), 1);
 
 	earthring = new Object();
 	std::string importstr12 = PROJECT_SOURCE_DIR + std::string("/assets/Earth_power.fbx");
@@ -194,35 +207,24 @@ void Scene::update(Camera* cam) {
 			glm::vec3 island_min = glm::vec3(0, 0, 0);
 			island_min -= island_extents;
 			glm::vec3 island_max = glm::vec3(0, 0, 0);
-			island_max += island_extents;
-
-			//printf("Island Min: %f %f %f\n", island_min.x, island_min.y, island_min.z);	
-			//printf("Island Max: %f %f %f\n", island_max.x ,island_max.y, island_max.z);
-			
+			island_max += island_extents;		
 			Cube* cu = new Cube(island_min, island_max, glm::vec3(0.4f, 0.8f, 0.5f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
 		else if (entity.type == FLAG) {
 			if (flag != NULL) {
+				entity.model = glm::scale(entity.model, glm::vec3(0.8f));
 				flag->update(entity.model);
 			}
 		}
 		else if (entity.type == WOOD_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.3f, 0.8f, 0.2f));
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.05f));
 			Projectile p;
 			p.power = WOOD;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == METAL_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.5f, 0.5f, 0.5f));
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = METAL;
 			p.model = entity.model;
@@ -230,30 +232,18 @@ void Scene::update(Camera* cam) {
 
 		}
 		else if (entity.type == WATER_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.2f, 0.4f, 1.0f)); // Blue-ish
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = WATER;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == FIRE_PROJ) {
-			//Cube* cu = new Cube(fireProjExtents, -fireProjExtents, glm::vec3(1.0f, 0.3f, 0.1f)); // Fiery orange
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = FIRE;
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
 		else if (entity.type == EARTH_PROJ) {
-			//Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.4f, 0.3f, 0.1f)); // Brown/soil tone
-			//cu->setModel(entity.model);
-			//cubes.push_back(cu);
-			//entity.model = glm::scale(entity.model, glm::vec3(0.2f));
 			Projectile p;
 			p.power = EARTH;
 			p.model = entity.model;
@@ -285,6 +275,16 @@ void Scene::update(Camera* cam) {
 	dummy.currEarth = client->GameState.player_stats[client->playerId].mana[4];
 	dummy.currHP = client->GameState.player_stats[client->playerId].hp;
 	dummy.seconds = client->GameState.time;
+	dummy.hasFlag = client->GameState.player_stats[client->playerId].hasFlag;
+	dummy.dealtDamage = client->GameState.player_stats[client->playerId].dealtDamageFlag;
+
+	if (client->GameState.phase == POST_GAME && dummy.hasFlag) {
+		audiomanager->selfState = 2;
+	}
+	if (client->GameState.phase == POST_GAME && !dummy.hasFlag) {
+		audiomanager->selfState = 1;
+	}
+	audiomanager->phase = client->GameState.phase;
 	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
 
@@ -292,6 +292,10 @@ void Scene::update(Camera* cam) {
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		PlayerStats& c = client->GameState.player_stats[i];
 		glm::vec3 pos = client->GameState.players[i].model[3];
+		float vol = 0.75f;
+		if (client->playerId != client->GameState.players[i].id) {
+			vol = 0.45f;
+		}
 		for (int j = 0; j < 5; j++) {
 			float now = glfwGetTime();
 			if (c.attackPowerupFlag[j] == 0 || c.attackPowerupFlag[j] > 2) {
@@ -301,30 +305,32 @@ void Scene::update(Camera* cam) {
 				prevMovementFlags[i][j] = false;
 			}
 			if ((c.attackPowerupFlag[j] == 1 || c.attackPowerupFlag[j] == 2) && !prevAttackFlags[i][j] && attackKeys[j]) {
-				std::cout << "Going to play audio for player:  " << i << " power: " << j << std::endl;
 				if (now - lastUsedAttack[i][j] > soundcooldown) {
-					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
-					audiomanager->PlayAudio(attackKeys[j], pos);
+					audiomanager->PlayAudio(attackKeys[j], pos, vol);
 					lastUsedAttack[i][j] = now;
 				}
 				prevAttackFlags[i][j] = true;
 			}
 			if ((c.movementPowerupFlag[j] == 1 || c.movementPowerupFlag[j] == 2) && !prevMovementFlags[i][j] && movementKeys[j]) {
-				std::cout << "Going to play audio for player:  " << i << " movement: " << j << std::endl;
 				if (now - lastUsedMovement[i][j] > soundcooldown) {
-					std::cout << "This sound is off cooldown so we can play it!" << std::endl;
-					audiomanager->PlayAudio(movementKeys[j], pos);
+					audiomanager->PlayAudio(movementKeys[j], pos, vol);
 					lastUsedMovement[i][j] = now;
 				}
 				prevMovementFlags[i][j] = true;
 			}
 		}
 	}
+	phasechange = false;
+	if (moonphase != client->GameState.moonPhase) {
+		moonphase = client->GameState.moonPhase;
+		phasechange = true;
+		skybox->updatePhase(moonphase);
+	}
 }
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader"};
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -394,10 +400,24 @@ void Scene::draw(Camera* cam) {
 	glm::vec3 camPos = cam->GetPosition();
 	glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
 
-	DirectionalLight dirLight = lightmanager->getDirLight();
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight.direction[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight.color[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight.specular[0]);
+	DirectionalLight* dirLight = lightmanager->getDirLight();
+	//update dirLight for moon phase
+	if (phasechange) {
+		if (moonphase == 1) {
+			dirLight->color = glm::vec3(0.7, 0.75, 0.68) / 2.5f;
+			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.48, 0.0));
+			dirLight->specular = glm::vec3(0.7, 0.75, 0.68) / 1.67f;
+		}
+		else if (moonphase == 2) {
+			dirLight->color = glm::vec3(0.7, 0.75, 0.68) / 2.0f;
+			dirLight->direction = glm::normalize(glm::vec3(-1.0, 0.52, 0.07));
+			dirLight->specular = glm::vec3(0.7, 0.75, 0.68) / 1.33f;
+		}
+	}
+
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight->specular[0]);
 	glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
 	glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 
@@ -427,7 +447,7 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < projectiles.size(); i++) {
 		Projectile p = projectiles.at(i);
 		if (p.power == METAL) {
-			metalpower->update(p.model);
+			metalpower->update(glm::scale(p.model, glm::vec3(0.05f)));
 			metalpower->draw(mainShader, false);
 		}
 		else if (p.power == WOOD) {
@@ -435,7 +455,7 @@ void Scene::draw(Camera* cam) {
 			woodpower->draw(mainShader, false);
 		}
 		else if (p.power == WATER) {
-			waterpower->update(p.model);
+			waterpower->update(glm::rotate(p.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 			waterpower->draw(mainShader, false);
 		}
 		else if (p.power == FIRE) {
@@ -478,6 +498,11 @@ void Scene::draw(Camera* cam) {
 			metalring->draw(mainShader, false);
 		}
 		else if (active == WOOD) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.2f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			woodring->update(matrix);
 			woodring->draw(mainShader, false);
 		}
@@ -486,6 +511,11 @@ void Scene::draw(Camera* cam) {
 			waterring->draw(mainShader, false);
 		}
 		else if (active == FIRE) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.15f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			firering->update(matrix);
 			firering->draw(mainShader, false);
 		}
@@ -494,6 +524,52 @@ void Scene::draw(Camera* cam) {
 			earthring->draw(mainShader, false);
 		}
 	}
+
+
+	grapple->draw(mainShader, false);
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		if (client->GameState.player_stats[i].grappleTarget != glm::vec3(0.0f)) {
+			glm::vec3 pos = client->GameState.players[i].model[3];
+			glm::vec3 end = client->GameState.player_stats[i].grappleTarget;
+			glLineWidth(10.0f);
+			glBegin(GL_LINES);
+			glVertex3f(pos.x, pos.y - 0.15f, pos.z);
+			glVertex3f(end.x, end.y, end.z);
+			glEnd();
+		}
+	}
+
+	glDepthFunc(GL_GREATER);
+	glDepthMask(GL_FALSE);
+	GLuint spectral = shaders[5];
+	glUseProgram(spectral);
+	glUniformMatrix4fv(glGetUniformLocation(spectral, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform1f(glGetUniformLocation(spectral, "uScale"), 1.02f);
+	flag->draw(spectral, false);
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
+
+	glUseProgram(mainShader);
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight->specular[0]);
+	glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
+	glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glUniform1i(glGetUniformLocation(mainShader, "shadowMap"), 1);
+	glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
+	glUniform1f(glGetUniformLocation(mainShader, "time"), (currTime - startTime) / 1000.0f);
+	glUniform1f(glGetUniformLocation(mainShader, "waterLevel"), waterLevel);
+	glUniform1f(glGetUniformLocation(mainShader, "fogConstant"), fogConstant);
+	glUniform1f(glGetUniformLocation(mainShader, "fogConstantW"), fogConstantW);
+	glUniform3fv(glGetUniformLocation(mainShader, "fogColor"), 1, &fogColor[0]);
+	glUniform3fv(glGetUniformLocation(mainShader, "fogColorW"), 1, &fogColorW[0]);
+	glUniform4fv(glGetUniformLocation(mainShader, "waterModel"), 1, (float*)&water->model);
+	lightmanager->bind();
+	flag->draw(mainShader, false);
 
 	glDisable(GL_CULL_FACE);
 
@@ -504,9 +580,9 @@ void Scene::draw(Camera* cam) {
 	glUniformMatrix4fv(glGetUniformLocation(waterShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
 	glUniform3fv(glGetUniformLocation(waterShader, "viewPos"), 1, &camPos[0]);
 
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightDir"), 1, &dirLight.direction[0]);
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightColor"), 1, &dirLight.color[0]);
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightSpec"), 1, &dirLight.specular[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightSpec"), 1, &dirLight->specular[0]);
 	glUniform1i(glGetUniformLocation(waterShader, "numLights"), lightmanager->numLights());
 	glUniformMatrix4fv(glGetUniformLocation(waterShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
 

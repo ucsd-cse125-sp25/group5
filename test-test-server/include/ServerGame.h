@@ -9,10 +9,18 @@
 #include <map>
 #include <utility>
 #include <string> 
+#include <glm/vec3.hpp> // Ensure glm::vec3 is properly included
 
 //const std::string COMPOSITES_FILE_PATH = "../include/shared/composites/";
 
 class ServerGame {
+
+	glm::vec3 spawnPoints[4] = {
+		glm::vec3(10.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 10.0f),
+		glm::vec3(-10.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 10.0f)
+	};
 
 public:  
    ServerGame(void);  

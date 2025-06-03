@@ -123,7 +123,9 @@ void Clock::Init(std::vector<float> startPerc, float percent, float ratio) {
 }
 
 void Clock::Update(const UIData& p) {
-	seconds = p.seconds;
+	if (p.seconds >= 0) {
+		seconds = p.seconds;
+	}
 
 	int tempSeconds = seconds;
 
@@ -950,6 +952,40 @@ void Magic::StartRotate(int anim) {
 	animStart = glfwGetTime();
 	animating = true;
 	
+}
+
+//0 1 2 3 4
+void Magic::SetRotate(int anim) {
+	if (animating) {
+		return;
+	}
+
+	for (auto& p : powers) {
+		int size = baseAngles.size();
+		if (anim == 3) {
+			int offset = size - powers.at(0).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 4) {
+			int offset = size - powers.at(1).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 5) {
+			int offset = size - powers.at(2).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 6) {
+			int offset = size - powers.at(3).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+		else if (anim == 7) {
+			int offset = size - powers.at(4).currIdx;
+			p.targetIdx = (p.targetIdx + offset) % size;
+		}
+	}
+
+	animStart = glfwGetTime();
+	animating = true;
 }
 
 void Vignette::Init(std::vector<float> startPos, float percent, float ratio) {

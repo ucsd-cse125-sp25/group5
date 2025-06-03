@@ -38,11 +38,13 @@ extern Scene* scene;
 ClientGame* Window::client;
 PlayerIntentPacket Window::PlayerIntent;
 double scrollStart;
+double pressStart;
 
 // Constructors and desctructors
 bool Window::initializeProgram() {
 	//cube = new Cube();
 	scrollStart = glfwGetTime();
+	pressStart = glfwGetTime();
 	return true;
 }
 
@@ -254,6 +256,37 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	PlayerIntent.moveBackIntent = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
 	PlayerIntent.leftClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 	PlayerIntent.rightClickIntent = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+
+	double rn = glfwGetTime();
+	if (rn - pressStart > 0.2f) {
+		pressStart = glfwGetTime();
+		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+			//Go to metal
+			scene->TriggerAnim(3);
+			PlayerIntent.changeToPower = METAL;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+			//Go to wood
+			scene->TriggerAnim(4);
+			PlayerIntent.changeToPower = WOOD;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+			//Go to water
+			scene->TriggerAnim(5);
+			PlayerIntent.changeToPower = WATER;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+			//Go to fire
+			scene->TriggerAnim(6);
+			PlayerIntent.changeToPower = FIRE;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+			//Go to earth
+			scene->TriggerAnim(7);
+			PlayerIntent.changeToPower = EARTH;
+		}
+	}
+	
 	//PlayerIntent.scrollUpIntent = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
 	//PlayerIntent.scrollDownIntent = glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
 	//if (key == GLFW_KEY_W && action == GLFW_PRESS) {
@@ -270,7 +303,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 	double time = glfwGetTime();
 
-	if (time - scrollStart < 0.15) {
+	if (time - scrollStart < 0.2f) {
 		return;
 	}
 	if (yoffset > 0) {

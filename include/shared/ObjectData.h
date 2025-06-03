@@ -1,7 +1,11 @@
 #pragma once
 #include <string.h> 
 #include "core.h"
-
+#include <utility>
+#include <string> // Include for std::string
+#include <vector>
+#include <glm/vec3.hpp> // Ensure glm::vec3 is included
+#include <tuple>
 
 #define MAX_HP 120;
 #define MAX_MANA 100;
@@ -60,9 +64,7 @@ enum GamePhase {
 
 enum MoonPhase {
 	NEW_MOON,
-	WAXING_CRESCENT,
 	FIRST_QUARTER,
-	WAXING_GIBBOUS,
 	FULL_MOON
 };
 
@@ -90,6 +92,7 @@ struct PlayerStats {
 	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};
 	int attackPowerupFlag[5] = { 0, 0, 0, 0, 0 };
 	bool damageFlag = false; // used to indicate if the player has taken damage this tick
+	bool dealtDamageFlag = false; // used to indicate if the player has dealt damage this tick
 };
 
 struct KillfeedItem {
@@ -97,4 +100,17 @@ struct KillfeedItem {
 	int attacker;
 	KillfeedType type;
 	float lifetime;
+};
+
+
+const static std::vector<std::tuple<std::string, glm::vec3, std::string>> mapObjects = {
+    std::make_tuple("floating-island", glm::vec3(0.0f, 0.0f, 0.0f), ".obj"),
+    std::make_tuple("corridor1", glm::vec3(0.0f, 0.0f, 10.0f), ".obj"),
+    std::make_tuple("corridor-2", glm::vec3(10.0f, 0.0f, 0.0f), ".obj"),
+    std::make_tuple("floating-island", glm::vec3(10.0f, 20.0f, 0.0f), ".obj"),
+    std::make_tuple("island", glm::vec3(30.0f, 10.0f, 0.0f), ".obj"),
+	std::make_tuple("Platform 1", glm::vec3(0.0f, 100.0f, 00.0f), ".fbx"),
+	std::make_tuple("Island Fragment 8", glm::vec3(30.0f, 20.0f, 0.0f), ".fbx"),
+	std::make_tuple("Island Fragment 5", glm::vec3(0.0f, 50.0f, 30.0f), ".fbx"),
+	std::make_tuple("Cloud 4", glm::vec3(10.0f, 70.0f, 0.0f), ".fbx"),
 };

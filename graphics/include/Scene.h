@@ -27,7 +27,7 @@ class Scene {
 private:
 	ClientGame* client;
 	std::vector<Object*> objects;
-	std::vector<Object*> animObjects; //type will be changed later
+	//std::vector<Object*> animObjects; //type will be changed later
 	std::vector<Projectile> projectiles;
 	std::vector<Cube*> cubes; //for dummy testing
 	PlayerObject* player; //type will be changed later
@@ -36,11 +36,12 @@ private:
 	Water* water;
 	Skybox* skybox; //each player holds a copy of the skybox
 	Cube* cube;
+	Object* unity;
 	Lights* lightmanager;
 	Cube* testCube;
 	Audio* audiomanager;
 	UIData uiData;
-
+	Cube* grapple;
 	Object* metalpower;
 	Object* metalring;
 	Object* woodpower;
