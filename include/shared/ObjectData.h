@@ -30,7 +30,10 @@ enum EntityType {
 	WATER_PROJ,
 	FIRE_PROJ,
 	EARTH_PROJ,
-	COLLIDER
+	COLLIDER,
+	BOUNDS,
+	HP_PICKUP,
+	MANA_PICKUP
 };
 
 enum PowerType {
@@ -72,16 +75,21 @@ struct Entity {
 
 struct PlayerStats {
 	unsigned int hp = MAX_HP;
+	unsigned int maxHP = MAX_HP;
 	bool alive = true;
 	bool hasFlag = false;
 	bool moving = false;
 	bool inAir = false;
 	bool underwater = false;
+	
+	glm::vec3 grappleTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	unsigned int mana[5] = { 100, 100, 100, 100, 100 };
 	PowerType activePower = METAL;
 
 	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};
 	int attackPowerupFlag[5] = { 0, 0, 0, 0, 0 };
+	bool damageFlag = false; // used to indicate if the player has taken damage this tick
 };
 
 struct KillfeedItem {

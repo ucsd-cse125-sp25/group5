@@ -10,7 +10,7 @@ typedef glm::vec3 vec3;
 typedef glm::mat4 mat4;
 typedef glm::quat quat;
 
-const float STARTING_WATER_LEVEL = 0.0f;
+const float STARTING_WATER_LEVEL = -2.0f;
 const float ENDING_WATER_LEVEL = 100.0f;
 
 using namespace std;
@@ -41,7 +41,7 @@ public:
     float cellSize;
 
 	//water level
-	float waterLevel = 0.0f;
+	float waterLevel = -2.0f;
     //times for water level calculation 
 	float timePassed = 0.0f;
 	float totalTime = 0.0f;

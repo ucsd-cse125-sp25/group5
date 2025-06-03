@@ -13,6 +13,19 @@ extern double currTime;
 extern double prevTime;
 extern Camera* Cam;
 
+glm::vec3 cor1(0.41, 0.94, 0.95);
+glm::vec3 cor2(0.94, 0.64, 0.22);
+glm::vec3 cor3(0.93, 0.26, 0.94);
+glm::vec3 cor4(0.89, 0.89, 0.89);
+
+glm::vec3 cor5(0.5, 0.5, 0.5);
+glm::vec3 cor6(0.32, 0.75, 0.25);
+glm::vec3 cor7(0.25, 0.51, 0.76);
+glm::vec3 cor8(0.9, 0.24, 0.29);
+glm::vec3 cor9(0.675, 0.675, 0.35);
+
+glm::vec3 cores[9] = {cor1, cor2, cor3, cor4, cor5, cor6, cor7, cor8, cor9};
+
 PlayerObject::PlayerObject() {
 	skel = new Skeleton();
 	skin = new Skin(skel);
@@ -36,7 +49,16 @@ PlayerObject::PlayerObject(int systemtype) {
 	if (systemtype == 0) {
 		particlesystem = new System();
 		particlesystem->InitColoredTrail(glm::vec3(0, 0, 0), glm::vec3(1, 0.1, 0.1));
+
+		powerupsystem = new System();
+		powerupsystem->InitParticleExplosion(glm::vec3(0, 0, 0));
+
+		damagesystem = new System();
+		damagesystem->InitDamageEffect(glm::vec3(0, 0, 0));
+
 		psflag = false;
+		colorflag = false;
+
 	}
 }
 
@@ -103,8 +125,61 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 	skel->updateWorldMat(newmodel);
 	if (particlesystem) {
-		particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
+		//particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
+		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
+		powerupsystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
+		damagesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
 	}
+}
+
+void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
+	if (!colorflag) {
+		colorflag = true;
+		particlesystem->particlecolor = cores[id];
+	}
+
+	if (stats.inAir || stats.moving) {
+		particlesystem->creationrate = 15;
+	}
+	else {
+		particlesystem->creationrate = 0;
+		particlesystem->ctime = currTime;
+	}
+
+	powerupsystem->creationrate = 0;
+	for (int i = 0; i < 5; i++) {
+		if (stats.movementPowerupFlag[i] > 0) {
+			powerupsystem->creationrate = 200;
+			powerupsystem->particlecolor = cores[i + 4];
+			break;
+		}
+		//else if (stats.attackPowerupFlag[i] > 0) {
+		//	powerupsystem->creationrate = 40;
+		//	powerupsystem->particlecolor = cores[i + 4];
+		//	break;
+		//}
+	}
+
+	if (powerupsystem->creationrate == 0) {
+		powerupsystem->ctime = currTime;
+	}
+
+	if (stats.damageFlag == true && stats.underwater == false) {
+		damagesystem->creationrate = 300;
+		damagesystem->ctime -= 20 * (1000.0 / damagesystem->creationrate);
+		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
+	}
+	else if (stats.underwater) {
+		damagesystem->creationrate = 60;
+		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01) * 4.0f;
+	}
+	else {
+		damagesystem->creationrate = 0;
+		damagesystem->ctime = currTime;
+		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
+	}
+	
+
 }
 
 void PlayerObject::Update() {
@@ -117,6 +192,8 @@ void PlayerObject::Update() {
 	if (currTime != 0 && prevTime != 0 && particlesystem) {
 		double deltaTime = currTime - prevTime;
 		particlesystem->Update(deltaTime);
+		powerupsystem->Update(deltaTime);
+		damagesystem->Update(deltaTime);
 
 		if (!psflag) {
 
