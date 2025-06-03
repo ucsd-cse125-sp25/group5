@@ -1,6 +1,6 @@
 # Blender 4.4.3
 # www.blender.org
-mtllib Cloud 4.mtl
+mtllib Cloud 2.mtl
 o Cloud_2
 v -28.511436 2.665886 27.475107
 v -27.467867 -1.931691 22.093296
