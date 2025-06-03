@@ -12,6 +12,7 @@ public:
 	int type; //which object
 	int anim; //which animation clip
 	int mode; //which segment of the clip
+	float tAdj;
 
 	std::chrono::steady_clock::time_point realStartTime;
 

@@ -53,14 +53,14 @@ void Scene::createGame(ClientGame* client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init();
-	test = new PlayerObject();
+	//test = new PlayerObject();
 
 	//Cinema
 	player = new PlayerObject(0);
 	players[0] = player;
 
 	for (int i = 1; i < 4; i++) {
-		players[i] = new PlayerObject();
+		players[i] = new PlayerObject(0);
 	}
 
 	water = new Water();
@@ -139,12 +139,12 @@ void Scene::loadObjects() {
 	earthring->create((char*)importstr12.c_str(), glm::mat4(1), 1);
 
 
-	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv5.fbx"), 0);
-	glm::mat4 mov(0.005);
-	mov[3] = glm::vec4(0.0, 10.0, 0.0, 1.0);
-	mov = glm::eulerAngleX(-3.1415f / 2.0f) * mov;
-	
-	test->UpdateMat(mov);
+	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv5.fbx"), 0);
+	//glm::mat4 mov(0.005);
+	//mov[3] = glm::vec4(0.0, 10.0, 0.0, 1.0);
+	//mov = glm::eulerAngleX(-3.1415f / 2.0f) * mov;
+	//
+	//test->UpdateMat(mov);
 	//wasp load-in
 	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv5.fbx"), 0);
 	for (int i = 1; i < 4; i++) {
@@ -159,14 +159,16 @@ void Scene::update(Camera* cam) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
-	glm::mat4 playerScaleMatrix(0.5);
+	glm::mat4 playerScaleMatrix(0.005);
+	playerScaleMatrix[3][2] = -0.93267f;
 	playerScaleMatrix[3][3] = 1.0f;
+	playerScaleMatrix = glm::eulerAngleY(-3.1415f) * glm::eulerAngleX(-3.1415f / 2.0f) * playerScaleMatrix;
 
 	player->UpdateMat(client->playerModel * playerScaleMatrix);
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
 	player->Update();
 
-	test->Update();
+	//test->Update();
 	for (int i = 0; i < KILLFEED_LENGTH; i++) {
 		dummy.killfeed[i] = client->GameState.killfeed[i];
 	}
@@ -181,6 +183,7 @@ void Scene::update(Camera* cam) {
 		}
 
 		players[j]->UpdateMat(entity.model * playerScaleMatrix);
+		players[j]->UpdateParticles(client->GameState.player_stats[entity.id], entity.id);
 		players[j++]->Update();
 	}
 	
@@ -458,7 +461,7 @@ void Scene::draw(Camera* cam) {
 			earthpower->draw(mainShader, false);
 		}
 	}
-	test->Draw(mainShader, false);
+	//test->Draw(mainShader, false);
 
 	float now = glfwGetTime();
 	float deltaTime = now - lastFrameTime;
@@ -551,6 +554,8 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 
 	water->draw(waterShader, false);
+
+	glEnable(GL_CULL_FACE);
 
 	//All particle effects
 	GLuint particleShader = shaders[3];

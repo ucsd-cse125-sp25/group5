@@ -181,7 +181,7 @@ void Joint::Update(glm::mat4& parent) {
 	glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
 
 	// Build translation matrix
-	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), offset); //use offset here if you want to animate offset
+	glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), translation); //use offset here if you want to animate offset
 
 	// Compose local transform: T * S * animRot
 	glm::mat4 localTransform = translationMat * scaleMat * animRot;
