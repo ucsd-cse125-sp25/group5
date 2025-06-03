@@ -287,6 +287,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 	}
 	
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+		scene->dummy.tooltip = !scene->dummy.tooltip;
+	}
 	//PlayerIntent.scrollUpIntent = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
 	//PlayerIntent.scrollDownIntent = glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
 	//if (key == GLFW_KEY_W && action == GLFW_PRESS) {
@@ -321,7 +324,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	}
 
 
-	printf("Scroll: %f %f\n", xoffset, yoffset);
+	//printf("Scroll: %f %f\n", xoffset, yoffset);
 
 	scrollStart = glfwGetTime();
 	if (PlayerIntent.scrollDownIntent) { 

@@ -17,13 +17,19 @@
 static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float, float, float, float>> UIStorage = {
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::IN_GAME, 0.7, 0.0, 0.3, 1.0} },
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
-	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.5, 0.5}},
+	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.30, 0.5}},
 	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adoptme.png"), GamePhase::WAITING, 0.5, 0.75, 0.35, 1.0}},
 	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.2, 0.2, 0.1, 1.0}},
 	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
 	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.6, 0.2, 0.1, 1.0}},
 	{ "loading4", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.8, 0.2, 0.1, 1.0}},
-  { "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::IN_GAME, 0.0, 0.0, 1.0, 1.0}},
+	{ "vignette", {PROJECT_SOURCE_DIR + std::string("/assets/vignette.png"), GamePhase::IN_GAME, 0.0, 0.0, 1.0, 1.0}},
+	{"defeat", {PROJECT_SOURCE_DIR + std::string("/assets/end_defeat.png"), GamePhase::POST_GAME, 0.5, 0.25, 0.25, 0.5}},
+	{"victory", {PROJECT_SOURCE_DIR + std::string("/assets/end_victory.png"), GamePhase::POST_GAME, 0.5, 0.25, 0.25, 0.5}},
+	{ "c0", {PROJECT_SOURCE_DIR + std::string("/assets/character1.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "c1", {PROJECT_SOURCE_DIR + std::string("/assets/character2.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "c2", {PROJECT_SOURCE_DIR + std::string("/assets/character3.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "c3", {PROJECT_SOURCE_DIR + std::string("/assets/character4.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
 };
 
 /**
@@ -49,6 +55,14 @@ static std::unordered_map<std::string, std::string> HealthUI = {
 	{"b5", PROJECT_SOURCE_DIR + std::string("/assets/b5.png")}
 };
 
+
+static std::unordered_map<std::string, std::string> ToolTipsTexs = {
+	{ "tooltip1", PROJECT_SOURCE_DIR + std::string("/assets/tooltip1.jpg")},
+	{ "tooltip2", PROJECT_SOURCE_DIR + std::string("/assets/tooltip2.jpg")},
+	{ "tooltip3", PROJECT_SOURCE_DIR + std::string("/assets/tooltip3.jpg")} ,
+	{ "tooltip4", PROJECT_SOURCE_DIR + std::string("/assets/tooltip4.jpg")} ,
+	{ "tooltip5", PROJECT_SOURCE_DIR + std::string("/assets/tooltip5.jpg")}
+};
 
 static std::unordered_map<std::string, std::string> LobbyCharacters = {
 	{ "character1", PROJECT_SOURCE_DIR + std::string("/assets/character1.png")},
@@ -81,6 +95,7 @@ static std::unordered_map<std::string, std::string> Numbers = {
 	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8.png")},
 	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9.png")},
 	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
+	{"heart", PROJECT_SOURCE_DIR + std::string("/assets/heart.png")},
 };
 
 
@@ -105,20 +120,21 @@ void UIManager::Init(ClientGame* client) {
 	//add a clock to match elements
 	//UIImg* clock = new Clock();
 	UIImg* clock = new Clock();
-	std::vector<float> startPerc = { 0.0, 0.9 };
-	clock->Init(startPerc, 0.07, 1.0);
+
+	std::vector<float> startPerc = { 0.0, 0.92 };
+	clock->Init(startPerc, 0.035, 2.0);
 	//lobbyElements.push_back(clock);
 	countdownElements.push_back(clock);
 	matchElements.push_back(clock);
 	Clock* cl = dynamic_cast<Clock*>(clock);
 	cl->texs = &textures; //Mickey mouse
+	cl->client = client; //Mickey mouse
 
 	//add a clock to match elements
 	//UIImg* clock = new Clock();
 	UIImg* healthNums = new HealthNums();
-	std::vector<float> startPercHealthNums = { 0.1, 0.965 };
-	healthNums->Init(startPercHealthNums, 0.04, 1.0);
-	matchElements.push_back(healthNums);
+	std::vector<float> startPercHealthNums = { 0.035, 0.96555555 };
+	healthNums->Init(startPercHealthNums, 0.035, 2.0);
 	HealthNums* hn = dynamic_cast<HealthNums*>(healthNums);
 	hn->texs = &textures; //Mickey mouse
 	
@@ -132,9 +148,24 @@ void UIManager::Init(ClientGame* client) {
 	
 	Characters* ch = dynamic_cast<Characters*>(characters);
 	ch->texs = &textures; //Mickey mouse
-	characters->Init(startPercchar, 0.12, 1.0);
+	characters->Init(startPercchar, 0.14, 1.0);
 
 	ch->client = client;
+
+	for (const auto& pair : ToolTipsTexs) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+
+	UIImg* tooltips = new ToolTips();
+	std::vector<float> startPerctool = { 0.2, 0.35 };
+
+	ToolTips* tt = dynamic_cast<ToolTips*>(tooltips);
+	tt->texs = &textures; //Mickey mouse
+	tooltips->Init(startPerctool, 0.12, 1.8);
+
+	tt->client = client;
 
 
 	for (const auto& pair : KillfeedSprites) {
@@ -143,11 +174,11 @@ void UIManager::Init(ClientGame* client) {
 		LoadTexture(name, path);
 	}
 	UIImg* killfeed = new Killfeed();
-	std::vector<float> startPercKill = { 0.75, 0.94 };
+	std::vector<float> startPercKill = { 0.875, 0.95 };
 
 	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
 	kf->texs = &textures; //Mickey mouse
-	killfeed->Init(startPercKill, 0.09, 1.0);
+	killfeed->Init(startPercKill, 0.045, 1.5);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
@@ -167,7 +198,9 @@ void UIManager::Init(ClientGame* client) {
 			img = new Magic();
 		}
 		else if (name == "vignette") {
-			img = new Vignette();
+			Vignette *vig = new Vignette();
+			vig->client = client;
+			img = vig;
 		}
 		else {
 			img = new UIImg();
@@ -175,6 +208,7 @@ void UIManager::Init(ClientGame* client) {
 
 		img->Init({ percX, percY }, percent, aspect);
 		img->SetTexture(GetTexture(name));
+		img->name = name;
 
 		if (name == "magicback") {
 			Magic* ma = dynamic_cast<Magic*>(img);
@@ -240,13 +274,15 @@ void UIManager::Init(ClientGame* client) {
 		switch (state) {
 		case GamePhase::WAITING:
 			lobbyElements.push_back(img);
-
 			if (name != "gameTitle") {
 				countdownElements.push_back(img);
 			}
 			break;
 		case GamePhase::IN_GAME:
 			matchElements.push_back(img);
+			break;
+		case GamePhase::POST_GAME:
+			endElements.push_back(img);
 			break;
 		}
 		
@@ -255,6 +291,9 @@ void UIManager::Init(ClientGame* client) {
 	lobbyElements.push_back(characters);
 	countdownElements.push_back(characters);
 	matchElements.push_back(killfeed);
+	lobbyElements.push_back(tooltips);
+	matchElements.push_back(tooltips);
+	matchElements.push_back(healthNums);
 }
 
 void UIManager::update(const UIData& p) {
@@ -271,6 +310,11 @@ void UIManager::update(const UIData& p) {
 		break;
 	case GamePhase::IN_GAME:
 		for (auto* img : matchElements) {
+			img->Update(p);
+		}
+		break;
+	case GamePhase::POST_GAME:
+		for (auto* img : endElements) {
 			img->Update(p);
 		}
 		break;
@@ -294,6 +338,18 @@ void UIManager::draw() {
 			img->Draw();
 		}
 		break;
+	case GamePhase::POST_GAME:
+		for (auto* img : endElements) {
+			if (client->GameState.lockedWinnerId == client->playerId && img->name == "victory") {
+				img->Draw();
+			}
+			else if (client->GameState.lockedWinnerId != client->playerId && img->name == "defeat") {
+				img->Draw();
+			}
+			else if (img->name == "c" + std::to_string(client->GameState.lockedWinnerId)) {
+				img->Draw();
+			}
+		}
 	}
 }
 

@@ -578,7 +578,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 		//detect collision from bottom for jump, and make the player jump
 		if ((checkBottom(obj, phys) || playerStats.underwater) && physicsSystem.PlayerIntents[obj->id].moveUpIntent) {
-			obj->physics->velocity += glm::vec3(0.0f, 3.0f, 0.0f);
+			obj->physics->velocity += glm::vec3(0.0f, 4.5f, 0.0f);
 		}
 
 		//apply player movement
@@ -586,7 +586,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//set moving flag
 		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
 		//apply transformation
-		obj->transform.position += inputDirection * deltaTime * curSlowFactor * curUnderwaterSlowFactor;
+		obj->transform.position += inputDirection * deltaTime * curSlowFactor * curUnderwaterSlowFactor * 1.5f;
 
 		//limit position to boundary extents
 		glm::vec3 corner1(-75.0, -30.0, -75.0);
