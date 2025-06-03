@@ -539,6 +539,37 @@ void Scene::draw(Camera* cam) {
 		}
 	}
 
+	glDisable(GL_CULL_FACE);
+
+	//water shading and drawing
+	GLuint waterShader = shaders[4];
+	glUseProgram(waterShader);
+
+	glUniformMatrix4fv(glGetUniformLocation(waterShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(waterShader, "viewPos"), 1, &camPos[0]);
+
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "dirLightSpec"), 1, &dirLight->specular[0]);
+	glUniform1i(glGetUniformLocation(waterShader, "numLights"), lightmanager->numLights());
+	glUniformMatrix4fv(glGetUniformLocation(waterShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glUniform1i(glGetUniformLocation(waterShader, "shadowMap"), 1);
+	glUniform1i(glGetUniformLocation(waterShader, "useShadow"), doShadow ? true : false);
+
+	glUniform1f(glGetUniformLocation(waterShader, "time"), (currTime - startTime)/1000.0f);
+	glUniform1f(glGetUniformLocation(waterShader, "waterLevel"), waterLevel);
+	glUniform1f(glGetUniformLocation(waterShader, "fogConstant"), fogConstant);
+	glUniform1f(glGetUniformLocation(waterShader, "fogConstantW"), fogConstantW);
+	glUniform3fv(glGetUniformLocation(waterShader, "fogColor"), 1, &fogColor[0]);
+	glUniform3fv(glGetUniformLocation(waterShader, "fogColorW"), 1, &fogColorW[0]);
+
+	lightmanager->bind();
+
+	water->draw(waterShader, false);
+
 	glDepthFunc(GL_GREATER);
 	glDepthMask(GL_FALSE);
 	GLuint spectral = shaders[5];
@@ -570,37 +601,6 @@ void Scene::draw(Camera* cam) {
 	glUniform4fv(glGetUniformLocation(mainShader, "waterModel"), 1, (float*)&water->model);
 	lightmanager->bind();
 	flag->draw(mainShader, false);
-
-	glDisable(GL_CULL_FACE);
-
-	//water shading and drawing
-	GLuint waterShader = shaders[4];
-	glUseProgram(waterShader);
-
-	glUniformMatrix4fv(glGetUniformLocation(waterShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
-	glUniform3fv(glGetUniformLocation(waterShader, "viewPos"), 1, &camPos[0]);
-
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightDir"), 1, &dirLight->direction[0]);
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightColor"), 1, &dirLight->color[0]);
-	glUniform3fv(glGetUniformLocation(waterShader, "dirLightSpec"), 1, &dirLight->specular[0]);
-	glUniform1i(glGetUniformLocation(waterShader, "numLights"), lightmanager->numLights());
-	glUniformMatrix4fv(glGetUniformLocation(waterShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glUniform1i(glGetUniformLocation(waterShader, "shadowMap"), 1);
-	glUniform1i(glGetUniformLocation(waterShader, "useShadow"), doShadow ? true : false);
-
-	glUniform1f(glGetUniformLocation(waterShader, "time"), (currTime - startTime)/1000.0f);
-	glUniform1f(glGetUniformLocation(waterShader, "waterLevel"), waterLevel);
-	glUniform1f(glGetUniformLocation(waterShader, "fogConstant"), fogConstant);
-	glUniform1f(glGetUniformLocation(waterShader, "fogConstantW"), fogConstantW);
-	glUniform3fv(glGetUniformLocation(waterShader, "fogColor"), 1, &fogColor[0]);
-	glUniform3fv(glGetUniformLocation(waterShader, "fogColorW"), 1, &fogColorW[0]);
-
-	lightmanager->bind();
-
-	water->draw(waterShader, false);
 
 	//All particle effects
 	GLuint particleShader = shaders[3];
