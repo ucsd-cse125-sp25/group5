@@ -125,7 +125,7 @@ void Octree::subdivide(Node* node) {
 }
 
 void Octree::insert(GameObject* obj, Node* node) {
-    if (!node) return;
+    if (!node || !obj) return;
 
     if (node->isLeafNode()) {
         if (shouldSubdivide(node)) {
@@ -160,6 +160,7 @@ void Octree::insert(GameObject* obj, Node* node) {
 }
 
 void Node::removeObject(GameObject* obj) {
+    if (!obj) return;
     auto it = std::find(objects.begin(), objects.end(), obj);
     if (it != objects.end()) {
         objects.erase(it);
@@ -218,7 +219,7 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
 }
 
 void Octree::updateObject(GameObject* obj) {  
-    if (!root) return;  
+    if (!root || !obj) return;  
 
     // Remove the object from the current tree  
     root->removeObject(obj);  
@@ -229,5 +230,6 @@ void Octree::updateObject(GameObject* obj) {
 }
 
 void Octree::deleteObject(GameObject* obj) {
+    if (!root || !obj) return;s
     root->removeObject(obj);
 }

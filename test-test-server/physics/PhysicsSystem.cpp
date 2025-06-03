@@ -19,12 +19,6 @@ int nextid = 10;
 class BehaviorComponent;    // Forward declaration of BehaviorComponent class
 
 void PhysicsSystem::tick(float dt) {
-	for (auto& obj : movingObjects) {
-		if (!obj || !obj->collider) {
-			printf("Invalid obj in movingObjects\n");
-		}
-	}
-
     if (octreeMovingObjects == nullptr || octreeStaticObjects == nullptr) {
         broadphaseInit();
     }
@@ -42,12 +36,23 @@ void PhysicsSystem::tick(float dt) {
 		octreeMovingObjects->updateObject(obj);
 	}
 
+	// Reset acceleration for all objects
+	for (auto& obj : movingObjects) {
+		obj->physics->acceleration = glm::vec3(0.0f);
+	}
+
     checkCollisionDynamicAll();
 
     updateWaterLevel();
 
     //delete all objects marked for deletion
-	deleteMarkedDynamicObjects();
+	// deleteMarkedDynamicObjects();
+	deleteAllObjectsMarked();
+
+	// Update player intent tracking
+	for (int i = 0; i < 4; i++) {
+		PlayerTrackings[i].update(PlayerIntents[i]);
+	}
 
 	//add time to the killfeed 
 	tickKillfeed(dt);
@@ -458,6 +463,12 @@ void deleteObject(GameObject* obj) {
 		}
 		if (obj->physics) {
 			delete obj->physics; // Delete the physics component if it exists
+		}
+		if (obj->mesh) {
+			delete obj->mesh; // Delete the mesh component if it exists
+		}
+		if (obj->attached) {
+			delete obj->attached; // Delete the attached object if it exists
 		}
 		delete obj;
 	}
