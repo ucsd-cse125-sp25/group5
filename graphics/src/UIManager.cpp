@@ -95,6 +95,7 @@ static std::unordered_map<std::string, std::string> Numbers = {
 	{"8", PROJECT_SOURCE_DIR + std::string("/assets/numbers_8.png")},
 	{"9", PROJECT_SOURCE_DIR + std::string("/assets/numbers_9.png")},
 	{":", PROJECT_SOURCE_DIR + std::string("/assets/colon.png")},
+	{"heart", PROJECT_SOURCE_DIR + std::string("/assets/heart.png")},
 };
 
 
@@ -134,7 +135,6 @@ void UIManager::Init(ClientGame* client) {
 	UIImg* healthNums = new HealthNums();
 	std::vector<float> startPercHealthNums = { 0.1, 0.965 };
 	healthNums->Init(startPercHealthNums, 0.04, 1.0);
-	matchElements.push_back(healthNums);
 	HealthNums* hn = dynamic_cast<HealthNums*>(healthNums);
 	hn->texs = &textures; //Mickey mouse
 	
@@ -293,6 +293,7 @@ void UIManager::Init(ClientGame* client) {
 	matchElements.push_back(killfeed);
 	lobbyElements.push_back(tooltips);
 	matchElements.push_back(tooltips);
+	matchElements.push_back(healthNums);
 }
 
 void UIManager::update(const UIData& p) {

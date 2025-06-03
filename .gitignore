@@ -3,3 +3,31 @@ graphics/out
 test-test-client/out
 test-test-client/.vs
 .vs
+graphics/assets/BGE_Clock.blend
+graphics/assets/Clock_3ds.3ds
+graphics/assets/Clock_dae.dae
+graphics/assets/Clock_fbx.fbx
+graphics/assets/Clock_for_CYCLES.blend
+graphics/assets/Clock_obj.mtl
+graphics/assets/Clock_obj.obj
+graphics/assets/Clock_x3d.x3d
+graphics/assets/Constrain_Clock.blend
+graphics/assets/Constrain_Clock.blend1
+graphics/assets/Readme.txt
+graphics/assets/digit_0.png
+graphics/assets/digit_1.png
+graphics/assets/digit_2.png
+graphics/assets/digit_3.png
+graphics/assets/digit_4.png
+graphics/assets/digit_5.png
+graphics/assets/digit_6.png
+graphics/assets/digit_7.png
+graphics/assets/digit_8.png
+graphics/assets/digit_9.png
+graphics/assets/firetooltip.jpg
+graphics/assets/low-poly-fox-by-pixelmannen-animated (1).zip
+graphics/assets/textures/Ref.jpg
+graphics/assets/textures/low-poly-fox-by-pixelmannen-animated (1)/
+graphics/assets/textures/texture.png
+graphics/lib/assimp-vc143-mtd.dll
+graphics/lib/fmod/api/studio/examples/vs2017/_builds/
