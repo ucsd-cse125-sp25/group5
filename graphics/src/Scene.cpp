@@ -140,15 +140,15 @@ void Scene::loadObjects() {
 
 
 	test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv5.fbx"), 0);
-	glm::mat4 mov(0.05);
+	glm::mat4 mov(0.005);
 	mov[3] = glm::vec4(0.0, 10.0, 0.0, 1.0);
 	mov = glm::eulerAngleX(-3.1415f / 2.0f) * mov;
 	
 	test->UpdateMat(mov);
 	//wasp load-in
-	player->LoadAnimation();
+	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv5.fbx"), 0);
 	for (int i = 1; i < 4; i++) {
-		players[i]->LoadAnimation();
+		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jumpv5.fbx"), 0);
 	}
 	lastFrameTime = glfwGetTime();
 }
@@ -159,8 +159,10 @@ void Scene::update(Camera* cam) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
+	glm::mat4 playerScaleMatrix(0.5);
+	playerScaleMatrix[3][3] = 1.0f;
 
-	player->UpdateMat(client->playerModel);
+	player->UpdateMat(client->playerModel * playerScaleMatrix);
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
 	player->Update();
 
@@ -178,7 +180,7 @@ void Scene::update(Camera* cam) {
 			continue;
 		}
 
-		players[j]->UpdateMat(entity.model);
+		players[j]->UpdateMat(entity.model * playerScaleMatrix);
 		players[j++]->Update();
 	}
 	

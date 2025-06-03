@@ -58,6 +58,11 @@ PlayerObject::PlayerObject(int systemtype) {
 
 		psflag = false;
 		colorflag = false;
+		ground = true;
+
+		animplayer->type = 0; //player model
+		animplayer->anim = 0;
+		animplayer->mode = 2;
 
 	}
 }
@@ -133,6 +138,17 @@ void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 }
 
 void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
+
+	//animation update (ignore name of function)
+	if ((stats.inAir) && ground) {
+		ground = false;
+		animplayer->Jump();
+	}
+	else if ((!stats.inAir) && !ground) {
+		ground = true;
+		animplayer->Land();
+	}
+
 	if (!colorflag) {
 		colorflag = true;
 		particlesystem->particlecolor = cores[id];

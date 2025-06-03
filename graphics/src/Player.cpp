@@ -7,10 +7,29 @@
 #include "Joint.h"
 #include <iostream>
 
+//ALL ANIMATION CLIP TIME CONSTANTS
+long long JUMP_START_RT = 0;
+long long JUMP_TOP_RT = 17;
+long long JUMP_END_RT = 37;
+float scale = 10.0f;
+
 Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clock::time_point realStartTime)
     : skeleton(skeleton), animation(animation) {
 
     this->realStartTime = std::chrono::high_resolution_clock::now();
+}
+
+void Player::Jump() {
+    anim = 0;
+    mode = 1;
+    this->realStartTime = std::chrono::high_resolution_clock::now() - std::chrono::seconds(JUMP_START_RT);
+}
+
+void Player::Land() {
+    anim = 0;
+    mode = 2;
+    this->realStartTime = std::chrono::high_resolution_clock::now() - std::chrono::seconds(JUMP_TOP_RT);
+
 }
 
 void Player::update() {
@@ -20,7 +39,21 @@ void Player::update() {
 
         std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
         float time = time_clock.count();
-        time = time * 1000.0f/60.0f;
+        time = (time * scale);
+        //std::cout << "time: " << time << std::endl;
+        
+        //time constraints based on animation state
+        if (anim == 0 && mode == 1) {
+            if (time > JUMP_TOP_RT) {
+                time = JUMP_TOP_RT;
+            }
+        }
+        else if (anim == 0 && mode == 2) {
+            if (time > JUMP_END_RT) {
+                time = JUMP_END_RT;
+            }
+        }
+
         //std::cout << time << std::endl;
         //75 joints
         //animation->channels.size();
