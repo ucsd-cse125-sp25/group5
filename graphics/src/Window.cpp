@@ -324,7 +324,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	}
 
 
-	printf("Scroll: %f %f\n", xoffset, yoffset);
+	//printf("Scroll: %f %f\n", xoffset, yoffset);
 
 	scrollStart = glfwGetTime();
 	if (PlayerIntent.scrollDownIntent) { 
