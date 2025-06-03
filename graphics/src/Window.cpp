@@ -287,6 +287,8 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 	}
 	
+	scene->dummy.tooltip = glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS;
+
 	//PlayerIntent.scrollUpIntent = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
 	//PlayerIntent.scrollDownIntent = glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
 	//if (key == GLFW_KEY_W && action == GLFW_PRESS) {

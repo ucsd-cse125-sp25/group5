@@ -148,9 +148,9 @@ void Clock::Update(const UIData& p) {
 
 void Clock::Draw() {
 	//seconds = timerStart - (glfwGetTime() - start);
-	/*if (seconds < 1 * 30) {
+	if (seconds < 1 * 30) {
 		return;
-	}*/
+	}
 
 	glUseProgram(shaderProgram);
 	glEnable(GL_BLEND);
@@ -270,6 +270,88 @@ void HealthNums::Draw() {
 	glBindVertexArray(0);
 }
 
+
+
+void ToolTips::Init(std::vector<float> startPerc, float percent, float ratio) {
+
+	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+	float uiWidth = WINDOWWIDTH * percent;
+	float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float startX = WINDOWWIDTH * startPerc[0];
+	float startY = WINDOWHEIGHT * startPerc[1];
+	std::vector<float> startPos = { startX, startY };
+
+	container = {
+		//Position												   //UV         //Color
+		startPos[0] - (uiWidth / 2), startPos[1] - (uiHeight / 2), 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2), 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, container.size() * sizeof(float), container.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+
+	sprites[0] = (*texs)["tooltip1"];
+	sprites[1] = (*texs)["tooltip2"];
+	sprites[2] = (*texs)["tooltip3"];
+	sprites[3] = (*texs)["tooltip4"];
+	sprites[4] = (*texs)["tooltip5"];
+}
+
+void ToolTips::Update(const UIData& p) {
+	draw = p.tooltip || (p.currHP <= 0 && client->GameState.phase == GamePhase::IN_GAME);
+}
+
+void ToolTips::Draw() {
+	//seconds = timerStart - (glfwGetTime() - start);
+
+	if (!draw ) return;
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, healthTexture);
+
+	glDisable(GL_DEPTH_TEST);
+
+
+	glBindVertexArray(VAO);
+	glm::mat4 model = glm::mat4(1.0f);
+	for (int i = 0; i < 5; i++) {
+		//translate, scale then translate by the offset
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.15, 0.0f, 0.0f));
+		glBindTexture(GL_TEXTURE_2D, sprites[i]);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	glDisable(GL_BLEND);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
 
 
 void Characters::Init(std::vector<float> startPerc, float percent, float ratio) {
@@ -991,6 +1073,8 @@ void Magic::SetRotate(int anim) {
 void Vignette::Init(std::vector<float> startPos, float percent, float ratio) {
 	shaderProgram = LoadShaders("shaders/vignette.vert", "shaders/vignette.frag");
 	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+
+	//goldTexture = textures["gold"];
 	glUseProgram(shaderProgram);
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
 
@@ -1038,7 +1122,7 @@ void Vignette::Update(const UIData& p) {
 		isLow = false;
 		isAlive = true;
 	}
-
+	hasFlag = client->GameState.player_stats[client->playerId].hasFlag;
 }
 
 void Vignette::Draw() {
@@ -1054,8 +1138,11 @@ void Vignette::Draw() {
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniform1i(glGetUniformLocation(shaderProgram, "isAlive"), isAlive);
 	glUniform1i(glGetUniformLocation(shaderProgram, "isLow"), isLow);
+	glUniform1i(glGetUniformLocation(shaderProgram, "hasFlag"), hasFlag);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
+	//glActiveTexture(GL_TEXTURE1);
+	//glBindTexture(GL_TEXTURE_2D, goldTexture);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	glDisable(GL_BLEND);

@@ -50,6 +50,14 @@ static std::unordered_map<std::string, std::string> HealthUI = {
 };
 
 
+static std::unordered_map<std::string, std::string> ToolTipsTexs = {
+	{ "tooltip1", PROJECT_SOURCE_DIR + std::string("/assets/tooltip1.jpg")},
+	{ "tooltip2", PROJECT_SOURCE_DIR + std::string("/assets/tooltip2.jpg")},
+	{ "tooltip3", PROJECT_SOURCE_DIR + std::string("/assets/tooltip3.jpg")} ,
+	{ "tooltip4", PROJECT_SOURCE_DIR + std::string("/assets/tooltip4.jpg")} ,
+	{ "tooltip5", PROJECT_SOURCE_DIR + std::string("/assets/tooltip5.jpg")}
+};
+
 static std::unordered_map<std::string, std::string> LobbyCharacters = {
 	{ "character1", PROJECT_SOURCE_DIR + std::string("/assets/character1.png")},
 	{ "character2", PROJECT_SOURCE_DIR + std::string("/assets/character2.png")},
@@ -132,9 +140,24 @@ void UIManager::Init(ClientGame* client) {
 	
 	Characters* ch = dynamic_cast<Characters*>(characters);
 	ch->texs = &textures; //Mickey mouse
-	characters->Init(startPercchar, 0.12, 1.0);
+	characters->Init(startPercchar, 0.14, 1.0);
 
 	ch->client = client;
+
+	for (const auto& pair : ToolTipsTexs) {
+		const std::string& name = pair.first;
+		const std::string& path = pair.second;
+		LoadTexture(name, path);
+	}
+
+	UIImg* tooltips = new ToolTips();
+	std::vector<float> startPerctool = { 0.2, 0.35 };
+
+	ToolTips* tt = dynamic_cast<ToolTips*>(tooltips);
+	tt->texs = &textures; //Mickey mouse
+	tooltips->Init(startPerctool, 0.12, 1.8);
+
+	tt->client = client;
 
 
 	for (const auto& pair : KillfeedSprites) {
@@ -167,7 +190,9 @@ void UIManager::Init(ClientGame* client) {
 			img = new Magic();
 		}
 		else if (name == "vignette") {
-			img = new Vignette();
+			Vignette *vig = new Vignette();
+			vig->client = client;
+			img = vig;
 		}
 		else {
 			img = new UIImg();
@@ -255,6 +280,8 @@ void UIManager::Init(ClientGame* client) {
 	lobbyElements.push_back(characters);
 	countdownElements.push_back(characters);
 	matchElements.push_back(killfeed);
+	lobbyElements.push_back(tooltips);
+	matchElements.push_back(tooltips);
 }
 
 void UIManager::update(const UIData& p) {
