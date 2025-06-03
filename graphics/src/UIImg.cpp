@@ -238,9 +238,10 @@ void HealthNums::Update(const UIData& p) {
 	int ones = tempHealth % 10;
 
 
-	digits[0] = (*texs)[std::to_string(hundreds)];
-	digits[1] = (*texs)[std::to_string(tens)];
-	digits[2] = (*texs)[std::to_string(ones)];
+	digits[0] = (*texs)["heart"];
+	digits[1] = (*texs)[std::to_string(hundreds)];
+	digits[2] = (*texs)[std::to_string(tens)];
+	digits[3] = (*texs)[std::to_string(ones)];
 }
 
 void HealthNums::Draw() {
