@@ -88,8 +88,11 @@ private:
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> container;
+	std::vector<float> bottomleft;
 	GLuint VAO, VBO, EBO;
+	GLuint VAOb, VBOb;
 	bool draw = false;
+	bool drawB = false;
 
 };
 

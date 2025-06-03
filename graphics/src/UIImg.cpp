@@ -293,6 +293,15 @@ void ToolTips::Init(std::vector<float> startPerc, float percent, float ratio) {
 		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
 	};
 
+	float mini = WINDOWWIDTH * 0.05;
+	float miniY = WINDOWHEIGHT * 0.05 * ratio;
+	bottomleft = {
+		0.0f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		mini, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		mini, miniY, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, miniY, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -314,6 +323,22 @@ void ToolTips::Init(std::vector<float> startPerc, float percent, float ratio) {
 
 	glBindVertexArray(0);
 
+	glGenVertexArrays(1, &VAOb);
+	glGenBuffers(1, &VBOb);
+
+	glBindVertexArray(VAOb);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOb);
+	glBufferData(GL_ARRAY_BUFFER, bottomleft.size() * sizeof(float), bottomleft.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindVertexArray(0);
+
+
 	sprites[0] = (*texs)["tooltip1"];
 	sprites[1] = (*texs)["tooltip2"];
 	sprites[2] = (*texs)["tooltip3"];
@@ -322,31 +347,51 @@ void ToolTips::Init(std::vector<float> startPerc, float percent, float ratio) {
 }
 
 void ToolTips::Update(const UIData& p) {
-	draw = p.tooltip || (p.currHP <= 0 && client->GameState.phase == GamePhase::IN_GAME);
+	if (p.tooltip && client->GameState.phase == GamePhase::IN_GAME) {
+		drawB = true;
+		draw = false;
+	}
+	else if (p.currHP <= 0 && client->GameState.phase == GamePhase::IN_GAME) {
+		draw = true;
+		drawB = false;
+	}
+	else {
+		drawB = false;
+		draw = false;
+	}
+	//draw = p.tooltip || (p.currHP <= 0 && client->GameState.phase == GamePhase::IN_GAME);
 }
 
 void ToolTips::Draw() {
 	//seconds = timerStart - (glfwGetTime() - start);
-
-	if (!draw ) return;
+	if (!draw && !drawB) { return; }
 	glUseProgram(shaderProgram);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	glm::mat4 model = glm::mat4(1.0f);
+	if (draw) {
+		glBindVertexArray(VAO);
+		for (int i = 0; i < 5; i++) {
+			//translate, scale then translate by the offset
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+			model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.15, 0.0f, 0.0f));
+			glBindTexture(GL_TEXTURE_2D, sprites[i]);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+	}
+	else if (drawB) {
+		glBindVertexArray(VAOb);
+		for (int i = 0; i < 5; i++) {
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+			model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.06, 0.0f, 0.0f));
+			glBindTexture(GL_TEXTURE_2D, sprites[i]);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+	}
+
 	//glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, healthTexture);
-
-	glDisable(GL_DEPTH_TEST);
-
-
-	glBindVertexArray(VAO);
-	glm::mat4 model = glm::mat4(1.0f);
-	for (int i = 0; i < 5; i++) {
-		//translate, scale then translate by the offset
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
-		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.15, 0.0f, 0.0f));
-		glBindTexture(GL_TEXTURE_2D, sprites[i]);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	}
 	glDisable(GL_BLEND);
 
 	glEnable(GL_DEPTH_TEST);
