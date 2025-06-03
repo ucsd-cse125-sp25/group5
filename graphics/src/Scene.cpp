@@ -251,7 +251,7 @@ void Scene::update(Camera* cam) {
 		}
 		else if (entity.type == COLLIDER) {
 		  //generate a random color
-			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 0.5f, 0.0f));
+			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.9f, 0.0f, 0.0f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}
