@@ -4,6 +4,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include "physics/BehaviorComponent.h"
+#include <iostream>
 
 typedef glm::vec3 vec3;
 typedef glm::vec4 vec4;
@@ -384,6 +385,10 @@ void PhysicsSystem::updateGameObjectAABB(GameObject* obj) {
     if (!obj || !obj->collider) {
         return; // Ensure the object and its collider are valid
     }
+
+	//std::cout << "Inside updateGameObjectAABB: obj = " << obj << std::endl;
+	//if (obj) std::cout << "obj->id = " << obj->id << std::endl;
+
     obj->transform.aabb = getAABB(obj);
 }
 
@@ -416,6 +421,7 @@ void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objec
         // if (otherObj != obj && obj->id < otherObj->id) {
 		if (otherObj->id != obj->id) { 
 			updateGameObjectAABB(otherObj);
+			// std::cout << "Calling updateGameObjectAABB: obj = " << obj << ", id = " << obj->id << std::endl;
 			updateGameObjectAABB(obj);
             pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherObj->transform.aabb);
             if (penetration.second > 0.0f) {
@@ -442,3 +448,67 @@ void PhysicsSystem::checkCollisionDynamicAll() {
     }
 }
 
+void deleteObject(GameObject* obj) {
+	if (obj) {
+		if (obj->behavior) {
+			delete obj->behavior; // Delete the behavior component if it exists
+		}
+		if (obj->collider) {
+			delete obj->collider; // Delete the collider component if it exists
+		}
+		if (obj->physics) {
+			delete obj->physics; // Delete the physics component if it exists
+		}
+		delete obj;
+	}
+}
+
+void PhysicsSystem::deleteAllObjectsMarked() {
+	if (dynamicObjects.size() > 0) {
+		for (auto& obj : dynamicObjects) {
+			if (obj->markDeleted) {
+				movingObjects.erase(remove(movingObjects.begin(), movingObjects.end(), obj), movingObjects.end());
+				dynamicObjects.erase(remove(dynamicObjects.begin(), dynamicObjects.end(), obj), dynamicObjects.end());
+				if (octreeMovingObjects) {
+					octreeMovingObjects->deleteObject(obj);
+				}
+				deleteObject(obj);
+			}
+		}
+	}
+
+	if (staticObjects.size() > 0) {
+		for (auto& obj : staticObjects) {
+			if (obj->markDeleted) {
+				staticObjects.erase(remove(staticObjects.begin(), staticObjects.end(), obj), staticObjects.end());
+				if (octreeStaticObjects) {
+					octreeStaticObjects->deleteObject(obj);
+				}
+				deleteObject(obj);
+			}
+		}
+	}
+
+	if (playerObjects.size() > 0) {
+		for (auto& obj : playerObjects) {
+			if (obj->markDeleted) {
+				playerObjects.erase(remove(playerObjects.begin(), playerObjects.end(), obj), playerObjects.end());
+				movingObjects.erase(remove(movingObjects.begin(), movingObjects.end(), obj), movingObjects.end());
+				if (octreeMovingObjects) {
+					octreeMovingObjects->deleteObject(obj);
+				}
+				deleteObject(obj);
+			}
+		}
+	}
+	
+	if (movingObjects.size() != dynamicObjects.size() + playerObjects.size()) {
+		printf("Error: movingObjects size does not match dynamicObjects and playerObjects sizes.\n");
+		printf("movingObjects size: %zu, dynamicObjects size: %zu, playerObjects size: %zu\n", 
+			movingObjects.size(), dynamicObjects.size(), playerObjects.size());
+	}
+
+
+
+
+}

@@ -275,6 +275,8 @@ public:
     void checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status);
     void checkCollisionDynamicOne(GameObject* obj);
     void checkCollisionDynamicAll();
+
+    void deleteAllObjectsMarked();
     
     //adding objects
 	void addDynamicObject(GameObject* obj) {
