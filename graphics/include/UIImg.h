@@ -121,7 +121,7 @@ private:
 	std::vector<float> container;
 	double start = 0.0;
 	int seconds;
-	float widthPercSpacing = 0.07;
+	float widthPercSpacing = 0.035;
 
 	GLuint VAO, VBO, EBO;
 };
@@ -139,7 +139,7 @@ private:
 	glm::mat4 projection;
 	std::vector<float> container;
 	int health;
-	float widthPercSpacing = 0.04;
+	float widthPercSpacing = 0.035;
 
 	GLuint VAO, VBO, EBO;
 };

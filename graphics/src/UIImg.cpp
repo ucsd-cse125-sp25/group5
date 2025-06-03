@@ -568,13 +568,13 @@ void Killfeed::Draw() {
 		glBindTexture(GL_TEXTURE_2D, sprite);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.1f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.05f, 0.0f, 0.0f));
 		//action draw
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glBindTexture(GL_TEXTURE_2D, (*texs)["action" + std::to_string(uidata.killfeed[i].type)]);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.1f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.05f, 0.0f, 0.0f));
 		// will be -1 if there is no victim
 		if (uidata.killfeed[i].victim != -1) {
 			//victim draw only if there is a victim
@@ -584,7 +584,7 @@ void Killfeed::Draw() {
 		}
 
 		//newline of sprites
-		model = glm::translate(lineStart, glm::vec3(0.0f, -WINDOWHEIGHT * 0.1f, 0.0f));
+		model = glm::translate(lineStart, glm::vec3(0.0f, -WINDOWHEIGHT * 0.075f, 0.0f));
 		lineStart = model;
 		
 	}
@@ -612,7 +612,7 @@ void HealthBar::Init(std::vector<float> startPerc, float percent, float ratio) {
 	float bHeight = WINDOWHEIGHT * percent * (806.0f / 1576.0f);
 	flowerWidth = WINDOWWIDTH * percent * 0.15;
 
-	float bump = (WINDOWHEIGHT * 0.8);
+	float bump = (WINDOWHEIGHT * 0.84);
 	std::vector<float> startPos = { WINDOWWIDTH * startPerc[0], WINDOWHEIGHT * startPerc[1] + bump};
 
 	health = {

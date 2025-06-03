@@ -8,12 +8,13 @@
 
 class Audio {
 public:
-	void Init();
+	void Init(ClientGame* client);
 	void Update(Camera* cam, UIData &p);
 	void PlayAudio(std::string n, glm::vec3 pos, float volume);
 	void StopAudio();
 	void Filter(bool enable);
 	GamePhase phase;
+	ClientGame* client;
 	int selfState = 0; //1 = lost, 2 = won
 private:
 	bool isAlive = true;
@@ -36,4 +37,7 @@ private:
 	FMOD::DSP* lowpassDSP = nullptr;
 	float hitStart;
 	float deathStart;
+
+	bool LFS[4] = { false, false, false, false };
+	bool CFS[4] = { false, false, false, false };
 };

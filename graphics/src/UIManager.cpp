@@ -17,7 +17,7 @@
 static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float, float, float, float>> UIStorage = {
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::IN_GAME, 0.7, 0.0, 0.3, 1.0} },
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
-	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.5, 0.5}},
+	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.30, 0.5}},
 	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adoptme.png"), GamePhase::WAITING, 0.5, 0.75, 0.35, 1.0}},
 	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.2, 0.2, 0.1, 1.0}},
 	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
@@ -121,8 +121,8 @@ void UIManager::Init(ClientGame* client) {
 	//UIImg* clock = new Clock();
 	UIImg* clock = new Clock();
 
-	std::vector<float> startPerc = { 0.0, 0.9 };
-	clock->Init(startPerc, 0.07, 1.0);
+	std::vector<float> startPerc = { 0.0, 0.92 };
+	clock->Init(startPerc, 0.035, 2.0);
 	//lobbyElements.push_back(clock);
 	countdownElements.push_back(clock);
 	matchElements.push_back(clock);
@@ -133,8 +133,8 @@ void UIManager::Init(ClientGame* client) {
 	//add a clock to match elements
 	//UIImg* clock = new Clock();
 	UIImg* healthNums = new HealthNums();
-	std::vector<float> startPercHealthNums = { 0.1, 0.965 };
-	healthNums->Init(startPercHealthNums, 0.04, 1.0);
+	std::vector<float> startPercHealthNums = { 0.035, 0.96555555 };
+	healthNums->Init(startPercHealthNums, 0.035, 2.0);
 	HealthNums* hn = dynamic_cast<HealthNums*>(healthNums);
 	hn->texs = &textures; //Mickey mouse
 	
@@ -174,11 +174,11 @@ void UIManager::Init(ClientGame* client) {
 		LoadTexture(name, path);
 	}
 	UIImg* killfeed = new Killfeed();
-	std::vector<float> startPercKill = { 0.75, 0.94 };
+	std::vector<float> startPercKill = { 0.875, 0.95 };
 
 	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
 	kf->texs = &textures; //Mickey mouse
-	killfeed->Init(startPercKill, 0.09, 1.0);
+	killfeed->Init(startPercKill, 0.045, 1.5);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;

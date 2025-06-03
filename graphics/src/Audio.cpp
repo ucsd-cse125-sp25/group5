@@ -29,7 +29,8 @@ static std::unordered_map<std::string, FMOD::Sound*> Sounds;
 
 
 //Loop through AudioFiles hash map and create Sound* placed in Sounds hashmap
-void Audio::Init() {
+void Audio::Init(ClientGame* client) {
+	this->client = client;
 	phase = PRE_GAME;
 	hitStart = glfwGetTime();
 	deathStart = glfwGetTime();
@@ -127,6 +128,27 @@ void Audio::Update(Camera* cam, UIData &p) {
 		std::string cs = "hit";
 		this->PlayAudio(cs, pos, volume);
 	}
+	
+	//for (int i = 0; i < client->GameState.num_players; i++) {
+	//	int id = client->GameState.players[i].id;
+	//	LFS[id] = CFS[id];
+	//	CFS[id] = client->GameState.player_stats[id].hasFlag;
+	//}
+
+	//int myId = client->playerId;
+	// bool trigger = false;
+	//bool flagflag = false;
+	//for (int i = 0; i < client->GameState.num_players; i++) {
+	//	flagflag |= client->GameState.player_stats[i].hasFlag;
+	//}
+	//for (int i = 0; i < client->GameState.num_players; i++) {
+	//	int id = client->GameState.players[i].id;
+	//	if (LFS[id] && !CFS[id] && flagflag) {
+	//		std::string trs = "transfer";
+	//		this->PlayAudio(trs, pos, volume);
+	//		break;
+	//	}
+	//}
 
 	//if last alive and now dead play death
 	if (lastState && !isAlive) {

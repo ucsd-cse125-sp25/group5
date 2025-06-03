@@ -55,7 +55,7 @@ void Scene::createGame(ClientGame* client) {
 	uimanager->Init(client);
 
 	audiomanager = new Audio;
-	audiomanager->Init();
+	audiomanager->Init(client);
 	test = new PlayerObject();
 
 	//Cinema
@@ -570,37 +570,40 @@ void Scene::draw(Camera* cam) {
 
 	water->draw(waterShader, false);
 
-	glDepthFunc(GL_GREATER);
-	glDepthMask(GL_FALSE);
-	GLuint spectral = shaders[5];
-	glUseProgram(spectral);
-	glUniformMatrix4fv(glGetUniformLocation(spectral, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
-	glUniform1f(glGetUniformLocation(spectral, "uScale"), 1.02f);
-	flag->draw(spectral, false);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
 
-	glUseProgram(mainShader);
-	glUniformMatrix4fv(glGetUniformLocation(mainShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
-	glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight->direction[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight->color[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight->specular[0]);
-	glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
-	glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glUniform1i(glGetUniformLocation(mainShader, "shadowMap"), 1);
-	glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
-	glUniform1f(glGetUniformLocation(mainShader, "time"), (currTime - startTime) / 1000.0f);
-	glUniform1f(glGetUniformLocation(mainShader, "waterLevel"), waterLevel);
-	glUniform1f(glGetUniformLocation(mainShader, "fogConstant"), fogConstant);
-	glUniform1f(glGetUniformLocation(mainShader, "fogConstantW"), fogConstantW);
-	glUniform3fv(glGetUniformLocation(mainShader, "fogColor"), 1, &fogColor[0]);
-	glUniform3fv(glGetUniformLocation(mainShader, "fogColorW"), 1, &fogColorW[0]);
-	glUniform4fv(glGetUniformLocation(mainShader, "waterModel"), 1, (float*)&water->model);
-	lightmanager->bind();
-	flag->draw(mainShader, false);
+	if (!client->GameState.player_stats[client->playerId].hasFlag) {
+		glDepthFunc(GL_GREATER);
+		glDepthMask(GL_FALSE);
+		GLuint spectral = shaders[5];
+		glUseProgram(spectral);
+		glUniformMatrix4fv(glGetUniformLocation(spectral, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+		glUniform1f(glGetUniformLocation(spectral, "uScale"), 1.02f);
+		flag->draw(spectral, false);
+		glDepthFunc(GL_LESS);
+		glDepthMask(GL_TRUE);
+
+		glUseProgram(mainShader);
+		glUniformMatrix4fv(glGetUniformLocation(mainShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+		glUniform3fv(glGetUniformLocation(mainShader, "viewPos"), 1, &camPos[0]);
+		glUniform3fv(glGetUniformLocation(mainShader, "dirLightDir"), 1, &dirLight->direction[0]);
+		glUniform3fv(glGetUniformLocation(mainShader, "dirLightColor"), 1, &dirLight->color[0]);
+		glUniform3fv(glGetUniformLocation(mainShader, "dirLightSpec"), 1, &dirLight->specular[0]);
+		glUniform1i(glGetUniformLocation(mainShader, "numLights"), lightmanager->numLights());
+		glUniformMatrix4fv(glGetUniformLocation(mainShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glUniform1i(glGetUniformLocation(mainShader, "shadowMap"), 1);
+		glUniform1i(glGetUniformLocation(mainShader, "useShadow"), doShadow ? true : false);
+		glUniform1f(glGetUniformLocation(mainShader, "time"), (currTime - startTime) / 1000.0f);
+		glUniform1f(glGetUniformLocation(mainShader, "waterLevel"), waterLevel);
+		glUniform1f(glGetUniformLocation(mainShader, "fogConstant"), fogConstant);
+		glUniform1f(glGetUniformLocation(mainShader, "fogConstantW"), fogConstantW);
+		glUniform3fv(glGetUniformLocation(mainShader, "fogColor"), 1, &fogColor[0]);
+		glUniform3fv(glGetUniformLocation(mainShader, "fogColorW"), 1, &fogColorW[0]);
+		glUniform4fv(glGetUniformLocation(mainShader, "waterModel"), 1, (float*)&water->model);
+		lightmanager->bind();
+		flag->draw(mainShader, false);
+	}
 
 	//All particle effects
 	GLuint particleShader = shaders[3];
