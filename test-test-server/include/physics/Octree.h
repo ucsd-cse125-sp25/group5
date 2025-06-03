@@ -65,6 +65,7 @@ class Octree {
 
         void constructTree(const vector<GameObject*>& objects);
         void insert(GameObject* obj, Node* node);
+        void deleteObject(GameObject* obj);
 
         void getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const;
 

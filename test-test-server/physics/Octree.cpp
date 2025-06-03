@@ -163,7 +163,7 @@ void Node::removeObject(GameObject* obj) {
     auto it = std::find(objects.begin(), objects.end(), obj);
     if (it != objects.end()) {
         objects.erase(it);
-    } else if (!this->isLeaf) {
+    } else if (!(this->isLeaf)) {
         for (int i = 0; i < 8; i++) {
             this->children[i]->removeObject(obj);
         }
@@ -226,4 +226,8 @@ void Octree::updateObject(GameObject* obj) {
     // Reinsert the object into the tree  
 	updateAABBGameObject(obj);
     insert(obj, root);  
+}
+
+void Octree::deleteObject(GameObject* obj) {
+    root->removeObject(obj);
 }
