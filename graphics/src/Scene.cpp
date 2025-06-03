@@ -16,7 +16,7 @@ int WINDOWWIDTH = 2560;
 //1440
 
 float waterLevel = -2.0f;
-float fogConstant = 0.01f;
+float fogConstant = 0.0001f;
 float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.35, 0.4, 0.55);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
@@ -251,7 +251,7 @@ void Scene::update(Camera* cam) {
 		}
 		else if (entity.type == COLLIDER) {
 		  //generate a random color
-			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.5f, 0.5f, 0.5f));
+			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.0f, 0.5f, 0.0f));
 			cu->setModel(entity.model);
 			cubes.push_back(cu);
 		}

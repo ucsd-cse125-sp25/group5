@@ -1,7 +1,7 @@
 # Blender 4.4.3 MTL File: 'None'
 # www.blender.org
 
-newmtl Grass
+newmtl Grass.001
 Ns 360.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.072935 0.263780 0.104894
@@ -11,7 +11,7 @@ Ni 1.500000
 d 1.000000
 illum 2
 
-newmtl Rock
+newmtl Rock.001
 Ns 360.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.079686 0.079686 0.079686
