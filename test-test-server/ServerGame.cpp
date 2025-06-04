@@ -26,7 +26,7 @@ namespace fs = std::experimental::filesystem;
 
 
 
-#define TICKS_PER_SECOND 100
+#define TICKS_PER_SECOND 50
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
 
 unsigned int ServerGame::client_id;
@@ -424,7 +424,7 @@ void ServerGame::update() {
 
 	bool sendUpdate = receiveFromClients();
 
-	physicsSystem.tick(0.05f); // Update the physics system with a fixed timestep
+	physicsSystem.tick(0.08f); // Update the physics system with a fixed timestep
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
 	int timeSinceStart = (int)std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();
