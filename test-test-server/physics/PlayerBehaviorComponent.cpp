@@ -292,6 +292,14 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		curSlowFactor = 1.0f; // reset slow factor
 	}
+
+	if (movementAbilityTimer > 0.0f) {
+		movementAbilityTimer -= deltaTime;
+		if (movementAbilityTimer <= 0.0f) {
+			movementAbilityTimer = 0.0f;
+			//playerStats.movementPowerupFlag[playerStats.activePower] = 0; // reset movement power flag
+		}
+	}
 	
 	//underwater damage and slow
 	if (playerStats.underwater) {
@@ -321,6 +329,8 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		flagBoostTimer = 0.0f;
 	}
 
+
+
 	//cooldown for all 5 attack powers
 	for (int i = 0; i < 5; i++) {
 		if (curCooldownArray[i] > 0.0f) {
@@ -331,6 +341,8 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 			}
 		}
 	}
+
+	
 
 	if(state != PlayerMovementState::GRAPPLE) {
 		//reset grapple target if we're not grappling
@@ -481,13 +493,14 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//check for if a player is in the air
 		playerStats.inAir = !checkBottom(obj, phys);
 		//check for movement powers 
-		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
+		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1 && movementAbilityTimer <= 0.0f) {
 
 			printf("Metal mana %d\n", playerStats.mana[0]);
 			printf("Wood mana %d\n", playerStats.mana[1]);
 			printf("Water mana %d\n", playerStats.mana[2]);
 			printf("Fire mana %d\n", playerStats.mana[3]);
 			printf("Earth mana %d\n", playerStats.mana[4]);
+			movementAbilityTimer = MOVEMENT_ABILITY_COOLDOWN;
 			if (playerStats.activePower == FIRE && playerStats.mana[3] >= FIRE_MOVE_COST) {
 				state = PlayerMovementState::DASH;
 				dashTimer = DASH_TIME;
@@ -533,7 +546,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				playerStats.grappleTarget = result.first;
 
 				//we have a target
-				if (target != glm::vec3(0.0f, 0.0f, 0.0f)) {
+				if (target != glm::vec3(0.0f, 0.0f, 0.0f) && result.second > 0.0f) {
 					//only start grappling if we have a target 
 					state = PlayerMovementState::GRAPPLE;
 					grappleTimer = result.second / GRAPPLE_SPEED;
@@ -542,11 +555,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 					glm::vec3 normalizedDirection = glm::normalize(direction);
 					//lock the velocity
 					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+
+					//only do this part if the grapple is successful
+					playerStats.mana[1] -= WOOD_MOVE_COST;
+					playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 				}
-
-
-				playerStats.mana[1] -= WOOD_MOVE_COST;
-				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 
 				return;
 			}
