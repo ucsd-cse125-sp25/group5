@@ -306,7 +306,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	//underwater damage and slow
 	if (playerStats.underwater) {
 		underwaterTimer += deltaTime;
-		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL) {
+		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
 			playerStats.hp -= 1;
 			underwaterTimer = 0.0f;
 			curUnderwaterSlowFactor = UNDERWATER_SLOW_FACTOR;
@@ -320,7 +320,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	//flag holding hp increase
 	if (playerStats.hasFlag) {
 		flagBoostTimer += deltaTime;
-		if (flagBoostTimer >= FLAG_BOOST_INTERVAL) {
+		if (flagBoostTimer >= FLAG_BOOST_INTERVAL && playerStats.alive) {
 			playerStats.hp += 1;
 			playerStats.maxHP += 1;
 			maxHP += 1;
@@ -364,9 +364,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 
 	//water setting
-	if (playerStats.underwater && obj->transform.position.y >= phys.waterLevel) {
-		obj->physics->velocity.y *= 0.5;
-	}
+	
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 
 	//death handling block
@@ -495,7 +493,10 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		grappleTimer -= deltaTime;
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
 		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
-
+		glm::vec3 direction = playerStats.grappleTarget - obj->transform.position;
+		glm::vec3 normalizedDirection = glm::normalize(direction);
+		//lock the velocity
+		obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
 		////if we've collided with our target object, or if we've run out of time, release the grapple
 		//if (grappleTimer <= 0.0f) {
 		//	printf(
@@ -625,6 +626,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			printf("Water mana %d\n", playerStats.mana[2]);
 			printf("Fire mana %d\n", playerStats.mana[3]);
 			printf("Earth mana %d\n", playerStats.mana[4]);
+		}
+		if (playerStats.underwater && obj->transform.position.y >= phys.waterLevel) {
+			obj->physics->velocity.y *= 0.5;
 		}
 
 		//check for attacks

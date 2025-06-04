@@ -120,7 +120,7 @@ const static std::vector<std::tuple<std::string, glm::vec3, std::string>> mapObj
 	//std::make_tuple("Cloud 4", glm::vec3(10.90002f, 175.2f, 49.90002f), ".obj"),
 	std::make_tuple("Island 02", glm::vec3(0.f, 0.f, 0.f), ".obj"),
 	std::make_tuple("Small Island Fragment 1", glm::vec3(-40.f, 0.f, 0.f), ".obj"),
-	std::make_tuple("Small Island Fragment 1", glm::vec3(35.09998f, 2.300003f, 0.f), ".obj"),
+	std::make_tuple("Small Island Fragment 1", glm::vec3(40.0f, 0.f, 0.f), ".obj"),
 	std::make_tuple("Small Island Fragment 1", glm::vec3(0.0f, 0.0f, 40.0f), ".obj"),
 	std::make_tuple("Small Island Fragment 1", glm::vec3(0.0f, 0.f, -40.0f), ".obj"),
 	std::make_tuple("Island Fragment 5", glm::vec3(-9.100006f, 94.09999f, -10.19995f), ".obj"),
