@@ -16,10 +16,10 @@
 class ServerGame {
 
 	glm::vec3 spawnPoints[4] = {
-		glm::vec3(-40.0f, 5.0f, 0.0f),
-		glm::vec3(0.0f, 5.0f, 40.0f),
-		glm::vec3(40.0f, 5.0f, 0.0f),
-		glm::vec3(0.0f, 5.0f, -40.0f)
+		glm::vec3(-40.0f, 10.0f, 0.0f),
+		glm::vec3(0.0f, 10.0f, 40.0f),
+		glm::vec3(40.0f, 10.0f, 0.0f),
+		glm::vec3(0.0f, 10.0f, -40.0f)
 	};
 
 public:  
