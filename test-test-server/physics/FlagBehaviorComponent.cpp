@@ -41,8 +41,8 @@ void FlagBehaviorComponent::resolveCollision(GameObject* obj, GameObject* other,
 	if (status == 0) {
 		physicsSystem.resolveCollision(obj, other, penetration, status);
 	}
-
-	if (status == 1 && other->type == PLAYER) {
+	//make sure the other player is alive
+	if (status == 1 && other->type == PLAYER && dynamic_cast<PlayerBehaviorComponent*>(other->behavior)->playerStats.alive) {
 		//the flag got captured while it is not owned
 		if (owningPlayer == -1) {
 			owningPlayer = other->id;

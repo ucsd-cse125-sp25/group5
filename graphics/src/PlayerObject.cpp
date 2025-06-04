@@ -68,6 +68,14 @@ PlayerObject::PlayerObject(int systemtype) {
 	}
 }
 
+void PlayerObject::enableAnimation() {
+	animation->animate = true;
+}
+
+void PlayerObject::disableAnimation() {
+	animation->animate = false;
+}
+
 void PlayerObject::LoadAnimation() {
 
 
@@ -76,7 +84,7 @@ void PlayerObject::LoadAnimation() {
 	animation->Load((char*)(PROJECT_SOURCE_DIR + std::string("/include/wasp_walk/wasp/wasp_dance.anim")).c_str());
 }
 
-void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
+void PlayerObject::LoadExperimental(std::string filename, int meshindex, int texindex) {
 	std::cout << "entered create" << std::endl;
 	Assimp::Importer importer;
 	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_PopulateArmatureData);
@@ -120,7 +128,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	//iscene->mRootNode->FindNode("b_Root") for fox
 	//iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root") for man
 	root->Load(iscene->mRootNode, &nodeToBone, skin);
-	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex], 1);
+	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex], texindex);
 
 	//std::cout << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0] << std::endl;
 	//load animations

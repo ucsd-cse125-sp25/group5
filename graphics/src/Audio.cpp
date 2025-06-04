@@ -22,8 +22,8 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"ticktock", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ticktock.wav")},
 	{"capture", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/capture.wav")},
 	{"transfer", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
-	{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
-	{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterA.wav")},
+	//{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
+	//{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterA.wav")},
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
@@ -149,26 +149,38 @@ void Audio::Update(Camera* cam, UIData &p) {
 		this->PlayAudio(cs, pos, volume);
 	}
 	
-	//for (int i = 0; i < client->GameState.num_players; i++) {
-	//	int id = client->GameState.players[i].id;
-	//	LFS[id] = CFS[id];
-	//	CFS[id] = client->GameState.player_stats[id].hasFlag;
-	//}
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		int id = client->GameState.players[i].id;
+		CFS[id] = client->GameState.player_stats[id].hasFlag;
+	}
 
-	//int myId = client->playerId;
-	// bool trigger = false;
-	//bool flagflag = false;
-	//for (int i = 0; i < client->GameState.num_players; i++) {
-	//	flagflag |= client->GameState.player_stats[i].hasFlag;
-	//}
-	//for (int i = 0; i < client->GameState.num_players; i++) {
-	//	int id = client->GameState.players[i].id;
-	//	if (LFS[id] && !CFS[id] && flagflag) {
-	//		std::string trs = "transfer";
-	//		this->PlayAudio(trs, pos, volume);
-	//		break;
-	//	}
-	//}
+	bool playTransfer = false;
+	bool youStole = false;
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		int id = client->GameState.players[i].id;
+		if (!LFS[id] && CFS[id] && client->playerId == id) { //Play "capture" for yourself
+			LFS[id] = true;
+			std::string cap = "capture";
+			this->PlayAudio(cap, pos, volume);
+			youStole = true;
+		}
+		else if (LFS[id] && !CFS[id] && client->GameState.player_stats[id].alive) {
+			LFS[id] = false;
+			playTransfer = true;
+		}
+	}
+
+	//Play transfer if anybody got their flag stolen and you did not steal the flag
+	if (playTransfer && !youStole) {
+		std::string trs = "transfer";
+		this->PlayAudio(trs, pos, volume);
+	}
+
+	//Update last flag state
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		int id = client->GameState.players[i].id;
+		LFS[id] = CFS[id];
+	}
 
 	//if last alive and now dead play death
 	if (lastState && !isAlive) {
@@ -187,22 +199,6 @@ void Audio::Update(Camera* cam, UIData &p) {
 		timeOut = true;
 		std::string tt = "ticktock";
 		this->PlayAudio(tt, pos, volume);
-	}
-
-	if (!lastFlagState && p.hasFlag) {
-		lastFlagState = true;
-		std::string cap = "capture";
-		this->PlayAudio(cap, pos, volume);
-	}
-	//Only play transfer when losing flag while not dead
-	else if (!p.hasFlag && lastFlagState && isAlive) {
-		lastFlagState = false;
-		std::string tra = "transfer";
-		this->PlayAudio(tra, pos, volume);
-	}
-	else if (!p.hasFlag) {
-		lastFlagState = false;
-		//lost the flag
 	}
 
 	if (!decision && selfState == 1) {
