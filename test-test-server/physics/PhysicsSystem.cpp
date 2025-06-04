@@ -414,23 +414,23 @@ void PhysicsSystem::broadphaseInit() {
 }
 
 void PhysicsSystem::checkCollisionOne(Octree* octree, vector<GameObject*>& objects, GameObject* obj, int status) {
-    if (!octree || !obj || !obj->collider) return;
-    
-    vector<GameObject*> potentialCollisions;
-    octree->getPotentialCollisionPairs(getAABB(obj), potentialCollisions);
+	if (!octree || !obj || !obj->collider) return;
 
-    for (auto& otherObj : potentialCollisions) {
+	unordered_map<int, GameObject*> potentialCollisions;
+	octree->getPotentialCollisionPairs(getAABB(obj), potentialCollisions);
+
+	for (auto& otherObj : potentialCollisions) {
         // if (otherObj != obj && obj->id < otherObj->id) {
-		if (otherObj->id != obj->id) { 
-			updateGameObjectAABB(otherObj);
+		if (otherObj.first != obj->id) { 
+			updateGameObjectAABB(otherObj.second);
 			// std::cout << "Calling updateGameObjectAABB: obj = " << obj << ", id = " << obj->id << std::endl;
 			updateGameObjectAABB(obj);
-            pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherObj->transform.aabb);
+            pair<vec3, float> penetration = getAABBpenetration(obj->transform.aabb, otherObj.second->transform.aabb);
             if (penetration.second > 0.0f) {
 				if (obj->behavior != nullptr) {
-					obj->behavior->resolveCollision(obj, otherObj, penetration, status);
+					obj->behavior->resolveCollision(obj, otherObj.second, penetration, status);
 				} else if (status == 0) {
-					resolveCollision(obj, otherObj, penetration, status);
+					resolveCollision(obj, otherObj.second, penetration, status);
 				}
             }
         }

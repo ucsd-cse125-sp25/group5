@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 // "PhysicsSystem.h"
 #include "PhysicsData.h"
+#include <unordered_map>
 
 class GameObject; // Forward declaration
 struct AABB; // Forward declaration
@@ -72,7 +73,7 @@ class Octree {
         void insert(GameObject* obj, Node* node);
         void deleteObject(GameObject* obj);
 
-        void getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const;
+        void getPotentialCollisionPairs(const AABB& box, unordered_map<int, GameObject*>& potentialCollisions) const;
 
         void updateObject(GameObject* obj);
 

@@ -209,10 +209,10 @@ Octree::~Octree() {
     root = nullptr;
 }
 
-void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& potentialCollisions) const {  
+void Octree::getPotentialCollisionPairs(const AABB& box, unordered_map<int, GameObject*>& potentialCollisions) const {
     if (!root) return;  
 
-    vector<Node*> nodesToCheck;  
+    vector<Node*> nodesToCheck;
     nodesToCheck.push_back(root);  
 
     while (!nodesToCheck.empty()) {  
@@ -222,9 +222,7 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
         if (overlap(currentNode->getBoundingBox(), box)) {  
             if (currentNode->isLeafNode()) {  
                 for (GameObject* obj : currentNode->getObjects()) {  
-                    if (find(potentialCollisions.begin(), potentialCollisions.end(), obj) == potentialCollisions.end()) {
-                        potentialCollisions.push_back(obj);
-                    }
+                    potentialCollisions.insert({ obj->id, obj });
                 }  
             } else {  
                 for (int i = 0; i < 8; i++) {

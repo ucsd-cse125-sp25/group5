@@ -22,7 +22,7 @@ namespace fs = std::experimental::filesystem;
 
 #define IN_GAME_DURATION 300
 
-#define NUM_PLAYERS_TO_START 2
+#define NUM_PLAYERS_TO_START 1
 
 
 
@@ -372,6 +372,8 @@ void ServerGame::setPhase(GamePhase newPhase) {
 void ServerGame::update() {
 	startTime = std::chrono::high_resolution_clock::now();
 
+	std::chrono::time_point<std::chrono::high_resolution_clock> beforeTest = std::chrono::high_resolution_clock::now();
+
 	// get new clients
 	if (network->acceptNewClient(client_id)) {
 		// create a new player
@@ -404,11 +406,19 @@ void ServerGame::update() {
 	}
 
 	bool sendUpdate = receiveFromClients();
-	
-	physicsSystem.tick(0.1f); // Update the physics system with a fixed timestep
+	std::chrono::time_point<std::chrono::high_resolution_clock> afterTest = std::chrono::high_resolution_clock::now();
+	auto testTime = std::chrono::duration_cast<std::chrono::milliseconds>(afterTest - beforeTest).count();
+	// printf("test took %lld ms\n", testTime);
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> beforePhys = std::chrono::high_resolution_clock::now();
+	physicsSystem.tick(0.08f); // Update the physics system with a fixed timestep
+	std::chrono::time_point<std::chrono::high_resolution_clock> afterPhys = std::chrono::high_resolution_clock::now();
+	auto durationPhys = std::chrono::duration_cast<std::chrono::milliseconds>(afterPhys - beforePhys).count();
+	// printf("Physics took %lld ms\n", durationPhys);
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
 	int timeSinceStart = (int)std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();
+
 
 	if (phase == PRE_GAME && PRE_GAME_COUNTDOWN - timeSinceStart <= 0) {
 		setPhase(IN_GAME);
@@ -422,6 +432,8 @@ void ServerGame::update() {
 
 	endTime = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+	printf("ServerGame::update took %lld ms\n", duration);
+
 
 	// If did not spend the whole tick (50ms)
 	if (duration < TICK_TIME_MILLS) {
