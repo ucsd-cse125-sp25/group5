@@ -151,9 +151,9 @@ void Scene::loadObjects() {
 	
 	//test->UpdateMat(mov);
 	//wasp load-in
-	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk4.fbx"), 0);
+	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0);
 	for (int i = 1; i < 4; i++) {
-		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk4.fbx"), 0);
+		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0);
 	}
 	lastFrameTime = glfwGetTime();
 }

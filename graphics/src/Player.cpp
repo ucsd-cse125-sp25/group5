@@ -68,12 +68,14 @@ void Player::update() {
         //time constraints based on animation state
         if (anim == 0 && mode == 1) {
             if (time > JUMP_TOP_RT) {
-                time = JUMP_TOP_RT;
+                //time = JUMP_TOP_RT;
+                return;
             }
         }
         else if (anim == 0 && mode == 2) {
             if (time > JUMP_END_RT) {
-                time = JUMP_END_RT;
+                //time = JUMP_END_RT;
+                return;
             }
         }
         else if (anim == 1 && mode == 1) {
@@ -84,7 +86,8 @@ void Player::update() {
         }
         else if (anim == 1 && mode == 2) {
             if (time > WALK_END_RT) {
-                time = WALK_END_RT;
+                //time = WALK_END_RT;
+                return;
             }
         }
 
