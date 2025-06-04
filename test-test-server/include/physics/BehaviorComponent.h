@@ -102,6 +102,8 @@ const float UNDERWATER_DAMAGE_INTERVAL = 1.0f;
 const float FLAG_BOOST_INTERVAL = 10.0f;
 const float MOVEMENT_ABILITY_COOLDOWN = 0.5f;
 
+const glm::vec3 EYES_OFFSET = glm::vec3(0.0f, 1.0f, 0.0f); // Offset for the player's eyes position
+
 const int HP_PICKUP_AMOUNT = 10;
 const int MANA_PICKUP_AMOUNT = 10;
 
