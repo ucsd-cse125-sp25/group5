@@ -29,7 +29,7 @@ public:
 	void enableAnimation();
 	void disableAnimation();
 	void LoadAnimation();
-	void LoadExperimental(std::string filename, int meshindex);
+	void LoadExperimental(std::string filename, int meshindex, int texindex);
 	void UpdateMat(glm::mat4 newmodel);
 	void Update();
 	void UpdateParticles(PlayerStats stats, int id);

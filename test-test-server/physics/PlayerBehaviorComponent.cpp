@@ -56,9 +56,8 @@ glm::vec3 static getDirection(float azimuth, float incline) {
 }
 
 //god forgive me for what I'm about to do
-bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
+float static checkBottom(GameObject* obj, PhysicsSystem& phys, float eps = 0.1) {
 	// 1) compute a single point just below the player's feet
-	float eps = 0.1f;
 	glm::vec3 foot1 = obj->transform.position
 		- glm::vec3(0.5f, obj->collider->halfExtents.y + eps, 0.5f);
 	glm::vec3 foot2 = obj->transform.position
@@ -80,13 +79,16 @@ bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 				&& foot.y >= b.min.y && foot.y <= b.max.y
 				&& foot.z >= b.min.z && foot.z <= b.max.z)
 			{
-				return true;
+				//returns how far into the box my foot is, negatively downwards into the box
+				return foot.y-b.max.y;
 			}
 		}
 	}
 
 	return false;
 }
+
+
 
 bool rayIntersectsAABB(const Ray& ray,
 	const AABB& box,
@@ -695,6 +697,13 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 		}
 
 		physicsSystem.resolveCollision(obj, other, penetration, status);
+
+		/*if (float stair = checkBottom(obj, physicsSystem,  0.6) < 0) {
+			obj->transform.position += vec3(0.0, + stair,0.0);
+		}*/
+		if (penetration.first.x != 0 || penetration.first.z != 0) {
+			obj->physics->velocity += vec3(0.0, 1.0, 0.0) * 0.25f;
+		}
 	}
 	else if (status == 1 && playerStats.alive) {
 		//this is fucking terrible 
