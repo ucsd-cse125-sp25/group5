@@ -507,15 +507,22 @@ void Scene::draw(Camera* cam) {
 	ringRot += 180.0f * deltaTime;
 	ringRot = fmod(ringRot, 360.0f);
 
-	for (int i = 1; i < client->GameState.num_players; i++) {
+	for (int i = 0; i < client->GameState.num_players; i++) {
+		auto entity = client->GameState.players[i];
+
+		if (entity.id == client->playerId || !client->GameState.player_stats[entity.id].alive) {
+			continue;
+		}
+
 		players[i]->Draw(mainShader, false);
 	}
 
 	for (int i = 0; i < client->GameState.num_players; i++) {
-		if (client->GameState.players[i].id == client->playerId) {
+		auto entity = client->GameState.players[i];
+		if (entity.id == client->playerId || !client->GameState.player_stats[entity.id].alive) {
 			continue;
 		}
-		glm::vec3 pos = client->GameState.players[i].model[3];
+		glm::vec3 pos = client->GameState.players[entity.id].model[3];
 		//std::cout << i << std::endl;
 		//std::cout << glm::to_string(pos) << std::endl;
 		glm::mat4 matrix = glm::mat4(1.0f);
@@ -523,7 +530,7 @@ void Scene::draw(Camera* cam) {
 		matrix[3] = glm::vec4(pos, 1.0f);
 		matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
-		PowerType active = client->GameState.player_stats[i].activePower;
+		PowerType active = client->GameState.player_stats[entity.id].activePower;
 
 		if (active == METAL) {
 			metalring->update(matrix);
