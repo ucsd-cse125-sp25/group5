@@ -83,7 +83,21 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial, int texindex) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		const char* path = texindex == 1 ? "baked.png" : texPath.C_Str();
+		
+		const char* path = texPath.C_Str();
+		if (texindex > 0) {
+			switch (texindex) {
+			case 1:
+				path = "baked2.png";
+				break;
+			case 2:
+				path = "baked3.png";
+				break;
+			case 3:
+				path = "baked4.png";
+				break;
+			}
+		}
 		std::string filename = getLastPathPart(std::string(path));
 		std::string source = PROJECT_SOURCE_DIR;
 		std::string  middle = "/assets/textures/";
@@ -91,7 +105,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial, int texindex) {
 
 		int width, height, nrChannels;
 		std::cout << "texture source" << source.c_str() << std::endl;
-		unsigned char* data = stbi_load(source.c_str(), &width, &height, &nrChannels, 0);
+		unsigned char* data = stbi_load(source.c_str(), &width, &height, &nrChannels, 3);
 
 		if (data)
 		{
