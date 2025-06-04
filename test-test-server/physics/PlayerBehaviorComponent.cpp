@@ -367,6 +367,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 			playerStats.hp = maxHP;
 			playerStats.alive = true;
+			playerStats.damageFlag = false;
 			state = PlayerMovementState::IDLE;
 			deathTimer = 0.0f;
 
@@ -386,6 +387,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
 		deathTimer = DEATH_TIME;
+
 	}
 	//when death first happens 
 	if (playerStats.hp <= 0) {
@@ -413,9 +415,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	}
 
 	if(state == PlayerMovementState::DEATH) {
+		printf("Health dead: %d\n", playerStats.hp);
 		printf("Player %d is dead\n", obj->id);
 	}
 	else {
+		printf("Health alive: %d\n", playerStats.hp);
 		printf("Player %d is alive\n", obj->id);
 	}
 
