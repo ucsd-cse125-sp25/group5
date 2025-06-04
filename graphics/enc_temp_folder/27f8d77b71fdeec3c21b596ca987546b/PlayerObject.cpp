@@ -129,7 +129,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 }
 
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {
-		skel->updateWorldMat(newmodel);
+	skel->updateWorldMat(newmodel);
 	if (particlesystem) {
 		//particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
 		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
