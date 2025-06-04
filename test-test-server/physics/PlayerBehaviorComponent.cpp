@@ -369,35 +369,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	}
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 
-	//when death first happens 
-	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
-		playerStats.hp = 0;
-		//set state to death, start the death timer, do tags
-		state = PlayerMovementState::DEATH;
-		deathTimer = DEATH_TIME;
-		playerStats.alive = false;
-
-		//drop the flag 
-		if (obj->attached != nullptr && obj->attached->type == FLAG) {
-			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
-			behavior->owningPlayer = -1;
-			behavior->owningGameObject = nullptr;
-			obj->attached = nullptr;
-			//playerStats.hasFlag = false;
-
-			//killfeed item for dropping the flag
-			struct KillfeedItem item = { -1, obj->id, FLAGDROP, 0.0f };
-			physicsSystem.addKillfeedItem(item);
-		}
-
-		//no collider
-		obj->collider->halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
-	}
-	
-	changePlayerPower(obj, phys, intent);
-
-	//movement states
-	if(state == PlayerMovementState::DEATH) {
+	//death handling block
+	if (state == PlayerMovementState::DEATH) {
 		playerStats.hp = 0;
 		deathTimer -= deltaTime;
 
@@ -407,7 +380,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		playerStats.inAir = false;
 
 		if (deathTimer <= 0.0f) {
-			
+
 			playerStats.hp = maxHP;
 			playerStats.alive = true;
 			state = PlayerMovementState::IDLE;
@@ -425,7 +398,77 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		}
 		return;
 	}
-	else if (state == PlayerMovementState::DASH) {
+
+	
+	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
+		deathTimer = DEATH_TIME;
+	}
+	//when death first happens 
+	if (playerStats.hp <= 0) {
+		playerStats.hp = 0;
+		//set state to death, start the death timer, do tags
+		state = PlayerMovementState::DEATH;
+		playerStats.alive = false;
+
+		//drop the flag 
+		if (obj->attached != nullptr && obj->attached->type == FLAG) {
+			FlagBehaviorComponent* behavior = dynamic_cast<FlagBehaviorComponent*>(obj->attached->behavior);
+			behavior->owningPlayer = -1;
+			behavior->owningGameObject = nullptr;
+			obj->attached = nullptr;
+			//playerStats.hasFlag = false;
+
+			//killfeed item for dropping the flag
+			struct KillfeedItem item = { -1, obj->id, FLAGDROP, 0.0f };
+			physicsSystem.addKillfeedItem(item);
+		}
+
+		//no collider
+		obj->collider->halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
+		return;
+	}
+
+	if(state == PlayerMovementState::DEATH) {
+		printf("Player %d is dead\n", obj->id);
+	}
+	else {
+		printf("Player %d is alive\n", obj->id);
+	}
+
+
+	
+	changePlayerPower(obj, phys, intent);
+
+	////movement states
+	//if(state == PlayerMovementState::DEATH) {
+	//	playerStats.hp = 0;
+	//	deathTimer -= deltaTime;
+
+	//	//freeze the player
+	//	obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	//	playerStats.inAir = false;
+
+	//	if (deathTimer <= 0.0f) {
+	//		
+	//		playerStats.hp = maxHP;
+	//		playerStats.alive = true;
+	//		state = PlayerMovementState::IDLE;
+	//		deathTimer = 0.0f;
+
+	//		for (int i = 0; i < 5; i++) {
+	//			playerStats.mana[i] = 100.0f;
+	//		}
+	//		//set the postion of the player to same x and z, but y to 100.0f
+	//		obj->transform.position = glm::vec3(obj->transform.position.x, 100.0f, obj->transform.position.z);
+
+	//		//turn collider back on
+	//		//TODO: set extents to player defaults
+	//		obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	}
+	//	return;
+	//}
+	if (state == PlayerMovementState::DASH) {
 		dashTimer -= deltaTime;
 
 		//once we're done, exit dash
