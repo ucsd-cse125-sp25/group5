@@ -68,6 +68,14 @@ PlayerObject::PlayerObject(int systemtype) {
 	}
 }
 
+void PlayerObject::enableAnimation() {
+	animation->animate = true;
+}
+
+void PlayerObject::disableAnimation() {
+	animation->animate = false;
+}
+
 void PlayerObject::LoadAnimation() {
 
 
