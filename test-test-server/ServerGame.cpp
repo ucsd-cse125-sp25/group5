@@ -22,7 +22,7 @@ namespace fs = std::experimental::filesystem;
 
 #define IN_GAME_DURATION 300
 
-#define NUM_PLAYERS_TO_START 1
+#define NUM_PLAYERS_TO_START 2
 
 
 

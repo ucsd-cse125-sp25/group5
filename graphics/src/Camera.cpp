@@ -21,6 +21,7 @@ void Camera::Update() {
         //0.0008f
         Rot = glm::rotate(Rot, 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
 
+
        // world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment * glm::eulerAngleX(glm::radians(-Incline)) * world;
 
         world = Rot;// *glm::eulerAngleX(glm::radians(-Incline));
@@ -49,17 +50,16 @@ void Camera::Update() {
         glm::mat4 translate(1);
 
         Pos = glm::vec3(client->playerModel[3]);
+
+        Pos[1] += 1.0f;
+
         //std::cout << "cam pos: " << Pos.x << " " << Pos.y << " " << Pos.z << std::endl;
         translate[3][0] = Pos.x;
         translate[3][1] = Pos.y;
         translate[3][2] = Pos.z;
 
-        glm::mat4 translateAugment(1);
-        ////translateAugment[3][0] =  0.0f;
-        ////translateAugment[3][1] =  1.5f;
-        ////translateAugment[3][2] =  2.0f;
 
-        world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment * glm::eulerAngleX(glm::radians(-Incline)) * world;
+        world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
 
         //std::cout << "Camera position!" << glm::to_string(world[3]) << std::endl;
         //world[3][2] = Distance;

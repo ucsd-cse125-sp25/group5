@@ -227,9 +227,13 @@ void HealthNums::Init(std::vector<float> startPerc, float percent, float ratio) 
 }
 
 void HealthNums::Update(const UIData& p) {
+	if (p.currHP <= 0) {
+		printf("health = %d\n", p.currHP);
+	}
 	health = p.currHP;
 
 	int tempHealth = health;
+
 
 
 	//int seconds = (int)p.seconds;
