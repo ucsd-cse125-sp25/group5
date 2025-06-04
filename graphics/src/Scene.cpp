@@ -166,6 +166,15 @@ void Scene::update(Camera* cam) {
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
 	player->Update();
 
+	if(client->GameState.phase == GamePhase::WAITING && musica == -1){
+		audiomanager->PlayAudio("lobbymusic", client->playerModel[3], 0.37f);
+		musica = 0;
+	}
+	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 0) {
+		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.37f);
+		musica = 1;
+	}
+
 	//test->Update();
 	for (int i = 0; i < KILLFEED_LENGTH; i++) {
 		dummy.killfeed[i] = client->GameState.killfeed[i];

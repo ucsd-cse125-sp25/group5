@@ -21,7 +21,9 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"respawn", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/respawn.wav")},
 	{"ticktock", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ticktock.wav")},
 	{"capture", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/capture.wav")},
-	{"transfer", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")}
+	{"transfer", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
+	{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
+	{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterA.wav")},
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
@@ -42,8 +44,14 @@ void Audio::Init(ClientGame* client) {
 		const std::string& track = pair.first;
 		const std::string& path = pair.second;
 		FMOD::Sound* s;
-		system->createSound(path.c_str(), FMOD_3D | FMOD_CREATESAMPLE, 0, &s);
-		s->setMode(FMOD_LOOP_OFF);
+		if (track.find("music") != std::string::npos) {
+			system->createSound(path.c_str(), FMOD_2D | FMOD_CREATESAMPLE, 0, &s);
+			s->setMode(FMOD_LOOP_NORMAL);
+		}
+		else {
+			system->createSound(path.c_str(), FMOD_3D | FMOD_CREATESAMPLE, 0, &s);
+			s->setMode(FMOD_LOOP_OFF);
+		}
 		Sounds[track] = s;
 	}
 	listenerPos = { 0.0f, 0.0f, 0.0f };
@@ -71,25 +79,37 @@ void Audio::Init(ClientGame* client) {
 //Given name of audio, from AudioFiles hash map, place audio track into channel and then play it
 //Also pass in the position for spatial audio
 void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
-	FMOD_VECTOR soundPos = {pos.x, pos.y, pos.z};
-	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
-	FMOD::Channel* channel = nullptr;
 
-	system->playSound(Sounds[n], nullptr, true, &channel);
-	channel->set3DAttributes(&soundPos, &soundVel);
-	float dec = 1.0f;
-	if (n == "earthM") {
-		dec = 0.4f;
+	FMOD_VECTOR soundPos = { pos.x, pos.y, pos.z };
+	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
+
+	if (n.find("music") != std::string::npos) {
+		StopAudio();
+		system->playSound(Sounds[n], nullptr, true, &musicChannel);
+		musicChannel->set3DAttributes(&soundPos, &soundVel);
+
+		musicChannel->setVolume(volume);
+		musicChannel->set3DMinMaxDistance(0.5f, 95.0f);
+		musicChannel->setChannelGroup(sfxGroup);
+		musicChannel->setPaused(false);
 	}
-	channel->setVolume(volume * dec);
-	channel->set3DMinMaxDistance(0.5f, 95.0f);
-	bool isUnfiltered = (
-		n == "death" || n == "defeat" || n == "victory" ||
-		n == "hit" || n == "ticktock" || n == "respawn" ||
-		n == "capture" || n == "transfer"
-		);
-	channel->setChannelGroup(isUnfiltered ? sfxGroup : attackGroup);
-	channel->setPaused(false);
+	else {
+
+		FMOD::Channel* channel = nullptr;
+
+		system->playSound(Sounds[n], nullptr, true, &channel);
+		channel->set3DAttributes(&soundPos, &soundVel);
+		float dec = 1.0f;
+		channel->setVolume(volume * dec);
+		channel->set3DMinMaxDistance(0.5f, 95.0f);
+		bool isUnfiltered = (
+			n == "death" || n == "defeat" || n == "victory" ||
+			n == "hit" || n == "ticktock" || n == "respawn" ||
+			n == "capture" || n == "transfer"
+			);
+		channel->setChannelGroup(isUnfiltered ? sfxGroup : attackGroup);
+		channel->setPaused(false);
+	}
 }
 
 //Can only stop the background music
