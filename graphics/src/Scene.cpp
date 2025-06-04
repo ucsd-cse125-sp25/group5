@@ -517,7 +517,7 @@ void Scene::draw(Camera* cam) {
 			continue;
 		}
 
-		players[j]->Draw(mainShader, false);
+		players[j++]->Draw(mainShader, false);
 	}
 
 	for (int i = 0; i < client->GameState.num_players; i++) {
@@ -527,7 +527,7 @@ void Scene::draw(Camera* cam) {
 			continue;
 		}
 
-		glm::vec3 pos = client->GameState.players[j++].model[3];
+		glm::vec3 pos = client->GameState.players[i].model[3];
 		//std::cout << i << std::endl;
 		//std::cout << glm::to_string(pos) << std::endl;
 		glm::mat4 matrix = glm::mat4(1.0f);
