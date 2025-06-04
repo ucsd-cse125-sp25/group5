@@ -48,9 +48,8 @@ glm::vec3 static getDirection(float azimuth, float incline) {
 }
 
 //god forgive me for what I'm about to do
-bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
+float static checkBottom(GameObject* obj, PhysicsSystem& phys, float eps = 0.1) {
 	// 1) compute a single point just below the player's feet
-	float eps = 0.1f;
 	glm::vec3 foot1 = obj->transform.position
 		- glm::vec3(0.5f, obj->collider->halfExtents.y + eps, 0.5f);
 	glm::vec3 foot2 = obj->transform.position
@@ -72,13 +71,18 @@ bool static checkBottom(GameObject* obj, PhysicsSystem& phys) {
 				&& foot.y >= b.min.y && foot.y <= b.max.y
 				&& foot.z >= b.min.z && foot.z <= b.max.z)
 			{
-				return true;
+				//returns how far into the box my foot is, negatively downwards into the box
+				return foot.y-b.max.y;
 			}
 		}
 	}
 
 	return false;
 }
+
+
+
+
 
 bool rayIntersectsAABB(const Ray& ray, const AABB& box, float& tHit) {
 	float tMin = (box.min.x - ray.origin.x) / ray.dir.x;
@@ -276,11 +280,19 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		curSlowFactor = 1.0f; // reset slow factor
 	}
+
+	if (movementAbilityTimer > 0.0f) {
+		movementAbilityTimer -= deltaTime;
+		if (movementAbilityTimer <= 0.0f) {
+			movementAbilityTimer = 0.0f;
+			//playerStats.movementPowerupFlag[playerStats.activePower] = 0; // reset movement power flag
+		}
+	}
 	
 	//underwater damage and slow
 	if (playerStats.underwater) {
 		underwaterTimer += deltaTime;
-		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL) {
+		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
 			playerStats.hp -= 1;
 			underwaterTimer = 0.0f;
 			curUnderwaterSlowFactor = UNDERWATER_SLOW_FACTOR;
@@ -294,7 +306,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	//flag holding hp increase
 	if (playerStats.hasFlag) {
 		flagBoostTimer += deltaTime;
-		if (flagBoostTimer >= FLAG_BOOST_INTERVAL) {
+		if (flagBoostTimer >= FLAG_BOOST_INTERVAL && playerStats.alive) {
 			playerStats.hp += 1;
 			playerStats.maxHP += 1;
 			maxHP += 1;
@@ -304,6 +316,8 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		flagBoostTimer = 0.0f;
 	}
+
+
 
 	//cooldown for all 5 attack powers
 	for (int i = 0; i < 5; i++) {
@@ -315,6 +329,8 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 			}
 		}
 	}
+
+	
 
 	if(state != PlayerMovementState::GRAPPLE) {
 		//reset grapple target if we're not grappling
@@ -334,17 +350,48 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 
 	//water setting
-	if (playerStats.underwater && obj->transform.position.y >= phys.waterLevel) {
-		obj->physics->velocity.y *= 0.5;
-	}
+	
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 
-	//when death first happens 
+	//death handling block
+	if (state == PlayerMovementState::DEATH) {
+		playerStats.hp = 0;
+		deathTimer -= deltaTime;
+
+		//freeze the player
+		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		playerStats.inAir = false;
+
+		if (deathTimer <= 0.0f) {
+
+			playerStats.hp = maxHP;
+			playerStats.alive = true;
+			state = PlayerMovementState::IDLE;
+			deathTimer = 0.0f;
+
+			for (int i = 0; i < 5; i++) {
+				playerStats.mana[i] = 100.0f;
+			}
+			//set the postion of the player to same x and z, but y to 100.0f
+			obj->transform.position = glm::vec3(obj->transform.position.x, 100.0f, obj->transform.position.z);
+
+			//turn collider back on
+			//TODO: set extents to player defaults
+			obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+		return;
+	}
+
+	
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
+		deathTimer = DEATH_TIME;
+	}
+	//when death first happens 
+	if (playerStats.hp <= 0) {
 		playerStats.hp = 0;
 		//set state to death, start the death timer, do tags
 		state = PlayerMovementState::DEATH;
-		deathTimer = DEATH_TIME;
 		playerStats.alive = false;
 
 		//drop the flag 
@@ -362,39 +409,50 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 		//no collider
 		obj->collider->halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
+		return;
 	}
+
+	if(state == PlayerMovementState::DEATH) {
+		printf("Player %d is dead\n", obj->id);
+	}
+	else {
+		printf("Player %d is alive\n", obj->id);
+	}
+
+
 	
 	changePlayerPower(obj, phys, intent);
 
-	//movement states
-	if(state == PlayerMovementState::DEATH) {
-		playerStats.hp = 0;
-		deathTimer -= deltaTime;
+	////movement states
+	//if(state == PlayerMovementState::DEATH) {
+	//	playerStats.hp = 0;
+	//	deathTimer -= deltaTime;
 
-		//freeze the player
-		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+	//	//freeze the player
+	//	obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
-		playerStats.inAir = false;
+	//	playerStats.inAir = false;
 
-		if (deathTimer <= 0.0f) {
-			
-			playerStats.hp = maxHP;
-			playerStats.alive = true;
-			state = PlayerMovementState::IDLE;
-			deathTimer = 0.0f;
+	//	if (deathTimer <= 0.0f) {
+	//		
+	//		playerStats.hp = maxHP;
+	//		playerStats.alive = true;
+	//		state = PlayerMovementState::IDLE;
+	//		deathTimer = 0.0f;
 
-			for (int i = 0; i < 5; i++) {
-				playerStats.mana[i] = 100.0f;
-			}
-			//set the postion of the player to same x and z, but y to 100.0f
-			obj->transform.position = glm::vec3(obj->transform.position.x, 100.0f, obj->transform.position.z);
+	//		for (int i = 0; i < 5; i++) {
+	//			playerStats.mana[i] = 100.0f;
+	//		}
+	//		//set the postion of the player to same x and z, but y to 100.0f
+	//		obj->transform.position = glm::vec3(obj->transform.position.x, 100.0f, obj->transform.position.z);
 
-			//turn collider back on
-			//TODO: set extents to player defaults
-			obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
-		}
-		return;
-	} else if (state == PlayerMovementState::DASH) {
+	//		//turn collider back on
+	//		//TODO: set extents to player defaults
+	//		obj->collider->halfExtents = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	}
+	//	return;
+	//}
+	if (state == PlayerMovementState::DASH) {
 		dashTimer -= deltaTime;
 
 		//once we're done, exit dash
@@ -417,7 +475,10 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		grappleTimer -= deltaTime;
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
 		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
-
+		glm::vec3 direction = playerStats.grappleTarget - obj->transform.position;
+		glm::vec3 normalizedDirection = glm::normalize(direction);
+		//lock the velocity
+		obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
 		////if we've collided with our target object, or if we've run out of time, release the grapple
 		//if (grappleTimer <= 0.0f) {
 		//	printf(
@@ -458,12 +519,14 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//check for if a player is in the air
 		playerStats.inAir = !checkBottom(obj, phys);
 		//check for movement powers 
-		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1) {
+		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1 && movementAbilityTimer <= 0.0f) {
+
 			printf("Metal mana %d\n", playerStats.mana[0]);
 			printf("Wood mana %d\n", playerStats.mana[1]);
 			printf("Water mana %d\n", playerStats.mana[2]);
 			printf("Fire mana %d\n", playerStats.mana[3]);
 			printf("Earth mana %d\n", playerStats.mana[4]);
+			movementAbilityTimer = MOVEMENT_ABILITY_COOLDOWN;
 			if (playerStats.activePower == FIRE && playerStats.mana[3] >= FIRE_MOVE_COST) {
 				state = PlayerMovementState::DASH;
 				dashTimer = DASH_TIME;
@@ -503,7 +566,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				playerStats.grappleTarget = result.first;
 
 				//we have a target
-				if (target != glm::vec3(0.0f, 0.0f, 0.0f)) {
+				if (target != glm::vec3(0.0f, 0.0f, 0.0f) && result.second > 0.0f) {
 					//only start grappling if we have a target 
 					state = PlayerMovementState::GRAPPLE;
 					grappleTimer = result.second / GRAPPLE_SPEED;
@@ -512,11 +575,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 					glm::vec3 normalizedDirection = glm::normalize(direction);
 					//lock the velocity
 					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+
+					//only do this part if the grapple is successful
+					playerStats.mana[1] -= WOOD_MOVE_COST;
+					playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 				}
-
-
-				playerStats.mana[1] -= WOOD_MOVE_COST;
-				playerStats.movementPowerupFlag[playerStats.activePower] = 1;
 
 				return;
 			}
@@ -537,6 +600,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			printf("Water mana %d\n", playerStats.mana[2]);
 			printf("Fire mana %d\n", playerStats.mana[3]);
 			printf("Earth mana %d\n", playerStats.mana[4]);
+		}
+		if (playerStats.underwater && obj->transform.position.y >= phys.waterLevel) {
+			obj->physics->velocity.y *= 0.5;
 		}
 
 		//check for attacks
@@ -652,6 +718,13 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 		}
 
 		physicsSystem.resolveCollision(obj, other, penetration, status);
+
+		/*if (float stair = checkBottom(obj, physicsSystem,  0.6) < 0) {
+			obj->transform.position += vec3(0.0, + stair,0.0);
+		}*/
+		if (penetration.first.x != 0 || penetration.first.z != 0) {
+			obj->physics->velocity += vec3(0.0, 1.0, 0.0) * 0.25f;
+		}
 	}
 	else if (status == 1 && playerStats.alive) {
 		//this is fucking terrible 

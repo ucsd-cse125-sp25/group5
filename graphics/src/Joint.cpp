@@ -71,7 +71,7 @@ void Joint::Load(aiNode* node, std::unordered_map<aiNode*, aiBone*>* nodeToBone,
 			skin->sw[bone->mWeights[i].mVertexId]->jointIDs.push_back(skely->joints.size() - 1);
 			skin->sw[bone->mWeights[i].mVertexId]->weights.push_back(bone->mWeights[i].mWeight);
 
-			std::cout << "numweights: " << skin->sw[bone->mWeights[i].mVertexId]->jointIDs.size() << std::endl;
+			//std::cout << "numweights: " << skin->sw[bone->mWeights[i].mVertexId]->jointIDs.size() << std::endl;
 		}
 	}
 

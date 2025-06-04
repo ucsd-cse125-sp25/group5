@@ -151,9 +151,11 @@ void Scene::loadObjects() {
 	
 	//test->UpdateMat(mov);
 	//wasp load-in
-	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0);
+	
+	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0, 0);
+	player->disableAnimation();
 	for (int i = 1; i < 4; i++) {
-		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0);
+		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0, i);
 	}
 	lastFrameTime = glfwGetTime();
 }
@@ -170,7 +172,7 @@ void Scene::update(Camera* cam) {
 	playerScaleMatrix = glm::eulerAngleY(-3.1415f) * glm::eulerAngleX(-3.1415f / 2.0f) * playerScaleMatrix;
 
 	player->UpdateMat(client->playerModel * playerScaleMatrix);
-	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
+	player->UpdateParticles(client->GameState.player_stats[client->playerId], 0);
 	player->Update();
 
 	if(client->GameState.phase == GamePhase::WAITING && musica == -1){
@@ -187,17 +189,30 @@ void Scene::update(Camera* cam) {
 		dummy.killfeed[i] = client->GameState.killfeed[i];
 	}
 
+	//players[client->GameState.player_stats[client->playerId].closestPlayer]->enableAnimation();
+	//std::cout <<"closest player:" << client->GameState.player_stats[client->playerId].closestPlayer << std::endl;
+	//std::cout << "my id:" << client->playerId << std::endl;
+
 	int i;
 	int j;
 	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
 		auto entity = client->GameState.players[i];
 
+		if (currTime - startTime > 60000) {
+			if (entity.id == client->GameState.player_stats[client->playerId].closestPlayer) {
+				players[entity.id]->enableAnimation();
+			}
+			else {
+				players[entity.id]->disableAnimation();
+			}
+		}
+		
+
 		if (entity.id == client->playerId) {
 			continue;
 		}
-
 		players[j]->UpdateMat(entity.model * playerScaleMatrix);
-		players[j]->UpdateParticles(client->GameState.player_stats[entity.id], entity.id);
+		players[j]->UpdateParticles(client->GameState.player_stats[entity.id], j);
 		players[j++]->Update();
 	}
 	
@@ -266,12 +281,12 @@ void Scene::update(Camera* cam) {
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
-		else if (entity.type == COLLIDER) {
-		  //generate a random color
-			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.9f, 0.0f, 0.0f));
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
-		}
+		//else if (entity.type == COLLIDER) {
+		//  //generate a random color
+		//	Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.9f, 0.0f, 0.0f));
+		//	cu->setModel(entity.model);
+		//	cubes.push_back(cu);
+		//}
 		else if (entity.type == HP_PICKUP) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
 			cu->setModel(entity.model);
