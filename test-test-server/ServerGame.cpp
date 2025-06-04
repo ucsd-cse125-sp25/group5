@@ -22,7 +22,7 @@ namespace fs = std::experimental::filesystem;
 
 #define IN_GAME_DURATION 300
 
-#define NUM_PLAYERS_TO_START 1
+#define NUM_PLAYERS_TO_START 2
 
 
 
@@ -404,8 +404,8 @@ void ServerGame::update() {
 	}
 
 	bool sendUpdate = receiveFromClients();
-
-	physicsSystem.tick(0.08f); // Update the physics system with a fixed timestep
+	
+	physicsSystem.tick(0.1f); // Update the physics system with a fixed timestep
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
 	int timeSinceStart = (int)std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();

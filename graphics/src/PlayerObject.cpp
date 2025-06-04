@@ -140,9 +140,9 @@ void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 		skel->updateWorldMat(newmodel);
 	if (particlesystem) {
 		//particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
-		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
-		powerupsystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
-		damagesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
+		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
+		powerupsystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
+		damagesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
 	}
 }
 
@@ -184,7 +184,7 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 	powerupsystem->creationrate = 0;
 	for (int i = 0; i < 5; i++) {
 		if (stats.movementPowerupFlag[i] > 0) {
-			powerupsystem->creationrate = 200;
+			powerupsystem->creationrate = 100;
 			powerupsystem->particlecolor = cores[i + 4];
 			break;
 		}
@@ -200,7 +200,7 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 	}
 
 	if (stats.damageFlag == true && stats.underwater == false) {
-		damagesystem->creationrate = 300;
+		damagesystem->creationrate = 200;
 		damagesystem->ctime -= 20 * (1000.0 / damagesystem->creationrate);
 		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
 	}

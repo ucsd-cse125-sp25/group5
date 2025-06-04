@@ -198,14 +198,14 @@ void Scene::update(Camera* cam) {
 	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
 		auto entity = client->GameState.players[i];
 
-		if (currTime - startTime > 60000) {
-			if (entity.id == client->GameState.player_stats[client->playerId].closestPlayer) {
-				players[entity.id]->enableAnimation();
-			}
-			else {
-				players[entity.id]->disableAnimation();
-			}
-		}
+		//if (currTime - startTime > 60000) {
+		//	if (entity.id == client->GameState.player_stats[client->playerId].closestPlayer) {
+		//		players[entity.id]->enableAnimation();
+		//	}
+		//	else {
+		//		players[entity.id]->disableAnimation();
+		//	}
+		//}
 		
 
 		if (entity.id == client->playerId) {
