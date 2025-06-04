@@ -49,11 +49,6 @@ void PhysicsSystem::tick(float dt) {
 	// deleteMarkedDynamicObjects();
 	deleteAllObjectsMarked();
 
-	// Update player intent tracking
-	for (int i = 0; i < 4; i++) {
-		PlayerTrackings[i].update(PlayerIntents[i]);
-	}
-
 	//add time to the killfeed 
 	tickKillfeed(dt);
 }
