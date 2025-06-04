@@ -146,9 +146,9 @@ void Scene::loadObjects() {
 	
 	//test->UpdateMat(mov);
 	//wasp load-in
-	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk3.fbx"), 0);
+	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk4.fbx"), 0);
 	for (int i = 1; i < 4; i++) {
-		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk3.fbx"), 0);
+		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk4.fbx"), 0);
 	}
 	lastFrameTime = glfwGetTime();
 }
@@ -160,9 +160,9 @@ void Scene::update(Camera* cam) {
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
 	glm::mat4 playerScaleMatrix(0.005);
-	playerScaleMatrix[3][1] = -0.93267f;
+	playerScaleMatrix[3][2] = -0.93267f;
 	playerScaleMatrix[3][3] = 1.0f;
-	playerScaleMatrix = glm::eulerAngleY(-3.1415f) /** glm::eulerAngleX(-3.1415f / 2.0f)*/ * playerScaleMatrix;
+	playerScaleMatrix = glm::eulerAngleY(-3.1415f) * glm::eulerAngleX(-3.1415f / 2.0f) * playerScaleMatrix;
 
 	player->UpdateMat(client->playerModel * playerScaleMatrix);
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);

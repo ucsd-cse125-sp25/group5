@@ -79,7 +79,7 @@ void PlayerObject::LoadAnimation() {
 void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	std::cout << "entered create" << std::endl;
 	Assimp::Importer importer;
-	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_PopulateArmatureData);
+	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_PopulateArmatureData);
 	if (!iscene || iscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !iscene->mRootNode) // if is Not Zero
 	{
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -143,6 +143,7 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 	//animation update (ignore name of function)
 	if ((stats.inAir) && ground) {
 		ground = false;
+		move = false;
 		animplayer->Jump();
 	}
 	else if ((!stats.inAir) && !ground && !stats.moving) {
@@ -151,6 +152,7 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 	}
 	else if (!stats.inAir && stats.moving && !move) {
 		move = true;
+		ground = true;
 		animplayer->Walk();
 	}
 	else if (ground && !stats.moving && move) {
