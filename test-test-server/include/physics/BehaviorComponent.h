@@ -101,6 +101,9 @@ const float WATER_SLOW_FACTOR = 0.2f;
 const float UNDERWATER_DAMAGE_INTERVAL = 1.0f;
 const float FLAG_BOOST_INTERVAL = 10.0f;
 const float MOVEMENT_ABILITY_COOLDOWN = 0.5f;
+const float MANA_REGEN_COOLDOWN = 1.0f;
+const float START_REGEN_COOLDOWN = 10.0f;	
+const int MANA_REGEN_AMOUNT = 1;
 
 const int HP_PICKUP_AMOUNT = 10;
 const int MANA_PICKUP_AMOUNT = 10;
@@ -116,6 +119,8 @@ public:
 	float underwaterTimer = 0.0f;
 	float flagBoostTimer = 0.0f;
 	float movementAbilityTimer = 0.0f;
+	float manaRegenTimer = 0.0f;
+	float startRegenTimer = 0.0f;
 
 	float curCooldownArray[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
