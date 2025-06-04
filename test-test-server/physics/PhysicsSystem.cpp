@@ -145,6 +145,7 @@ vec3 PhysicsSystem::getImpulseVector(const vec3& normal, const vec3& relativeVel
 }
 
 void PhysicsSystem::resolveCollision(GameObject* go1, GameObject* go2, const pair<vec3, float>& penetration, int status) {
+	//printf("penetration %f, %f, %f\n", penetration.first.x, penetration.first.y, penetration.first.z);
 	vec3 normal = glm::normalize(penetration.first);
 	float overlap = penetration.second;
 
@@ -285,6 +286,7 @@ pair<vec3, float> PhysicsSystem::getAABBpenetration(AABB&  a, AABB&b) {
 	//printf("minAxis: (%f, %f, %f), minOverlap: %f\n", minAxis.x, minAxis.y, minAxis.z, minOverlap);
 	return pair<vec3, float>(minAxis, minOverlap);
 }
+
 
 int PhysicsSystem::getNextId() {
 	nextid++;
