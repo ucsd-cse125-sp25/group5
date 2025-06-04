@@ -230,6 +230,6 @@ void Octree::updateObject(GameObject* obj) {
 }
 
 void Octree::deleteObject(GameObject* obj) {
-    if (!root || !obj) return;s
+    if (!root || !obj) return;
     root->removeObject(obj);
 }
