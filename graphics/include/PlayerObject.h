@@ -26,6 +26,8 @@ private:
 public:
 	PlayerObject();
 	PlayerObject(int systemtype);
+	void enableAnimation();
+	void disableAnimation();
 	void LoadAnimation();
 	void LoadExperimental(std::string filename, int meshindex);
 	void UpdateMat(glm::mat4 newmodel);
