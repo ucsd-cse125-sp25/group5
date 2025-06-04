@@ -302,6 +302,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 			//playerStats.movementPowerupFlag[playerStats.activePower] = 0; // reset movement power flag
 		}
 	}
+
 	
 	//underwater damage and slow
 	if (playerStats.underwater) {
@@ -344,6 +345,32 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		}
 	}
 
+	//mana regen
+
+	if (startRegenTimer == 0.0f) {
+		manaRegenTimer -= deltaTime;
+		if (manaRegenTimer <= 0.0f) {
+			for (int i = 0; i < 5; i++) {
+				if (playerStats.mana[i] < 100.0f) {
+					playerStats.mana[i] += MANA_REGEN_AMOUNT;
+					if (playerStats.mana[i] > 100.0f) {
+						playerStats.mana[i] = 100.0f;
+					}
+				}
+			}
+			manaRegenTimer = MANA_REGEN_COOLDOWN; // reset the timer
+		}
+	}
+	else {
+		startRegenTimer -= deltaTime;
+		if (startRegenTimer <= 0.0f) {
+			startRegenTimer = 0.0f;
+			manaRegenTimer = 0.0f; // reset the timer
+			//start mana regen
+		}
+	}
+	
+
 	
 
 	if(state != PlayerMovementState::GRAPPLE) {
@@ -361,6 +388,13 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	playerStats.dealtDamageFlag = false;
 	GameObject* closestPlayer = phys.getClosestPlayerObject(obj->transform.position, obj->id);
 	playerStats.closestPlayer = closestPlayer == nullptr ? -1 : closestPlayer->id;
+
+	for (int i = 0; i < 5; i++) {
+		if(playerStats.mana[i] < playerStats.prevMana[i]) {
+			startRegenTimer = START_REGEN_COOLDOWN;
+		}
+		playerStats.prevMana[i] = playerStats.mana[i];
+	}
 
 
 	//water setting

@@ -140,9 +140,9 @@ void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 		skel->updateWorldMat(newmodel);
 	if (particlesystem) {
 		//particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
-		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
-		powerupsystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
-		damagesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
+		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 1.2, 0));
+		powerupsystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 1.2, 0));
+		damagesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 1.2, 0));
 	}
 }
 

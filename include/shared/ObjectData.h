@@ -87,6 +87,7 @@ struct PlayerStats {
 	glm::vec3 grappleTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	unsigned int mana[5] = { 100, 100, 100, 100, 100 };
+	unsigned int prevMana[5] = { 100, 100, 100, 100, 100 };
 	PowerType activePower = METAL;
 
 	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};
