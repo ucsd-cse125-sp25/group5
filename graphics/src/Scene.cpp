@@ -198,14 +198,14 @@ void Scene::update(Camera* cam) {
 	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
 		auto entity = client->GameState.players[i];
 
-		//if (currTime - startTime > 1000) {
-		//	if (entity.id == client->GameState.player_stats[client->playerId].closestPlayer) {
-		//		players[entity.id]->enableAnimation();
-		//	}
-		//	else {
-		//		players[entity.id]->disableAnimation();
-		//	}
-		//}
+		if (currTime - startTime > 1000) {
+			if (entity.id == client->GameState.player_stats[client->playerId].closestPlayer) {
+				players[entity.id]->enableAnimation();
+			}
+			else {
+				players[entity.id]->disableAnimation();
+			}
+		}
 		
 
 		if (entity.id == client->playerId) {
@@ -281,12 +281,12 @@ void Scene::update(Camera* cam) {
 			p.model = entity.model;
 			projectiles.push_back(p);
 		}
-		else if (entity.type == COLLIDER) {
-		  //generate a random color
-			Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.9f, 0.0f, 0.0f));
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
-		}
+		//else if (entity.type == COLLIDER) {
+		//  //generate a random color
+		//	Cube* cu = new Cube(-entity.ext, entity.ext, glm::vec3(0.9f, 0.0f, 0.0f));
+		//	cu->setModel(entity.model);
+		//	cubes.push_back(cu);
+		//}
 		else if (entity.type == HP_PICKUP) {
 			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
 			cu->setModel(entity.model);
