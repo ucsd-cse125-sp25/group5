@@ -518,14 +518,6 @@ void Scene::draw(Camera* cam) {
 		}
 
 		players[j]->Draw(mainShader, false);
-	}
-
-	for (int i = 0; i < client->GameState.num_players; i++) {
-		auto entity = client->GameState.players[i];
-
-		if (entity.id == client->playerId || !client->GameState.player_stats[entity.id].alive) {
-			continue;
-		}
 
 		glm::vec3 pos = client->GameState.players[j++].model[3];
 		//std::cout << i << std::endl;
