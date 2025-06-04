@@ -1,5 +1,4 @@
 #version 430 core
-
 in vec2 TexCoord;
 in vec3 FragColor;
 in vec2 posOut;
@@ -21,6 +20,6 @@ void main() {
         fragColor = vec4(0.0,0.0,0.0, 0.9);
     }
     else{
-        fragColor = vec4(1.0-TexCoord.x * TexCoord.y, 0.5, TexCoord.y/2.0 + 0.5, 1.0);//texColor * vec4(FragColor, 1.0);
+        fragColor = vec4(1.0-TexCoord.x * TexCoord.y, 0.5, TexCoord.y/2.0 + 0.5, 10.0)*0.7 + texColor * 1.5;
     }
 }

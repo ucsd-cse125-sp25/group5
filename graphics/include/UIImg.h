@@ -75,6 +75,27 @@ private:
 	float bloomDuration = 0.9f;
 };
 
+class ToolTips : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	std::string name;
+	std::unordered_map<std::string, GLuint>* texs;
+	ClientGame* client;
+private:
+	GLuint sprites[5];
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> container;
+	std::vector<float> bottomleft;
+	GLuint VAO, VBO, EBO;
+	GLuint VAOb, VBOb;
+	bool draw = false;
+	bool drawB = false;
+
+};
+
 struct MagicElement {
 	std::string name;
 	glm::vec2 position;
@@ -92,6 +113,7 @@ public:
 	void Update(const UIData& p) override;
 	std::string name;
 	std::unordered_map<std::string, GLuint>* texs;
+	ClientGame* client;
 private:
 	GLuint digits[5];
 	GLuint shaderProgram;
@@ -99,7 +121,7 @@ private:
 	std::vector<float> container;
 	double start = 0.0;
 	int seconds;
-	float widthPercSpacing = 0.07;
+	float widthPercSpacing = 0.035;
 
 	GLuint VAO, VBO, EBO;
 };
@@ -112,12 +134,12 @@ public:
 	std::string name;
 	std::unordered_map<std::string, GLuint>* texs;
 private:
-	GLuint digits[3];
+	GLuint digits[4];
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> container;
 	int health;
-	float widthPercSpacing = 0.04;
+	float widthPercSpacing = 0.035;
 
 	GLuint VAO, VBO, EBO;
 };
@@ -212,14 +234,17 @@ public:
 	void Update(const UIData& p) override;
 	void SetTexture(GLuint tex) override;
 	std::string name;
+	ClientGame* client;
 private: 
 	GLuint texture;
+	GLuint goldTexture;
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> uiData;
 	int lastHealth;
 	bool isAlive;
 	bool isLow;
+	bool hasFlag;
 	double animStart;
 	float damageDuration = 0.1f;
 	GLuint VAO, VBO, EBO;

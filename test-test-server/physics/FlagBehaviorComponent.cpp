@@ -24,7 +24,7 @@ void FlagBehaviorComponent::integrate(GameObject* obj,
 	if (owningPlayer != -1) {
 		for (auto player : physicsSystem.playerObjects) {
 			if (player->id == owningPlayer) {
-				obj->transform.position = player->transform.position + glm::vec3(0,4,0);
+				obj->transform.position = player->transform.position + glm::vec3(0,0.75,0);
 				obj->transform.rotation = player->transform.rotation;
 				break;
 			}
