@@ -10,6 +10,8 @@ struct AABB; // Forward declaration
 using namespace std;
 typedef glm::vec3 vec3;
 
+#define MAX_DEPTH 256
+
 class Node {
     private:
         AABB boundingBox;
@@ -41,6 +43,9 @@ class Node {
 		void setLeaf(bool leaf) { isLeaf = leaf; }
 
         // Methods
+        void clearObjects() {
+            objects.clear();
+		}
         void addObject(GameObject* obj) {
             objects.push_back(obj);
         }

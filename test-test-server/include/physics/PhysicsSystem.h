@@ -320,7 +320,7 @@ public:
     void deleteMarkedDynamicObjects() {
 		for (int i = movingObjects.size() - 1; i >= 0; i--) {
 			GameObject* obj = movingObjects[i];
-			if (obj->markDeleted) {
+			if (obj && obj->markDeleted) {
 				//octreeMovingObjects->getRoot()->removeObject(obj);
 				deleteDynamicObject(obj);
 			}

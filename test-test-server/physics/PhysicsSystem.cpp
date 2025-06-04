@@ -46,8 +46,8 @@ void PhysicsSystem::tick(float dt) {
     updateWaterLevel();
 
     //delete all objects marked for deletion
-	// deleteMarkedDynamicObjects();
-	deleteAllObjectsMarked();
+	deleteMarkedDynamicObjects();
+	//deleteAllObjectsMarked();
 
 	//add time to the killfeed 
 	tickKillfeed(dt);
@@ -401,7 +401,7 @@ void PhysicsSystem::updateGameObjectsAABB(vector<GameObject*>& objects) {
 void PhysicsSystem::initOctree(vector<GameObject*>& objects, Octree*& octree) {
     updateGameObjectsAABB(objects);
 	if (octree == nullptr) {
-		octree = new Octree(worldBounds, objects, 8, 8);
+		octree = new Octree(worldBounds, objects, 8, 24);
 	}
     octree->constructTree(objects);
 }
@@ -473,11 +473,11 @@ void PhysicsSystem::deleteAllObjectsMarked() {
 	if (dynamicObjects.size() > 0) {
 		for (auto& obj : dynamicObjects) {
 			if (obj->markDeleted) {
-				movingObjects.erase(remove(movingObjects.begin(), movingObjects.end(), obj), movingObjects.end());
-				dynamicObjects.erase(remove(dynamicObjects.begin(), dynamicObjects.end(), obj), dynamicObjects.end());
 				if (octreeMovingObjects) {
 					octreeMovingObjects->deleteObject(obj);
 				}
+				movingObjects.erase(remove(movingObjects.begin(), movingObjects.end(), obj), movingObjects.end());
+				dynamicObjects.erase(remove(dynamicObjects.begin(), dynamicObjects.end(), obj), dynamicObjects.end());
 				deleteObject(obj);
 			}
 		}
@@ -486,10 +486,10 @@ void PhysicsSystem::deleteAllObjectsMarked() {
 	if (staticObjects.size() > 0) {
 		for (auto& obj : staticObjects) {
 			if (obj->markDeleted) {
-				staticObjects.erase(remove(staticObjects.begin(), staticObjects.end(), obj), staticObjects.end());
 				if (octreeStaticObjects) {
 					octreeStaticObjects->deleteObject(obj);
 				}
+				staticObjects.erase(remove(staticObjects.begin(), staticObjects.end(), obj), staticObjects.end());
 				deleteObject(obj);
 			}
 		}
@@ -498,11 +498,11 @@ void PhysicsSystem::deleteAllObjectsMarked() {
 	if (playerObjects.size() > 0) {
 		for (auto& obj : playerObjects) {
 			if (obj->markDeleted) {
-				playerObjects.erase(remove(playerObjects.begin(), playerObjects.end(), obj), playerObjects.end());
-				movingObjects.erase(remove(movingObjects.begin(), movingObjects.end(), obj), movingObjects.end());
 				if (octreeMovingObjects) {
 					octreeMovingObjects->deleteObject(obj);
 				}
+				playerObjects.erase(remove(playerObjects.begin(), playerObjects.end(), obj), playerObjects.end());
+				movingObjects.erase(remove(movingObjects.begin(), movingObjects.end(), obj), movingObjects.end());
 				deleteObject(obj);
 			}
 		}

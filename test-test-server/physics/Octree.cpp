@@ -1,6 +1,8 @@
 #include "../include/physics/Octree.h"
 #include "../include/physics/PhysicsSystem.h"
 #include <ServerGame.h>
+#include <queue>
+#include <stdexcept>
 
 static bool overlap(const AABB& box1, const AABB& box2) {
     return (box1.min.x <= box2.max.x && box1.max.x >= box2.min.x) &&
@@ -95,7 +97,7 @@ AABB getBoundingBox(const vec3& center, const vec3& halfExtents, int i) {
 }
 
 void Octree::subdivide(Node* node) {
-    if (!node->isLeafNode()) return;
+    if (!node || !node->isLeafNode()) return;
 
     vec3 halfExtents = node->getHalfExtents();
     vec3 center = node->getCenter();
@@ -109,17 +111,34 @@ void Octree::subdivide(Node* node) {
 	node->setLeaf(false);
 
 	vector<GameObject*> objects = node->getObjects();
+	node->clearObjects();
+
+	queue<pair<GameObject*, Node*>> objectsToInsertPerLeaf;
     for (GameObject* obj : objects) {
+		objectsToInsertPerLeaf.push(make_pair(obj, node));
+	}
+    
+    while (!objectsToInsertPerLeaf.empty()) {
+        pair<GameObject*, Node*> front = objectsToInsertPerLeaf.front();
+        GameObject* obj = front.first;
+        Node* currNode = front.second;  
+        objectsToInsertPerLeaf.pop();  
+
+        bool inserted = false;  
         for (int i = 0; i < 8; i++) {
-			// Check if the object is fully contained in the child node's bounding box
-			Node* childNode = node->getChild(i);
+            Node* childNode = currNode->getChild(i);
             if (childNode->contains(obj->transform.aabb)) {
-                insert(obj, childNode);
+                childNode->addObject(obj);
+                inserted = true;
                 break;
-            } else if (childNode->partiallyEmbedded(obj->transform.aabb)) {
-                // If the object intersects with the child node, insert it
-                insert(obj, childNode);
             }
+            else if (childNode->partiallyEmbedded(obj->transform.aabb)) {
+                objectsToInsertPerLeaf.push(make_pair(obj, childNode));
+                inserted = true;
+            }
+        }
+        if (!inserted) {
+            throw std::runtime_error("Object could not be inserted into any child node, check bounding box and object properties.");  
         }
     }
 }
@@ -135,7 +154,7 @@ void Octree::insert(GameObject* obj, Node* node) {
             if (node->getObjects().size() < maxObjectsPerNode) {
                 node->addObject(obj);
             } else {
-                if (toggle == 0) {
+                if (toggle == 0) { // && maxDepth < MAX_DEPTH) {
                     toggle = 1;
                     maxDepth *= 2;
                 } else {
@@ -203,10 +222,9 @@ void Octree::getPotentialCollisionPairs(const AABB& box, vector<GameObject*>& po
         if (overlap(currentNode->getBoundingBox(), box)) {  
             if (currentNode->isLeafNode()) {  
                 for (GameObject* obj : currentNode->getObjects()) {  
-                    if (find(potentialCollisions.begin(), potentialCollisions.end(), obj) != potentialCollisions.end()) {  
-                        continue; // Skip if already checked or added  
-                    }  
-                    potentialCollisions.push_back(obj);  
+                    if (find(potentialCollisions.begin(), potentialCollisions.end(), obj) == potentialCollisions.end()) {
+                        potentialCollisions.push_back(obj);
+                    }
                 }  
             } else {  
                 for (int i = 0; i < 8; i++) {
