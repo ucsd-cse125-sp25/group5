@@ -113,34 +113,23 @@ void Octree::subdivide(Node* node) {
 	vector<GameObject*> objects = node->getObjects();
 	node->clearObjects();
 
-	queue<pair<GameObject*, Node*>> objectsToInsertPerLeaf;
     for (GameObject* obj : objects) {
-		objectsToInsertPerLeaf.push(make_pair(obj, node));
-	}
-    
-    while (!objectsToInsertPerLeaf.empty()) {
-        pair<GameObject*, Node*> front = objectsToInsertPerLeaf.front();
-        GameObject* obj = front.first;
-        Node* currNode = front.second;  
-        objectsToInsertPerLeaf.pop();  
-
-        bool inserted = false;  
         for (int i = 0; i < 8; i++) {
-            Node* childNode = currNode->getChild(i);
+            Node* childNode = node->getChild(i);
             if (childNode->contains(obj->transform.aabb)) {
+                static int addObj2 = 0;
+                printf("obj2: %d\n", addObj2);
+                addObj2++;
                 childNode->addObject(obj);
-                inserted = true;
                 break;
-            }
-            else if (childNode->partiallyEmbedded(obj->transform.aabb)) {
-                objectsToInsertPerLeaf.push(make_pair(obj, childNode));
-                inserted = true;
+            } else if (childNode->partiallyEmbedded(obj->transform.aabb)) {
+                static int addObj3 = 0;
+                printf("obj3: %d\n", addObj3);
+                addObj3++;
+                childNode->addObject(obj);
             }
         }
-        if (!inserted) {
-            throw std::runtime_error("Object could not be inserted into any child node, check bounding box and object properties.");  
-        }
-    }
+    } 
 }
 
 void Octree::insert(GameObject* obj, Node* node) {
@@ -151,7 +140,10 @@ void Octree::insert(GameObject* obj, Node* node) {
             subdivide(node);
             insert(obj, node);
         } else {
-            if (node->getObjects().size() < maxObjectsPerNode) {
+            if (node->getObjects().size() <= maxObjectsPerNode) {
+                static int addObj1 = 0;
+                printf("obj1: %d\n", addObj1);
+                addObj1++;
                 node->addObject(obj);
             } else {
                 if (toggle == 0) { // && maxDepth < MAX_DEPTH) {
@@ -210,7 +202,7 @@ Octree::~Octree() {
 }
 
 void Octree::getPotentialCollisionPairs(const AABB& box, unordered_map<int, GameObject*>& potentialCollisions) const {
-    if (!root) return;  
+    if (!this->root) return;  
 
     vector<Node*> nodesToCheck;
     nodesToCheck.push_back(root);  
