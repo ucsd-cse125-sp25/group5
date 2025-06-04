@@ -507,22 +507,19 @@ void Scene::draw(Camera* cam) {
 	ringRot += 180.0f * deltaTime;
 	ringRot = fmod(ringRot, 360.0f);
 
-	for (int i = 0; i < client->GameState.num_players; i++) {
+	int i;
+	int j;
+
+	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
 		auto entity = client->GameState.players[i];
 
 		if (entity.id == client->playerId || !client->GameState.player_stats[entity.id].alive) {
 			continue;
 		}
 
-		players[i]->Draw(mainShader, false);
-	}
+		players[j]->Draw(mainShader, false);
 
-	for (int i = 0; i < client->GameState.num_players; i++) {
-		auto entity = client->GameState.players[i];
-		if (entity.id == client->playerId || !client->GameState.player_stats[entity.id].alive) {
-			continue;
-		}
-		glm::vec3 pos = client->GameState.players[entity.id].model[3];
+		glm::vec3 pos = client->GameState.players[j++].model[3];
 		//std::cout << i << std::endl;
 		//std::cout << glm::to_string(pos) << std::endl;
 		glm::mat4 matrix = glm::mat4(1.0f);
@@ -563,7 +560,6 @@ void Scene::draw(Camera* cam) {
 			earthring->draw(mainShader, false);
 		}
 	}
-
 
 	grapple->draw(mainShader, false);
 	for (int i = 0; i < client->GameState.num_players; i++) {
