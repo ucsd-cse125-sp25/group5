@@ -227,12 +227,11 @@ void HealthNums::Init(std::vector<float> startPerc, float percent, float ratio) 
 }
 
 void HealthNums::Update(const UIData& p) {
-	if (p.currHP <= 0) { //Only prints when dead or megadead glitch skull emoji
-		std::cout << "Current HP: " << p.currHP << std::endl;
-	}
+
 	health = p.currHP;
 
 	int tempHealth = health;
+
 
 
 	//int seconds = (int)p.seconds;
