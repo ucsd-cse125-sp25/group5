@@ -677,7 +677,9 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			grappleTimer = 0.0f;
 			grappleTarget = nullptr;
 		}
-
+		if (penetration.first.x != 0 && penetration.first.z != 0) {
+			obj->physics->velocity += 1.0f;
+		}
 		physicsSystem.resolveCollision(obj, other, penetration, status);
 	}
 	else if (status == 1 && playerStats.alive) {
