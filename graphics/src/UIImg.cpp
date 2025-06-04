@@ -227,9 +227,7 @@ void HealthNums::Init(std::vector<float> startPerc, float percent, float ratio) 
 }
 
 void HealthNums::Update(const UIData& p) {
-	if (p.currHP <= 0) {
-		printf("health = %d\n", p.currHP);
-	}
+
 	health = p.currHP;
 
 	int tempHealth = health;
@@ -352,7 +350,7 @@ void ToolTips::Init(std::vector<float> startPerc, float percent, float ratio) {
 }
 
 void ToolTips::Update(const UIData& p) {
-	if (p.tooltip && client->GameState.phase == GamePhase::IN_GAME) {
+	if (p.tooltip && client->GameState.phase == GamePhase::IN_GAME && p.currHP > 0) {
 		drawB = true;
 		draw = false;
 	}

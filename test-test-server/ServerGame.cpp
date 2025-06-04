@@ -423,8 +423,8 @@ void ServerGame::update() {
 	}
 
 	bool sendUpdate = receiveFromClients();
-
-	physicsSystem.tick(0.08f); // Update the physics system with a fixed timestep
+	
+	physicsSystem.tick(0.1f); // Update the physics system with a fixed timestep
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
 	int timeSinceStart = (int)std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();
