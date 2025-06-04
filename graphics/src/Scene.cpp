@@ -10,8 +10,8 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1440;
-int WINDOWWIDTH = 2560;
+int WINDOWHEIGHT = 1200;
+int WINDOWWIDTH = 1920;
 //2560
 //1440
 
@@ -56,14 +56,14 @@ void Scene::createGame(ClientGame* client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init(client);
-	test = new PlayerObject();
+	//test = new PlayerObject();
 
 	//Cinema
 	player = new PlayerObject(0);
 	players[0] = player;
 
 	for (int i = 1; i < 4; i++) {
-		players[i] = new PlayerObject();
+		players[i] = new PlayerObject(0);
 	}
 
 	water = new Water();
@@ -145,12 +145,15 @@ void Scene::loadObjects() {
 
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
+	//glm::mat4 mov(0.05);
+	//mov[3] = glm::vec4(0.0, 10.0, 0.0, 1.0);
+	//mov = glm::eulerAngleX(-3.1415f / 2.0f) * mov;
 	
 	//test->UpdateMat(mov);
 	//wasp load-in
-	player->LoadAnimation();
+	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0);
 	for (int i = 1; i < 4; i++) {
-		players[i]->LoadAnimation();
+		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0);
 	}
 	lastFrameTime = glfwGetTime();
 }
@@ -161,10 +164,23 @@ void Scene::update(Camera* cam) {
 	//player input, so that it can be sent to the server as well
 	lightmanager->update();
 	lightSpaceMatrix = lightmanager->getDirLightMat();
+	glm::mat4 playerScaleMatrix(0.005);
+	playerScaleMatrix[3][2] = -0.93267f;
+	playerScaleMatrix[3][3] = 1.0f;
+	playerScaleMatrix = glm::eulerAngleY(-3.1415f) * glm::eulerAngleX(-3.1415f / 2.0f) * playerScaleMatrix;
 
-	player->UpdateMat(client->playerModel);
+	player->UpdateMat(client->playerModel * playerScaleMatrix);
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], client->playerId);
 	player->Update();
+
+	if(client->GameState.phase == GamePhase::WAITING && musica == -1){
+		audiomanager->PlayAudio("lobbymusic", client->playerModel[3], 0.37f);
+		musica = 0;
+	}
+	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 0) {
+		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.37f);
+		musica = 1;
+	}
 
 	//test->Update();
 	for (int i = 0; i < KILLFEED_LENGTH; i++) {
@@ -180,7 +196,8 @@ void Scene::update(Camera* cam) {
 			continue;
 		}
 
-		players[j]->UpdateMat(entity.model);
+		players[j]->UpdateMat(entity.model * playerScaleMatrix);
+		players[j]->UpdateParticles(client->GameState.player_stats[entity.id], entity.id);
 		players[j++]->Update();
 	}
 	
@@ -570,7 +587,6 @@ void Scene::draw(Camera* cam) {
 
 	water->draw(waterShader, false);
 
-
 	if (!client->GameState.player_stats[client->playerId].hasFlag) {
 		glDepthFunc(GL_GREATER);
 		glDepthMask(GL_FALSE);
@@ -614,6 +630,8 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
 	}
+  
+  glEnable(GL_CULL_FACE);
   
 	glUseProgram(0); //skybox and uimanager use their own shader
 	

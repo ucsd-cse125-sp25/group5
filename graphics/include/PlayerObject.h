@@ -20,6 +20,8 @@ private:
 	System* damagesystem;
 	bool psflag;
 	bool colorflag;
+	bool ground;
+	bool move;
 	
 public:
 	PlayerObject();

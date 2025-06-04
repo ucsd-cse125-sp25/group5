@@ -133,14 +133,14 @@ GameObject* PhysicsSystem::getClosestPlayerObject(glm::vec3 pos, int exclude) {
 		}
 	}
 
-    if (toRet == nullptr) {
-		//return a dummy GameObject if no player is found
-		toRet = makeGameObject();
-		toRet->transform.position = pos; // Set position to the input position
-		toRet->id = exclude; // Set ID to the excluded player ID
-		toRet->isDynamic = false; // Mark as static
-		toRet->collider->halfExtents = glm::vec3(0.1f); // Small collider for dummy object
-    }
+  //  if (toRet == nullptr) {
+		////return a dummy GameObject if no player is found
+		//toRet = makeGameObject();
+		//toRet->transform.position = pos; // Set position to the input position
+		//toRet->id = exclude; // Set ID to the excluded player ID
+		//toRet->isDynamic = false; // Mark as static
+		//toRet->collider->halfExtents = glm::vec3(0.1f); // Small collider for dummy object
+  //  }
     return toRet;
 }
 

@@ -58,6 +58,12 @@ PlayerObject::PlayerObject(int systemtype) {
 
 		psflag = false;
 		colorflag = false;
+		ground = true;
+		move = false;
+
+		animplayer->type = 0; //player model
+		animplayer->anim = 0;
+		animplayer->mode = 2;
 
 	}
 }
@@ -73,7 +79,7 @@ void PlayerObject::LoadAnimation() {
 void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	std::cout << "entered create" << std::endl;
 	Assimp::Importer importer;
-	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_PopulateArmatureData);
+	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_PopulateArmatureData);
 	if (!iscene || iscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !iscene->mRootNode) // if is Not Zero
 	{
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -87,8 +93,8 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[0]->mNode->mNumChildren << std::endl;
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[1]->mNode->mNumChildren << std::endl;
 	//std::cout << "children: " << iscene->mMeshes[1]->mBones[2]->mNode->mNumChildren << std::endl;
-	//std::cout << "total Verts: " << iscene->mMeshes[1]->mNumVertices << std::endl;
-	//std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
+	std::cout << "total Verts: " << iscene->mMeshes[0]->mNumVertices << std::endl;
+	std::cout << "root name " << iscene->mRootNode->mName.C_Str() << std::endl;
 	//std::cout << "Skeleton 1 " << iscene->mSkeletons[0]->mNumBones << std::endl;
 	//std::cout << "Skeleton 2 " << iscene->mSkeletons[1]->mNumBones << std::endl;
 
@@ -96,8 +102,8 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	std::cout << "meshes: " << iscene->mNumMeshes << std::endl;
 	std::cout << "nodes: " << CountNodes(iscene->mRootNode) << std::endl;
 	for (int i = 0; i < iscene->mMeshes[meshindex]->mNumBones; i++) {
-		std::cout << "bone: " << iscene->mMeshes[meshindex]->mBones[i]->mName.C_Str() << std::endl;
-		std::cout << "node: " << iscene->mMeshes[meshindex]->mBones[i]->mNode->mName.C_Str() << std::endl;
+		//std::cout << "bone: " << iscene->mMeshes[meshindex]->mBones[i]->mName.C_Str() << std::endl;
+		//std::cout << "node: " << iscene->mMeshes[meshindex]->mBones[i]->mNode->mName.C_Str() << std::endl;
 
 		nodeToBone[iscene->mMeshes[meshindex]->mBones[i]->mNode] = iscene->mMeshes[meshindex]->mBones[i];
 	}
@@ -105,7 +111,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 
 	std::cout << "Going to print out the entire bones" << std::endl;
 	for (const auto& pair : nodeToBone) {
-		std::cout << pair.first->mName.C_Str() << " " << pair.second->mName.C_Str() << std::endl;
+		//std::cout << pair.first->mName.C_Str() << " " << pair.second->mName.C_Str() << std::endl;
 	}
 
 	skin->Preload(iscene->mMeshes[meshindex]->mNumVertices);
@@ -113,8 +119,8 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 	skel->root = root;
 	//iscene->mRootNode->FindNode("b_Root") for fox
 	//iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root") for man
-	root->Load(iscene->mRootNode->FindNode("rp_manuel_animated_001_dancing_root"), &nodeToBone, skin);
-	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex]);
+	root->Load(iscene->mRootNode, &nodeToBone, skin);
+	skin->Load(iscene->mMeshes[meshindex], iscene->mMaterials[iscene->mMeshes[meshindex]->mMaterialIndex], 1);
 
 	//std::cout << iscene->mRootNode->mChildren[0]->mChildren[0]->mChildren[0] << std::endl;
 	//load animations
@@ -123,7 +129,7 @@ void PlayerObject::LoadExperimental(std::string filename, int meshindex) {
 }
 
 void PlayerObject::UpdateMat(glm::mat4 newmodel) {
-	skel->updateWorldMat(newmodel);
+		skel->updateWorldMat(newmodel);
 	if (particlesystem) {
 		//particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
 		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, -0.1, 0));
@@ -133,6 +139,27 @@ void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 }
 
 void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
+
+	//animation update (ignore name of function)
+	if ((stats.inAir) && ground) {
+		ground = false;
+		move = false;
+		animplayer->Jump();
+	}
+	else if ((!stats.inAir) && !ground && !stats.moving) {
+		ground = true;
+		animplayer->Land();
+	}
+	else if (!stats.inAir && stats.moving && !move) {
+		move = true;
+		ground = true;
+		animplayer->Walk();
+	}
+	else if (ground && !stats.moving && move) {
+		move = false;
+		animplayer->Stop();
+	}
+
 	if (!colorflag) {
 		colorflag = true;
 		particlesystem->particlecolor = cores[id];

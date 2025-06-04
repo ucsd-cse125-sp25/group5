@@ -329,6 +329,8 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	playerStats.dealtDamageFlag = false;
+	GameObject* closestPlayer = phys.getClosestPlayerObject(obj->transform.position, obj->id);
+	playerStats.closestPlayer = closestPlayer == nullptr ? -1 : closestPlayer->id;
 
 
 	//water setting
@@ -366,6 +368,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	//movement states
 	if(state == PlayerMovementState::DEATH) {
+		playerStats.hp = 0;
 		deathTimer -= deltaTime;
 
 		//freeze the player

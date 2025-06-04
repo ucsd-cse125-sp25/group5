@@ -93,6 +93,7 @@ struct PlayerStats {
 	int attackPowerupFlag[5] = { 0, 0, 0, 0, 0 };
 	bool damageFlag = false; // used to indicate if the player has taken damage this tick
 	bool dealtDamageFlag = false; // used to indicate if the player has dealt damage this tick
+	int closestPlayer = -1; // used to indicate the closest player to this player
 };
 
 struct KillfeedItem {

@@ -80,7 +80,7 @@ void Animation::Load(const aiScene* scene, int animIndex) {
         channels.push_back(channel);
 
         */
-        for (int r = 0; r < 3; r++) { //iterating over x, y, z rotation
+        for (int r = 0; r < 3; r++) { //iterating over x, y, z 
             Channel channel;
             channel.extrapolationIn = static_cast<ExtrapolationMode>(mapa[anim->mChannels[i]->mPreState]);
             channel.extrapolationOut = static_cast<ExtrapolationMode>(mapa[anim->mChannels[i]->mPostState]);
@@ -115,6 +115,7 @@ void Animation::Load(const aiScene* scene, int animIndex) {
                 }
                 //std::cout << "printing value: " << value << std::endl;
 
+                //std::cout << "key time " << time << std::endl;
                 Keyframe key(time, value, 0, 0, ruleIn, ruleOut);
                 key.import = true;
                 key.quatValue = quat;
@@ -124,6 +125,36 @@ void Animation::Load(const aiScene* scene, int animIndex) {
             channel.precalculate();
             channels.push_back(channel);
 
+        }
+        for (int t = 0; t < 3; t++) { // iterating over x, y, z
+            Channel channel;
+            channel.extrapolationIn = static_cast<ExtrapolationMode>(mapa[anim->mChannels[i]->mPreState]);
+            channel.extrapolationOut = static_cast<ExtrapolationMode>(mapa[anim->mChannels[i]->mPostState]);
+
+            for (int j = 0; j < anim->mChannels[i]->mNumPositionKeys; j++) {
+                float time = static_cast<float>(anim->mChannels[i]->mPositionKeys[j].mTime);
+                aiVector3D pos = anim->mChannels[i]->mPositionKeys[j].mValue;
+                float value = 0.0f;
+
+                if (t == 0) value = pos.x;
+                else if (t == 1) value = pos.y;
+                else value = pos.z;
+
+                char ruleIn = 's';
+                char ruleOut = 's';
+
+                if (anim->mChannels[i]->mPositionKeys[j].mInterpolation == aiAnimInterpolation_Linear) {
+                    ruleIn = 'l';
+                    ruleOut = 'l';
+                }
+
+                Keyframe key(time, value, 0, 0, ruleIn, ruleOut);
+                key.import = true;
+                channel.addKeyframe(key);
+            }
+
+            channel.precalculate();
+            channels.push_back(channel);
         }
     }
 }
