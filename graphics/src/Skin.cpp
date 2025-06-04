@@ -33,7 +33,7 @@ void Skin::doSkinning() {
 	this->doSkin = true;
 }
 
-bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
+bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial, int texindex) {
 
 	triangles.reserve(mMesh->mNumFaces * 3);
 	for (int j = 0; j < mMesh->mNumFaces; j++) {
@@ -59,6 +59,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 			float x = mMesh->mTextureCoords[0][t].x;
 			float y = mMesh->mTextureCoords[0][t].y;
 			glm::vec2 uv(x, y);
+			//std::cout << "UVS" << uv.x << " " << uv.y << std::endl;
 			uvs.push_back(uv);
 		}
 	}
@@ -66,7 +67,7 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 		std::cout << "DID NOT FIND UVS" << std::endl;
 	}
 
-	this->tri = new Triangle(positions, normals, uvs, triangles);
+	this->tri = new Triangle(&positions, &normals, &uvs, &triangles);
 	tri->tex = false;
 
 	aiColor4D diffuse;
@@ -76,13 +77,13 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 	tri->color.z = diffuse.b;
 
 	aiString texPath;
-	if (mMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS) {
+	if (mMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) == AI_SUCCESS || texindex > 0) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		const char* path = texPath.C_Str();
+		const char* path = texindex == 1 ? "baked.png" : texPath.C_Str();
 		std::string filename = getLastPathPart(std::string(path));
 		std::string source = PROJECT_SOURCE_DIR;
 		std::string  middle = "/assets/textures/";
@@ -114,6 +115,23 @@ bool Skin::Load(aiMesh* mMesh, aiMaterial* mMaterial) {
 
 
 	}
+
+	tri->create(&positions, &normals, &triangles, &uvs, oneglm);
+
+
+	for (int i = 0; i < mMesh->mNumVertices; i++) {
+		SkinWeights* skinweight = sw[i];
+		float totalWeight = 0.0f;
+		for (float w : skinweight->weights) totalWeight += w;
+
+		if (totalWeight > 0.0f) {
+			for (float& w : skinweight->weights) w /= totalWeight;
+		}
+		else {
+			std::cerr << "Warning: vertex " << i << " has zero total weight!" << std::endl;
+		}
+	}
+	
 	return true;
 }
 
@@ -188,7 +206,9 @@ bool Skin::Load(const char* file) {
 
 	std::vector<glm::vec2> uvs;
 
-	this->tri = new Triangle(positions, normals, uvs, triangles);
+	this->tri = new Triangle(&positions, &normals, &uvs, &triangles);
+
+
 	return true;
 }
 
@@ -197,7 +217,7 @@ void Skin::update() {
 	if (!doSkin) return;
 
 	if (!skely->doSkeleton) {
-		tri->update(positions, normals, uvs, triangles, glm::mat4(1.0f));
+		tri->update(&positions, &normals, &uvs, &triangles, glm::mat4(1.0f));
 		return;
 	}
 	//smooth skin algorithm
@@ -222,12 +242,18 @@ void Skin::update() {
 		glm::mat4 newPosMat = glm::mat4(0.0f);
 		glm::mat4 newNormMat = glm::mat4(0.0f);
 		SkinWeights* skinweight = sw.at(i);
+		float sum = 0;
 		for (int j = 0; j < skinweight->jointIDs.size(); j++) {
 			float weight = skinweight->weights.at(j);
+			sum += weight;
 			int jointId = skinweight->jointIDs.at(j);
 			glm::mat4 jointMatrix = jointMatrices.at(jointId);
-			newPosMat += (skinweight->weights.at(j) * jointMatrices.at(skinweight->jointIDs.at(j)));
-			newNormMat += skinweight->weights.at(j) * jointMatrices.at(skinweight->jointIDs.at(j));
+			newPosMat += (skinweight->weights.at(j) * jointMatrix);
+			glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(jointMatrix)));
+			newNormMat += glm::mat4(skinweight->weights.at(j) * normalTransform);
+		}
+		if (abs(sum - 1.0f) > 0.01) {
+			//std::cout << "WEIGHTS DO NOT SUM TO 1: " << i << " " << sum << std::endl;
 		}
 		glm::vec4 newPos = newPosMat * glm::vec4(positions.at(i), 1.0);
 		transformedPositions.push_back(glm::vec3(newPos.x, newPos.y, newPos.z));
@@ -236,7 +262,7 @@ void Skin::update() {
 		transformedNormals.push_back(glm::vec3(newNorm.x, newNorm.y, newNorm.z));
 	}
 	
-	tri->update(transformedPositions, transformedNormals, uvs, triangles, oneglm);
+	tri->update(&transformedPositions, &transformedNormals, &uvs, &triangles, oneglm);
 
 }// –(traverse tree& compute all joint matrices)
 

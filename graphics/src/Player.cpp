@@ -7,9 +7,52 @@
 #include "Joint.h"
 #include <iostream>
 
+//ALL ANIMATION CLIP TIME CONSTANTS
+long long JUMP_START_RT = 0;
+long long JUMP_TOP_RT = 19;
+long long JUMP_TOP2_RT = 23;
+long long JUMP_END_RT = 38;
+
+long long WALK_START_RT = 80;
+long long WALK_CYCLE_START_RT = 90;
+long long WALK_CYCLE_END_RT = 130;
+long long WALK_END_RT = 140;
+
+float scale = 100.0f;
+float walkscale = 35.0f;
+
 Player::Player(Skeleton* skeleton, Animation* animation, std::chrono::steady_clock::time_point realStartTime)
     : skeleton(skeleton), animation(animation) {
 
+    this->realStartTime = std::chrono::high_resolution_clock::now();
+    tAdj = 17.0f;
+}
+
+void Player::Jump() {
+    anim = 0;
+    mode = 1;
+    tAdj = JUMP_START_RT;
+    this->realStartTime = std::chrono::high_resolution_clock::now();
+}
+
+void Player::Land() {
+    anim = 0;
+    mode = 2;
+    tAdj = JUMP_TOP_RT;
+    this->realStartTime = std::chrono::high_resolution_clock::now();
+}
+
+void Player::Walk() {
+    anim = 1;
+    mode = 1;
+    tAdj = WALK_START_RT;
+    this->realStartTime = std::chrono::high_resolution_clock::now();
+
+}
+void Player::Stop() {
+    anim = 1;
+    mode = 2;
+    tAdj = WALK_CYCLE_END_RT;
     this->realStartTime = std::chrono::high_resolution_clock::now();
 }
 
@@ -20,7 +63,33 @@ void Player::update() {
 
         std::chrono::duration<double> time_clock = std::chrono::high_resolution_clock::now() - realStartTime;
         float time = time_clock.count();
-        time = time * 1000.0f/60.0f;
+        time = anim == 0 ? (time * scale) + tAdj : (time * walkscale) + tAdj;
+        
+        //time constraints based on animation state
+        if (anim == 0 && mode == 1) {
+            if (time > JUMP_TOP_RT) {
+                time = JUMP_TOP_RT;
+            }
+        }
+        else if (anim == 0 && mode == 2) {
+            if (time > JUMP_END_RT) {
+                time = JUMP_END_RT;
+            }
+        }
+        else if (anim == 1 && mode == 1) {
+            if (time > WALK_CYCLE_END_RT) {
+                this->realStartTime = std::chrono::high_resolution_clock::now();
+                tAdj = WALK_CYCLE_START_RT;
+            }
+        }
+        else if (anim == 1 && mode == 2) {
+            if (time > WALK_END_RT) {
+                time = WALK_END_RT;
+            }
+        }
+
+        std::cout << "time: " << time << std::endl;
+
         //std::cout << time << std::endl;
         //75 joints
         //animation->channels.size();
@@ -46,8 +115,8 @@ void Player::update() {
 
         }
         */
-        for (size_t i = 0; i < animation->channels.size(); i += 3) {
-            int nameIndex = i / 3;
+        for (size_t i = 0; i < animation->channels.size(); i += 6) {
+            int nameIndex = i / 6;
             //std::cout << "bone name: " << animation->names[nameIndex] << std::endl;
             auto it = skeleton->JNameMap.find(animation->names[nameIndex]);
             if (it == skeleton->JNameMap.end()) {
@@ -67,6 +136,14 @@ void Player::update() {
             );
             //rotation.x += glm::pi<float>();
             skeleton->joints[jointIndex]->setRotation(rotation);
+
+            // Translation
+            glm::vec3 translation(
+                animation->channels[i + 3].getValue(time, animation->channels[i + 3].keyframes.back().time - animation->channels[i + 3].keyframes.front().time, animation->channels[i + 3].keyframes.back().value - animation->channels[i + 3].keyframes.front().value),
+                animation->channels[i + 4].getValue(time, animation->channels[i + 4].keyframes.back().time - animation->channels[i + 4].keyframes.front().time, animation->channels[i + 4].keyframes.back().value - animation->channels[i + 4].keyframes.front().value),
+                animation->channels[i + 5].getValue(time, animation->channels[i + 5].keyframes.back().time - animation->channels[i + 5].keyframes.front().time, animation->channels[i + 5].keyframes.back().value - animation->channels[i + 5].keyframes.front().value)
+            );
+            skeleton->joints[jointIndex]->setTranslation(translation);
 
             //std::cout << "Rotation: " << i << " : " << rotation.x << " " << rotation.y << " " << rotation.z << " + time = " << time << std::endl;
             
