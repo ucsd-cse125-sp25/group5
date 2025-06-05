@@ -1,7 +1,8 @@
 #include "Light.h"
 #include <iostream>
+#include <vector>
 
-#define MAX_LIGHTS 50
+#define MAX_LIGHTS 150
 #define BINDING_POINT 0
 
 void Lights::init() {
@@ -11,36 +12,58 @@ void Lights::init() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BINDING_POINT, SSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-    // Initialize example lights
-    Light light1;
-    light1.position = glm::vec4(2.0f, 2.0f, 0.0f, 1.0f);  // Light 1 position (2, 2, 0)
-    light1.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-    light1.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
-    light1.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    light1.constant = 1.0f;
-    light1.linear = 0.09f;
-    light1.quadratic = 0.032f;
-    addLight(light1);
+    std::srand(static_cast<unsigned>(std::time(0)));
 
-    Light light2;
-    light2.position = glm::vec4(-2.0f, 3.0f, 1.0f, 1.0f);  // Light 2 position (-2, 3, 1)
-    light2.ambient = glm::vec4(0.1f, 0.0f, 0.0f, 1.0f);  // Red ambient light
-    light2.diffuse = glm::vec4(0.7f, 0.0f, 0.0f, 1.0f);  // Red diffuse light
-    light2.specular = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
-    light2.constant = 1.0f;
-    light2.linear = 0.09f;
-    light2.quadratic = 0.032f;
-    addLight(light2);
 
-    Light light3;
-    light3.position = glm::vec4(3.0f, -2.0f, 1.5f, 1.0f);  // Light 3 position (3, -2, 1.5)
-    light3.ambient = glm::vec4(0.0f, 0.0f, 0.1f, 1.0f);  // Blue ambient light
-    light3.diffuse = glm::vec4(0.0f, 0.0f, 0.7f, 1.0f);  // Blue diffuse light
-    light3.specular = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
-    light3.constant = 1.0f;
-    light3.linear = 0.09f;
-    light3.quadratic = 0.032f;
-    addLight(light3);
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+        Light light;
+        //light.position = glm::vec4(2.0f, 12.0f, 0.0f, 1.0f);  // Light 1 position (2, 2, 0)
+        float x = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
+        float y = 0.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 100.0f));
+        float z = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
+        light.position = glm::vec4(x, y, z, 1.0f);
+
+        light.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+        light.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+        light.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        light.constant = 1.0f;
+        light.linear = 0.07f;     // Lower = longer reach
+        light.quadratic = 0.017f; // Lower = slower fade
+
+
+        addLight(light);
+    }
+
+    //// Initialize example lights
+    //Light light1;
+    //light1.position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);  // Light 1 position (0, 0, 0)
+    //light1.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+    //light1.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+    //light1.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    //light1.constant = 1.0f;
+    //light1.linear = 0.09f;
+    //light1.quadratic = 0.032f;
+    //addLight(light1);
+
+    //Light light2;
+    //light2.position = glm::vec4(-2.0f, 3.0f, 1.0f, 1.0f);  // Light 2 position (-2, 3, 1)
+    //light2.ambient = glm::vec4(0.1f, 0.0f, 0.0f, 1.0f);  // Red ambient light
+    //light2.diffuse = glm::vec4(0.7f, 0.0f, 0.0f, 1.0f);  // Red diffuse light
+    //light2.specular = glm::vec4(1.0f, 0.5f, 0.5f, 1.0f);
+    //light2.constant = 1.0f;
+    //light2.linear = 0.09f;
+    //light2.quadratic = 0.032f;
+    //addLight(light2);
+
+    //Light light3;
+    //light3.position = glm::vec4(3.0f, -2.0f, 1.5f, 1.0f);  // Light 3 position (3, -2, 1.5)
+    //light3.ambient = glm::vec4(0.0f, 0.0f, 0.1f, 1.0f);  // Blue ambient light
+    //light3.diffuse = glm::vec4(0.0f, 0.0f, 0.7f, 1.0f);  // Blue diffuse light
+    //light3.specular = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
+    //light3.constant = 1.0f;
+    //light3.linear = 0.09f;
+    //light3.quadratic = 0.032f;
+    //addLight(light3);
 
     dirLight.color = glm::vec3(0.7, 0.75, 0.68)/3.0f;
     dirLight.direction = glm::normalize(glm::vec3(-1.0, 0.44, -0.26));

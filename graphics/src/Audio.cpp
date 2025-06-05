@@ -22,8 +22,8 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"ticktock", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ticktock.wav")},
 	{"capture", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/capture.wav")},
 	{"transfer", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
-	//{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
-	//{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/waterA.wav")},
+	{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/lobbymusic.wav")},
+	{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/gamemusic.wav")},
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;

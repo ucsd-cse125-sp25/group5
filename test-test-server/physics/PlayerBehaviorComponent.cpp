@@ -124,7 +124,7 @@ pair<glm::vec3, float> PlayerBehaviorComponent::handlePlayerGrapple(GameObject* 
 
 	Ray ray;
 
-	ray.origin = obj->transform.position;
+	ray.origin = obj->transform.position + EYES_OFFSET;
 	ray.dir = getDirection(
 		glm::radians(-phys.PlayerIntents[obj->id].azimuthIntent),
 		glm::radians(-phys.PlayerIntents[obj->id].inclineIntent)
@@ -173,7 +173,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 
 	if (type == WOOD && playerStats.mana[1] >= WOOD_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, woodProjExtents);
 
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 15.0f, player->id);
@@ -191,7 +191,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == METAL && playerStats.mana[0] >= METAL_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 5.0f, 7.0f, player->id);
 		obj->type = METAL_PROJ;
@@ -204,7 +204,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == WATER && playerStats.mana[2] >= WATER_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 20.0f, player->id);
 		obj->type = WATER_PROJ;
@@ -217,7 +217,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, fireProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, fireProjExtents);
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 10.0f, player->id, 2.5f);
 		obj->type = FIRE_PROJ;
@@ -531,7 +531,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		grappleTimer -= deltaTime;
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
 		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
-		glm::vec3 direction = playerStats.grappleTarget - obj->transform.position;
+		glm::vec3 direction = playerStats.grappleTarget - (obj->transform.position + EYES_OFFSET);
 		glm::vec3 normalizedDirection = glm::normalize(direction);
 		//lock the velocity
 		obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
@@ -635,7 +635,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 					state = PlayerMovementState::GRAPPLE;
 					grappleTimer = result.second / GRAPPLE_SPEED;
 					//get our direction
-					glm::vec3 direction = target - obj->transform.position;
+					glm::vec3 direction = target - (obj->transform.position + EYES_OFFSET);
 					glm::vec3 normalizedDirection = glm::normalize(direction);
 					//lock the velocity
 					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
