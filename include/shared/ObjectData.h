@@ -97,6 +97,8 @@ struct PlayerStats {
 	bool damageFlag = false; // used to indicate if the player has taken damage this tick
 	bool dealtDamageFlag = false; // used to indicate if the player has dealt damage this tick
 	int closestPlayer = -1; // used to indicate the closest player to this player
+	float waveAudioFlag = 0.0f; // used to indicate if the player is underwater and the wave audio should be played
+	float windAudioFlag = 0.0f; // used to indicate if the player is in the air and the wind audio should be played	
 };
 
 struct KillfeedItem {

@@ -41,6 +41,7 @@ ClientNetwork::ClientNetwork(void)
     //iResult = getaddrinfo("128.54.69.168", DEFAULT_PORT, &hints, &result);
 
 
+
     if( iResult != 0 ) 
     {
         printf("getaddrinfo failed with error: %d\n", iResult);

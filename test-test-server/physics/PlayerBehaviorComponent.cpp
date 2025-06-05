@@ -171,9 +171,11 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
 	);
 
+	glm::vec3 FRONT_OFFSET = glm::normalize(facingDirection) * 1.0f;
+
 	if (type == WOOD && playerStats.mana[1] >= WOOD_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
 
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 15.0f, player->id);
@@ -204,7 +206,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == WATER && playerStats.mana[2] >= WATER_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * waterProjSpeed, 50.0f, player->id);
 		obj->type = WATER_PROJ;
@@ -217,7 +219,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, fireProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET * 2.0f, rotation, fireProjExtents);
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 5.0f, player->id, 2.5f);
 		obj->type = FIRE_PROJ;
@@ -390,6 +392,19 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		}
 	}
 	
+	//wind audio
+	if(playerStats.inAir && !playerStats.underwater) {
+		playerStats.windAudioFlag += deltaTime * 0.25f;
+		if (playerStats.windAudioFlag > 1.0f) {
+			playerStats.windAudioFlag = 1.0f;
+		}
+	}
+	else {
+		playerStats.windAudioFlag -= deltaTime * 1.f;
+		if (playerStats.windAudioFlag < 0.0f) {
+			playerStats.windAudioFlag = 0.0f;
+		}
+	}
 
 	
 
@@ -398,6 +413,11 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		playerStats.grappleTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 		grappleTarget = nullptr;
 	}
+}
+float clamp(float value, float min, float max) {
+	if (value < min) return min;
+	if (value > max) return max;
+	return value;
 }
 
 //—— integrate — called once per tick
@@ -422,6 +442,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 	playerStats.low_oxygen = obj->transform.position.y > phys.atmosphereLevel;
+
+	float waveAudioThreshold = 30.0f;
+	//audio settings
+	float t = 1.0f - clamp((obj->transform.position.y - phys.waterLevel), 0.0f, waveAudioThreshold) / waveAudioThreshold;
+	playerStats.waveAudioFlag = t * t;
 
 	//death handling block
 	if (state == PlayerMovementState::DEATH) {
