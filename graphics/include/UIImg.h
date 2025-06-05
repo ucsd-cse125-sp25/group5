@@ -269,7 +269,7 @@ private:
 	bool animating = false;
 	double animStart;
 	float percent = 0.0;
-	float paintDuration = 0.35f;
+	float paintDuration = 0.52f;
 	GLuint VAO, VBO, EBO;
 };
 

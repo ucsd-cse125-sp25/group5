@@ -443,9 +443,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 	playerStats.low_oxygen = obj->transform.position.y > phys.atmosphereLevel;
 
-	float waveAudioThreshold = 10.0f;
+	float waveAudioThreshold = 30.0f;
 	//audio settings
-	float t = 1.0f - clamp(waveAudioThreshold - (obj->transform.position.y - phys.waterLevel), 0.0f, 1.0f);
+	float t = 1.0f - clamp((obj->transform.position.y - phys.waterLevel), 0.0f, waveAudioThreshold) / waveAudioThreshold;
 	playerStats.waveAudioFlag = t * t;
 
 	//death handling block

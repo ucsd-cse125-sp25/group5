@@ -24,6 +24,9 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"transfer", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
 	{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/lobbymusic.wav")},
 	{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/gamemusic.wav")},
+	{"paintcanvas", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/paintcanvas.wav")},
+	{"ocean", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ocean.mp3")},
+	{"wind", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/wind.mp3")},
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
@@ -44,7 +47,7 @@ void Audio::Init(ClientGame* client) {
 		const std::string& track = pair.first;
 		const std::string& path = pair.second;
 		FMOD::Sound* s;
-		if (track.find("music") != std::string::npos) {
+		if (track.find("music") != std::string::npos || track.find("ocean") != std::string::npos || track.find("wind") != std::string::npos) {
 			system->createSound(path.c_str(), FMOD_2D | FMOD_CREATESAMPLE, 0, &s);
 			s->setMode(FMOD_LOOP_NORMAL);
 		}
@@ -93,6 +96,20 @@ void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
 		musicChannel->setChannelGroup(sfxGroup);
 		musicChannel->setPaused(false);
 	}
+	else if (n.find("ocean") != std::string::npos) {
+		system->playSound(Sounds[n], nullptr, true, &waterChannel);
+		waterChannel->setVolume(volume);
+		waterChannel->set3DMinMaxDistance(0.5f, 95.0f);
+		waterChannel->setChannelGroup(sfxGroup);
+		waterChannel->setPaused(false);
+	}
+	else if (n.find("wind") != std::string::npos) {
+		system->playSound(Sounds[n], nullptr, true, &windChannel);
+		windChannel->setVolume(volume);
+		windChannel->set3DMinMaxDistance(0.5f, 95.0f);
+		windChannel->setChannelGroup(sfxGroup);
+		windChannel->setPaused(false);
+	}
 	else {
 
 		FMOD::Channel* channel = nullptr;
@@ -115,6 +132,19 @@ void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
 //Can only stop the background music
 void Audio::StopAudio() {
 	musicChannel->stop();
+}
+
+void Audio::UpdateAmbient(PlayerStats & p) {
+	if (client->GameState.phase == GamePhase::IN_GAME) {
+		std::cout << "Wind Flag: " << p.windAudioFlag << std::endl;
+		std::cout << "Wave Flag: " << p.waveAudioFlag << std::endl;
+		windChannel->setVolume(p.windAudioFlag * 0.75);
+		waterChannel->setVolume(p.waveAudioFlag * 0.5);
+	}
+	else {
+		windChannel->setVolume(0.0f);
+		waterChannel->setVolume(0.0f);
+	}
 }
 
 //FMOD::System* automatically handles playing audio
@@ -194,8 +224,13 @@ void Audio::Update(Camera* cam, UIData &p) {
 		std::string rs = "respawn";
 		this->PlayAudio(rs, pos, volume);
 	}
+	if (p.seconds < 61 && !paintOut && phase == IN_GAME) {
+		paintOut = true;
+		std::string pc = "paintcanvas";
+		this->PlayAudio(pc, pos, volume);
+	}
 
-	if (p.seconds < 60 && !timeOut && phase == IN_GAME) {
+	if (p.seconds < 30 && !timeOut && phase == IN_GAME) {
 		timeOut = true;
 		std::string tt = "ticktock";
 		this->PlayAudio(tt, pos, volume);
