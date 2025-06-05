@@ -105,10 +105,18 @@ const float MANA_REGEN_COOLDOWN = 1.0f;
 const float START_REGEN_COOLDOWN = 10.0f;	
 const int MANA_REGEN_AMOUNT = 1;
 
+
 const glm::vec3 EYES_OFFSET = glm::vec3(0.0f, 1.0f, 0.0f); // Offset for the player's eyes position
 
 const int HP_PICKUP_AMOUNT = 10;
-const int MANA_PICKUP_AMOUNT = 10;
+const int MANA_PICKUP_AMOUNT = 50;
+
+const glm::vec3 deathPoints[4] = {
+		glm::vec3(-5.0f, -1000.0f, 0.0f),
+		glm::vec3(0.0f, -1000.0f, 5.0f),
+		glm::vec3(5.0f, -1000.0f, 0.0f),
+		glm::vec3(0.0f, -1000.0f, -5.0f)
+};
 
 public:
 	PlayerMovementState state = PlayerMovementState::IDLE;
@@ -129,6 +137,7 @@ public:
 	float curSlowFactor = 1.0f;
 	float curUnderwaterSlowFactor = 1.0f;
 	unsigned int maxHP = 120.0f;
+	glm::vec3 deathPos;
 
 
 	GameObject* grappleTarget = nullptr;
