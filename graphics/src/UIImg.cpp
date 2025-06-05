@@ -148,7 +148,7 @@ void Clock::Update(const UIData& p) {
 
 void Clock::Draw() {
 	//seconds = timerStart - (glfwGetTime() - start);
-	if (client->GameState.phase == IN_GAME && seconds < 1 * 60) {
+	if (client->GameState.phase == IN_GAME && seconds <= 1 * 60.7) {
 		return;
 	}
 
@@ -159,7 +159,7 @@ void Clock::Draw() {
 	//glBindTexture(GL_TEXTURE_2D, healthTexture);
 
 	glDisable(GL_DEPTH_TEST); 
-
+	glUniform1f(glGetUniformLocation(shaderProgram, "time"), glfwGetTime());
 
 	glBindVertexArray(VAO);
 	glm::mat4 model = glm::mat4(1.0f);
@@ -257,6 +257,8 @@ void HealthNums::Draw() {
 
 	glBindVertexArray(VAO);
 	glm::mat4 model = glm::mat4(1.0f);
+
+	glUniform1f(glGetUniformLocation(shaderProgram, "time"), glfwGetTime());
 
 	//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 
