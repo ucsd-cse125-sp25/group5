@@ -345,7 +345,7 @@ glm::vec3(-28.786f,100.100f,-49.000f),
 
 GameObject* spawnFlag(PhysicsSystem& physicsSystem) {
 	GameObject* flag = physicsSystem.makeGameObject();
-	flag->transform.position = glm::vec3(0.0f, 50.0f, 0.0f);
+	flag->transform.position = glm::vec3(0.0f, 10.0f, 0.0f);
 	flag->transform.rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // Identity quaternion
 	flag->type = FLAG;
 	flag->behavior = new FlagBehaviorComponent(flag, physicsSystem);
