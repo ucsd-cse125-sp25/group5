@@ -206,11 +206,11 @@ void Scene::update(Camera* cam) {
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], 0);
 	player->Update();
 
-	if(client->GameState.phase == GamePhase::WAITING && musica == -1){
+	if((client->GameState.phase == GamePhase::WAITING || client->GameState.phase == GamePhase::PRE_GAME) && musica == -1){
 		audiomanager->PlayAudio("lobbymusic", client->playerModel[3], 0.37f);
 		musica = 0;
 	}
-	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 0) {
+	else if (client->GameState.phase == GamePhase::IN_GAME && musica < 1) {
 		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.37f);
 		musica = 1;
 	}
