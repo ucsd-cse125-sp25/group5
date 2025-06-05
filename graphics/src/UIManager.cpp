@@ -178,11 +178,11 @@ void UIManager::Init(ClientGame* client) {
 		LoadTexture(name, path);
 	}
 	UIImg* killfeed = new Killfeed();
-	std::vector<float> startPercKill = { 0.805, 0.95 };
+	std::vector<float> startPercKill = { 0.72, 0.95 };
 
 	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
 	kf->texs = &textures; //Mickey mouse
-	killfeed->Init(startPercKill, 0.029, 1.5);
+	killfeed->Init(startPercKill, 0.039, 1.5);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
