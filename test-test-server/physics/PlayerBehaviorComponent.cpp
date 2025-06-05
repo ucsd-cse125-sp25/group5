@@ -386,6 +386,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	playerStats.dealtDamageFlag = false;
+	playerStats.damageFlag = false;
 	GameObject* closestPlayer = phys.getClosestPlayerObject(obj->transform.position, obj->id);
 	playerStats.closestPlayer = closestPlayer == nullptr ? -1 : closestPlayer->id;
 
