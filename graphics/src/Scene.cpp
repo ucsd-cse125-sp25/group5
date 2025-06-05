@@ -120,7 +120,7 @@ void Scene::loadObjects() {
 	}
 
 	flag = new Object();
-	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/flag.obj");
+	std::string importstr2 = PROJECT_SOURCE_DIR + std::string("/assets/plant2.obj");
 	flag->create((char*)importstr2.c_str(), glm::mat4(1), 1);
 	//objects.push_back(flag);
 
