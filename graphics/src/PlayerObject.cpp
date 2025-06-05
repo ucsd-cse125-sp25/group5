@@ -199,13 +199,13 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 		powerupsystem->ctime = currTime;
 	}
 
-	if (stats.damageFlag == true && stats.underwater == false) {
-		damagesystem->creationrate = 75;
+	if (stats.damageFlag == true && stats.underwater == false && stats.alive) {
+		damagesystem->creationrate = 60;
 		//damagesystem->ctime -= 20 * (1000.0 / damagesystem->creationrate);
 		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
 	}
-	else if (stats.underwater) {
-		damagesystem->creationrate = 60;
+	else if (stats.underwater && stats.alive) {
+		damagesystem->creationrate = 40;
 		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01) * 4.0f;
 	}
 	else {
