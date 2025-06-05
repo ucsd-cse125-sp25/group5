@@ -20,9 +20,9 @@ namespace fs = std::experimental::filesystem;
 
 #define PRE_GAME_COUNTDOWN 30
 
-#define IN_GAME_DURATION 200
+#define IN_GAME_DURATION 300
 
-#define NUM_PLAYERS_TO_START 2
+#define NUM_PLAYERS_TO_START 4
 
 
 

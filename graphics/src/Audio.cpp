@@ -101,6 +101,9 @@ void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
 	if (n.find("fireM") != std::string::npos || n.find("waterM") != std::string::npos || n.find("metalM") != std::string::npos) {
 		v = 0.99f;
 	}
+	if (n.find("fireA") != std::string::npos) {
+		v = 0.85f;
+	}
 
 	FMOD_VECTOR soundPos = { pos.x, pos.y, pos.z };
 	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
