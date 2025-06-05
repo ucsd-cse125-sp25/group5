@@ -84,11 +84,12 @@ struct PlayerStats {
 	bool moving = false;
 	bool inAir = false;
 	bool underwater = false;
-	
+	bool low_oxygen = false; 
+
 	glm::vec3 grappleTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	unsigned int mana[5] = { 100, 100, 100, 100, 100 };
-	unsigned int prevMana[5] = { 100, 100, 100, 100, 100 };
+	int mana[5] = { 100, 100, 100, 100, 100 };
+	int prevMana[5] = { 100, 100, 100, 100, 100 };
 	PowerType activePower = METAL;
 
 	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};
@@ -96,6 +97,8 @@ struct PlayerStats {
 	bool damageFlag = false; // used to indicate if the player has taken damage this tick
 	bool dealtDamageFlag = false; // used to indicate if the player has dealt damage this tick
 	int closestPlayer = -1; // used to indicate the closest player to this player
+	float waveAudioFlag = 0.0f; // used to indicate if the player is underwater and the wave audio should be played
+	float windAudioFlag = 0.0f; // used to indicate if the player is in the air and the wind audio should be played	
 };
 
 struct KillfeedItem {

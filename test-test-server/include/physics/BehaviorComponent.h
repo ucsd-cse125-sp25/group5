@@ -131,6 +131,7 @@ public:
 	float movementAbilityTimer = 0.0f;
 	float manaRegenTimer = 0.0f;
 	float startRegenTimer = 0.0f;
+	float lowOxygenTimer = 0.0f;
 
 	float curCooldownArray[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 

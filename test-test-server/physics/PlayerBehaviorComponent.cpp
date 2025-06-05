@@ -308,6 +308,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	
 	//underwater damage and slow
 	if (playerStats.underwater) {
+		
 		underwaterTimer += deltaTime;
 		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
 			playerStats.hp -= 1;
@@ -318,6 +319,25 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		underwaterTimer = 0.0f;
 		curUnderwaterSlowFactor = 1.0f;
+	}
+
+	//atmopshere slow
+	if (playerStats.low_oxygen) {
+		//no mana regen for you 
+		manaRegenTimer = MANA_REGEN_COOLDOWN;
+		lowOxygenTimer += deltaTime;
+		if (lowOxygenTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
+			playerStats.hp -= 1;
+			lowOxygenTimer = 0.0f;
+			//screw your powerups!
+			for (int i = 0; i < 5; i++) {
+				playerStats.mana[i] -= 2;
+
+				if (playerStats.mana[i] < 0) {
+					playerStats.mana[i] = 0;
+				}
+			}
+		}
 	}
 
 	//flag holding hp increase
@@ -381,6 +401,11 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		grappleTarget = nullptr;
 	}
 }
+float clamp(float value, float min, float max) {
+	if (value < min) return min;
+	if (value > max) return max;
+	return value;
+}
 
 //—— integrate — called once per tick
 void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) {
@@ -403,6 +428,12 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	//water setting
 	
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
+	playerStats.low_oxygen = obj->transform.position.y > phys.atmosphereLevel;
+
+	float waveAudioThreshold = 10.0f;
+	//audio settings
+	float t = 1.0f - clamp(waveAudioThreshold - (obj->transform.position.y - phys.waterLevel), 0.0f, 1.0f);
+	playerStats.waveAudioFlag = t * t;
 
 	//death handling block
 	if (state == PlayerMovementState::DEATH) {
@@ -784,7 +815,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			obj->transform.position += vec3(0.0, + stair,0.0);
 		}*/
 		if (penetration.first.x != 0 || penetration.first.z != 0) {
-			obj->physics->velocity += vec3(0.0, 1.0, 0.0) * 0.25f;
+			obj->transform.position += vec3(0.0, 1.0, 0.0) * 0.4f;
 		}
 	}
 	else if (status == 1 && playerStats.alive) {

@@ -42,6 +42,10 @@ public:
 
 	//water level
 	float waterLevel = -2.0f;
+
+    //atmosphere level
+	float atmosphereLevel = 200.0f;
+
     //times for water level calculation 
 	float timePassed = 0.0f;
 	float totalTime = 0.0f;
