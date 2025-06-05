@@ -1,0 +1,132 @@
+# Blender 4.4.3 MTL File: 'pagoda.blend'
+# www.blender.org
+
+newmtl Bricks
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Bricks_BaseColor.png
+map_Bump -bm 1.000000 textures/Bricks_Normal.png
+
+newmtl Darkwood
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd DarkwoodTrim_BaseColor.png
+map_Bump -bm 1.000000 DarkwoodTrim_Normal.png
+
+newmtl DarkwoodTiling
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd DarkwoodTiling_BaseColor.png
+
+newmtl Door
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl H2_Windows
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd H2_Windows_BaseColor.png
+map_Bump -bm 1.000000 H2_Windows_Normal.jpg
+
+newmtl Lightwood
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd LightwoodTrim_BaseColor.png
+map_Bump -bm 1.000000 LightwoodTrim_Normal.png
+
+newmtl Redwood
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd RedwoodTrim_BaseColor.png
+map_Bump -bm 1.000000 RedwoodTrim_Normal.png
+
+newmtl RedwoodTiling
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd RedwoodTiling_BaseColor.png
+map_Bump -bm 1.000000 RedwoodTiling_Normal.png
+
+newmtl RoofTiles
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd RoofTiles_Plane_BaseColor.png
+map_Bump -bm 1.000000 RoofTiles_Plane_Normal.png
+
+newmtl TubesTiling
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Tubes_BaseColor.png
+map_Bump -bm 1.000000 Tubes_Normal.png
+
+newmtl WhiteWall
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd WhiteWall_BaseColor.png
+map_Bump -bm 1.000000 WhiteWall_Normal.png
+
+newmtl WhiteWallBricks
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd WhiteWall_BaseColor.png
+map_Bump -bm 1.000000 WhiteWall_Normal.png
