@@ -375,7 +375,8 @@ ServerGame::ServerGame(void) {
 	loadComposites();
 
 	//add islands
-	spawnIslands(physicsSystem);
+	//spawnIslands(physicsSystem);
+	
 	spawnPickups(physicsSystem);
 
 	//add a flag
