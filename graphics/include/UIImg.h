@@ -173,6 +173,8 @@ public:
 private:
 	GLuint players[4];
 	GLuint action[4];
+	GLuint pla;
+	GLuint yer;
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> container;

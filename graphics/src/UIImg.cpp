@@ -532,6 +532,8 @@ void Killfeed::Init(std::vector<float> startPerc, float percent, float ratio) {
 	players[3] = (*texs)["character4"];
 
 	action[0] = (*texs)["character1"];
+	pla = (*texs)["pla"];
+	yer = (*texs)["yer"];
 }
 
 void Killfeed::Update(const UIData& p) {
@@ -564,29 +566,46 @@ void Killfeed::Draw() {
 		float transparency = (30 - uidata.killfeed[i].lifetime)/1.5;
 
 		glUniform1f(glGetUniformLocation(shaderProgram, "transparency"),  transparency);
+
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glBindTexture(GL_TEXTURE_2D, pla);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.029f, 0.0f, 0.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glBindTexture(GL_TEXTURE_2D, yer);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.031f, 0.0f, 0.0f));
 		//attacker draw
 		GLuint sprite = (*texs)["player" + std::to_string(uidata.killfeed[i].attacker)];
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glBindTexture(GL_TEXTURE_2D, sprite);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.05f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.03f, 0.0f, 0.0f));
 		//action draw
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 		glBindTexture(GL_TEXTURE_2D, (*texs)["action" + std::to_string(uidata.killfeed[i].type)]);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.05f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.03f, 0.0f, 0.0f));
 		// will be -1 if there is no victim
 		if (uidata.killfeed[i].victim != -1) {
 			//victim draw only if there is a victim
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+			glBindTexture(GL_TEXTURE_2D, pla);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.029f, 0.0f, 0.0f));
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+			glBindTexture(GL_TEXTURE_2D, yer);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			model = glm::translate(model, glm::vec3(WINDOWWIDTH * 0.031f, 0.0f, 0.0f));
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
 			glBindTexture(GL_TEXTURE_2D, (*texs)["player" + std::to_string(uidata.killfeed[i].victim)]);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 
 		//newline of sprites
-		model = glm::translate(lineStart, glm::vec3(0.0f, -WINDOWHEIGHT * 0.075f, 0.0f));
+		model = glm::translate(lineStart, glm::vec3(0.0f, -WINDOWHEIGHT * 0.05f, 0.0f));
 		lineStart = model;
 		
 	}

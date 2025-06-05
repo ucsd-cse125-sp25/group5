@@ -79,7 +79,9 @@ static std::unordered_map<std::string, std::string> KillfeedSprites = {
 	{ "action0", PROJECT_SOURCE_DIR + std::string("/assets/action1.png")},
 	{ "action1", PROJECT_SOURCE_DIR + std::string("/assets/action2.png")},
 	{ "action2", PROJECT_SOURCE_DIR + std::string("/assets/action3.png")} ,
-	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/action4.png")}
+	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/action4.png")},
+	{ "pla", PROJECT_SOURCE_DIR + std::string("/assets/pla.png")},
+	{ "yer", PROJECT_SOURCE_DIR + std::string("/assets/yer.png")} ,
 };
 
 //0-9 + colon (:)
@@ -174,11 +176,11 @@ void UIManager::Init(ClientGame* client) {
 		LoadTexture(name, path);
 	}
 	UIImg* killfeed = new Killfeed();
-	std::vector<float> startPercKill = { 0.875, 0.95 };
+	std::vector<float> startPercKill = { 0.805, 0.95 };
 
 	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
 	kf->texs = &textures; //Mickey mouse
-	killfeed->Init(startPercKill, 0.045, 1.5);
+	killfeed->Init(startPercKill, 0.029, 1.5);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
