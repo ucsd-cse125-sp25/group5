@@ -49,6 +49,9 @@ void ServerGame::loadComposites() {
 
         if (!in) {
             std::cout << "Failed to open " << file_path << "\n";
+			string file_name = entry.path().stem().string();
+			composites[file_name] = std::vector<std::pair<glm::vec3, glm::vec3>>();
+
             continue;
         }
 
