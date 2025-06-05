@@ -424,6 +424,9 @@ float clamp(float value, float min, float max) {
 void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) {
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
+	playerStats.hpPickupFlag = false;
+	playerStats.manaPickupFlag = false;
+
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	playerStats.dealtDamageFlag = false;
 	playerStats.damageFlag = false;
@@ -569,13 +572,19 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	}
 	else if (state == PlayerMovementState::GRAPPLE) {
 
-		grappleTimer -= deltaTime;
+		grappleTimer += deltaTime;
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
 		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
 		glm::vec3 direction = playerStats.grappleTarget - (obj->transform.position + EYES_OFFSET);
 		glm::vec3 normalizedDirection = glm::normalize(direction);
 		//lock the velocity
 		obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+		if (grappleTimer >= GRAPPLE_TIME) {
+			obj->physics->velocity *= 0.1f;
+			state = PlayerMovementState::IDLE;
+			grappleTimer = 0.0f;
+			grappleTarget = nullptr;
+		}
 		////if we've collided with our target object, or if we've run out of time, release the grapple
 		//if (grappleTimer <= 0.0f) {
 		//	printf(
@@ -674,7 +683,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				if (target != glm::vec3(0.0f, 0.0f, 0.0f) && result.second > 0.0f) {
 					//only start grappling if we have a target 
 					state = PlayerMovementState::GRAPPLE;
-					grappleTimer = result.second / GRAPPLE_SPEED;
+					//grappleTimer = result.second / GRAPPLE_SPEED;
 					//get our direction
 					glm::vec3 direction = target - (obj->transform.position + EYES_OFFSET);
 					glm::vec3 normalizedDirection = glm::normalize(direction);

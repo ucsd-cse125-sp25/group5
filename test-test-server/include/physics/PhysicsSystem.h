@@ -11,7 +11,7 @@ typedef glm::mat4 mat4;
 typedef glm::quat quat;
 
 const float STARTING_WATER_LEVEL = -2.0f;
-const float ENDING_WATER_LEVEL = 5.0f;
+const float ENDING_WATER_LEVEL = 100.0f;
 
 using namespace std;
 
@@ -38,6 +38,7 @@ public:
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
     map<vec3, vector<GameObject*>> worldGrid;
     vector<float> AABBdistances;
+    GamePhase currPhase;
     float cellSize;
 
 	//water level

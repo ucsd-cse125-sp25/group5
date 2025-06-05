@@ -10,7 +10,7 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1200;
+int WINDOWHEIGHT = 1080;
 int WINDOWWIDTH = 1920;
 //2560
 //1440
@@ -360,9 +360,9 @@ void Scene::update(Camera* cam) {
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		PlayerStats& c = client->GameState.player_stats[i];
 		glm::vec3 pos = client->GameState.players[i].model[3];
-		float vol = 0.70f;
+		float vol = 0.7f;
 		if (client->playerId != client->GameState.players[i].id) {
-			vol = 0.45f;
+			vol = 0.5f;
 		}
 		for (int j = 0; j < 5; j++) {
 			float now = glfwGetTime();
@@ -539,15 +539,15 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < projectiles.size(); i++) {
 		Projectile p = projectiles.at(i);
 		if (p.power == METAL) {
-			metalpower->update(glm::scale(p.model, glm::vec3(0.05f)));
+			metalpower->update(glm::scale(p.model, glm::vec3(0.12f)));
 			metalpower->draw(mainShader, false);
 		}
 		else if (p.power == WOOD) {
-			woodpower->update(p.model);
+			woodpower->update(glm::scale(p.model, glm::vec3(1.1)));
 			woodpower->draw(mainShader, false);
 		}
 		else if (p.power == WATER) {
-			waterpower->update(glm::rotate(p.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+			waterpower->update(glm::scale(glm::rotate(p.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(1.1f)));
 			waterpower->draw(mainShader, false);
 		}
 		else if (p.power == FIRE) {
@@ -584,14 +584,14 @@ void Scene::draw(Camera* cam) {
 		glm::vec3 pos = client->GameState.players[i].model[3];
 		//std::cout << i << std::endl;
 		//std::cout << glm::to_string(pos) << std::endl;
-		glm::mat4 matrix = glm::mat4(1.0f);
-		matrix = glm::scale(matrix, glm::vec3(0.05f));
-		matrix[3] = glm::vec4(pos, 1.0f);
-		matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 		PowerType active = client->GameState.player_stats[entity.id].activePower;
 
 		if (active == METAL) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.095f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			metalring->update(matrix);
 			metalring->draw(mainShader, false);
 		}
@@ -605,12 +605,17 @@ void Scene::draw(Camera* cam) {
 			woodring->draw(mainShader, false);
 		}
 		else if (active == WATER) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.065f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			waterring->update(matrix);
 			waterring->draw(mainShader, false);
 		}
 		else if (active == FIRE) {
 			glm::mat4 matrix = glm::mat4(1.0f);
-			matrix = glm::scale(matrix, glm::vec3(0.15f));
+			matrix = glm::scale(matrix, glm::vec3(0.2f));
 			matrix[3] = glm::vec4(pos, 1.0f);
 			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -618,6 +623,11 @@ void Scene::draw(Camera* cam) {
 			firering->draw(mainShader, false);
 		}
 		else if (active == EARTH) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.095f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			earthring->update(matrix);
 			earthring->draw(mainShader, false);
 		}
@@ -763,6 +773,9 @@ void Scene::draw(Camera* cam) {
 }
 
 void Scene::TriggerAnim(int anim) {
+	if (anim != 2) {
+		audiomanager->PlayAudio("manaSpin", glm::vec3(1.0f, 1.0f, 1.0f), 0.85f);
+	}
 	uimanager->TriggerAnim(anim);
 }
 

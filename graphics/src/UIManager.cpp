@@ -18,7 +18,7 @@ static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float,
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::IN_GAME, 0.7, 0.0, 0.3, 1.0} },
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
 	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.30, 0.5}},
-	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adoptme.png"), GamePhase::WAITING, 0.5, 0.75, 0.35, 1.0}},
+	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adoptme.png"), GamePhase::WAITING, 0.5, 0.83, 0.25, 1.0}},
 	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.2, 0.2, 0.1, 1.0}},
 	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
 	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.6, 0.2, 0.1, 1.0}},
@@ -178,11 +178,11 @@ void UIManager::Init(ClientGame* client) {
 		LoadTexture(name, path);
 	}
 	UIImg* killfeed = new Killfeed();
-	std::vector<float> startPercKill = { 0.805, 0.95 };
+	std::vector<float> startPercKill = { 0.72, 0.95 };
 
 	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
 	kf->texs = &textures; //Mickey mouse
-	killfeed->Init(startPercKill, 0.029, 1.5);
+	killfeed->Init(startPercKill, 0.039, 1.5);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
