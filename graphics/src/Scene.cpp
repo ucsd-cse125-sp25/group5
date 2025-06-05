@@ -74,6 +74,8 @@ void Scene::createGame(ClientGame* client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init(client);
+	audiomanager->PlayAudio("ocean", glm::vec3(0.0, 0.0, 0.0), 0.0f);
+	audiomanager->PlayAudio("wind", glm::vec3(0.0, 0.0, 0.0), 0.0f);
 	//test = new PlayerObject();
 
 	//Cinema
@@ -349,6 +351,8 @@ void Scene::update(Camera* cam) {
 		audiomanager->selfState = 1;
 	}
 	audiomanager->phase = client->GameState.phase;
+	PlayerStats& p = client->GameState.player_stats[client->playerId];
+	audiomanager->UpdateAmbient(p);
 	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
 

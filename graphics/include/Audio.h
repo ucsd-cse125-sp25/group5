@@ -11,6 +11,7 @@ public:
 	void Init(ClientGame* client);
 	void Update(Camera* cam, UIData &p);
 	void PlayAudio(std::string n, glm::vec3 pos, float volume);
+	void UpdateAmbient(PlayerStats& p);
 	void StopAudio();
 	void Filter(bool enable);
 	GamePhase phase;
@@ -29,6 +30,8 @@ private:
 	FMOD_VECTOR listenerVel;
 	FMOD_VECTOR forward;
 	FMOD_VECTOR up;
+	FMOD::Channel* waterChannel = nullptr;
+	FMOD::Channel* windChannel = nullptr;
 	FMOD::Channel* musicChannel = nullptr;
 	FMOD::ChannelGroup* masterGroup = nullptr;
 	FMOD::ChannelGroup* mainGroup = nullptr;
