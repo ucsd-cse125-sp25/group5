@@ -392,6 +392,19 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		}
 	}
 	
+	//wind audio
+	if(playerStats.inAir) {
+		playerStats.windAudioFlag += deltaTime * 0.25f;
+		if (playerStats.windAudioFlag > 1.0f) {
+			playerStats.windAudioFlag = 1.0f;
+		}
+	}
+	else {
+		playerStats.windAudioFlag -= deltaTime * 1.f;
+		if (playerStats.windAudioFlag < 0.0f) {
+			playerStats.windAudioFlag = 0.0f;
+		}
+	}
 
 	
 
