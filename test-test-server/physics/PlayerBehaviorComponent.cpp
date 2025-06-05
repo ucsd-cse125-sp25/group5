@@ -797,7 +797,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		}
 
 		//apply player movement
-		glm::vec3 inputDirection = getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * 2.0f;
+		glm::vec3 inputDirection = getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * 1.5f;
 		//set moving flag
 		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
 		//apply transformation
