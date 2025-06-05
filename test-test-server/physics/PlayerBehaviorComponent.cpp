@@ -655,7 +655,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//check for if a player is in the air
 		playerStats.inAir = !checkBottom(obj, phys);
 		//check for movement powers 
-		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration == 1 && movementAbilityTimer <= 0.0f) {
+		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration >= 1 && movementAbilityTimer <= 0.0f) {
 
 			printf("Metal mana %d\n", playerStats.mana[0]);
 			printf("Wood mana %d\n", playerStats.mana[1]);
