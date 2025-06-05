@@ -31,3 +31,4 @@ graphics/assets/textures/low-poly-fox-by-pixelmannen-animated (1)/
 graphics/assets/textures/texture.png
 graphics/lib/assimp-vc143-mtd.dll
 graphics/lib/fmod/api/studio/examples/vs2017/_builds/
+graphics/src/network/ClientNetwork.cpp
