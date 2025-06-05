@@ -22,7 +22,7 @@ namespace fs = std::experimental::filesystem;
 
 #define IN_GAME_DURATION 300
 
-#define NUM_PLAYERS_TO_START 1   
+#define NUM_PLAYERS_TO_START 4
 
 
 
@@ -115,7 +115,7 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 	}
 
 	GameObject* ground = physicsSystem.makeGameObject(glm::vec3(0.0f, -20.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), groundExtents);
-	ground->type = COLLIDER;
+	ground->type = BOUNDS;
 	physicsSystem.addStaticObject(ground);
 
 
@@ -123,7 +123,7 @@ void spawnIslands(PhysicsSystem& physicsSystem) {
 
 
 void spawnPickups(PhysicsSystem& physicsSystem) {
-	const int numHPickups = 105; // Number of health pickups
+	const int numHPickups = 110; // Number of health pickups
 	glm::vec3 hpPickupCoordinates[numHPickups] = {
 		glm::vec3(0.000f,37.000f,13.900f),
 glm::vec3(-38.700f,40.590f,-0.350f),
@@ -149,18 +149,11 @@ glm::vec3(-42.020f,103.250f,23.600f),
 glm::vec3(-17.020f,107.830f,27.500f),
 glm::vec3(-26.200f,120.600f,22.800f),
 glm::vec3(41.300f,108.600f,-12.350f),
-glm::vec3(38.780f,65.200f,-15.520f),
-glm::vec3(31.346f,67.499f,-12.889f),
-glm::vec3(23.913f,69.798f,-10.258f),
-glm::vec3(16.479f,72.097f,-7.627f),
-glm::vec3(9.045f,74.396f,-4.996f),
-glm::vec3(1.612f,76.695f,-2.365f),
-glm::vec3(-5.822f,78.993f,0.265f),
-glm::vec3(-13.255f,81.292f,2.896f),
-glm::vec3(-20.689f,83.591f,5.527f),
-glm::vec3(-28.123f,85.890f,8.158f),
-glm::vec3(-35.556f,88.189f,10.789f),
-glm::vec3(-42.990f,90.488f,13.420f),
+glm::vec3(28.150f,146.200f,43.290f),
+glm::vec3(28.150f,147.151f,43.981f),
+glm::vec3(28.150f,146.788f,45.099f),
+glm::vec3(28.150f,145.612f,45.099f),
+glm::vec3(28.150f,145.249f,43.981f),
 glm::vec3(42.042f,137.400f,-67.242f),
 glm::vec3(34.542f,146.999f,-69.340f),
 glm::vec3(24.505f,152.931f,-65.235f),
@@ -220,6 +213,18 @@ glm::vec3(15.100f,119.665f,44.600f),
 glm::vec3(27.100f,116.450f,44.600f),
 glm::vec3(39.100f,119.665f,44.600f),
 glm::vec3(47.885f,128.450f,44.600f),
+glm::vec3(38.780f,65.200f,-15.520f),
+glm::vec3(31.346f,67.499f,-12.889f),
+glm::vec3(23.913f,69.798f,-10.258f),
+glm::vec3(16.479f,72.097f,-7.627f),
+glm::vec3(9.045f,74.396f,-4.996f),
+glm::vec3(1.612f,76.695f,-2.365f),
+glm::vec3(-5.822f,78.993f,0.265f),
+glm::vec3(-13.255f,81.292f,2.896f),
+glm::vec3(-20.689f,83.591f,5.527f),
+glm::vec3(-28.123f,85.890f,8.158f),
+glm::vec3(-35.556f,88.189f,10.789f),
+glm::vec3(-42.990f,90.488f,13.420f),
 glm::vec3(0.000f,4.100f,20.000f),
 glm::vec3(11.756f,4.100f,16.180f),
 glm::vec3(19.021f,4.100f,6.180f),
@@ -230,6 +235,7 @@ glm::vec3(-11.756f,4.100f,-16.180f),
 glm::vec3(-19.021f,4.100f,-6.180f),
 glm::vec3(-19.021f,4.100f,6.180f),
 glm::vec3(-11.756f,4.100f,16.180f),
+
 	};
 
 	const int numManaPickups = 89;
@@ -270,14 +276,14 @@ glm::vec3(-23.243f,127.160f,10.927f),
 glm::vec3(-12.200f,25.800f,-10.648f),
 glm::vec3(-11.334f,25.800f,-12.148f),
 glm::vec3(-13.066f,25.800f,-12.148f),
-glm::vec3(27.100f,140.760f,49.600f),
-glm::vec3(30.636f,140.760f,48.136f),
-glm::vec3(32.100f,140.760f,44.600f),
-glm::vec3(30.636f,140.760f,41.064f),
-glm::vec3(27.100f,140.760f,39.600f),
-glm::vec3(23.564f,140.760f,41.064f),
-glm::vec3(22.100f,140.760f,44.600f),
-glm::vec3(23.564f,140.760f,48.136f),
+glm::vec3(27.100f,140.760f,51.600f),
+glm::vec3(32.050f,140.760f,49.550f),
+glm::vec3(34.100f,140.760f,44.600f),
+glm::vec3(32.050f,140.760f,39.650f),
+glm::vec3(27.100f,140.760f,37.600f),
+glm::vec3(22.150f,140.760f,39.650f),
+glm::vec3(20.100f,140.760f,44.600f),
+glm::vec3(22.150f,140.760f,49.550f),
 glm::vec3(-2.300f,27.160f,3.460f),
 glm::vec3(-1.434f,27.160f,1.960f),
 glm::vec3(-3.166f,27.160f,1.960f),
@@ -324,6 +330,7 @@ glm::vec3(-51.684f,62.750f,-4.997f),
 glm::vec3(-27.920f,100.100f,-47.500f),
 glm::vec3(-27.054f,100.100f,-49.000f),
 glm::vec3(-28.786f,100.100f,-49.000f),
+
 
 
 

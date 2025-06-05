@@ -548,6 +548,34 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	//	}
 	//	return;
 	//}
+	glm::vec3 corner1(-75.0, -30.0, -75.0);
+	glm::vec3 corner2(75.0, 1000.0, 75.0);
+
+	if (obj->transform.position.x < corner1.x) {
+		obj->transform.position.x = corner1.x;
+		obj->physics->velocity.x = 0.0f;
+	}
+	if (obj->transform.position.y < corner1.y) {
+		obj->transform.position.y = corner1.y;
+		obj->physics->velocity.y = 0.0f;
+	}
+	if (obj->transform.position.z < corner1.z) {
+		obj->transform.position.z = corner1.z;
+		obj->physics->velocity.z = 0.0f;
+	}
+	if (obj->transform.position.x > corner2.x) {
+		obj->transform.position.x = corner2.x;
+		obj->physics->velocity.x = 0.0f;
+	}
+	if (obj->transform.position.y > corner2.y) {
+		obj->transform.position.y = corner2.y;
+		obj->physics->velocity.y = 0.0f;
+	}
+	if (obj->transform.position.z > corner2.z) {
+		obj->transform.position.z = corner2.z;
+		obj->physics->velocity.z = 0.0f;
+	}
+
 	if (state == PlayerMovementState::DASH) {
 		dashTimer -= deltaTime;
 
@@ -772,33 +800,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		obj->transform.position += inputDirection * deltaTime * curSlowFactor * curUnderwaterSlowFactor * 1.5f;
 
 		//limit position to boundary extents
-		glm::vec3 corner1(-75.0, -30.0, -75.0);
-		glm::vec3 corner2(75.0, 1000.0, 75.0);
-
-		if (obj->transform.position.x < corner1.x) {
-			obj->transform.position.x = corner1.x;
-			obj->physics->velocity.x = 0.0f;
-		}
-		if (obj->transform.position.y < corner1.y) {
-			obj->transform.position.y = corner1.y;
-			obj->physics->velocity.y = 0.0f;
-		}
-		if (obj->transform.position.z < corner1.z) {
-			obj->transform.position.z = corner1.z;
-			obj->physics->velocity.z = 0.0f;
-		}
-		if (obj->transform.position.x > corner2.x) {
-			obj->transform.position.x = corner2.x;
-			obj->physics->velocity.x = 0.0f;
-		}
-		if (obj->transform.position.y > corner2.y) {
-			obj->transform.position.y = corner2.y;
-			obj->physics->velocity.y = 0.0f;
-		}
-		if (obj->transform.position.z > corner2.z) {
-			obj->transform.position.z = corner2.z;
-			obj->physics->velocity.z = 0.0f;
-		}
+		
 	}
 
 	updateParticleFlags();
