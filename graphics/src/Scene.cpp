@@ -211,7 +211,7 @@ void Scene::update(Camera* cam) {
 		musica = 0;
 	}
 	else if (client->GameState.phase == GamePhase::IN_GAME && musica < 1) {
-		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.29f);
+		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.31f);
 		musica = 1;
 	}
 	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 1 && client->GameState.time < 60) {
