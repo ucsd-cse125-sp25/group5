@@ -13,10 +13,10 @@ extern double currTime;
 extern double prevTime;
 extern Camera* Cam;
 
-glm::vec3 cor1(0.41, 0.94, 0.95);
-glm::vec3 cor2(0.94, 0.64, 0.22);
-glm::vec3 cor3(0.93, 0.26, 0.94);
-glm::vec3 cor4(0.89, 0.89, 0.89);
+glm::vec3 cor2(0.41, 0.94, 0.95);
+glm::vec3 cor3(0.94, 0.64, 0.22);
+glm::vec3 cor4(0.93, 0.26, 0.94);
+glm::vec3 cor1(0.89, 0.89, 0.89);
 
 glm::vec3 cor5(0.5, 0.5, 0.5);
 glm::vec3 cor6(0.32, 0.75, 0.25);

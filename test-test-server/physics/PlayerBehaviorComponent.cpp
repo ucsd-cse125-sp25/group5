@@ -488,17 +488,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		obj->collider->halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
 		return;
 	}
-
-	if(state == PlayerMovementState::DEATH) {
-		printf("Health dead: %d\n", playerStats.hp);
-		printf("Player %d is dead\n", obj->id);
-	}
-	else {
-		printf("Health alive: %d\n", playerStats.hp);
-		printf("Player %d is alive\n", obj->id);
-	}
-
-
 	
 	changePlayerPower(obj, phys, intent);
 
