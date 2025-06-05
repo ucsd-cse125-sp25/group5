@@ -6,7 +6,7 @@ in vec3 FragNormal;
 in vec2 TexCoord;
 in vec4 FragPosLightSpace;
 
-uniform vec3 AmbientColor = vec3(0.8);
+uniform vec3 AmbientColor = vec3(0.65, 0.65, 0.9);
 uniform int numLights; 
 uniform vec3 viewPos;
 uniform vec3 DiffuseColor;
@@ -181,13 +181,13 @@ void main()
     vec3 result = ambient * texColor;
     float shadow = useShadow ? ShadowCalculation(FragPosLightSpace) : 0.0;
 
-    float height = waterLevel + FBMVertex(viewPos);
-    if(viewPos.y < height){
-        result = mix(fogColorW, result, clamp(fogWeightW - 0.05, 0, 1));
-    }
-    else{
-        result = mix(fogColor, result, clamp(fogWeight - 0.02, 0, 1));
-    }
+    // float height = waterLevel + FBMVertex(viewPos);
+    // if(viewPos.y < height){
+    //     result = mix(fogColorW, result, clamp(fogWeightW - 0.05, 0, 1));
+    // }
+    // else{
+    //     result = mix(fogColor, result, clamp(fogWeight - 0.02, 0, 1));
+    // }
 
-    fragColor = vec4(result, 0.85);
+    fragColor = vec4(result, 0.6);
 }

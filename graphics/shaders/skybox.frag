@@ -86,19 +86,25 @@ float FBMVertex(vec3 pos){ //return y pos of water at this x and z coord
 void main()
 {
 	vec3 dir = normalize(FragPos);
+    vec3 fc = fogColor;
 
-	float fogWeightW = (1.0/exp(fogConstantW*length(vec3(dir.x * dir.x * 30.0, sqrt(max(0, dir.y)) * 2.5, dir.z * dir.z * 30.0))));
-    float fogWeight = (1.0/exp(fogConstant*length(vec3(dir.x * dir.x * 30.0, sqrt(max(0, dir.y)) * 2.5, dir.z * dir.z * 30.0))));
+    //float fogWeight = (1.0/exp(fogConstant*length(vec3(dir.x * dir.x * dir.x * 50.0, sqrt(max(0, dir.y)) * 2.5, dir.z * dir.z * dir.z * 50.0))));
+    float fogWeight = (1.0/exp(fogConstant*length(vec3(pow(sqrt(dir.x * dir.x + dir.z * dir.z), 3.0) * 40.0, sqrt(max(0, dir.y)) * 2.5, pow(sqrt(dir.x * dir.x + dir.z * dir.z), 3.0) * 40.0))));
 
 	vec4 result = texture(skybox, TexCoords);
+    if(dir.y < 0){
+        result.xyz = fogColor;
+        fogWeight = 1.0/exp(fogConstant*length(vec3(pow(sqrt(dir.x * dir.x + dir.z * dir.z), 50.0) * 6.0, sqrt(max(0, -dir.y)) * 2.5, pow(sqrt(dir.x * dir.x + dir.z * dir.z), 50.0) * 6.0)));
+        fc.xyz = vec3(0.2, 0.22, 0.34);
+    }
 
 	float height = waterLevel + FBMVertex(viewPos);
 
     if(viewPos.y < height){
-        result.xyz = fogColorW;
+        result.xyz = fogColorW + vec3(0, 0.02, 0.05);
     }
     else{
-        result.xyz = mix(fogColor, result.xyz, clamp(fogWeight - 0.02, 0, 1));
+        result.xyz = mix(fc, result.xyz, clamp(fogWeight - 0.02, 0, 1));
     }
 
 	FragColor = result;
