@@ -15,9 +15,11 @@ private:
     GLuint shader;
 
     std::vector<Mesh*> meshes;
+    
 
 public:
 
+    bool cloud;
     void create(char* filename, glm::mat4 model, int shaderIndex);
     void draw(GLuint shader, bool shadow);
     void update(glm::mat4 new_model);

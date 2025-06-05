@@ -5,6 +5,7 @@
 extern Scene* scene;
 
 void Object::create(char* filename, glm::mat4 model, int shaderIndex) {
+    cloud = false;
     this->model = model;
 
     std::cout << "entered create" << std::endl;
