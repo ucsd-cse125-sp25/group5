@@ -33,6 +33,24 @@ static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
 static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
 
 
+// Helper to convert a string to lowercase
+std::string toLower(const std::string& str) {
+	std::string lowerStr = str;
+	std::transform(
+		lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
+		[](unsigned char c) { return std::tolower(c); }
+	);
+	return lowerStr;
+}
+
+// Case-insensitive string contains
+bool containsCaseInsensitive(const std::string& haystack, const std::string& needle) {
+	std::string lowerHaystack = toLower(haystack);
+	std::string lowerNeedle = toLower(needle);
+	return lowerHaystack.find(lowerNeedle) != std::string::npos;
+}
+
+
 
 void Scene::createGame(ClientGame* client) {
 	this->client = client;
@@ -95,6 +113,9 @@ void Scene::loadObjects() {
 		glm::mat4 id = glm::mat4(1.0f);
 		id[3] = glm::vec4(position, 1.0f);
 		obj->create((char*)statObj.c_str(), id, 1);
+		if (containsCaseInsensitive(file_name, std::string("cloud"))) {
+			obj->cloud = true;
+		}
 		objects.push_back(obj);
 	}
 
@@ -362,7 +383,7 @@ void Scene::update(Camera* cam) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral"};
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral", "cloudShader"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -469,7 +490,9 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 	
 	for (int i = 0; i < objects.size(); i++) {
-		objects[i]->draw(mainShader, false);
+		if (!objects[i]->cloud) {
+			objects[i]->draw(mainShader, false);
+		}
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
@@ -657,12 +680,52 @@ void Scene::draw(Camera* cam) {
 		particlesystems[i]->Draw(particleShader);
 	}
   
-  glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
   
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
 	skybox->draw(cam, (float*)&water->model);
+
+	//We will use a global shader for everything for right now
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GLuint cloudShader = shaders[6];
+	glUseProgram(cloudShader);
+
+	glUniformMatrix4fv(glGetUniformLocation(cloudShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(cloudShader, "viewPos"), 1, &camPos[0]);
+
+	glUniform3fv(glGetUniformLocation(cloudShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(cloudShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(cloudShader, "dirLightSpec"), 1, &dirLight->specular[0]);
+	glUniform1i(glGetUniformLocation(cloudShader, "numLights"), lightmanager->numLights());
+	glUniformMatrix4fv(glGetUniformLocation(cloudShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glUniform1i(glGetUniformLocation(cloudShader, "shadowMap"), 1);
+	glUniform1i(glGetUniformLocation(cloudShader, "useShadow"), doShadow ? true : false);
+
+	glUniform1f(glGetUniformLocation(cloudShader, "time"), (currTime - startTime) / 1000.0f);
+	glUniform1f(glGetUniformLocation(cloudShader, "waterLevel"), waterLevel);
+	glUniform1f(glGetUniformLocation(cloudShader, "fogConstant"), fogConstant);
+	glUniform1f(glGetUniformLocation(cloudShader, "fogConstantW"), fogConstantW);
+	glUniform3fv(glGetUniformLocation(cloudShader, "fogColor"), 1, &fogColor[0]);
+	glUniform3fv(glGetUniformLocation(cloudShader, "fogColorW"), 1, &fogColorW[0]);
+	glUniform4fv(glGetUniformLocation(cloudShader, "waterModel"), 1, (float*)&water->model);
+
+	glDepthMask(GL_FALSE);
+	//render all clouds here
+	for (int i = 0; i < objects.size(); i++) {
+		if (objects[i]->cloud) {
+			objects[i]->draw(cloudShader, false);
+		}
+	}
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+
+
 	uimanager->draw();
 }
 
