@@ -178,7 +178,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
 
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 35.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 30.0f, player->id);
 		obj->type = WOOD_PROJ;
 		obj->isDynamic = true;
 
@@ -757,7 +757,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				playerStats.attackPowerupFlag[FIRE] = 1;
 				playerStats.mana[playerStats.activePower] -= ATTACK_COST_ARRAY[playerStats.activePower];
 			}
-			else if (phys.PlayerTrackings[obj->id].leftClickDuration == 1) {
+			else if (phys.PlayerTrackings[obj->id].leftClickDuration == 1 || phys.PlayerTrackings[obj->id].leftClickDuration == 2 || phys.PlayerTrackings[obj->id].leftClickDuration == 3) {
 				spawnProjectile(obj, playerStats.activePower, phys);
 				playerStats.attackPowerupFlag[playerStats.activePower] = 1;
 				printf("Hit e\n");
@@ -797,7 +797,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		}
 
 		//apply player movement
-		glm::vec3 inputDirection = getInputDirection(physicsSystem.PlayerIntents[obj->id], obj);
+		glm::vec3 inputDirection = getInputDirection(physicsSystem.PlayerIntents[obj->id], obj) * 2.0f;
 		//set moving flag
 		playerStats.moving = inputDirection != glm::vec3(0.0f, 0.0f, 0.0f);
 		//apply transformation
