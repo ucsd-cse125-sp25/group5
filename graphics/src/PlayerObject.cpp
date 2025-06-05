@@ -87,7 +87,7 @@ void PlayerObject::LoadAnimation() {
 void PlayerObject::LoadExperimental(std::string filename, int meshindex, int texindex) {
 	std::cout << "entered create" << std::endl;
 	Assimp::Importer importer;
-	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_PopulateArmatureData);
+	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_PopulateArmatureData);
 	if (!iscene || iscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !iscene->mRootNode) // if is Not Zero
 	{
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -183,8 +183,8 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 
 	powerupsystem->creationrate = 0;
 	for (int i = 0; i < 5; i++) {
-		if (stats.movementPowerupFlag[i] > 0) {
-			powerupsystem->creationrate = 100;
+		if (stats.movementPowerupFlag[i] > 0 && stats.movementPowerupFlag[i] <= 10) {
+			powerupsystem->creationrate = 50;
 			powerupsystem->particlecolor = cores[i + 4];
 			break;
 		}
@@ -200,8 +200,8 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 	}
 
 	if (stats.damageFlag == true && stats.underwater == false) {
-		damagesystem->creationrate = 200;
-		damagesystem->ctime -= 20 * (1000.0 / damagesystem->creationrate);
+		damagesystem->creationrate = 75;
+		//damagesystem->ctime -= 20 * (1000.0 / damagesystem->creationrate);
 		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
 	}
 	else if (stats.underwater) {
