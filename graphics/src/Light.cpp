@@ -1,4 +1,5 @@
 #include "Light.h"
+#include "Global.h"
 #include <iostream>
 #include <vector>
 
@@ -14,8 +15,36 @@ void Lights::init() {
 
     std::srand(static_cast<unsigned>(std::time(0)));
 
+    for (int i = 0; i < mapObjects.size(); i++) {
 
-    for (int i = 0; i < MAX_LIGHTS; i++) {
+        if (std::get<0>(mapObjects.at(i)).find("lantern") != std::string::npos) {
+            glm::vec3 pos = std::get<1>(mapObjects.at(i));
+            pos -= glm::vec3(0.0, -1.0, 0.0);
+            Light light;
+
+            light.position = glm::vec4(pos, 1.0);
+
+            // Orange glow with slight variance
+            float orangeVariance = 0.05f;
+            float r = 0.82f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / orangeVariance)) - orangeVariance / 2.0f;
+            float g = 0.69f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / orangeVariance)) - orangeVariance / 2.0f;
+            float b = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / orangeVariance)) - orangeVariance / 2.0f;
+
+            // Brighter light
+            light.diffuse = glm::vec4(1.2f * r, 1.2f * g, 1.2f * b, 1.0f);
+            light.specular = glm::vec4(1.0f * r, 1.0f * g, 1.0f * b, 1.0f);
+
+            // Make the light reach further (bigger radius)
+            light.constant = 1.0f;
+            light.linear = 0.022f;      // Lower = longer reach
+            light.quadratic = 0.0019f;  // Lower = slower falloff
+
+            addLight(light);
+        }
+    }
+
+
+    while (lights.size() < MAX_LIGHTS) {
         Light light;
 
         float x = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
@@ -28,7 +57,6 @@ void Lights::init() {
         float g = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
         float b = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
 
-        light.ambient = glm::vec4(0.1f * r, 0.1f * g, 0.1f * b, 1.0f);  // scaled down for ambient
         light.diffuse = glm::vec4(0.8f * r, 0.8f * g, 0.8f * b, 1.0f);
         light.specular = glm::vec4(1.0f * r, 1.0f * g, 1.0f * b, 1.0f);
 
@@ -38,7 +66,7 @@ void Lights::init() {
 
         addLight(light);
     }
-
+  
     //// Initialize example lights
     //Light light1;
     //light1.position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);  // Light 1 position (0, 0, 0)

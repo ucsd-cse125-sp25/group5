@@ -803,7 +803,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			obj->transform.position += vec3(0.0, + stair,0.0);
 		}*/
 		if (penetration.first.x != 0 || penetration.first.z != 0) {
-			obj->physics->velocity += vec3(0.0, 1.0, 0.0) * 0.25f;
+			obj->transform.position += vec3(0.0, 1.0, 0.0) * 0.4f;
 		}
 	}
 	else if (status == 1 && playerStats.alive) {
