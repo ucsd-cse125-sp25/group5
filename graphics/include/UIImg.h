@@ -173,6 +173,8 @@ public:
 private:
 	GLuint players[4];
 	GLuint action[4];
+	GLuint pla;
+	GLuint yer;
 	GLuint shaderProgram;
 	glm::mat4 projection;
 	std::vector<float> container;
@@ -247,5 +249,43 @@ private:
 	bool hasFlag;
 	double animStart;
 	float damageDuration = 0.1f;
+	GLuint VAO, VBO, EBO;
+};
+
+class PaintBrush : public UIImg {
+public:
+	void Init(std::vector<float> startPos, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	void SetTexture(GLuint tex) override;
+	void StartPaint();
+	std::string name;
+private:
+	GLuint texture;
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> uiData;
+	bool hasPlayed = false;
+	bool animating = false;
+	double animStart;
+	float percent = 0.0;
+	float paintDuration = 0.52f;
+	GLuint VAO, VBO, EBO;
+};
+
+
+class HitMarker : public UIImg {
+public:
+	void Init(std::vector<float> startPerc, float percent, float ratio) override;
+	void Draw() override;
+	void Update(const UIData& p) override;
+	void SetTexture(GLuint tex) override;
+	std::string name;
+private:
+	GLuint texture;
+	GLuint shaderProgram;
+	glm::mat4 projection;
+	std::vector<float> uiData;
+	bool hit = false;
 	GLuint VAO, VBO, EBO;
 };

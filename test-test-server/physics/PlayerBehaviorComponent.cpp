@@ -113,7 +113,8 @@ bool rayIntersectsAABB(const Ray& ray, const AABB& box, float& tHit) {
 
 pair<glm::vec3, float> PlayerBehaviorComponent::handlePlayerGrapple(GameObject* obj, PhysicsSystem& phys) {
 	Ray ray;
-	ray.origin = obj->transform.position;
+
+	ray.origin = obj->transform.position + EYES_OFFSET;
 	ray.dir = getDirection(
 		glm::radians(-phys.PlayerIntents[obj->id].azimuthIntent),
 		glm::radians(-phys.PlayerIntents[obj->id].inclineIntent)
@@ -161,9 +162,11 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
 	);
 
+	glm::vec3 FRONT_OFFSET = glm::normalize(facingDirection) * 1.0f;
+
 	if (type == WOOD && playerStats.mana[1] >= WOOD_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
 
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 15.0f, player->id);
@@ -178,9 +181,9 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == METAL && playerStats.mana[0] >= METAL_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 5.0f, 7.0f, player->id);
+		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 3.0f, 5.0f, player->id);
 		obj->type = METAL_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -191,9 +194,9 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == WATER && playerStats.mana[2] >= WATER_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 20.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * waterProjSpeed, 50.0f, player->id);
 		obj->type = WATER_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -204,9 +207,9 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position, rotation, fireProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET * 2.0f, rotation, fireProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 10.0f, player->id, 2.5f);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 5.0f, player->id, 2.5f);
 		obj->type = FIRE_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -222,9 +225,9 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 
 		//shoot like 100 units in a random direction
 
-		for (int i = 0; i < 25; i++) {
+		for (int i = 0; i < 30; i++) {
 			GameObject* obj = phys.makeGameObject(player->transform.position, rotation, woodProjExtents);
-			obj->behavior = new ProjectileBehaviorComponent(obj, phys, glm::sphericalRand(1.0f) * 20.0f, 25.0f, player->id, 1.0f);
+			obj->behavior = new ProjectileBehaviorComponent(obj, phys, glm::sphericalRand(1.0f) * 20.0f, 50.0f, player->id, 1.5f);
 			obj->type = EARTH_PROJ;
 			obj->isDynamic = true;
 			//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -288,9 +291,11 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 			//playerStats.movementPowerupFlag[playerStats.activePower] = 0; // reset movement power flag
 		}
 	}
+
 	
 	//underwater damage and slow
 	if (playerStats.underwater) {
+		
 		underwaterTimer += deltaTime;
 		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
 			playerStats.hp -= 1;
@@ -301,6 +306,25 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		underwaterTimer = 0.0f;
 		curUnderwaterSlowFactor = 1.0f;
+	}
+
+	//atmopshere slow
+	if (playerStats.low_oxygen) {
+		//no mana regen for you 
+		manaRegenTimer = MANA_REGEN_COOLDOWN;
+		lowOxygenTimer += deltaTime;
+		if (lowOxygenTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
+			playerStats.hp -= 1;
+			lowOxygenTimer = 0.0f;
+			//screw your powerups!
+			for (int i = 0; i < 5; i++) {
+				playerStats.mana[i] -= 2;
+
+				if (playerStats.mana[i] < 0) {
+					playerStats.mana[i] = 0;
+				}
+			}
+		}
 	}
 
 	//flag holding hp increase
@@ -330,6 +354,45 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		}
 	}
 
+	//mana regen
+
+	if (startRegenTimer == 0.0f) {
+		manaRegenTimer -= deltaTime;
+		if (manaRegenTimer <= 0.0f) {
+			for (int i = 0; i < 5; i++) {
+				if (playerStats.mana[i] < 100.0f) {
+					playerStats.mana[i] += MANA_REGEN_AMOUNT;
+					if (playerStats.mana[i] > 100.0f) {
+						playerStats.mana[i] = 100.0f;
+					}
+				}
+			}
+			manaRegenTimer = MANA_REGEN_COOLDOWN; // reset the timer
+		}
+	}
+	else {
+		startRegenTimer -= deltaTime;
+		if (startRegenTimer <= 0.0f) {
+			startRegenTimer = 0.0f;
+			manaRegenTimer = 0.0f; // reset the timer
+			//start mana regen
+		}
+	}
+	
+	//wind audio
+	if(playerStats.inAir && !playerStats.underwater) {
+		playerStats.windAudioFlag += deltaTime * 0.25f;
+		if (playerStats.windAudioFlag > 1.0f) {
+			playerStats.windAudioFlag = 1.0f;
+		}
+	}
+	else {
+		playerStats.windAudioFlag -= deltaTime * 1.f;
+		if (playerStats.windAudioFlag < 0.0f) {
+			playerStats.windAudioFlag = 0.0f;
+		}
+	}
+
 	
 
 	if(state != PlayerMovementState::GRAPPLE) {
@@ -338,20 +401,42 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		grappleTarget = nullptr;
 	}
 }
+float clamp(float value, float min, float max) {
+	if (value < min) return min;
+	if (value > max) return max;
+	return value;
+}
 
 //—— integrate — called once per tick
 void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) {
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
+	playerStats.hpPickupFlag = false;
+	playerStats.manaPickupFlag = false;
+
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	playerStats.dealtDamageFlag = false;
+	playerStats.damageFlag = false;
 	GameObject* closestPlayer = phys.getClosestPlayerObject(obj->transform.position, obj->id);
 	playerStats.closestPlayer = closestPlayer == nullptr ? -1 : closestPlayer->id;
+
+	for (int i = 0; i < 5; i++) {
+		if(playerStats.mana[i] < playerStats.prevMana[i]) {
+			startRegenTimer = START_REGEN_COOLDOWN;
+		}
+		playerStats.prevMana[i] = playerStats.mana[i];
+	}
 
 
 	//water setting
 	
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
+	playerStats.low_oxygen = obj->transform.position.y > phys.atmosphereLevel;
+
+	float waveAudioThreshold = 30.0f;
+	//audio settings
+	float t = 1.0f - clamp((obj->transform.position.y - phys.waterLevel), 0.0f, waveAudioThreshold) / waveAudioThreshold;
+	playerStats.waveAudioFlag = t * t;
 
 	//death handling block
 	if (state == PlayerMovementState::DEATH) {
@@ -360,6 +445,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 
 		//freeze the player
 		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		//death room
+		obj->transform.position = deathPoints[obj->id];
 
 		playerStats.inAir = false;
 
@@ -375,7 +463,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				playerStats.mana[i] = 100.0f;
 			}
 			//set the postion of the player to same x and z, but y to 100.0f
-			obj->transform.position = glm::vec3(obj->transform.position.x, 100.0f, obj->transform.position.z);
+			obj->transform.position = glm::vec3(deathPos.x, 150.0f, deathPos.z);
 
 			//turn collider back on
 			//TODO: set extents to player defaults
@@ -384,12 +472,14 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		return;
 	}
 
-	
+	//when death first happens 
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
 		deathTimer = DEATH_TIME;
+		//get death pos
+		deathPos = obj->transform.position;
 
 	}
-	//when death first happens 
+	
 	if (playerStats.hp <= 0) {
 		playerStats.hp = 0;
 		//set state to death, start the death timer, do tags
@@ -413,17 +503,6 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		obj->collider->halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
 		return;
 	}
-
-	if(state == PlayerMovementState::DEATH) {
-		printf("Health dead: %d\n", playerStats.hp);
-		printf("Player %d is dead\n", obj->id);
-	}
-	else {
-		printf("Health alive: %d\n", playerStats.hp);
-		printf("Player %d is alive\n", obj->id);
-	}
-
-
 	
 	changePlayerPower(obj, phys, intent);
 
@@ -475,14 +554,22 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			state = PlayerMovementState::IDLE;
 			stompTimer = 0.0f;
 		}
-	} else if (state == PlayerMovementState::GRAPPLE) {
-		grappleTimer -= deltaTime;
+	}
+	else if (state == PlayerMovementState::GRAPPLE) {
+
+		grappleTimer += deltaTime;
 		//see if we've collided, this whole thing could be optimized if we use the time as well 
 		pair<vec3, float> penetration = phys.getAABBpenetration(phys.getAABB(obj), phys.getAABB(grappleTarget));
-		glm::vec3 direction = playerStats.grappleTarget - obj->transform.position;
+		glm::vec3 direction = playerStats.grappleTarget - (obj->transform.position + EYES_OFFSET);
 		glm::vec3 normalizedDirection = glm::normalize(direction);
 		//lock the velocity
 		obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
+		if (grappleTimer >= GRAPPLE_TIME) {
+			obj->physics->velocity *= 0.1f;
+			state = PlayerMovementState::IDLE;
+			grappleTimer = 0.0f;
+			grappleTarget = nullptr;
+		}
 		////if we've collided with our target object, or if we've run out of time, release the grapple
 		//if (grappleTimer <= 0.0f) {
 		//	printf(
@@ -573,9 +660,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				if (target != glm::vec3(0.0f, 0.0f, 0.0f) && result.second > 0.0f) {
 					//only start grappling if we have a target 
 					state = PlayerMovementState::GRAPPLE;
-					grappleTimer = result.second / GRAPPLE_SPEED;
+					//grappleTimer = result.second / GRAPPLE_SPEED;
 					//get our direction
-					glm::vec3 direction = target - obj->transform.position;
+					glm::vec3 direction = target - (obj->transform.position + EYES_OFFSET);
 					glm::vec3 normalizedDirection = glm::normalize(direction);
 					//lock the velocity
 					obj->physics->velocity = normalizedDirection * GRAPPLE_SPEED;
@@ -727,7 +814,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			obj->transform.position += vec3(0.0, + stair,0.0);
 		}*/
 		if (penetration.first.x != 0 || penetration.first.z != 0) {
-			obj->physics->velocity += vec3(0.0, 1.0, 0.0) * 0.25f;
+			obj->transform.position += vec3(0.0, 1.0, 0.0) * 0.4f;
 		}
 	}
 	else if (status == 1 && playerStats.alive) {
@@ -763,7 +850,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 
 			
 		}
-
+		playerStats.hpPickupFlag = false;
 		//handle hpPickup 
 		if(other->type == HP_PICKUP) {
 			//if we hit a hp pickup, increase our hp
@@ -773,8 +860,10 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			}
 			//remove the pickup
 			printf("Player %d picked up a health pickup, new hp: %f\n", obj->id, playerStats.hp);
+			playerStats.hpPickupFlag = true;
 		}
-
+		
+		playerStats.manaPickupFlag = false;
 		if(other->type == MANA_PICKUP) {
 			//if we hit a mana pickup, increase our mana
 			int i = playerStats.activePower;
@@ -784,6 +873,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			}
 			//remove the pickup
 			printf("Player %d picked up a mana pickup\n", obj->id);
+			playerStats.manaPickupFlag = true;
 		}
 
 		

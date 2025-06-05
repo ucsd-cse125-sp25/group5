@@ -41,7 +41,7 @@ void System::InitColoredTrail(glm::vec3 pos, glm::vec3 color) {
 	gravity = 0.02;
 	airdensity = 2;
 	friction = 0.9;
-	particlelifetime = 5000.0;
+	particlelifetime = 3500.0;
 	particlelifetimevar = 1000.0;
 	particleElasticity = 0.5f;
 	particleradius = 0.03f;
@@ -54,7 +54,7 @@ void System::InitColoredTrail(glm::vec3 pos, glm::vec3 color) {
 }
 
 void System::InitParticleExplosion(glm::vec3 pos) {
-	creationrate = 200;
+	creationrate = 50;
 	ground = -INFINITY;
 	initpos = pos;
 	initposvar = glm::vec3(0.01, 0.05, 0.01);
@@ -63,8 +63,8 @@ void System::InitParticleExplosion(glm::vec3 pos) {
 	gravity = 0.02;
 	airdensity = 2;
 	friction = 0.9;
-	particlelifetime = 3500.0;
-	particlelifetimevar = 1000.0;
+	particlelifetime = 2700.0;
+	particlelifetimevar = 600.0;
 	particleElasticity = 0.5f;
 	particleradius = 0.035f;
 	particlecolor = glm::vec3(0, 0, 0);
@@ -76,7 +76,7 @@ void System::InitParticleExplosion(glm::vec3 pos) {
 }
 
 void System::InitDamageEffect(glm::vec3 pos) {
-	creationrate = 300;
+	creationrate = 150;
 	ground = -INFINITY;
 	initpos = pos;
 	initposvar = glm::vec3(0.01, 0.05, 0.01);
@@ -85,7 +85,7 @@ void System::InitDamageEffect(glm::vec3 pos) {
 	gravity = 0.02;
 	airdensity = 2;
 	friction = 0.9;
-	particlelifetime = 2500.0;
+	particlelifetime = 2000.0;
 	particlelifetimevar = 500.0;
 	particleElasticity = 0.5f;
 	particleradius = 0.02f;

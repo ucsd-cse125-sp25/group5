@@ -13,10 +13,10 @@ extern double currTime;
 extern double prevTime;
 extern Camera* Cam;
 
-glm::vec3 cor1(0.41, 0.94, 0.95);
-glm::vec3 cor2(0.94, 0.64, 0.22);
-glm::vec3 cor3(0.93, 0.26, 0.94);
-glm::vec3 cor4(0.89, 0.89, 0.89);
+glm::vec3 cor2(0.41, 0.94, 0.95);
+glm::vec3 cor3(0.94, 0.64, 0.22);
+glm::vec3 cor4(0.93, 0.26, 0.94);
+glm::vec3 cor1(0.89, 0.89, 0.89);
 
 glm::vec3 cor5(0.5, 0.5, 0.5);
 glm::vec3 cor6(0.32, 0.75, 0.25);
@@ -87,7 +87,7 @@ void PlayerObject::LoadAnimation() {
 void PlayerObject::LoadExperimental(std::string filename, int meshindex, int texindex) {
 	std::cout << "entered create" << std::endl;
 	Assimp::Importer importer;
-	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_PopulateArmatureData);
+	const aiScene* iscene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_PopulateArmatureData);
 	if (!iscene || iscene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !iscene->mRootNode) // if is Not Zero
 	{
 		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
@@ -140,9 +140,9 @@ void PlayerObject::UpdateMat(glm::mat4 newmodel) {
 		skel->updateWorldMat(newmodel);
 	if (particlesystem) {
 		//particlesystem->UpdatePos(glm::vec3(newmodel[3]/newmodel[3][3]));
-		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
-		powerupsystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
-		damagesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 0.8, 0));
+		particlesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 1.2, 0));
+		powerupsystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 1.2, 0));
+		damagesystem->UpdatePos(glm::vec3(newmodel[3] / newmodel[3][3]) + glm::vec3(0, 1.2, 0));
 	}
 }
 
@@ -183,8 +183,8 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 
 	powerupsystem->creationrate = 0;
 	for (int i = 0; i < 5; i++) {
-		if (stats.movementPowerupFlag[i] > 0) {
-			powerupsystem->creationrate = 100;
+		if (stats.movementPowerupFlag[i] > 0 && stats.movementPowerupFlag[i] <= 10) {
+			powerupsystem->creationrate = 50;
 			powerupsystem->particlecolor = cores[i + 4];
 			break;
 		}
@@ -199,13 +199,13 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 		powerupsystem->ctime = currTime;
 	}
 
-	if (stats.damageFlag == true && stats.underwater == false) {
-		damagesystem->creationrate = 200;
-		damagesystem->ctime -= 20 * (1000.0 / damagesystem->creationrate);
+	if (stats.damageFlag == true && stats.underwater == false && stats.alive) {
+		damagesystem->creationrate = 60;
+		damagesystem->ctime -= 15 * (1000.0 / damagesystem->creationrate);
 		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01);
 	}
-	else if (stats.underwater) {
-		damagesystem->creationrate = 60;
+	else if (stats.underwater && stats.alive) {
+		damagesystem->creationrate = 40;
 		damagesystem->initposvar = glm::vec3(0.01, 0.05, 0.01) * 4.0f;
 	}
 	else {
@@ -218,11 +218,13 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 }
 
 void PlayerObject::Update() {
-	skel->update();
-	if (animation->channels.size() > 0) {
-		animplayer->update();
+	if (animation->animate) {
+		skel->update();
+		if (animation->channels.size() > 0) {
+			animplayer->update();
+		}
+		skin->update();
 	}
-	skin->update();	
 
 	if (currTime != 0 && prevTime != 0 && particlesystem) {
 		double deltaTime = currTime - prevTime;

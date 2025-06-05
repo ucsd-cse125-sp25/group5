@@ -18,7 +18,7 @@ static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float,
 	{ "magicback", { PROJECT_SOURCE_DIR + std::string("/assets/UIUIUI.png"), GamePhase::IN_GAME, 0.7, 0.0, 0.3, 1.0} },
 	{ "reticle", {PROJECT_SOURCE_DIR + std::string("/assets/reticle.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.0}},
 	{ "healthbar", {PROJECT_SOURCE_DIR + std::string("/assets/branch.png"), GamePhase::IN_GAME, 0.0, 0.0, 0.30, 0.5}},
-	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adoptme.png"), GamePhase::WAITING, 0.5, 0.75, 0.35, 1.0}},
+	{ "gameTitle", {PROJECT_SOURCE_DIR + std::string("/assets/adoptme.png"), GamePhase::WAITING, 0.5, 0.83, 0.25, 1.0}},
 	{ "loading1", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.2, 0.2, 0.1, 1.0}},
 	{ "loading2", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.4, 0.2, 0.1, 1.0}},
 	{ "loading3", {PROJECT_SOURCE_DIR + std::string("/assets/sdfh-removebg-preview.png"), GamePhase::WAITING, 0.6, 0.2, 0.1, 1.0}},
@@ -30,6 +30,8 @@ static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float,
 	{ "c1", {PROJECT_SOURCE_DIR + std::string("/assets/character2.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
 	{ "c2", {PROJECT_SOURCE_DIR + std::string("/assets/character3.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
 	{ "c3", {PROJECT_SOURCE_DIR + std::string("/assets/character4.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "hitmarker", {PROJECT_SOURCE_DIR + std::string("/assets/hitmarker.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.5}},
+	{"paintbrush", {PROJECT_SOURCE_DIR + std::string("/assets/paintbrush.png"), GamePhase::IN_GAME, 0.5, 0.95, 0.30, 0.32}}
 };
 
 /**
@@ -79,7 +81,9 @@ static std::unordered_map<std::string, std::string> KillfeedSprites = {
 	{ "action0", PROJECT_SOURCE_DIR + std::string("/assets/action1.png")},
 	{ "action1", PROJECT_SOURCE_DIR + std::string("/assets/action2.png")},
 	{ "action2", PROJECT_SOURCE_DIR + std::string("/assets/action3.png")} ,
-	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/action4.png")}
+	{ "action3", PROJECT_SOURCE_DIR + std::string("/assets/action4.png")},
+	{ "pla", PROJECT_SOURCE_DIR + std::string("/assets/pla.png")},
+	{ "yer", PROJECT_SOURCE_DIR + std::string("/assets/yer.png")} ,
 };
 
 //0-9 + colon (:)
@@ -174,11 +178,11 @@ void UIManager::Init(ClientGame* client) {
 		LoadTexture(name, path);
 	}
 	UIImg* killfeed = new Killfeed();
-	std::vector<float> startPercKill = { 0.875, 0.95 };
+	std::vector<float> startPercKill = { 0.72, 0.95 };
 
 	Killfeed* kf = dynamic_cast<Killfeed*>(killfeed);
 	kf->texs = &textures; //Mickey mouse
-	killfeed->Init(startPercKill, 0.045, 1.5);
+	killfeed->Init(startPercKill, 0.039, 1.5);
 
 	for (const auto& pair : UIStorage) {
 		const std::string& name = pair.first;
@@ -198,9 +202,15 @@ void UIManager::Init(ClientGame* client) {
 			img = new Magic();
 		}
 		else if (name == "vignette") {
-			Vignette *vig = new Vignette();
+			Vignette* vig = new Vignette();
 			vig->client = client;
 			img = vig;
+		}
+		else if (name == "paintbrush") {
+			img = new PaintBrush();
+		}
+		else if (name == "hitmarker") {
+			img = new HitMarker();
 		}
 		else {
 			img = new UIImg();

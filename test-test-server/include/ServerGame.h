@@ -22,6 +22,7 @@ class ServerGame {
 		glm::vec3(0.0f, 10.0f, -40.0f)
 	};
 
+
 public:  
    ServerGame(void);  
    ~ServerGame(void);  

@@ -3,8 +3,8 @@
 #include "core.h"
 #include "ObjectData.h"
 
-#define MAX_PACKET_SIZE 1000000
-#define MAX_ENTITIES 1024
+#define MAX_PACKET_SIZE 2000000
+#define MAX_ENTITIES 1500
 #define MAX_PLAYERS 4
 
 const static int KILLFEED_LENGTH = 3;
@@ -129,7 +129,7 @@ struct GameStatePacket {
 	struct Entity players[MAX_PLAYERS];
 
   //water level
-  float waterLevel = -2.0f; // Initial water level
+	float waterLevel = -2.0f; // Initial water level
   
 	unsigned int num_entities;
 	struct Entity entities[MAX_ENTITIES];

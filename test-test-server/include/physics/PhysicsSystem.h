@@ -40,12 +40,17 @@ public:
 
     // create a 3d grid for the world: each cell has coordinates (i,j,k) and is mapped to a list of GameObjects that live in that cell
     vector<float> AABBdistances;
+    GamePhase currPhase;
     float cellSize;
     AABB worldBounds = AABB{vec3(-100.0f), vec3(100.0f)};
     
 
 	//water level
 	float waterLevel = -2.0f;
+
+    //atmosphere level
+	float atmosphereLevel = 200.0f;
+
     //times for water level calculation 
 	float timePassed = 0.0f;
 	float totalTime = 0.0f;

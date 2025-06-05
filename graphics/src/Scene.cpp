@@ -10,15 +10,15 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1200;
+int WINDOWHEIGHT = 1080;
 int WINDOWWIDTH = 1920;
 //2560
 //1440
 
 float waterLevel = -2.0f;
-float fogConstant = 0.0001f;
+float fogConstant = 0.02f;
 float fogConstantW = 0.075f;
-glm::vec3 fogColor(0.35, 0.4, 0.55);
+glm::vec3 fogColor(0.3, 0.32, 0.63);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
 int moonphase = 0;
@@ -31,6 +31,24 @@ static bool prevAttackFlags[MAX_PLAYERS][5] = { false };
 static bool prevMovementFlags[MAX_PLAYERS][5] = { false };
 static float lastUsedAttack[MAX_PLAYERS][5] = { 0.0f };
 static float lastUsedMovement[MAX_PLAYERS][5] = { 0.0f };
+
+
+// Helper to convert a string to lowercase
+std::string toLower(const std::string& str) {
+	std::string lowerStr = str;
+	std::transform(
+		lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
+		[](unsigned char c) { return std::tolower(c); }
+	);
+	return lowerStr;
+}
+
+// Case-insensitive string contains
+bool containsCaseInsensitive(const std::string& haystack, const std::string& needle) {
+	std::string lowerHaystack = toLower(haystack);
+	std::string lowerNeedle = toLower(needle);
+	return lowerHaystack.find(lowerNeedle) != std::string::npos;
+}
 
 
 
@@ -56,6 +74,8 @@ void Scene::createGame(ClientGame* client) {
 
 	audiomanager = new Audio;
 	audiomanager->Init(client);
+	audiomanager->PlayAudio("ocean", glm::vec3(0.0, 0.0, 0.0), 0.0f);
+	audiomanager->PlayAudio("wind", glm::vec3(0.0, 0.0, 0.0), 0.0f);
 	//test = new PlayerObject();
 
 	//Cinema
@@ -95,6 +115,9 @@ void Scene::loadObjects() {
 		glm::mat4 id = glm::mat4(1.0f);
 		id[3] = glm::vec4(position, 1.0f);
 		obj->create((char*)statObj.c_str(), id, 1);
+		if (containsCaseInsensitive(file_name, std::string("cloud"))) {
+			obj->cloud = true;
+		}
 		objects.push_back(obj);
 	}
 
@@ -143,6 +166,14 @@ void Scene::loadObjects() {
 	std::string importstr12 = PROJECT_SOURCE_DIR + std::string("/assets/Earth_power.fbx");
 	earthring->create((char*)importstr12.c_str(), glm::mat4(1), 1);
 
+	healthPickup = new Object();
+	std::string hpick = PROJECT_SOURCE_DIR + std::string("/assets/health.obj");
+	healthPickup->create((char*)hpick.c_str(), glm::mat4(1), 1);
+
+	manaPickup = new Object();
+	std::string mpick = PROJECT_SOURCE_DIR + std::string("/assets/mana.obj");
+	manaPickup->create((char*)mpick.c_str(), glm::mat4(1), 1);
+
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 	//glm::mat4 mov(0.05);
@@ -152,10 +183,10 @@ void Scene::loadObjects() {
 	//test->UpdateMat(mov);
 	//wasp load-in
 	
-	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0, 0);
+	player->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk8.fbx"), 0, 0);
 	player->disableAnimation();
 	for (int i = 1; i < 4; i++) {
-		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk5.fbx"), 0, i);
+		players[i]->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/Jwalk8.fbx"), 0, i);
 	}
 	lastFrameTime = glfwGetTime();
 }
@@ -175,11 +206,11 @@ void Scene::update(Camera* cam) {
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], 0);
 	player->Update();
 
-	if(client->GameState.phase == GamePhase::WAITING && musica == -1){
+	if((client->GameState.phase == GamePhase::WAITING || client->GameState.phase == GamePhase::PRE_GAME) && musica == -1){
 		audiomanager->PlayAudio("lobbymusic", client->playerModel[3], 0.37f);
 		musica = 0;
 	}
-	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 0) {
+	else if (client->GameState.phase == GamePhase::IN_GAME && musica < 1) {
 		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.37f);
 		musica = 1;
 	}
@@ -221,6 +252,7 @@ void Scene::update(Camera* cam) {
 	}
 	cubes.clear();
 	projectiles.clear();
+	pickups.clear();
 
 	//set the height of the water
 	glm::mat4 watermat(1);
@@ -288,14 +320,16 @@ void Scene::update(Camera* cam) {
 		//	cubes.push_back(cu);
 		//}
 		else if (entity.type == HP_PICKUP) {
-			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			PickUp p;
+			p.pickup = 0;
+			p.model = glm::scale(entity.model, glm::vec3(0.5f));
+			pickups.push_back(p);
 		}
 		else if (entity.type == MANA_PICKUP) {
-			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.0f, 1.0f, 1.0f)); // Cyan for Mana pickup
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			PickUp p;
+			p.pickup = 1;
+			p.model = glm::scale(entity.model, glm::vec3(0.5f));
+			pickups.push_back(p);
 		}
 	}
 
@@ -317,6 +351,8 @@ void Scene::update(Camera* cam) {
 		audiomanager->selfState = 1;
 	}
 	audiomanager->phase = client->GameState.phase;
+	PlayerStats& p = client->GameState.player_stats[client->playerId];
+	audiomanager->UpdateAmbient(p);
 	audiomanager->Update(cam, dummy);
 	uimanager->update(dummy);
 
@@ -324,9 +360,9 @@ void Scene::update(Camera* cam) {
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		PlayerStats& c = client->GameState.player_stats[i];
 		glm::vec3 pos = client->GameState.players[i].model[3];
-		float vol = 0.70f;
+		float vol = 0.7f;
 		if (client->playerId != client->GameState.players[i].id) {
-			vol = 0.45f;
+			vol = 0.5f;
 		}
 		for (int j = 0; j < 5; j++) {
 			float now = glfwGetTime();
@@ -362,7 +398,7 @@ void Scene::update(Camera* cam) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral"};
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral", "cloudShader"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -469,25 +505,49 @@ void Scene::draw(Camera* cam) {
 	lightmanager->bind();
 	
 	for (int i = 0; i < objects.size(); i++) {
-		objects[i]->draw(mainShader, false);
+		if (!objects[i]->cloud) {
+			objects[i]->draw(mainShader, false);
+		}
 	}
 
 	for (int i = 0; i < cubes.size(); i++) {
 		cubes[i]->draw(mainShader, false);
 	}
 
+	float now = glfwGetTime();
+	float deltaTime = now - lastFrameTime;
+	lastFrameTime = now;
+	ringRot += 180.0f * deltaTime;
+	ringRot = fmod(ringRot, 360.0f);
+	hRot += 90.0f * deltaTime;
+	hRot = fmod(hRot, 360.0f);
+	mRot += 90.0f * deltaTime;
+	mRot = fmod(mRot, 360.0f);
+
+	for (int i = 0; i < pickups.size(); i++) {
+		PickUp p = pickups[i];
+		if (p.pickup == 0) {
+			healthPickup->update(glm::rotate(p.model, glm::radians(hRot), glm::vec3(0.0f, 1.0f, 0.0f)));
+			healthPickup->draw(mainShader, false);
+		}
+		else if (p.pickup == 1) {
+			manaPickup->update(glm::rotate(p.model, glm::radians(mRot), glm::vec3(0.0f, 1.0f, 0.0f)));
+			manaPickup->draw(mainShader, false);
+		}
+	}
+
 	for (int i = 0; i < projectiles.size(); i++) {
 		Projectile p = projectiles.at(i);
 		if (p.power == METAL) {
-			metalpower->update(glm::scale(p.model, glm::vec3(0.05f)));
+			metalpower->update(glm::scale(p.model, glm::vec3(0.12f)));
 			metalpower->draw(mainShader, false);
 		}
 		else if (p.power == WOOD) {
-			woodpower->update(p.model);
+			woodpower->update(glm::scale(p.model, glm::vec3(1.1)));
 			woodpower->draw(mainShader, false);
 		}
 		else if (p.power == WATER) {
-			waterpower->update(glm::rotate(p.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+			waterpower->update(glm::scale(glm::rotate(p.model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(1.1f)));
 			waterpower->draw(mainShader, false);
 		}
 		else if (p.power == FIRE) {
@@ -501,31 +561,37 @@ void Scene::draw(Camera* cam) {
 	}
 	//test->Draw(mainShader, false);
 
-	float now = glfwGetTime();
-	float deltaTime = now - lastFrameTime;
-	lastFrameTime = now;
-	ringRot += 180.0f * deltaTime;
-	ringRot = fmod(ringRot, 360.0f);
+	int i;
+	int j;
 
-	for (int i = 1; i < client->GameState.num_players; i++) {
-		players[i]->Draw(mainShader, false);
+	for (i = 0, j = 1; i < client->GameState.num_players; i++) {
+		auto entity = client->GameState.players[i];
+
+		if (entity.id == client->playerId || !client->GameState.player_stats[entity.id].alive) {
+			continue;
+		}
+
+		players[j++]->Draw(mainShader, false);
 	}
 
 	for (int i = 0; i < client->GameState.num_players; i++) {
-		if (client->GameState.players[i].id == client->playerId) {
+		auto entity = client->GameState.players[i];
+
+		if (entity.id == client->playerId || !client->GameState.player_stats[entity.id].alive) {
 			continue;
 		}
+
 		glm::vec3 pos = client->GameState.players[i].model[3];
 		//std::cout << i << std::endl;
 		//std::cout << glm::to_string(pos) << std::endl;
-		glm::mat4 matrix = glm::mat4(1.0f);
-		matrix = glm::scale(matrix, glm::vec3(0.05f));
-		matrix[3] = glm::vec4(pos, 1.0f);
-		matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
-		PowerType active = client->GameState.player_stats[i].activePower;
+		PowerType active = client->GameState.player_stats[entity.id].activePower;
 
 		if (active == METAL) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.095f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			metalring->update(matrix);
 			metalring->draw(mainShader, false);
 		}
@@ -539,12 +605,17 @@ void Scene::draw(Camera* cam) {
 			woodring->draw(mainShader, false);
 		}
 		else if (active == WATER) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.065f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			waterring->update(matrix);
 			waterring->draw(mainShader, false);
 		}
 		else if (active == FIRE) {
 			glm::mat4 matrix = glm::mat4(1.0f);
-			matrix = glm::scale(matrix, glm::vec3(0.15f));
+			matrix = glm::scale(matrix, glm::vec3(0.2f));
 			matrix[3] = glm::vec4(pos, 1.0f);
 			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -552,11 +623,15 @@ void Scene::draw(Camera* cam) {
 			firering->draw(mainShader, false);
 		}
 		else if (active == EARTH) {
+			glm::mat4 matrix = glm::mat4(1.0f);
+			matrix = glm::scale(matrix, glm::vec3(0.095f));
+			matrix[3] = glm::vec4(pos, 1.0f);
+			matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			matrix = glm::rotate(matrix, glm::radians(ringRot), glm::vec3(0.0f, 0.0f, 1.0f));
 			earthring->update(matrix);
 			earthring->draw(mainShader, false);
 		}
 	}
-
 
 	grapple->draw(mainShader, false);
 	for (int i = 0; i < client->GameState.num_players; i++) {
@@ -646,16 +721,61 @@ void Scene::draw(Camera* cam) {
 		particlesystems[i]->Draw(particleShader);
 	}
   
-  glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
   
 	glUseProgram(0); //skybox and uimanager use their own shader
 	
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
 	skybox->draw(cam, (float*)&water->model);
+
+	//glDisable(GL_CULL_FACE);
+
+	//We will use a global shader for everything for right now
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	GLuint cloudShader = shaders[6];
+	glUseProgram(cloudShader);
+
+	glUniformMatrix4fv(glGetUniformLocation(cloudShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(cloudShader, "viewPos"), 1, &camPos[0]);
+
+	glUniform3fv(glGetUniformLocation(cloudShader, "dirLightDir"), 1, &dirLight->direction[0]);
+	glUniform3fv(glGetUniformLocation(cloudShader, "dirLightColor"), 1, &dirLight->color[0]);
+	glUniform3fv(glGetUniformLocation(cloudShader, "dirLightSpec"), 1, &dirLight->specular[0]);
+	glUniform1i(glGetUniformLocation(cloudShader, "numLights"), lightmanager->numLights());
+	glUniformMatrix4fv(glGetUniformLocation(cloudShader, "lightSpaceMatrix"), 1, GL_FALSE, (float*)&lightSpaceMatrix);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glUniform1i(glGetUniformLocation(cloudShader, "shadowMap"), 1);
+	glUniform1i(glGetUniformLocation(cloudShader, "useShadow"), doShadow ? true : false);
+
+	glUniform1f(glGetUniformLocation(cloudShader, "time"), (currTime - startTime) / 1000.0f);
+	glUniform1f(glGetUniformLocation(cloudShader, "waterLevel"), waterLevel);
+	glUniform1f(glGetUniformLocation(cloudShader, "fogConstant"), fogConstant);
+	glUniform1f(glGetUniformLocation(cloudShader, "fogConstantW"), fogConstantW);
+	glUniform3fv(glGetUniformLocation(cloudShader, "fogColor"), 1, &fogColor[0]);
+	glUniform3fv(glGetUniformLocation(cloudShader, "fogColorW"), 1, &fogColorW[0]);
+	glUniform4fv(glGetUniformLocation(cloudShader, "waterModel"), 1, (float*)&water->model);
+
+	glDepthMask(GL_FALSE);
+	//render all clouds here
+	for (int i = 0; i < objects.size(); i++) {
+		if (objects[i]->cloud) {
+			objects[i]->draw(cloudShader, false);
+		}
+	}
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	//glEnable(GL_CULL_FACE);
+
 	uimanager->draw();
 }
 
 void Scene::TriggerAnim(int anim) {
+	if (anim != 2) {
+		audiomanager->PlayAudio("manaSpin", glm::vec3(1.0f, 1.0f, 1.0f), 0.85f);
+	}
 	uimanager->TriggerAnim(anim);
 }
 

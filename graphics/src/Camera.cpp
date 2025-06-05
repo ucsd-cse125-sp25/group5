@@ -19,14 +19,15 @@ void Camera::Update() {
         glm::mat4 world(1);
         glm::mat4 translate(1);
         //0.0008f
-        Rot = glm::rotate(Rot, 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
+        Rot = glm::rotate(Rot, 0.0045f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 
        // world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * translateAugment * glm::eulerAngleX(glm::radians(-Incline)) * world;
 
         world = Rot;// *glm::eulerAngleX(glm::radians(-Incline));
         //world[3] = glm::vec4(0.0f, 2.0f, -10.0f, 1.0f);
-        world = glm::translate(Rot, glm::vec3(0.0f, 12.0f, 32.0f)) * glm::eulerAngleX(glm::radians(-22.0f));
+        //world = glm::translate(Rot, glm::vec3(0.0f, 12.0f, 32.0f)) * glm::eulerAngleX(glm::radians(-22.0f));
+        world = glm::translate(Rot, glm::vec3(0.0f, 57.5f, 64.65808765454f)) * glm::eulerAngleX(glm::radians(-22.0f));
         
         //std::cout << "Camera position!" << glm::to_string(world[3]) << std::endl;
         //world[3][2] = Distance;
@@ -58,6 +59,7 @@ void Camera::Update() {
         translate[3][1] = Pos.y;
         translate[3][2] = Pos.z;
 
+        //printf("Camera position is %.1f, %.1f, %.1f\n", Pos[0], Pos[1], Pos[2]);
 
         world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
 
