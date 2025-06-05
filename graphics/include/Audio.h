@@ -41,6 +41,8 @@ private:
 	FMOD::DSP* lowpassDSP = nullptr;
 	float hitStart;
 	float deathStart;
+	float hppick;
+	float manapick;
 
 	bool LFS[4] = { false, false, false, false };
 	bool CFS[4] = { false, false, false, false };

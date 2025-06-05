@@ -27,6 +27,8 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"paintcanvas", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/paintcanvas.wav")},
 	{"ocean", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ocean.mp3")},
 	{"wind", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/wind.mp3")},
+	{"healthUP", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/healthUP.wav")},
+	{"manaUP", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/manaUP.wav")},
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
@@ -39,6 +41,8 @@ void Audio::Init(ClientGame* client) {
 	phase = PRE_GAME;
 	hitStart = glfwGetTime();
 	deathStart = glfwGetTime();
+	manapick = glfwGetTime();
+	hppick = glfwGetTime();
 	FMOD::System_Create(&system);
 	system->init(512, FMOD_INIT_3D_RIGHTHANDED, nullptr);
 
@@ -91,7 +95,7 @@ void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
 		system->playSound(Sounds[n], nullptr, true, &musicChannel);
 		musicChannel->set3DAttributes(&soundPos, &soundVel);
 
-		musicChannel->setVolume(volume);
+		musicChannel->setVolume(volume * 0.75);
 		musicChannel->set3DMinMaxDistance(0.5f, 95.0f);
 		musicChannel->setChannelGroup(sfxGroup);
 		musicChannel->setPaused(false);
@@ -136,8 +140,8 @@ void Audio::StopAudio() {
 
 void Audio::UpdateAmbient(PlayerStats & p) {
 	if (client->GameState.phase == GamePhase::IN_GAME) {
-		windChannel->setVolume(p.windAudioFlag * 0.75);
-		waterChannel->setVolume(p.waveAudioFlag * 0.5);
+		windChannel->setVolume(p.windAudioFlag * 0.35);
+		waterChannel->setVolume(p.waveAudioFlag * 0.35);
 	}
 	else {
 		windChannel->setVolume(0.0f);
@@ -147,7 +151,7 @@ void Audio::UpdateAmbient(PlayerStats & p) {
 
 //FMOD::System* automatically handles playing audio
 void Audio::Update(Camera* cam, UIData &p) {
-	float volume = 0.7f;
+	float volume = 0.9f;
 	glm::vec3 pos = cam->GetPosition();
 	glm::vec3 f = glm::normalize(cam->GetCameraForwardVector());
 	//Set the position up and forward
@@ -175,6 +179,19 @@ void Audio::Update(Camera* cam, UIData &p) {
 		hitStart = now;
 		std::string cs = "hit";
 		this->PlayAudio(cs, pos, volume);
+	}
+
+	PlayerStats ps = client->GameState.player_stats[client->playerId];
+	if (ps.hpPickupFlag && now - hppick > 1.0f) {
+		hppick = now;
+		std::string hpUP = "healthUP";
+		this->PlayAudio(hpUP, pos, volume);
+	}
+
+	if (ps.manaPickupFlag && now - manapick > 1.0f) {
+		manapick = now;
+		std::string manaUP = "manaUP";
+		this->PlayAudio(manaUP, pos, volume);
 	}
 	
 	for (int i = 0; i < client->GameState.num_players; i++) {
