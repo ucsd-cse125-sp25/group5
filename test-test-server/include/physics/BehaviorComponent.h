@@ -79,15 +79,15 @@ const float SLOW_TIME = 3.0f;
 const float DEATH_TIME = 10.0f;
 
 
-const float METAL_PROJ_COST = 10.0f;
-const float METAL_MOVE_COST = 14.0f;
+const float METAL_PROJ_COST = 2.0f;
+const float METAL_MOVE_COST = 15.0f;
 const float WOOD_PROJ_COST = 2.0f;
 const float WOOD_MOVE_COST = 20.0f;
-const float WATER_PROJ_COST = 5.0f;
+const float WATER_PROJ_COST = 2.0f;
 const float WATER_MOVE_COST = 15.0f;
 const float FIRE_PROJ_COST = 1.5f;
 const float FIRE_MOVE_COST = 10.0f;
-const float EARTH_PROJ_COST = 8.0f;
+const float EARTH_PROJ_COST = 2.0f;
 const float EARTH_MOVE_COST = 8.0f;
 
 
@@ -103,7 +103,7 @@ const float UNDERWATER_SLOW_FACTOR = 0.5f;
 const float WATER_SLOW_FACTOR = 0.4f;
 const float UNDERWATER_DAMAGE_INTERVAL = 1.0f;
 const float FLAG_BOOST_INTERVAL = 10.0f;
-const float MOVEMENT_ABILITY_COOLDOWN = 0.01f;
+const float MOVEMENT_ABILITY_COOLDOWN = 0.3f;
 const float MANA_REGEN_COOLDOWN = 1.0f;
 const float START_REGEN_COOLDOWN = 10.0f;	
 const int MANA_REGEN_AMOUNT = 1;

@@ -178,7 +178,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
 
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 30.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * woodProjSpeed, 35.0f, player->id);
 		obj->type = WOOD_PROJ;
 		obj->isDynamic = true;
 
@@ -208,7 +208,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
 		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
-		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * waterProjSpeed, 50.0f, player->id);
+		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * waterProjSpeed, 20.0f, player->id);
 		obj->type = WATER_PROJ;
 		obj->isDynamic = true;
 		//add it to both dynamic and moving (because the way our physics is structured is kind of cursed)
@@ -655,7 +655,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//check for if a player is in the air
 		playerStats.inAir = !checkBottom(obj, phys);
 		//check for movement powers 
-		if (intent.rightClickIntent && phys.PlayerTrackings[obj->id].rightClickDuration >= 1 && movementAbilityTimer <= 0.0f) {
+		if (intent.rightClickIntent && (phys.PlayerTrackings[obj->id].rightClickDuration == 1 || phys.PlayerTrackings[obj->id].rightClickDuration == 2) && movementAbilityTimer <= 0.0f) {
 
 			printf("Metal mana %d\n", playerStats.mana[0]);
 			printf("Wood mana %d\n", playerStats.mana[1]);
