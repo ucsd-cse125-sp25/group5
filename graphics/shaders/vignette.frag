@@ -28,7 +28,7 @@ void main() {
     } else {
         result = vec4(0.0, 0.0, 0.0, 0.0);
     }
-    if(hasFlag){
+    if(hasFlag && !isLow){
         result += vec4(0.93, 0.74, 0.01, alpha*0.4);
     }
 
