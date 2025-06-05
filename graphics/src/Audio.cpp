@@ -136,8 +136,6 @@ void Audio::StopAudio() {
 
 void Audio::UpdateAmbient(PlayerStats & p) {
 	if (client->GameState.phase == GamePhase::IN_GAME) {
-		std::cout << "Wind Flag: " << p.windAudioFlag << std::endl;
-		std::cout << "Wave Flag: " << p.waveAudioFlag << std::endl;
 		windChannel->setVolume(p.windAudioFlag * 0.75);
 		waterChannel->setVolume(p.waveAudioFlag * 0.5);
 	}
