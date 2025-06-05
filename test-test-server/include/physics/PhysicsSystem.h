@@ -11,7 +11,7 @@ typedef glm::mat4 mat4;
 typedef glm::quat quat;
 
 const float STARTING_WATER_LEVEL = -2.0f;
-const float ENDING_WATER_LEVEL = 5.0f;
+const float ENDING_WATER_LEVEL = 100.0f;
 
 using namespace std;
 

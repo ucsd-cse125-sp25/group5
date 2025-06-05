@@ -360,9 +360,9 @@ void Scene::update(Camera* cam) {
 	for (int i = 0; i < client->GameState.num_players; i++) {
 		PlayerStats& c = client->GameState.player_stats[i];
 		glm::vec3 pos = client->GameState.players[i].model[3];
-		float vol = 0.70f;
+		float vol = 0.7f;
 		if (client->playerId != client->GameState.players[i].id) {
-			vol = 0.45f;
+			vol = 0.5f;
 		}
 		for (int j = 0; j < 5; j++) {
 			float now = glfwGetTime();

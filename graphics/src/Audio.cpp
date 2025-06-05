@@ -86,6 +86,13 @@ void Audio::Init(ClientGame* client) {
 //Given name of audio, from AudioFiles hash map, place audio track into channel and then play it
 //Also pass in the position for spatial audio
 void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
+	float v = volume;
+	if (n.find("water") != std::string::npos || n.find("earth") != std::string::npos) {
+		v = 0.91f;
+	}
+	if (n.find("fireM") != std::string::npos || n.find("waterM") != std::string::npos || n.find("metalM") != std::string::npos) {
+		v = 0.99f;
+	}
 
 	FMOD_VECTOR soundPos = { pos.x, pos.y, pos.z };
 	FMOD_VECTOR soundVel = { 0.0f, 0.0f, 0.0f };
@@ -95,21 +102,21 @@ void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
 		system->playSound(Sounds[n], nullptr, true, &musicChannel);
 		musicChannel->set3DAttributes(&soundPos, &soundVel);
 
-		musicChannel->setVolume(volume * 0.75);
+		musicChannel->setVolume(v * 0.45);
 		musicChannel->set3DMinMaxDistance(0.5f, 95.0f);
 		musicChannel->setChannelGroup(sfxGroup);
 		musicChannel->setPaused(false);
 	}
 	else if (n.find("ocean") != std::string::npos) {
 		system->playSound(Sounds[n], nullptr, true, &waterChannel);
-		waterChannel->setVolume(volume);
+		waterChannel->setVolume(v);
 		waterChannel->set3DMinMaxDistance(0.5f, 95.0f);
 		waterChannel->setChannelGroup(sfxGroup);
 		waterChannel->setPaused(false);
 	}
 	else if (n.find("wind") != std::string::npos) {
 		system->playSound(Sounds[n], nullptr, true, &windChannel);
-		windChannel->setVolume(volume);
+		windChannel->setVolume(v);
 		windChannel->set3DMinMaxDistance(0.5f, 95.0f);
 		windChannel->setChannelGroup(sfxGroup);
 		windChannel->setPaused(false);
@@ -121,7 +128,7 @@ void Audio::PlayAudio(std::string n, glm::vec3 pos, float volume) {
 		system->playSound(Sounds[n], nullptr, true, &channel);
 		channel->set3DAttributes(&soundPos, &soundVel);
 		float dec = 1.0f;
-		channel->setVolume(volume * dec);
+		channel->setVolume(v * dec);
 		channel->set3DMinMaxDistance(0.5f, 95.0f);
 		bool isUnfiltered = (
 			n == "death" || n == "defeat" || n == "victory" ||
@@ -140,8 +147,8 @@ void Audio::StopAudio() {
 
 void Audio::UpdateAmbient(PlayerStats & p) {
 	if (client->GameState.phase == GamePhase::IN_GAME) {
-		windChannel->setVolume(p.windAudioFlag * 0.35);
-		waterChannel->setVolume(p.waveAudioFlag * 0.35);
+		windChannel->setVolume(p.windAudioFlag * 0.25);
+		waterChannel->setVolume(p.waveAudioFlag * 0.25);
 	}
 	else {
 		windChannel->setVolume(0.0f);
