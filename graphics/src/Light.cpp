@@ -17,19 +17,24 @@ void Lights::init() {
 
     for (int i = 0; i < MAX_LIGHTS; i++) {
         Light light;
-        //light.position = glm::vec4(2.0f, 12.0f, 0.0f, 1.0f);  // Light 1 position (2, 2, 0)
+
         float x = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
         float y = 0.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 100.0f));
         float z = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
         light.position = glm::vec4(x, y, z, 1.0f);
 
-        light.ambient = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
-        light.diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
-        light.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        light.constant = 1.0f;
-        light.linear = 0.07f;     // Lower = longer reach
-        light.quadratic = 0.017f; // Lower = slower fade
+        // Generate random bright color components between 0.5 and 1.0
+        float r = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
+        float g = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
+        float b = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
 
+        light.ambient = glm::vec4(0.1f * r, 0.1f * g, 0.1f * b, 1.0f);  // scaled down for ambient
+        light.diffuse = glm::vec4(0.8f * r, 0.8f * g, 0.8f * b, 1.0f);
+        light.specular = glm::vec4(1.0f * r, 1.0f * g, 1.0f * b, 1.0f);
+
+        light.constant = 1.0f;
+        light.linear = 0.07f;
+        light.quadratic = 0.017f;
 
         addLight(light);
     }

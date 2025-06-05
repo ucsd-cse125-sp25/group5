@@ -1,21 +1,31 @@
 import librosa
+import numpy as np
 import soundfile as sf
 from scipy.signal import butter, sosfilt
-import numpy as np
 
-# Load file (default sr=22050, or specify sr=44100 to increase range)
+# Load audio
 y, sr = librosa.load("lobbymusic.wav", sr=None)
 
-# Define filters within valid frequency ranges
-def highpass(y): return sosfilt(butter(3, 100, btype='high', fs=sr, output='sos'), y)
-def lowpass(y): return sosfilt(butter(3, 9000, btype='low', fs=sr, output='sos'), y)
+# Soft saturation
+y_electric = np.tanh(y * 2.0)
 
-# Apply processing
-y = highpass(y)
-y = lowpass(y)
+# Gentle tremolo
+def tremolo(signal, rate=6, depth=0.2, sr=22050):
+    t = np.arange(len(signal)) / sr
+    return signal * (1 + depth * np.sin(2 * np.pi * rate * t))
 
-# Optional light distortion for "grit"
-y = 0.8 * np.tanh(y * 2.0)
+y_electric = tremolo(y_electric, rate=6, depth=0.2, sr=sr)
 
-# Save result
-sf.write("processed_for_game.wav", y, sr)
+# Optional pitch-shift layer (use with care)
+y_shifted = librosa.effects.pitch_shift(y_electric, sr=sr, n_steps=5)
+y_electric = 0.6 * y_electric + 0.4 * y_shifted
+
+# Lowpass filter to smooth high static
+def lowpass(y, sr, cutoff=8000):
+    sos = butter(4, cutoff, btype='low', fs=sr, output='sos')
+    return sosfilt(sos, y)
+
+y_electric = lowpass(y_electric, sr)
+
+# Save the output
+sf.write("electric_lobby_clean.wav", y_electric, sr)
