@@ -770,6 +770,10 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 			
 		}
 
+		if (intent.hitRIntent) {
+			obj->transform.position = glm::vec3(0.0f, 10.0f, 0.0f);
+		}
+
 		manageCooldowns(obj, phys, deltaTime);
 		// apply force 
 		obj->physics->velocity += obj->physics->acceleration * deltaTime;
