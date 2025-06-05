@@ -22,7 +22,7 @@ namespace fs = std::experimental::filesystem;
 
 #define IN_GAME_DURATION 300
 
-#define NUM_PLAYERS_TO_START 1   
+#define NUM_PLAYERS_TO_START 4   
 
 
 
@@ -496,6 +496,7 @@ void ServerGame::writeToGameState() {
 	GameState.num_players = numPlayers;
 
 	GameState.phase = phase;
+	physicsSystem.currPhase = phase;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
 	float timeSinceStart = std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();
