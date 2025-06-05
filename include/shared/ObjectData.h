@@ -16,9 +16,9 @@ static glm::vec3 woodProjExtents = glm::vec3(0.1f, 0.1f, 0.1f);
 static glm::vec3 fireProjExtents = glm::vec3(0.5f, 0.5f, 0.5f);
 static glm::vec3 groundExtents = glm::vec3(1000.0f, 1.0f, 1000.0f);
 
-static float woodProjSpeed = 50.0f;
+static float woodProjSpeed = 40.0f;
 static float fireProjSpeed = 12.0f;
-static float waterProjSpeed = 100.0f;
+static float waterProjSpeed = 50.0f;
 
 static int particleTimeLimit = 20; // 20 ticks
 
