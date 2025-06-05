@@ -16,7 +16,7 @@ int WINDOWWIDTH = 1920;
 //1440
 
 float waterLevel = -2.0f;
-float fogConstant = 0.02f;
+float fogConstant = 0.013f;
 float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.3, 0.32, 0.63);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);

@@ -89,12 +89,12 @@ void main()
     vec3 fc = fogColor;
 
     //float fogWeight = (1.0/exp(fogConstant*length(vec3(dir.x * dir.x * dir.x * 50.0, sqrt(max(0, dir.y)) * 2.5, dir.z * dir.z * dir.z * 50.0))));
-    float fogWeight = (1.0/exp(fogConstant*length(vec3(pow(sqrt(dir.x * dir.x + dir.z * dir.z), 3.0) * 40.0, sqrt(max(0, dir.y)) * 2.5, pow(sqrt(dir.x * dir.x + dir.z * dir.z), 3.0) * 40.0))));
+    float fogWeight = (1.0/exp(fogConstant*length(vec3(pow(sqrt(dir.x * dir.x + dir.z * dir.z)/sqrt(2), 3.0) * 35.0, sqrt(max(0, dir.y)) * 2.5, pow(sqrt(dir.x * dir.x + dir.z * dir.z)/sqrt(2), 3.0) * 35.0))));
 
 	vec4 result = texture(skybox, TexCoords);
     if(dir.y < 0){
         result.xyz = fogColor;
-        fogWeight = 1.0/exp(fogConstant*length(vec3(pow(sqrt(dir.x * dir.x + dir.z * dir.z), 50.0) * 6.0, sqrt(max(0, -dir.y)) * 2.5, pow(sqrt(dir.x * dir.x + dir.z * dir.z), 50.0) * 6.0)));
+        fogWeight = 1.0/exp(fogConstant*length(vec3(pow(sqrt(dir.x * dir.x + dir.z * dir.z)/sqrt(2), 10.0) * 10.0, sqrt(max(0, -dir.y)) * 2.5, pow(sqrt(dir.x * dir.x + dir.z * dir.z)/sqrt(2), 10.0) * 10.0)));
         fc.xyz = vec3(0.2, 0.22, 0.34);
     }
 
