@@ -26,6 +26,7 @@ namespace fs = std::experimental::filesystem;
 
 
 
+
 #define TICKS_PER_SECOND 50
 #define TICK_TIME_MILLS (1000 / TICKS_PER_SECOND)
 
@@ -496,6 +497,7 @@ void ServerGame::writeToGameState() {
 	GameState.num_players = numPlayers;
 
 	GameState.phase = phase;
+	physicsSystem.currPhase = phase;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
 	float timeSinceStart = std::chrono::duration<float>(now - ServerGame::phaseStartTime).count();

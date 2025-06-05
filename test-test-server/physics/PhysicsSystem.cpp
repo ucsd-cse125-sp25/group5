@@ -32,7 +32,9 @@ void PhysicsSystem::tick(float dt) {
         obj->physics->acceleration = glm::vec3(0);
     }
 
-    updateWaterLevel();
+	if (currPhase == IN_GAME) {
+		updateWaterLevel();
+	}
 
     //delete all objects marked for deletion
 	deleteMarkedDynamicObjects();
