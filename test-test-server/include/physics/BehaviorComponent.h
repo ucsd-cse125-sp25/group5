@@ -63,12 +63,12 @@ public:
 
 class PlayerBehaviorComponent : public BehaviorComponent {
 
-const float JUMP_FORCE = 7.5f;
-const float DASH_TIME = 0.5f;
-const float DASH_SPEED = 20.0f;
+const float JUMP_FORCE = 10.f;
+const float DASH_TIME = 0.75f;
+const float DASH_SPEED = 25.0f;
 const float STOMP_TIME = 5.0f;
 const float STOMP_SPEED = 20.0f;
-const float GRAPPLE_SPEED = 8.0f;
+const float GRAPPLE_SPEED = 10.0f;
 const float GRAPPLE_TIME = 10.0f; //Bro does not use this :skull:
 const float MAGNET_TIME = 4.0f;
 const float MAGNET_SPEEED = 10.0f;
@@ -81,8 +81,8 @@ const float DEATH_TIME = 10.0f;
 
 const float METAL_PROJ_COST = 10.0f;
 const float METAL_MOVE_COST = 14.0f;
-const float WOOD_PROJ_COST = 5.0f;
-const float WOOD_MOVE_COST = 33.0f;
+const float WOOD_PROJ_COST = 2.0f;
+const float WOOD_MOVE_COST = 20.0f;
 const float WATER_PROJ_COST = 5.0f;
 const float WATER_MOVE_COST = 15.0f;
 const float FIRE_PROJ_COST = 3.0f;
@@ -94,7 +94,7 @@ const float EARTH_MOVE_COST = 8.0f;
 const float METAL_ATTACK_COOLDOWN = 0.9f;
 const float WOOD_ATTACK_COOLDOWN = 0.25f;
 const float WATER_ATTACK_COOLDOWN = 1.2f;
-const float FIRE_ATTACK_COOLDOWN = 0.4f;
+const float FIRE_ATTACK_COOLDOWN = 0.2f;
 const float EARTH_ATTACK_COOLDOWN = 0.98f;
 const float ATTACK_COOLDOWN_ARRAY[5] = { METAL_ATTACK_COOLDOWN, WOOD_ATTACK_COOLDOWN, WATER_ATTACK_COOLDOWN, FIRE_ATTACK_COOLDOWN, EARTH_ATTACK_COOLDOWN };
 const float ATTACK_COST_ARRAY[5] = { METAL_PROJ_COST, WOOD_PROJ_COST, WATER_PROJ_COST, FIRE_PROJ_COST, EARTH_PROJ_COST};
@@ -103,7 +103,7 @@ const float UNDERWATER_SLOW_FACTOR = 0.5f;
 const float WATER_SLOW_FACTOR = 0.4f;
 const float UNDERWATER_DAMAGE_INTERVAL = 1.0f;
 const float FLAG_BOOST_INTERVAL = 10.0f;
-const float MOVEMENT_ABILITY_COOLDOWN = 0.4f;
+const float MOVEMENT_ABILITY_COOLDOWN = 0.15f;
 const float MANA_REGEN_COOLDOWN = 1.0f;
 const float START_REGEN_COOLDOWN = 10.0f;	
 const int MANA_REGEN_AMOUNT = 1;
