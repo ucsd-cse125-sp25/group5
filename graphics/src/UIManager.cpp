@@ -30,6 +30,8 @@ static std::unordered_map<std::string, std::tuple<std::string, GamePhase, float,
 	{ "c1", {PROJECT_SOURCE_DIR + std::string("/assets/character2.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
 	{ "c2", {PROJECT_SOURCE_DIR + std::string("/assets/character3.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
 	{ "c3", {PROJECT_SOURCE_DIR + std::string("/assets/character4.png"), GamePhase::POST_GAME, 0.15, 0.85, 0.15, 1.0}},
+	{ "hitmarker", {PROJECT_SOURCE_DIR + std::string("/assets/hitmarker.png"), GamePhase::IN_GAME, 0.5, 0.5, 0.05, 1.5}},
+	{"paintbrush", {PROJECT_SOURCE_DIR + std::string("/assets/paintbrush.png"), GamePhase::IN_GAME, 0.5, 0.95, 0.30, 0.32}}
 };
 
 /**
@@ -200,9 +202,15 @@ void UIManager::Init(ClientGame* client) {
 			img = new Magic();
 		}
 		else if (name == "vignette") {
-			Vignette *vig = new Vignette();
+			Vignette* vig = new Vignette();
 			vig->client = client;
 			img = vig;
+		}
+		else if (name == "paintbrush") {
+			img = new PaintBrush();
+		}
+		else if (name == "hitmarker") {
+			img = new HitMarker();
 		}
 		else {
 			img = new UIImg();

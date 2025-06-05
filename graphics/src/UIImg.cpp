@@ -1221,3 +1221,163 @@ void Vignette::Draw() {
 void Vignette::SetTexture(GLuint tex) {
 	texture = tex;
 }
+
+void PaintBrush::Init(std::vector<float> startPerc, float percent, float ratio) {
+	shaderProgram = LoadShaders("shaders/paint.vert", "shaders/paint.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+	float uiWidth = WINDOWWIDTH * percent;
+	float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float startX = WINDOWWIDTH * startPerc[0];
+	float startY = WINDOWHEIGHT * startPerc[1];
+	std::vector<float> startPos = { startX, startY };
+
+	uiData = {
+		//Position												   //UV         //Color
+		startPos[0] - (uiWidth / 2), startPos[1] - (uiHeight / 2), 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2), 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, uiData.size() * sizeof(float), uiData.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+}
+
+void PaintBrush::Draw() {
+	glUseProgram(shaderProgram);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+
+	glBindVertexArray(VAO);
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+	glUniform1f(glGetUniformLocation(shaderProgram, "percentage"), percent);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+}
+
+void PaintBrush::Update(const UIData&p) {
+	if (p.seconds < 61 && !hasPlayed) {
+		hasPlayed = true;
+		this->StartPaint();
+	}
+
+	double now = glfwGetTime();
+	if (animating) {
+		double elapsed = now - animStart;
+		float t = elapsed / paintDuration;
+		if (elapsed >= paintDuration) {
+			animating = false;
+			percent = 1.0;
+		}
+		else {
+			percent = t;
+		}
+	}
+}
+
+void PaintBrush::SetTexture(GLuint tex) {
+	texture = tex;
+}
+
+void PaintBrush::StartPaint() {
+	animStart = glfwGetTime();
+	animating = true;
+}
+
+void HitMarker::Init(std::vector<float> startPerc, float percent, float ratio) {
+	shaderProgram = LoadShaders("shaders/ui.vert", "shaders/ui.frag");
+	projection = glm::ortho(0.0f, float(WINDOWWIDTH), 0.0f, float(WINDOWHEIGHT), -1.0f, 1.0f);
+	glUseProgram(shaderProgram);
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+	float uiWidth = WINDOWWIDTH * percent;
+	float uiHeight = WINDOWHEIGHT * percent * ratio;
+	float startX = WINDOWWIDTH * startPerc[0];
+	float startY = WINDOWHEIGHT * startPerc[1];
+	std::vector<float> startPos = { startX, startY };
+
+	uiData = {
+		//Position												   //UV         //Color
+		startPos[0] - (uiWidth / 2), startPos[1] - (uiHeight / 2), 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] - (uiHeight / 2), 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] + (uiWidth / 2), startPos[1] + (uiHeight / 2), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		startPos[0] - (uiWidth / 2), startPos[1] + (uiHeight / 2), 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	};
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, uiData.size() * sizeof(float), uiData.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0); //position
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float))); //tex coord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(4 * sizeof(float))); //color
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBindVertexArray(0);
+}
+
+void HitMarker::Update(const UIData& p) {
+	hit = p.dealtDamage;
+}
+
+void HitMarker::Draw() {
+	if (hit) {
+		glUseProgram(shaderProgram);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_DEPTH_TEST);
+		glBindVertexArray(VAO);
+
+		glm::mat4 model = glm::mat4(1.0f);
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &model[0][0]);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glDisable(GL_BLEND);
+
+		glEnable(GL_DEPTH_TEST);
+		glBindVertexArray(0);
+	}
+}
+
+void HitMarker::SetTexture(GLuint tex) {
+	texture = tex;
+}
