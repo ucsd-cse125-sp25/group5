@@ -164,6 +164,14 @@ void Scene::loadObjects() {
 	std::string importstr12 = PROJECT_SOURCE_DIR + std::string("/assets/Earth_power.fbx");
 	earthring->create((char*)importstr12.c_str(), glm::mat4(1), 1);
 
+	healthPickup = new Object();
+	std::string hpick = PROJECT_SOURCE_DIR + std::string("/assets/health.obj");
+	healthPickup->create((char*)hpick.c_str(), glm::mat4(1), 1);
+
+	manaPickup = new Object();
+	std::string mpick = PROJECT_SOURCE_DIR + std::string("/assets/mana.obj");
+	manaPickup->create((char*)mpick.c_str(), glm::mat4(1), 1);
+
 
 	//test->LoadExperimental(PROJECT_SOURCE_DIR + std::string("/assets/man.fbx"), 1);
 	//glm::mat4 mov(0.05);
@@ -242,6 +250,7 @@ void Scene::update(Camera* cam) {
 	}
 	cubes.clear();
 	projectiles.clear();
+	pickups.clear();
 
 	//set the height of the water
 	glm::mat4 watermat(1);
@@ -309,14 +318,16 @@ void Scene::update(Camera* cam) {
 		//	cubes.push_back(cu);
 		//}
 		else if (entity.type == HP_PICKUP) {
-			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(1.0f, 0.0f, 0.0f)); // Red for HP pickup
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			PickUp p;
+			p.pickup = 0;
+			p.model = glm::scale(entity.model, glm::vec3(0.5f));
+			pickups.push_back(p);
 		}
 		else if (entity.type == MANA_PICKUP) {
-			Cube* cu = new Cube(woodProjExtents, -woodProjExtents, glm::vec3(0.0f, 1.0f, 1.0f)); // Cyan for Mana pickup
-			cu->setModel(entity.model);
-			cubes.push_back(cu);
+			PickUp p;
+			p.pickup = 1;
+			p.model = glm::scale(entity.model, glm::vec3(0.5f));
+			pickups.push_back(p);
 		}
 	}
 
@@ -499,6 +510,28 @@ void Scene::draw(Camera* cam) {
 		cubes[i]->draw(mainShader, false);
 	}
 
+	float now = glfwGetTime();
+	float deltaTime = now - lastFrameTime;
+	lastFrameTime = now;
+	ringRot += 180.0f * deltaTime;
+	ringRot = fmod(ringRot, 360.0f);
+	hRot += 90.0f * deltaTime;
+	hRot = fmod(hRot, 360.0f);
+	mRot += 90.0f * deltaTime;
+	mRot = fmod(mRot, 360.0f);
+
+	for (int i = 0; i < pickups.size(); i++) {
+		PickUp p = pickups[i];
+		if (p.pickup == 0) {
+			healthPickup->update(glm::rotate(p.model, glm::radians(hRot), glm::vec3(0.0f, 1.0f, 0.0f)));
+			healthPickup->draw(mainShader, false);
+		}
+		else if (p.pickup == 1) {
+			manaPickup->update(glm::rotate(p.model, glm::radians(mRot), glm::vec3(0.0f, 1.0f, 0.0f)));
+			manaPickup->draw(mainShader, false);
+		}
+	}
+
 	for (int i = 0; i < projectiles.size(); i++) {
 		Projectile p = projectiles.at(i);
 		if (p.power == METAL) {
@@ -523,12 +556,6 @@ void Scene::draw(Camera* cam) {
 		}
 	}
 	//test->Draw(mainShader, false);
-
-	float now = glfwGetTime();
-	float deltaTime = now - lastFrameTime;
-	lastFrameTime = now;
-	ringRot += 180.0f * deltaTime;
-	ringRot = fmod(ringRot, 360.0f);
 
 	int i;
 	int j;
