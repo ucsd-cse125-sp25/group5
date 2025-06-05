@@ -25,6 +25,7 @@ private:
 	bool lastFlagState = false; //false = not have
 	bool decision = false;
 	bool timeOut = false;
+	bool paintOut = false;
 	FMOD::System* system = nullptr;
 	FMOD_VECTOR listenerPos;
 	FMOD_VECTOR listenerVel;

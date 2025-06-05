@@ -22,8 +22,8 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"ticktock", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ticktock.wav")},
 	{"capture", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/capture.wav")},
 	{"transfer", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
-	//{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/lobbymusic.wav")},
-	//{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/gamemusic.wav")},
+	{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/lobbymusic.wav")},
+	{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/gamemusic.wav")},
 	{"paintcanvas", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/paintcanvas.wav")},
 	{"ocean", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ocean.mp3")},
 	{"wind", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/wind.mp3")},
@@ -135,10 +135,16 @@ void Audio::StopAudio() {
 }
 
 void Audio::UpdateAmbient(PlayerStats & p) {
-	std::cout << "Wind Flag: " << p.windAudioFlag << std::endl;
-	std::cout << "Wave Flag: " << p.waveAudioFlag << std::endl;
-	windChannel->setVolume(p.windAudioFlag);
-	waterChannel->setVolume(p.waveAudioFlag);
+	if (client->GameState.phase == GamePhase::IN_GAME) {
+		std::cout << "Wind Flag: " << p.windAudioFlag << std::endl;
+		std::cout << "Wave Flag: " << p.waveAudioFlag << std::endl;
+		windChannel->setVolume(p.windAudioFlag * 0.75);
+		waterChannel->setVolume(p.waveAudioFlag * 0.5);
+	}
+	else {
+		windChannel->setVolume(0.0f);
+		waterChannel->setVolume(0.0f);
+	}
 }
 
 //FMOD::System* automatically handles playing audio
@@ -218,8 +224,13 @@ void Audio::Update(Camera* cam, UIData &p) {
 		std::string rs = "respawn";
 		this->PlayAudio(rs, pos, volume);
 	}
+	if (p.seconds < 61 && !paintOut && phase == IN_GAME) {
+		paintOut = true;
+		std::string pc = "paintcanvas";
+		this->PlayAudio(pc, pos, volume);
+	}
 
-	if (p.seconds < 60 && !timeOut && phase == IN_GAME) {
+	if (p.seconds < 30 && !timeOut && phase == IN_GAME) {
 		timeOut = true;
 		std::string tt = "ticktock";
 		this->PlayAudio(tt, pos, volume);
