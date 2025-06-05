@@ -218,11 +218,13 @@ void PlayerObject::UpdateParticles(PlayerStats stats, int id) {
 }
 
 void PlayerObject::Update() {
-	skel->update();
-	if (animation->channels.size() > 0) {
-		animplayer->update();
+	if (animation->animate) {
+		skel->update();
+		if (animation->channels.size() > 0) {
+			animplayer->update();
+		}
+		skin->update();
 	}
-	skin->update();	
 
 	if (currTime != 0 && prevTime != 0 && particlesystem) {
 		double deltaTime = currTime - prevTime;
