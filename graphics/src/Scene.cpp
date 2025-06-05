@@ -398,7 +398,7 @@ void Scene::update(Camera* cam) {
 
 bool Scene::initShaders() {
 	// Create a shader program with a vertex shader and a fragment shader.
-	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral", "cloudShader"};
+	std::vector<std::string> shadernames = { "texShader", "testShader", "shadow", "particleShader", "waterShader", "spectral", "cloudShader", "pickup"};
 	
 	for (int i = 0; i < shadernames.size(); i++) {
 		std::string frag = PROJECT_SOURCE_DIR + std::string("/shaders/") + shadernames[i] + std::string(".frag");
@@ -523,18 +523,6 @@ void Scene::draw(Camera* cam) {
 	hRot = fmod(hRot, 360.0f);
 	mRot += 90.0f * deltaTime;
 	mRot = fmod(mRot, 360.0f);
-
-	for (int i = 0; i < pickups.size(); i++) {
-		PickUp p = pickups[i];
-		if (p.pickup == 0) {
-			healthPickup->update(glm::rotate(p.model, glm::radians(hRot), glm::vec3(0.0f, 1.0f, 0.0f)));
-			healthPickup->draw(mainShader, false);
-		}
-		else if (p.pickup == 1) {
-			manaPickup->update(glm::rotate(p.model, glm::radians(mRot), glm::vec3(0.0f, 1.0f, 0.0f)));
-			manaPickup->draw(mainShader, false);
-		}
-	}
 
 	for (int i = 0; i < projectiles.size(); i++) {
 		Projectile p = projectiles.at(i);
@@ -720,7 +708,27 @@ void Scene::draw(Camera* cam) {
 	for (int i = 0; i < particlesystems.size(); i++) {
 		particlesystems[i]->Draw(particleShader);
 	}
-  
+
+	GLuint pickupShader = shaders[7];
+	glUseProgram(pickupShader);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
+
+	glUniformMatrix4fv(glGetUniformLocation(pickupShader, "viewProj"), 1, GL_FALSE, (float*)&viewProjMtx);
+	glUniform3fv(glGetUniformLocation(pickupShader, "viewPos"), 1, &camPos[0]);
+
+	for (int i = 0; i < pickups.size(); i++) {
+		PickUp p = pickups[i];
+		if (p.pickup == 0) {
+			healthPickup->update(glm::rotate(p.model, glm::radians(hRot), glm::vec3(0.0f, 1.0f, 0.0f)));
+			healthPickup->draw(pickupShader, false);
+		}
+		else if (p.pickup == 1) {
+			manaPickup->update(glm::rotate(p.model, glm::radians(mRot), glm::vec3(0.0f, 1.0f, 0.0f)));
+			manaPickup->draw(pickupShader, false);
+		}
+	}
+	glDisable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
   
 	glUseProgram(0); //skybox and uimanager use their own shader
