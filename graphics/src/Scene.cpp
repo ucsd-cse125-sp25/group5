@@ -87,9 +87,9 @@ void Scene::createGame(ClientGame* client) {
 	}
 
 	water = new Water();
-	water->create(301, 301, 0.5f, waterLevel);
+	water->create(301, 301, 1.0f, waterLevel);
 	glm::mat4 watermat(1);
-	watermat[3] = glm::vec4(-75.0, 0, -75.0, 1);
+	watermat[3] = glm::vec4(-150.0, 0, -150.0, 1);
 	water->update(watermat);
 
 	for (int i = 0; i < MAX_PLAYERS; i++) {
@@ -214,6 +214,14 @@ void Scene::update(Camera* cam) {
 		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.37f);
 		musica = 1;
 	}
+	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 1 && client->GameState.time < 60) {
+		audiomanager->PlayAudio("endgamemusic", client->playerModel[3], 0.37f);
+		musica = 2;
+	}
+	else if (client->GameState.phase == GamePhase::POST_GAME && musica == 2) {
+		audiomanager->PlayAudio("postgamemusic", client->playerModel[3], 0.37f);
+		musica = 3;
+	}
 
 	//test->Update();
 	for (int i = 0; i < KILLFEED_LENGTH; i++) {
@@ -256,7 +264,7 @@ void Scene::update(Camera* cam) {
 
 	//set the height of the water
 	glm::mat4 watermat(1);
-	watermat[3] = glm::vec4(-75.0, waterLevel + 2.0f, -75.0, 1);
+	watermat[3] = glm::vec4(-150.0, waterLevel + 2.0f, -150.0, 1);
 	water->update(watermat);
 	waterLevel = client->GameState.waterLevel;
 	

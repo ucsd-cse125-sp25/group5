@@ -24,6 +24,8 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"transfer", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/transfer.wav")},
 	{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/lobbymusic_bass_boosted.wav")},
 	{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/gamemusic.wav")},
+	{"lobbymusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/filtered_music/electric_lobby.wav")},
+	{"gamemusic", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/filtered_music/lobbymusic_enriched.wav")},
 	{"paintcanvas", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/paintcanvas.wav")},
 	{"ocean", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/ocean.mp3")},
 	{"wind", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/wind.mp3")},

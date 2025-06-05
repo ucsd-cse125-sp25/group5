@@ -91,7 +91,7 @@ void Player::update() {
             }
         }
 
-        std::cout << "time: " << time << std::endl;
+        //std::cout << "time: " << time << std::endl;
 
         //std::cout << time << std::endl;
         //75 joints
