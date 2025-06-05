@@ -424,6 +424,9 @@ float clamp(float value, float min, float max) {
 void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) {
 	PlayerIntentPacket& intent = physicsSystem.PlayerIntents[obj->id];
 
+	playerStats.hpPickupFlag = false;
+	playerStats.manaPickupFlag = false;
+
 	playerStats.hasFlag = obj->attached != nullptr && obj->attached->type == FLAG;
 	playerStats.dealtDamageFlag = false;
 	playerStats.damageFlag = false;

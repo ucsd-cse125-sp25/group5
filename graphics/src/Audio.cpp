@@ -182,13 +182,13 @@ void Audio::Update(Camera* cam, UIData &p) {
 	}
 
 	PlayerStats ps = client->GameState.player_stats[client->playerId];
-	if (ps.hpPickupFlag && now - hppick > 5.0f) {
+	if (ps.hpPickupFlag && now - hppick > 1.0f) {
 		hppick = now;
 		std::string hpUP = "healthUP";
 		this->PlayAudio(hpUP, pos, volume);
 	}
 
-	if (ps.manaPickupFlag && now - manapick > 5.0f) {
+	if (ps.manaPickupFlag && now - manapick > 1.0f) {
 		manapick = now;
 		std::string manaUP = "manaUP";
 		this->PlayAudio(manaUP, pos, volume);
