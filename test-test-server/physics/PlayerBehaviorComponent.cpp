@@ -391,7 +391,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	}
 	
 	//wind audio
-	if(playerStats.inAir) {
+	if(playerStats.inAir && !playerStats.underwater) {
 		playerStats.windAudioFlag += deltaTime * 0.25f;
 		if (playerStats.windAudioFlag > 1.0f) {
 			playerStats.windAudioFlag = 1.0f;
