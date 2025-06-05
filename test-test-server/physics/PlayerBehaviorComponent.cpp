@@ -399,6 +399,11 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 		grappleTarget = nullptr;
 	}
 }
+float clamp(float value, float min, float max) {
+	if (value < min) return min;
+	if (value > max) return max;
+	return value;
+}
 
 //—— integrate — called once per tick
 void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, PhysicsSystem& phys) {
@@ -422,6 +427,11 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
 	playerStats.low_oxygen = obj->transform.position.y > phys.atmosphereLevel;
+
+	float waveAudioThreshold = 10.0f;
+	//audio settings
+	float t = 1.0f - clamp(waveAudioThreshold - (obj->transform.position.y - phys.waterLevel), 0.0f, 1.0f);
+	playerStats.waveAudioFlag = t * t;
 
 	//death handling block
 	if (state == PlayerMovementState::DEATH) {
