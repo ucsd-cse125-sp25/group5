@@ -6,7 +6,7 @@ import soundfile as sf
 from scipy.signal import butter, sosfilt
 
 # === Load audio ===
-y, sr = librosa.load("lobbymusic.wav", sr=None)
+y, sr = librosa.load("lobby3.wav", sr=None)
 
 # === Boost lower frequencies with a low-shelf filter ===
 def boost_bass(y, sr, cutoff=300.0, gain_db=6.0):
@@ -25,4 +25,4 @@ if peak > 1.0:
     y_boosted /= peak
 
 # === Save output ===
-sf.write("lobbymusic_bass_boosted.wav", y_boosted, sr)
+sf.write("lobbymusic.wav", y_boosted, sr)

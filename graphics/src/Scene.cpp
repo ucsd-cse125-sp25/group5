@@ -211,15 +211,19 @@ void Scene::update(Camera* cam) {
 		musica = 0;
 	}
 	else if (client->GameState.phase == GamePhase::IN_GAME && musica < 1) {
-		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.37f);
+		audiomanager->PlayAudio("gamemusic", client->playerModel[3], 0.29f);
 		musica = 1;
 	}
 	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 1 && client->GameState.time < 60) {
 		audiomanager->PlayAudio("endgamemusic", client->playerModel[3], 0.37f);
 		musica = 2;
 	}
-	else if (client->GameState.phase == GamePhase::POST_GAME && musica == 2) {
-		audiomanager->PlayAudio("postgamemusic", client->playerModel[3], 0.37f);
+	else if (client->GameState.phase == GamePhase::POST_GAME && musica == 2 && client->GameState.lockedWinnerId == client->playerId) {
+		audiomanager->PlayAudio("postgamemusicwin", client->playerModel[3], 0.37f);
+		musica = 3;
+	}
+	else if (client->GameState.phase == GamePhase::POST_GAME && musica == 2 && client->GameState.lockedWinnerId != client->playerId) {
+		audiomanager->PlayAudio("postgamemusicloss", client->playerModel[3], 0.37f);
 		musica = 3;
 	}
 
