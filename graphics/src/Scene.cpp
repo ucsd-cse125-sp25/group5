@@ -773,6 +773,9 @@ void Scene::draw(Camera* cam) {
 }
 
 void Scene::TriggerAnim(int anim) {
+	if (anim != 2) {
+		audiomanager->PlayAudio("manaSpin", glm::vec3(1.0f, 1.0f, 1.0f), 0.85f);
+	}
 	uimanager->TriggerAnim(anim);
 }
 

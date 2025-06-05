@@ -29,6 +29,7 @@ static std::unordered_map<std::string, std::string> AudioFiles = {
 	{"wind", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/wind.mp3")},
 	{"healthUP", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/healthUP.wav")},
 	{"manaUP", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/manaUP.wav")},
+	{"manaSpin", PROJECT_SOURCE_DIR + std::string("/assets/audiofiles/manaSpin.wav")},
 };
 
 static std::unordered_map<std::string, FMOD::Sound*> Sounds;
@@ -54,6 +55,10 @@ void Audio::Init(ClientGame* client) {
 		if (track.find("music") != std::string::npos || track.find("ocean") != std::string::npos || track.find("wind") != std::string::npos) {
 			system->createSound(path.c_str(), FMOD_2D | FMOD_CREATESAMPLE, 0, &s);
 			s->setMode(FMOD_LOOP_NORMAL);
+		}
+		else if (track.find("manaSpin") != std::string::npos) {
+			system->createSound(path.c_str(), FMOD_2D | FMOD_CREATESAMPLE, 0, &s);
+			s->setMode(FMOD_LOOP_OFF);
 		}
 		else {
 			system->createSound(path.c_str(), FMOD_3D | FMOD_CREATESAMPLE, 0, &s);
