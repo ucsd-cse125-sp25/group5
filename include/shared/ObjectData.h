@@ -84,11 +84,12 @@ struct PlayerStats {
 	bool moving = false;
 	bool inAir = false;
 	bool underwater = false;
-	
+	bool low_oxygen = false; 
+
 	glm::vec3 grappleTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	unsigned int mana[5] = { 100, 100, 100, 100, 100 };
-	unsigned int prevMana[5] = { 100, 100, 100, 100, 100 };
+	int mana[5] = { 100, 100, 100, 100, 100 };
+	int prevMana[5] = { 100, 100, 100, 100, 100 };
 	PowerType activePower = METAL;
 
 	int movementPowerupFlag[5] = { 0, 0, 0, 0, 0};

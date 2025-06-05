@@ -37,8 +37,8 @@ ClientNetwork::ClientNetwork(void)
 
 
 
-    //iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
     iResult = getaddrinfo("127.0.0.1", DEFAULT_PORT, &hints, &result);
+    //iResult = getaddrinfo("128.54.69.168", DEFAULT_PORT, &hints, &result);
 
 
     if( iResult != 0 ) 

@@ -306,6 +306,7 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	
 	//underwater damage and slow
 	if (playerStats.underwater) {
+		
 		underwaterTimer += deltaTime;
 		if (underwaterTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
 			playerStats.hp -= 1;
@@ -316,6 +317,25 @@ void PlayerBehaviorComponent::manageCooldowns(GameObject* obj, PhysicsSystem& ph
 	else {
 		underwaterTimer = 0.0f;
 		curUnderwaterSlowFactor = 1.0f;
+	}
+
+	//atmopshere slow
+	if (playerStats.low_oxygen) {
+		//no mana regen for you 
+		manaRegenTimer = MANA_REGEN_COOLDOWN;
+		lowOxygenTimer += deltaTime;
+		if (lowOxygenTimer >= UNDERWATER_DAMAGE_INTERVAL && playerStats.alive) {
+			playerStats.hp -= 1;
+			lowOxygenTimer = 0.0f;
+			//screw your powerups!
+			for (int i = 0; i < 5; i++) {
+				playerStats.mana[i] -= 2;
+
+				if (playerStats.mana[i] < 0) {
+					playerStats.mana[i] = 0;
+				}
+			}
+		}
 	}
 
 	//flag holding hp increase
@@ -401,6 +421,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 	//water setting
 	
 	playerStats.underwater = obj->transform.position.y < phys.waterLevel;
+	playerStats.low_oxygen = obj->transform.position.y > phys.atmosphereLevel;
 
 	//death handling block
 	if (state == PlayerMovementState::DEATH) {
