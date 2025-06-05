@@ -866,7 +866,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 
 			
 		}
-
+		playerStats.hpPickupFlag = false;
 		//handle hpPickup 
 		if(other->type == HP_PICKUP) {
 			//if we hit a hp pickup, increase our hp
@@ -876,8 +876,10 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			}
 			//remove the pickup
 			printf("Player %d picked up a health pickup, new hp: %f\n", obj->id, playerStats.hp);
+			playerStats.hpPickupFlag = true;
 		}
-
+		
+		playerStats.manaPickupFlag = false;
 		if(other->type == MANA_PICKUP) {
 			//if we hit a mana pickup, increase our mana
 			int i = playerStats.activePower;
@@ -887,6 +889,7 @@ void PlayerBehaviorComponent::resolveCollision(GameObject* obj, GameObject* othe
 			}
 			//remove the pickup
 			printf("Player %d picked up a mana pickup\n", obj->id);
+			playerStats.manaPickupFlag = true;
 		}
 
 		

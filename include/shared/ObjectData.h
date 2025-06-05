@@ -99,6 +99,8 @@ struct PlayerStats {
 	int closestPlayer = -1; // used to indicate the closest player to this player
 	float waveAudioFlag = 0.0f; // used to indicate if the player is underwater and the wave audio should be played
 	float windAudioFlag = 0.0f; // used to indicate if the player is in the air and the wind audio should be played	
+	bool hpPickupFlag = false; // used to indicate if the player has picked up an HP pickup this tick
+	bool manaPickupFlag = false; // used to indicate if the player has picked up a Mana pickup this tick
 };
 
 struct KillfeedItem {
