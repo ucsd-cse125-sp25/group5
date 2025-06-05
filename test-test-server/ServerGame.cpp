@@ -551,6 +551,7 @@ void ServerGame::writeToGameState() {
 				setPhase(POST_GAME);
 				GameState.lockedWinnerId = i;
 				printf("Player %d has won\n", GameState.lockedWinnerId);
+				physicsSystem.waterLevel = -2.0f; // Reset the water level to 0 when a player wins
 			}
 		}
 	}
