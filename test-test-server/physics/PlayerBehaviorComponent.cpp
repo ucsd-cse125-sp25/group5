@@ -171,7 +171,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 		glm::radians(-phys.PlayerIntents[player->id].inclineIntent)
 	);
 
-	glm::vec3 FRONT_OFFSET = glm::normalize(facingDirection) * 0.5f;
+	glm::vec3 FRONT_OFFSET = glm::normalize(facingDirection) * 1.0f;
 
 	if (type == WOOD && playerStats.mana[1] >= WOOD_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
@@ -193,7 +193,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == METAL && playerStats.mana[0] >= METAL_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, woodProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET, rotation, woodProjExtents);
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new MetalProjectileBehaviorComponent(obj, phys, facingDirection * 3.0f, 5.0f, player->id);
 		obj->type = METAL_PROJ;
@@ -219,7 +219,7 @@ void PlayerBehaviorComponent::spawnProjectile(GameObject* player, PowerType type
 	}
 	else if (type == FIRE && playerStats.mana[3] >= FIRE_PROJ_COST) {
 		//create a new projectile, start it off at the position of the player, at the proper rotation, and give it the size of the wood projectile 
-		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET, rotation, fireProjExtents);
+		GameObject* obj = phys.makeGameObject(player->transform.position + EYES_OFFSET + FRONT_OFFSET * 2.0f, rotation, fireProjExtents);
 		//give it the behavior of a projectile object, and make it good type
 		obj->behavior = new ProjectileBehaviorComponent(obj, phys, facingDirection * fireProjSpeed, 5.0f, player->id, 2.5f);
 		obj->type = FIRE_PROJ;
