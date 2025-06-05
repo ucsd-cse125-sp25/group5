@@ -83,12 +83,12 @@ const float METAL_PROJ_COST = 20.0f;
 const float METAL_MOVE_COST = 15.0f;
 const float WOOD_PROJ_COST = 2.0f;
 const float WOOD_MOVE_COST = 20.0f;
-const float WATER_PROJ_COST = 5.0f;
+const float WATER_PROJ_COST = 2.0f;
 const float WATER_MOVE_COST = 15.0f;
 const float FIRE_PROJ_COST = 1.5f;
 const float FIRE_MOVE_COST = 20.0f;
-const float EARTH_PROJ_COST = 5.0f;
-const float EARTH_MOVE_COST = 8.0f;
+const float EARTH_PROJ_COST = 20.0f;
+const float EARTH_MOVE_COST = 10.0f;
 
 
 const float METAL_ATTACK_COOLDOWN = 0.4f;
