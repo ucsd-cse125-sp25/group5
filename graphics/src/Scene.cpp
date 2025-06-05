@@ -16,9 +16,9 @@ int WINDOWWIDTH = 1920;
 //1440
 
 float waterLevel = -2.0f;
-float fogConstant = 0.0001f;
+float fogConstant = 0.02f;
 float fogConstantW = 0.075f;
-glm::vec3 fogColor(0.35, 0.4, 0.55);
+glm::vec3 fogColor(0.3, 0.32, 0.63);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);
 
 int moonphase = 0;
@@ -714,6 +714,8 @@ void Scene::draw(Camera* cam) {
 	//ORDER GOES: 3D OBJECTS -> SKYBOX -> UI
 	skybox->draw(cam, (float*)&water->model);
 
+	//glDisable(GL_CULL_FACE);
+
 	//We will use a global shader for everything for right now
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -751,7 +753,7 @@ void Scene::draw(Camera* cam) {
 	}
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-
+	//glEnable(GL_CULL_FACE);
 
 	uimanager->draw();
 }

@@ -172,11 +172,12 @@ void main()
 {
     vec3 norm = normalize(FragNormal);
     vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 dir = viewDir; //literally the same thing, im lazy
     vec3 ambient = AmbientColor;
     vec3 texColor = istex == 1 ? vec3(texture(tex, TexCoord)) : DiffuseColor;
 
     float fogWeightW = (1.0/exp(fogConstantW*length(viewPos - FragPos)));
-    float fogWeight = (1.0/exp(fogConstant*length(viewPos - FragPos)));
+    float fogWeight = (1.0/exp(fogConstant*length(vec3(pow(sqrt(dir.x * dir.x + dir.z * dir.z), 3.0) * 30.0, sqrt(max(0, dir.y)) * 2.5, pow(sqrt(dir.x * dir.x + dir.z * dir.z), 3.0) * 30.0))));
 
     vec3 result = ambient * texColor;
     float shadow = useShadow ? ShadowCalculation(FragPosLightSpace) : 0.0;
