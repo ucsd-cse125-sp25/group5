@@ -409,6 +409,9 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		//freeze the player
 		obj->physics->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
+		//death room
+		obj->transform.position = deathPoints[obj->id];
+
 		playerStats.inAir = false;
 
 		if (deathTimer <= 0.0f) {
@@ -423,7 +426,7 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 				playerStats.mana[i] = 100.0f;
 			}
 			//set the postion of the player to same x and z, but y to 100.0f
-			obj->transform.position = glm::vec3(obj->transform.position.x, 100.0f, obj->transform.position.z);
+			obj->transform.position = glm::vec3(deathPos.x, 150.0f, deathPos.z);
 
 			//turn collider back on
 			//TODO: set extents to player defaults
@@ -432,12 +435,14 @@ void PlayerBehaviorComponent::integrate(GameObject* obj, float deltaTime, Physic
 		return;
 	}
 
-	
+	//when death first happens 
 	if (playerStats.hp <= 0 && state != PlayerMovementState::DEATH) {
 		deathTimer = DEATH_TIME;
+		//get death pos
+		deathPos = obj->transform.position;
 
 	}
-	//when death first happens 
+	
 	if (playerStats.hp <= 0) {
 		playerStats.hp = 0;
 		//set state to death, start the death timer, do tags
