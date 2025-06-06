@@ -59,7 +59,7 @@ void Camera::Update() {
         translate[3][1] = Pos.y;
         translate[3][2] = Pos.z;
 
-        //printf("Camera position is %.1f, %.1f, %.1f\n", Pos[0], Pos[1], Pos[2]);
+        printf("Camera position is %.1f, %.1f, %.1f\n", Pos[0], Pos[1], Pos[2]);
 
         world = translate * glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
 

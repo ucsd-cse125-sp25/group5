@@ -3,8 +3,26 @@
 #include <iostream>
 #include <vector>
 
-#define MAX_LIGHTS 150
+#define MAX_LIGHTS 250
 #define BINDING_POINT 0
+
+
+glm::vec3 hsvToRgb(float h, float s, float v) {
+    float c = v * s;
+    float x = c * (1 - fabsf(fmod(h * 6.0f, 2.0f) - 1));
+    float m = v - c;
+
+    glm::vec3 rgb;
+
+    if (h < 1.0f / 6.0f)      rgb = glm::vec3(c, x, 0);
+    else if (h < 2.0f / 6.0f) rgb = glm::vec3(x, c, 0);
+    else if (h < 3.0f / 6.0f) rgb = glm::vec3(0, c, x);
+    else if (h < 4.0f / 6.0f) rgb = glm::vec3(0, x, c);
+    else if (h < 5.0f / 6.0f) rgb = glm::vec3(x, 0, c);
+    else                   rgb = glm::vec3(c, 0, x);
+
+    return rgb + glm::vec3(m);
+}
 
 void Lights::init() {
 	glGenBuffers(1, &SSBO);
@@ -31,13 +49,13 @@ void Lights::init() {
             float b = 0.3f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / orangeVariance)) - orangeVariance / 2.0f;
 
             // Brighter light
-            light.diffuse = glm::vec4(1.2f * r, 1.2f * g, 1.2f * b, 1.0f);
+            light.diffuse = glm::vec4(1.0f * r, 1.0f * g, 1.0f * b, 1.0f);
             light.specular = glm::vec4(1.0f * r, 1.0f * g, 1.0f * b, 1.0f);
 
             // Make the light reach further (bigger radius)
             light.constant = 1.0f;
-            light.linear = 0.022f;      // Lower = longer reach
-            light.quadratic = 0.0019f;  // Lower = slower falloff
+            light.linear = 0.029f;      // Lower = longer reach
+            light.quadratic = 0.0016f;  // Lower = slower falloff
 
             addLight(light);
         }
@@ -46,23 +64,38 @@ void Lights::init() {
 
     while (lights.size() < MAX_LIGHTS) {
         Light light;
+        // 46.3, -14.8, -75.0
+        //-68.0, 164.5, 63.9
+        //float x = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
+        //float y = 0.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 100.0f));
+        //float z = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
+        glm::vec3 minPos(-68.0f, -14.8f, -75.0f);
+        glm::vec3 maxPos(46.3f, 164.5f, 63.9f);
 
-        float x = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
-        float y = 0.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 100.0f));
-        float z = -75.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 150.0f));
+        // Random value between 0 and 1
+        auto rand01 = []() {
+            return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+            };
+
+        float x = minPos.x + rand01() * (maxPos.x - minPos.x);
+        float y = minPos.y + rand01() * (maxPos.y - minPos.y);
+        float z = minPos.z + rand01() * (maxPos.z - minPos.z);
+
+        light.position = glm::vec4(x, y, z, 1.0f);
+
         light.position = glm::vec4(x, y, z, 1.0f);
 
         // Generate random bright color components between 0.5 and 1.0
-        float r = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
-        float g = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
-        float b = 0.5f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 0.5f));
+        float h = static_cast<float>(rand()) / RAND_MAX; // hue in [0,1]
+        glm::vec3 color = hsvToRgb(h, 1.0f, 1.0f);       // full saturation & brightness
 
-        light.diffuse = glm::vec4(0.8f * r, 0.8f * g, 0.8f * b, 1.0f);
-        light.specular = glm::vec4(1.0f * r, 1.0f * g, 1.0f * b, 1.0f);
+        light.diffuse = glm::vec4(1.5f * color, 1.0f);    // intense diffuse
+        light.specular = glm::vec4(1.0f * color, 1.0f);
+
 
         light.constant = 1.0f;
-        light.linear = 0.07f;
-        light.quadratic = 0.017f;
+        light.linear = 0.01f;
+        light.quadratic = 0.015f;
 
         addLight(light);
     }

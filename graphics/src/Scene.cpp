@@ -10,8 +10,8 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1080;
-int WINDOWWIDTH = 1920;
+int WINDOWHEIGHT = 1440;
+int WINDOWWIDTH = 2560;
 //2560
 //1440
 
@@ -206,6 +206,7 @@ void Scene::update(Camera* cam) {
 	player->UpdateParticles(client->GameState.player_stats[client->playerId], 0);
 	player->Update();
 
+
 	if((client->GameState.phase == GamePhase::WAITING || client->GameState.phase == GamePhase::PRE_GAME) && musica == -1){
 		audiomanager->PlayAudio("lobbymusic", client->playerModel[3], 0.37f);
 		musica = 0;
@@ -219,11 +220,11 @@ void Scene::update(Camera* cam) {
 		musica = 2;
 	}
 	else if (client->GameState.phase == GamePhase::POST_GAME && musica == 2 && client->GameState.lockedWinnerId == client->playerId) {
-		audiomanager->PlayAudio("postgamemusicwin", client->playerModel[3], 0.37f);
+		audiomanager->PlayAudio("postgamemusicwin", client->playerModel[3], 0.5f);
 		musica = 3;
 	}
 	else if (client->GameState.phase == GamePhase::POST_GAME && musica == 2 && client->GameState.lockedWinnerId != client->playerId) {
-		audiomanager->PlayAudio("postgamemusicloss", client->playerModel[3], 0.37f);
+		audiomanager->PlayAudio("postgamemusicloss", client->playerModel[3], 0.5f);
 		musica = 3;
 	}
 
