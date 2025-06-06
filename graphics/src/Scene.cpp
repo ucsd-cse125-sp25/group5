@@ -216,7 +216,7 @@ void Scene::update(Camera* cam) {
 		musica = 1;
 	}
 	else if (client->GameState.phase == GamePhase::IN_GAME && musica == 1 && client->GameState.time < 60) {
-		audiomanager->PlayAudio("endgamemusic", client->playerModel[3], 0.37f);
+		audiomanager->PlayAudio("endgamemusic", client->playerModel[3], 0.4f);
 		musica = 2;
 	}
 	else if (client->GameState.phase == GamePhase::POST_GAME && musica == 2 && client->GameState.lockedWinnerId == client->playerId) {
