@@ -10,13 +10,15 @@ std::vector<System*> particlesystems;
 
 extern double currTime;
 extern double startTime;
-int WINDOWHEIGHT = 1440;
-int WINDOWWIDTH = 2560;
+int WINDOWHEIGHT = 1200;
+int WINDOWWIDTH = 1920;
 //2560
 //1440
 
 float waterLevel = -2.0f;
-float fogConstant = 0.013f;
+
+//
+float fogConstant = 0.0f; // 0.013f;
 float fogConstantW = 0.075f;
 glm::vec3 fogColor(0.3, 0.32, 0.63);
 glm::vec3 fogColorW(0.1, 0.2, 0.6);

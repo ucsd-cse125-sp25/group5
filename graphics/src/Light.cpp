@@ -54,8 +54,8 @@ void Lights::init() {
 
             // Make the light reach further (bigger radius)
             light.constant = 1.0f;
-            light.linear = 0.029f;      // Lower = longer reach
-            light.quadratic = 0.0016f;  // Lower = slower falloff
+            light.linear = 0.019f;      // Lower = longer reach
+            light.quadratic = 0.0011f;  // Lower = slower falloff
 
             addLight(light);
         }
